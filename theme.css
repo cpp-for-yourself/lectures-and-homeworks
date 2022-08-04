@@ -1,0 +1,112 @@
+/* @theme custom-theme */
+
+@import 'uncover';
+@import url('https://fonts.googleapis.com/css?family=Lato:400,900|Roboto:400,700&display=swap');
+
+:root {
+    font-family: 'Roboto', sans-serif;
+    text-align: left;
+    justify-content: flex-start;
+    line-height:1.5em;
+    letter-spacing: normal;
+    width: 1280px;
+    height: 1024px;
+}
+
+code {
+    font-family: "Fira Code Medium";
+    padding-top: 3px;
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-bottom: 3px;
+    margin-left: 2px;
+    margin-right: 2px;
+}
+
+pre {
+    display: inline-block;
+    margin-left: 0.5em;
+    margin-bottom: 0.5em;
+    box-shadow: none;
+    outline: auto;
+    outline-color: #519EF0;
+}
+
+footer {
+    text-align: right;
+    position: absolute;
+    bottom: 0em;
+    right: 1.5em;
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: 50% auto;
+}
+
+blockquote p {
+    color: darkslategray;
+    text-align: right;
+    font-family: "Fira Code Medium";
+}
+
+header {
+    text-align: right;
+}
+
+svg {
+    line-height: 100%;
+}
+
+h1 {
+    color: #519EF0;
+    padding-top: 0.4em;
+    margin-bottom: 0.5em;
+    font-size: 55pt;
+    line-height:1.2em;
+}
+
+h2, h3, h4, h5, h6 {
+    color: #226699;
+    margin-bottom: 0.2em;
+    margin-top: 0.5em;
+    letter-spacing: normal;
+}
+
+ul, ol {
+    margin-top: 0.2em;
+    margin-bottom: 0.2em;
+    margin-left: 0.2em;
+}
+
+img[alt~="center"] {
+    display: block;
+    margin: 0 auto;
+}
+
+section.white h1 {
+    color: white;
+    padding-left: 0.2em;
+    padding-right: 0.2em;
+    background-color: #519EF0;
+}
+
+section.center_code pre {
+    align-items: center;
+    align-self: center;
+    margin-left: auto;
+    position: absolute;
+    top: 50%;
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
+}
+
+section.code_without_margins pre {
+    margin: 0.5em;
+}
+
+a {
+    /* color: #519EF0; */
+    color: #226699;
+    text-decoration: underline dotted;
+}
