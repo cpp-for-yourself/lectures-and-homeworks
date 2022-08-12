@@ -1,6 +1,6 @@
 # Hello homework!
 
-Your task will be to implement a C++ program that prints "Hello World!" to the terminal when run.
+Your task will be to implement a C++ program that prints "Hello World!" to the terminal when run. See the [lecture](../../lectures/1.1_hello_world_dissection.md) on this topic too!
 
 If you get lost while submitting homework, just watch the [tutorial video](https://youtu.be/Nl0u04XgxGQ) again 😉
 
