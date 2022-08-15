@@ -1,10 +1,12 @@
 /* @theme custom-theme */
 
 @import 'uncover';
-@import url('https://fonts.googleapis.com/css?family=Lato:400,900|Roboto:400,700&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Fira%20Mono:400,500,700&display=swap');
+
 
 :root {
-    font-family: 'Roboto', sans-serif;
+    font-family: 'Roboto';
     text-align: left;
     justify-content: flex-start;
     line-height:1.5em;
@@ -13,8 +15,52 @@
     height: 1024px;
 }
 
+rect.label-container {
+    fill: #eeeeee;
+    stroke:#519EF0;
+    stroke-width:2px;
+}
+
+polygon.label-container {
+    fill: #eeeeee;
+    stroke:#519EF0;
+    stroke-width:2px;
+}
+
+.label foreignObject {
+    overflow: visible;
+    display: flex;
+    padding: 2px;
+}
+
+span.nodeLabel {
+    color: black;
+}
+
+.flowchart-link {
+    stroke: darkgray;
+    fill: darkgray;
+    stroke-width: 2px;
+}
+
+path {
+    stroke: darkgray;
+    fill: darkgray;
+    stroke-width: 2px;
+}
+
+span.edgeLabel {
+    background-color: white;
+    color: black;    
+}
+
+svg {
+    zoom: 1.8;
+}
+
 code {
-    font-family: "Fira Code Medium";
+    font-family: 'Fira Mono', monospace !important;
+    font-weight: 500;
     padding-top: 3px;
     padding-left: 5px;
     padding-right: 5px;
@@ -61,7 +107,7 @@ svg {
 h1 {
     color: #519EF0;
     padding-top: 0.4em;
-    margin-bottom: 0.5em;
+    margin-bottom: 0.2em;
     font-size: 55pt;
     line-height:1.2em;
 }
@@ -106,7 +152,6 @@ section.code_without_margins pre {
 }
 
 a {
-    /* color: #519EF0; */
-    color: #226699;
+    color: #519EF0;
     text-decoration: underline dotted;
 }
