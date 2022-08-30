@@ -1,7 +1,6 @@
 ---
 marp: true
 theme: custom-theme
-footer: ![width:80px](images/C++ForYourselfIcon.png)
 
 ---
 
