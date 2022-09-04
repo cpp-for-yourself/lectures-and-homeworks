@@ -12,13 +12,13 @@ A C++ program that prints exactly the string:
 Hello World!
 ```
 
-### Where to put the solution
+## Where to put the solution
 - Work with **your fork** of the [homeworks](https://github.com/cpp-for-yourself/homeworks) repository
 - Here is the folder structure for this homework with respect to your `homeworks` repository root:
   - `homeworks/`
-    - `hello_world/`
-      - `task_1/`
+    - `homework_1/`
+      - `hello_world/`
         - `hello.cpp` <-- **put your code here!**
 
-
+---
 # Good luck! 🍀

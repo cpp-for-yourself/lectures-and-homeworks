@@ -1,33 +1,106 @@
-# Lectures
+# Lectures and homeworks
+
 
 This is a list of lectures from the [C++ for yourself](https://www.youtube.com/Codeforyourself) channel.
 
-- `1.1` Hello world program dissection: [`video`](https://youtu.be/t2h1geGSww4), [`slides`](lectures/1.1_hello_world_dissection.md), [`homework`](homeworks/1.1_hello_world_dissection/homework.md)
+## Basic C++ syntax
+
+- <details>
+  <summary>
+  <code>1.1</code>
+  Hello world program dissection: 
+  </summary>
+
+  [`[video]`](https://youtu.be/t2h1geGSww4)
+  [`[slides]`](lectures/1.1_hello_world_dissection.md)
+
   - First keywords
   - What brackets mean
   - What do different signs mean
   - Intro to "scopes"
   - Intro to functions
   - Intro to includes
-- `1.2` Variables of fundamental types: [`video`](https://youtu.be/0z0gvv_Tb_U), [`slides`](lectures/1.2_cpp_basic_types_and_variables.md)
+  </details>
+- <details>
+  <summary><code>Homework 1</code>: hello world program</summary>
+
+  [`[homework]`](homeworks/homework_1/homework.md)
+
+  - Write a simple program that prints `Hello World!`
+  - Learn to compile and run simple programs
+  </details>
+- <details>
+  <summary>
+  <code>1.2</code>
+  Variables of fundamental types: 
+  </summary>
+
+  [`[video]`](https://youtu.be/0z0gvv_Tb_U)
+  [`[slides]`](lectures/1.2_cpp_basic_types_and_variables.md)
+
   - How to create variables of fundamental types
   - Naming variables
   - Using `const`, `constexpr` with variables
   - References to variables
-- `1.3` Namespaces for variables: [`video`](https://youtu.be/cP2IDg4_BRk), [`slides`](lectures/1.3_namespaces_using.md)
+  </details>
+- <details>
+  <summary>
+  <code>1.3</code>
+  Namespaces for variables: 
+  </summary>
+
+  [`[video]`](https://youtu.be/cP2IDg4_BRk)
+  [`[slides]`](lectures/1.3_namespaces_using.md)
+
   - Namespaces with variables
   - The word `using` with variables
-- `1.4` Input/output streams: [`video`](https://youtu.be/hy3eOpZmxbY), [`slides`](lectures/1.4_io_streams.md)
+  </details>
+- <details>
+  <summary>
+  <code>1.4</code>
+  Input/output streams: 
+  </summary>
+
+  [`[video]`](https://youtu.be/hy3eOpZmxbY)
+  [`[slides]`](lectures/1.4_io_streams.md)
+
   - `std::cout`, `std::cerr`, `std::cin`
-- `1.5` Sequence and utility containers: [`video`](https://youtu.be/dwkSVkGsvFk), [`slides`](lectures/1.5_more_useful_types.md)
+  </details>
+- <details>
+  <summary>
+  <code>1.5</code>
+  Sequence and utility containers: 
+  </summary>
+
+  [`[video]`](https://youtu.be/dwkSVkGsvFk)
+  [`[slides]`](lectures/1.5_more_useful_types.md)
+
   - Sequence containers: `std::array`, `std::vector`, their usage and some caveats
   - Pair container: `std::pair`
   - Strings from STL: `std::string`
   - Convertion to/from strings: `to_string`, `stoi`, `stod`, `stof`, etc.
   - Aggregate initialization
-- `1.6` Associative containers: [`video`](https://youtu.be/TCu76SYmVCg), [`slides`](lectures/1.6_associative_containers.md)
+  </details>
+- <details>
+  <summary>
+  <code>1.6</code>
+  Associative containers: 
+  </summary>
+
+  [`[video]`](https://youtu.be/TCu76SYmVCg)
+  [`[slides]`](lectures/1.6_associative_containers.md)
+
   - `std::map` and `std::unordered_map`
   - Touch up on `std::set` and `std::unordered_set`
+  </details>
+- <details>
+  <summary><code>Homework 2</code>: fortune teller program</summary>
 
+  [`[homework]`](homeworks/homework_2/homework.md)
+
+  - Write a program that tells your C++ fortune
+  - It reads and writes data from and to terminal
+  - Stores and accesses these data in containers
+  </details>
 
 
