@@ -25,9 +25,9 @@ This is a list of lectures from the [C++ for yourself](https://www.youtube.com/C
   - Strings from STL: `std::string`
   - Convertion to/from strings: `to_string`, `stoi`, `stod`, `stof`, etc.
   - Aggregate initialization
-- `1.6` Associative containers: `video`, [`slides`](lectures/1.6_associative_containers.md)
-  - `std::map`
-  - `std::unordered_map`
+- `1.6` Associative containers: [`video`](https://youtu.be/TCu76SYmVCg), [`slides`](lectures/1.6_associative_containers.md)
+  - `std::map` and `std::unordered_map`
+  - Touch up on `std::set` and `std::unordered_set`
 
 
 
