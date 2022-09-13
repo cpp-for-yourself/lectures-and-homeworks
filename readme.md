@@ -102,5 +102,16 @@ This is a list of lectures from the [C++ for yourself](https://www.youtube.com/C
   - It reads and writes data from and to terminal
   - Stores and accesses these data in containers
   </details>
+- <details>
+  <summary>
+  <code>1.7</code>
+  Control structures: 
+  </summary>
 
+  [`[video]`](https://youtu.be/jzgTxosgGIA)
+  [`[slides]`](lectures/1.7_control_structures.md)
+
+  - `if`, `switch` and ternary operator
+  - `for`, `while` and `do ... while`
+  </details>
 
