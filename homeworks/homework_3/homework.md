@@ -45,7 +45,7 @@ You will write a C++ program that communicates with the user by using screams. I
     Your number is too big. Try again!
     ```
     Then repeat from `5.`
-8. If the user guessed the number print:
+8. If the user guessed the number, print:
     ```
     You've done it! You guessed the number N in K guesses!
     ```
@@ -71,9 +71,9 @@ Please provide the next guess: 11
 You've done it! You guessed the number 11 in 8 guesses!
 ```
 
-‼️ Note the difference in whitespaces for different inputs. It is important to match them **exactly** in order to submit the homework.
+🚨 Note the difference in whitespaces for different inputs. It is important to match them **exactly** in order to submit the homework and have a ✅ for all tasks!
 
-## What you have to implement
+## What you need to implement this
 You might have already guessed that this program will use some loops and conditional statements. You will have to play this game until the user guesses the correct number and stop the loop when they do.
 
 You will also have to check if a certain situation occurs and stop the game then.
