@@ -114,4 +114,17 @@ This is a list of lectures from the [C++ for yourself](https://www.youtube.com/C
   - `if`, `switch` and ternary operator
   - `for`, `while` and `do ... while`
   </details>
+- <details>
+  <summary>
+  Random number generation: 
+  </summary>
+
+  [`[video]`](https://youtu.be/IUoqMTGGo6k)
+  [`[slides]`](lectures/random_numbers.md)
+
+  - What are random numbers
+  - How to generate them in modern C++
+  - Why not to use `rand()`
+  </details>
+
 

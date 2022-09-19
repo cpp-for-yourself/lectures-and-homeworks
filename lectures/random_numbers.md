@@ -11,7 +11,7 @@ footer: ![width:80px](images/C++ForYourselfIcon.png)
 - How to generate random numbers in modern C++
 - What's wrong with `rand()`
 
-### 📺 Watch the related [YouTube video](blah)! 
+### 📺 Watch the related [YouTube video](https://youtu.be/IUoqMTGGo6k)! 
 
 ---
 # Special symbols used in slides
