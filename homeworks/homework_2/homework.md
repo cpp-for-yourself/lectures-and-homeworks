@@ -5,10 +5,10 @@ Your task here is to implement a fortune teller program. It will receive some in
 😅 If you get stuck, discuss it in [GitHub Discussions](https://github.com/orgs/cpp-for-yourself/discussions/categories/homeworks-q-a).
 
 ## Prerequisites
-- [Fundamental types and variables](../../lectures/1.2_cpp_basic_types_and_variables.md)
-- [I/O streams](../../lectures/1.4_io_streams.md)
-- [Sequence containers](../../lectures/1.5_more_useful_types.md)
-- [Associative containers](../../lectures/1.6_associative_containers.md)
+- [Fundamental types and variables](../../lectures/cpp_basic_types_and_variables.md)
+- [I/O streams](../../lectures/io_streams.md)
+- [Sequence containers](../../lectures/more_useful_types.md)
+- [Associative containers](../../lectures/associative_containers.md)
 
 If you get lost while submitting homework, just watch the [tutorial video](https://youtu.be/Nl0u04XgxGQ) again 😉
 
