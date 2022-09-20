@@ -18,7 +18,7 @@ footer: ![width:80px](images/C++ForYourselfIcon.png)
 
 ---
 # Prerequisites:
-- [Hello world dissection lecture](1.1_hello_world_dissection.md)
+- [Hello world dissection lecture](hello_world_dissection.md)
 
 ---
 # Special symbols used in slides

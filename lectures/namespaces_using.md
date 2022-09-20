@@ -13,8 +13,8 @@ footer: ![width:80px](images/C++ForYourselfIcon.png)
 
 ---
 # Prerequisites:
-- [Hello world dissection lecture](1.1_hello_world_dissection.md)
-- [Variables of fundamental types](1.2_cpp_basic_types_and_variables.md)
+- [Hello world dissection lecture](hello_world_dissection.md)
+- [Variables of fundamental types](cpp_basic_types_and_variables.md)
 
 ---
 # Special symbols used in slides
