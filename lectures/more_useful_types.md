@@ -22,8 +22,8 @@ We're gonna talk about it a lot!
 
 ---
 # Prerequisites:
-- [Variables of fundamental types](1.2_cpp_basic_types_and_variables.md)
-- [Namespaces and using](1.3_namespaces_using.md)
+- [Variables of fundamental types](cpp_basic_types_and_variables.md)
+- [Namespaces and using](namespaces_using.md)
 - [Input output streams](1.4_io_streams.md)
 
 ---

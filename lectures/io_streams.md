@@ -15,8 +15,8 @@ We're gonna talk about it a lot!
 ---
 # Prerequisites:
 - Working with terminal
-- [Hello world dissection](1.1_hello_world_dissection.md)
-- [Variables of fundamental types](1.2_cpp_basic_types_and_variables.md)
+- [Hello world dissection](hello_world_dissection.md)
+- [Variables of fundamental types](cpp_basic_types_and_variables.md)
 
 ---
 
