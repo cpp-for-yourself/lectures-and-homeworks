@@ -26,13 +26,13 @@ Hello World!
 ---
 # Here is what we can learn from it
 
-- [Some keywords](1.1_hello_world_dissection.md#some-words-and-symbols-are-more-special-than-other-🦄) like `return` or `int` _(and many more!)_
+- [Some keywords](hello_world_dissection.md#some-words-and-symbols-are-more-special-than-other-🦄) like `return` or `int` _(and many more!)_
 - Constants like `"Hello World!"` and `0`
-- [Lots of whitespaces!](1.1_hello_world_dissection.md#whitespaces-mostly-play-no-role)
-- [Different brackets:](1.1_hello_world_dissection.md#what-are-all-those-brackets-about)  `{}`, `()`, `<>`
-- [Signs with special meaning:](1.1_hello_world_dissection.md#the--is-not-just-for-social-networks) `#`, `;`, `//`
+- [Lots of whitespaces!](hello_world_dissection.md#whitespaces-mostly-play-no-role)
+- [Different brackets:](hello_world_dissection.md#what-are-all-those-brackets-about)  `{}`, `()`, `<>`
+- [Signs with special meaning:](hello_world_dissection.md#the--is-not-just-for-social-networks) `#`, `;`, `//`
 - Includes like `#include <stdio.h>`
-- [Functions](1.1_hello_world_dissection.md#functions-elevator-pitch) like `puts` and `main`
+- [Functions](hello_world_dissection.md#functions-elevator-pitch) like `puts` and `main`
 
 ## Let's dig into all of these!
 ## 📺 Watch the related [YouTube video](https://youtu.be/t2h1geGSww4)! 
