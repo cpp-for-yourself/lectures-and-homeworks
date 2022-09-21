@@ -8,7 +8,11 @@ footer: ![width:80px](images/C++ForYourselfIcon.png)
 # Functions introduction
 
 #### Today:
-- TODO
+- What is a function
+- Declaration and definition
+- Passing by reference
+- Overloading
+- Using default arguments
 
 ### 📺 Watch the related [YouTube video](blah)! 
 
@@ -27,22 +31,48 @@ footer: ![width:80px](images/C++ForYourselfIcon.png)
 Style (🎨) and software design (🎓) recommendations mostly come from [Google Style Sheet](https://google.github.io/styleguide/cppguide.html) and the [CppCoreGuidelines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines)
 
 ---
-# Functions
-- Code can be organized into functions that look like this:
+# Organize your code in Functions!
+- Code can be organized into functions that look smth like this:
   ```cpp
-  ReturnType FuncName(ParamType1 in_1, ParamType2 in_2) {
+  ReturnType DoSmth(ParamType1 in_1, ParamType2 in_2) {
     // Some awesome code here.
     return return_value;
   }
   ```
 - Functions **create a [scope](1.2_cpp_basic_types_and_variables.md#all-variables-live-in-scopes)**
+- A function is fully defined by its name and argument types
 - There is a **single return value** from a function
-- If the `ReturnType` is `void` --- no `return` is needed
+- If the `ReturnType` is `void` --- no `return` is required
 - 🎓‼️ [**Write short functions**](https://google.github.io/styleguide/cppguide.html#Write_Short_Functions) --- they must do **one thing only**
 - 🎨 Name **must** show what the function does
 - 🎨 Name functions in `CamelCase`
 - 🎨 Use `snake_case` for all function arguments
-- 🎨 Name should have a verb in it
+- 🎨 Function name should have a verb in it
+
+---
+# ✅ Use `[[nodiscard]]` attribute
+- 🔼1️⃣7️⃣ You can use it like this:
+  ```cpp
+  [[nodiscard]] double DoSmth(double input) { 
+    return input * input; 
+  }
+  int main() { DoSmth(42.0); }
+  ```
+- Forces the output of the function to actually be used
+- When we compile the above we get:
+  ```cmd
+  λ › c++ -std=c++17 -O3 -o test test.cpp  
+  test.cpp:3:14: warning: ignoring return value of function 
+  declared with 'nodiscard' attribute [-Wunused-result]
+  int main() { DoSmth(2.0); }
+              ^~~~~~ ~~~
+  1 warning generated.
+  ```
+- No warning if result is actually used:
+  ```cpp
+  auto smth = DoSmth(42.0);
+  ```
+- Helps to avoid logical errors while programming
 
 ---
 # Good function example
@@ -50,8 +80,9 @@ Style (🎨) and software design (🎓) recommendations mostly come from [Google
 #include <vector>
 using std::vector;
 
-vector<int> CreateFibonacciSequence(std::size_t length) {
-  // Vector of size `length`, filled with 0s.
+[[nodiscard]] vector<int> 
+CreateFibonacciSequence(std::size_t length) {
+  // Vector of size `length`, filled with 1s.
   vector<int> result(length, 1);
   if (length < 3) { return result; }
   for (auto i = 2UL; i < length; ++i) {
@@ -59,16 +90,15 @@ vector<int> CreateFibonacciSequence(std::size_t length) {
   }
   return result;
 }
-
 int main() {
   const auto fibonacci_sequence = CreateFibonacciSequence(10UL);
   // Do something with fibonacci_sequence.
   return 0;
 }
 ```
-- Is small enough to see all the code at once
-- Name clearly states what the function does
-- Function **does a single thing**
+- ✅ Is small enough to see all the code at once
+- ✅ Name clearly states what the function does
+- ✅ Conceptually, does a single thing only
 
 ---
 # :scream: Bad function example
@@ -90,31 +120,34 @@ int main() {
   return 0;
 }
 ```
-- Name of the function means nothing
-- Names of variables mean nothing
-- Function does not have a single purpose
-- It is **really** hard to understand what it does at a glance!
+- :scream: It is **really** hard to understand what it does at a glance!
+- :scream: Name of the function means nothing
+- :scream: Names of variables mean nothing
+- :scream: Function does not have a single purpose
 
 ---
 # Declaration vs definition
 - Function declaration can be separated from the implementation details
 - Function **declaration** sets up an interface
+- Function **definition** holds the implementation of the function that can even be hidden from the user (stay tuned)
   ```cpp
-  void FuncName(int param);
-  ```
-- Function **definition** holds the implementation of the function that can even be hidden from the user
-  ```cpp
-  void FuncName(int param) {
+  void FuncName();  // Ends with a ";"
+
+  // Somewhere further in the code.
+  void FuncName() {
     // Implementation details.
     cout << "This function is called FuncName! ";
     cout << "Did you expect anything useful from it?";
   }
   ```
+- The name, the argument types (including `&`, `const` etc.) 
+  and the return type have to be **exactly** the same
 
 ---
 # Passing big objects
-- By default in C++, objects are copied when passed into functions
-- If objects are big (i.e., **not** [fundamental](1.2_cpp_basic_types_and_variables.md#variables-of-fundamental-types)) it might be slow
+- Objects are copied by default when passed into functions
+  (the compiler can sometimes avoid the copy, stay tuned)
+- If objects are big (i.e., **not** [fundamental](1.2_cpp_basic_types_and_variables.md#variables-of-fundamental-types)) copying is slow
 - **Pass by reference** to avoid copying lots of data
   ```cpp
   void DoSmth(std::string huge_string);          // Slow.
@@ -137,7 +170,7 @@ I'll change the function `fillCup` to `Fill` in the examples
 
 ### Pass by reference:
 - `void Fill(Cup &cup);`
-- `cup` is full afterwards
+- The object that `cup` references is full afterwards
   
 </div>
 
@@ -145,8 +178,8 @@ I'll change the function `fillCup` to `Fill` in the examples
 
 ### Pass by value:
 - `void Fill(Cup cup);`
-- A **copy** of `cup` is full
-- `cup` is still empty
+- A **copy** `cup` of the original object is full
+- The original is still empty
   
 </div>
 
@@ -159,32 +192,51 @@ I'll change the function `fillCup` to `Fill` in the examples
   ```cpp
   void DoSmth(const std::string& huge_string);
   ```
-- Non-`const` references are mostly used in older code written before C++11
-- 🔼1️⃣1️⃣ Returning from function is _mostly_ fast
-- 🔼1️⃣7️⃣ Returning from function is _always_ fast
+- Non-`const` references are mostly used in older code written before C++11, often for performance reasons
+- Most of the times these reasons do not hold in modern C++
+- 🔼1️⃣1️⃣ Returning an object from function is **mostly** fast
+- 🔼1️⃣7️⃣ Returning an object from function is **always** fast
 - 🎓🎨 Avoid using non-`const` references, see [Google style](https://google.github.io/styleguide/cppguide.html#Inputs_and_Outputs)
-- 💡 Sometimes passing by non-const reference is still faster than returning from a function. Measure before doing this!
+- 💡 Sometimes passing by non-const reference is still faster than returning an object from a function 
+  **Measure before doing this!**
+
+---
+# :scream: Never return a reference to a function-local object
+- Objects created in a function live within its scope
+- When function ends, all its variables die
+- Returning a reference to a local object leads to UB:
+  ```cpp
+  int& ReallyNastyFunction() {
+    int local_variable{};
+    return local_variable;  // 😱 Don't do this!
+  }
+  ```
+- Modern compilers will warn about it
+- **Always** make sure your program compiles without warnings!
 
 
 ---
-# Function overloading
-- Compiler infers a function from arguments
-- Cannot overload based on return type
-- Return type plays no role at all
+# Function overloading - writing functions with the same names
+- Compiler infers which function to call from input arguments
+- We cannot overload based on return type
+- Return type is not part of the function signature
   ```cpp
   #include <iostream>
   #include <string>
   using std::cout;
   using std::endl;
-  std::string Func(int num) { return "int"; }
-  std::string Func(const std::string& str) { return "string"; }
+  using std::string;
+  string GetNames(int num) { return "int"; }
+  string GetNames(const string& str) { return "string"; }
+  string GetNames(int num, float other) { return "int_float"; }
   int main() {
-    cout << Func(1) << endl;
-    cout << Func("hello") << endl;
+    cout << GetNames(1) << endl;
+    cout << GetNames("hello") << endl;
+    cout << GetNames(42, 42.0F) << endl;
     return 0;
   }
   ```
-- 🎓 [Avoid non-obvious overloads](https://google.github.io/styleguide/cppguide.html#Function_Overloading)
+- 🎓 [All overloads should do semantically the same thing](https://google.github.io/styleguide/cppguide.html#Function_Overloading)
 
 ---
 # 🤔 Use default arguments?
@@ -194,6 +246,7 @@ I'll change the function `fillCup` to `Fill` in the examples
   - Evaluated upon every call
   - Values are hidden in declaration
   - Can lead to unexpected behavior when overused
+  - Gets confusing when having overloaded functions
 - 🎓 [Only use them when readability gets much better](https://google.github.io/styleguide/cppguide.html#Default_Arguments)
 
 
@@ -208,6 +261,7 @@ string SayHello(const string& to_whom = "world") {
   return "Hello " + to_whom + "!";
 }
 int main() {
+  // 🤔 This is a good example how it can get confusing.
   cout << SayHello() << endl;
   cout << SayHello("students") << endl;
   return 0;
@@ -215,6 +269,6 @@ int main() {
 ```
 
 ---
-# Talk about `noexcept`
-Maybe?
----
+
+
+![bg](https://fakeimg.pl/1280x1024/226699/fff/?text=Good%20luck!&font=bebas)

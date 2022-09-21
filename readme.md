@@ -149,6 +149,20 @@ Enjoy! 😎
     - Print statements
     - `lldb` debugger
   </details>
+- <details>
+  <summary>
+  Functions 
+  </summary>
+
+  [`[video]`](blah)
+  [`[slides]`](lectures/functions.md)
+
+  - What is a function
+  - Declaration and definition
+  - Passing by reference
+  - Overloading
+  - Using default arguments
+  </details>
 
 ## PS :wink:
 Most of the code snippets are validated automatically. If you do find an error in some of those, please open an issue in this repo!
