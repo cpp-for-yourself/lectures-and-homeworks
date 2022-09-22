@@ -6,8 +6,8 @@ Your task here is to implement a program that will generate a random number and 
 
 ## Prerequisites
 - Everything you needed for the [Homework 2](../homework_2/homework.md)
-- [Control structures lecture](../../lectures/1.7_control_structures.md)
-- [Random number generation](todo)
+- [Control structures lecture](../../lectures/control_structures.md)
+- [Random number generation](../../lectures/random_numbers.md)
 
 If you get lost while submitting homework, just watch the [tutorial video](https://youtu.be/Nl0u04XgxGQ) again 😉
 
