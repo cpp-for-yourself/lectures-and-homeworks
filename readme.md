@@ -126,5 +126,14 @@ Enjoy! 😎
   - How to generate them in modern C++
   - Why not to use `rand()`
   </details>
+- <details>
+  <summary><code>Homework</code>: the guessing game</summary>
+  
+  [`[video]`](https://youtu.be/TYs_xwihCNc)
+  [`[homework]`](homeworks/homework_3/homework.md)
 
+  - A program that generates a number
+  - The user guesses this number
+  - The program tells the user if they are above or below with their guess (or if they've won)
+  </details>
 
