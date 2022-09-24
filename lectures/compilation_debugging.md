@@ -42,8 +42,7 @@ Style (🎨) and software design (🎓) recommendations mostly come from [Google
 - Optimization options:
   - `-O0` - no optimization `[default]`
   - `-O3` - full optimization `[preferred]`
-- Keep debugging symbols: `-g` (use with `-O0`)
-- :bulb: Play with it using Compiler Explorer: https://godbolt.org/
+- Keep debugging symbols: `-g` (usually used with `-O0`)
 
 ---
 # Debugging your code
