@@ -5,11 +5,12 @@ theme: custom-theme
 footer: ![width:80px](images/C++ForYourselfIcon.png)
 ---
 
-# Control structures
+# Compilation flags and debugging
 
 #### Today:
-- `if` statements and ternary operator
-- Loops: `for` and `while`
+- What other compilation flags exist
+- What compilation flags to use
+- How to debug code
 
 ### 📺 Watch the related [YouTube video](blah)! 
 
@@ -83,9 +84,9 @@ Style (🎨) and software design (🎓) recommendations mostly come from [Google
 - There are some tools built on top of GDB to fix this:
   - [`gdbgui`](https://gdbgui.com/) is a Python tool that provides a web GUI for GDB
   - VSCode C++ extension provides a GUI for the debugger
-
+- I rarely use a debugger and when I do I use `lldb`/`gdb`
 ---
-# Let's debug a simple program!
+# Exercise: debug a simple program!
 :x: Beware it has an error!
 ```cpp
 #include <iostream>
@@ -102,7 +103,53 @@ Once we run the program it crashes at some point:
 ```css
 [1]    74786 segmentation fault  ./program
 ```
-
+---
+# Using print statements
+```cpp
+#include <iostream>
+#include <vector>
+int main() {
+  std::vector<int> numbers{1, 2, 3};
+  int count{};  // <- Count used for debugging
+  for (auto i = numbers.size(); i >= 0; --i) {
+    std::cerr << "i = " << i << std::endl;  // <- Debug print
+    std::cout << numbers[i] << std::endl;
+    if (count++ > 10) {break;}  // -> Early exit
+  }
+  return 0;
+}
+```
+- We can see smth like this on `stderr`:
+  ```
+  i = 3
+  i = 2
+  i = 1
+  i = 0
+  i = 18446744073709551615
+  ```
+- Now we can guess what happens, here is a [hint](cpp_basic_types_and_variables.md#be-careful-with-unsigned-integers) :wink:
+---
+# Using `lldb` (or `gdb`)
+- Recompile the code with `-g -O0` flags
+- Start the code in the debugger:
+  ```cmd
+  λ › lldb ./program
+  (lldb) target create "./program"
+  Current executable set to '/private/tmp/program' (arm64).
+  (lldb) r
+  ```
+- When it fails, `lldb` shows us **where** it fails
+- To find out **why** we will add a breakpoint
+  ```
+  (lldb) breakpoint set --file program.cpp --line 6
+  ```
+- Restart by typing `r`, the execution will stop at breakpoint
+- We now add a `watch` on the variable `i`
+  ```
+  (lldb) watch set var i
+  ```
+- Repeatedly enter `c` and press <kbd>⏎</kbd> until the [issue](cpp_basic_types_and_variables.md#be-careful-with-unsigned-integers) is found
+- Full [tutorial](https://lldb.llvm.org/use/tutorial.html) directly from `lldb`
 ---
 
 
