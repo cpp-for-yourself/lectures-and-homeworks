@@ -40,7 +40,7 @@ Style (🎨) and software design (🎓) recommendations mostly come from [Google
   `-Wimplicit-fallthrough`, `-Wsign-conversion`, etc.
 - Optimization options:
   - `-O0` - no optimization `[default]`
-  - `-O3` - full optimization
+  - `-O3` - full optimization `[preferred]`
 - Keep debugging symbols: `-g` (use with `-O0`)
 - :bulb: Play with it using Compiler Explorer: https://godbolt.org/
 
@@ -61,20 +61,20 @@ Style (🎨) and software design (🎓) recommendations mostly come from [Google
 - Just add any printout statements to your code
 - I usually use a form of a print statement shown below:
     ```cpp
-    std::cerr << __FILE__ << ":" << __LINE__ << std::endl;
+    cerr << __FILE__ << ":" << __LINE__ << ": " << value << endl;
     ```
 - This will print the filename and a line where its called
-- We can also print the value of interest at any point
+- We can also print a `value` of interest at any point
 - Usually requires to recompile only part of the program
-- Forces us to:
+- **Typical workflow:**
   - Observe the behavior
   - Form a hypothesis of what is wrong
   - Try a fix and repeat until problem is solved
-
+- This workflow forces us **to understand** the problem before rushing into trying a solution
 ---
 # Using a debugger
 - Allows stopping a program at a point and looking around
-- Requires **debug symbols** (`-g` flag), needs full recompilation
+- Requires **debug symbols** (`-g` flag), needs **full** recompilation
 - Might be confusing with optimizations enabled
 - Best program to use is probably `lldb` or `gdb`
 - Insanely popular and powerful (and already installed :wink:)
@@ -82,11 +82,26 @@ Style (🎨) and software design (🎓) recommendations mostly come from [Google
 - No built-in gui :cry:
 - There are some tools built on top of GDB to fix this:
   - [`gdbgui`](https://gdbgui.com/) is a Python tool that provides a web GUI for GDB
-  - VSCode C++ extension uses gdb under the hood for its debugger
+  - VSCode C++ extension provides a GUI for the debugger
 
-<!-- We might want to do live coding here
-- Create a vector and set a value beyond bounds
-- Run this code in lldb and show the backtrace -->
+---
+# Let's debug a simple program!
+:x: Beware it has an error!
+```cpp
+#include <iostream>
+#include <vector>
+int main() {
+  std::vector<int> numbers{1, 2, 3};
+  for (auto i = numbers.size(); i >= 0; --i) {
+    std::cout << numbers[i] << std::endl;
+  }
+  return 0;
+}
+```
+Once we run the program it crashes at some point:
+```css
+[1]    74786 segmentation fault  ./program
+```
 
 ---
 
