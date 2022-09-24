@@ -2,7 +2,8 @@
 marp: true
 math: katex
 theme: custom-theme
-footer: ![width:80px](images/C++ForYourselfIcon.png)
+paginate: true
+# footer: ![width:80px](images/C++ForYourselfIcon.png)
 ---
 
 # Functions introduction
@@ -31,46 +32,69 @@ footer: ![width:80px](images/C++ForYourselfIcon.png)
 Style (🎨) and software design (🎓) recommendations mostly come from [Google Style Sheet](https://google.github.io/styleguide/cppguide.html) and the [CppCoreGuidelines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines)
 
 ---
-# Organize your code in Functions!
-- Code can be organized into functions that look smth like this:
+# Function help organize the code
+- Functions look smth like this:
   ```cpp
   ReturnType DoSmth(ParamType1 in_1, ParamType2 in_2) {
     // Some awesome code here.
     return return_value;
   }
   ```
+- We can then call such a function as follows:
+  ```cpp
+  const auto smth = DoSmth(param1, param2);
+  ```
+- Functions **split** execution into logical chunks
+- They **bundle common functionality** together
+- They also keep the overall project code **readable**
+- 🎓 You might have heard about the [**DRY**](https://en.wikipedia.org/wiki/Don%27t_repeat_yourself) principle:
+  - Stands for **D**on't **R**epeate **Y**ourself
+  - Impossible without functions in C++
+---
+# Some technical details
 - Functions **create a [scope](1.2_cpp_basic_types_and_variables.md#all-variables-live-in-scopes)**
-- A function is fully defined by its name and argument types
+- A function is fully defined by:
+  - Its name
+  - Its return type
+  - Its parameter types
+  - Qualifiers (more on this later)
 - There is a **single return value** from a function
-- If the `ReturnType` is `void` --- no `return` is required
-- 🎓‼️ [**Write short functions**](https://google.github.io/styleguide/cppguide.html#Write_Short_Functions) --- they must do **one thing only**
-- 🎨 Name **must** show what the function does
+- There can be multiple `return` statements in a function
+- The function stops when a `return` statement is reached
+- If the return type is `void` --- no explicit `return` required
+
+---
+# How to write good functions
+- 🎓🚨 [**Write short functions**](https://google.github.io/styleguide/cppguide.html#Write_Short_Functions) --- they must do **one thing only**
+- :bulb: If your function has too many parameters, think if it does too much! You might want to split it into multiple functions!
+- 🎨 Function name should describe an action
+- 🎨 Name must clearly state **what the function does**
 - 🎨 Name functions in `CamelCase`
 - 🎨 Use `snake_case` for all function arguments
-- 🎨 Function name should have a verb in it
+
 
 ---
 # ✅ Use `[[nodiscard]]` attribute
 - 🔼1️⃣7️⃣ You can use it like this:
   ```cpp
-  [[nodiscard]] double DoSmth(double input) { 
+  [[nodiscard]] double SquareNumber(double input) { 
     return input * input; 
   }
-  int main() { DoSmth(42.0); }
+  int main() { SquareNumber(42.0); }  // ❌ generates warning
   ```
 - Forces the output of the function to actually be used
 - When we compile the above we get:
-  ```cmd
+  ```css
   λ › c++ -std=c++17 -O3 -o test test.cpp  
   test.cpp:3:14: warning: ignoring return value of function 
   declared with 'nodiscard' attribute [-Wunused-result]
-  int main() { DoSmth(2.0); }
+  int main() { SquareNumber(2.0); }
               ^~~~~~ ~~~
   1 warning generated.
   ```
 - No warning if result is actually used:
   ```cpp
-  auto smth = DoSmth(42.0);
+  auto smth = SquareNumber(42.0);
   ```
 - Helps to avoid logical errors while programming
 
@@ -122,7 +146,7 @@ int main() {
 ```
 - :scream: It is **really** hard to understand what it does at a glance!
 - :scream: Name of the function means nothing
-- :scream: Names of variables mean nothing
+- :scream: Names of the variables mean nothing
 - :scream: Function does not have a single purpose
 
 ---
@@ -147,23 +171,19 @@ int main() {
 # Passing big objects
 - Objects are copied by default when passed into functions
   (the compiler can sometimes avoid the copy, stay tuned)
-- If objects are big (i.e., **not** [fundamental](1.2_cpp_basic_types_and_variables.md#variables-of-fundamental-types)) copying is slow
-- **Pass by reference** to avoid copying lots of data
+- **Quick for small objects** (e.g., [fundamental](1.2_cpp_basic_types_and_variables.md#variables-of-fundamental-types) types)
+- **Slow for bigger objects** (usually any other type)
+- ✅ **Pass bigger objects by reference** to avoid copying!
   ```cpp
-  void DoSmth(std::string huge_string);          // Slow.
-  void DoSmthWithRef(std::string& huge_string);  // Faster.
+  void DoSmthSmall(float number);                // Ok ✅
+  void DoSmthBig(std::string huge_string);       // Slow 😱
+  void DoSmthWithRef(std::string& huge_string);  // Faster
   ```
-- Is the string still the same?
-  ```cpp
-  std::string hello = "some_important_long_string";
-  DoSmthWithRef(hello);
-  ```
-- :scream: **Unknown** without looking into `DoSmthWithRef` code!
 
 ---
-![center width:800](images/pass_by_ref.gif)
+# What is passing by reference?
 
-I'll change the function `fillCup` to `Fill` in the examples
+![center width:800](images/pass_by_ref.gif)
 
 <div class="grid-container">
 <div>
@@ -182,13 +202,50 @@ I'll change the function `fillCup` to `Fill` in the examples
 - The original is still empty
   
 </div>
+</div>
 
+---
+# Do you see any problems?
+Is the string `hello` still the same after calling the function?
+```cpp
+void DoSmthWithRef(std::string& huge_string);
+
+std::string hello = "some_important_long_string";
+DoSmthWithRef(hello);
+// 🤔 Is hello the same here?
+```
+
+<div class="grid-container">
+<div>
+
+### Could be the same:
+```cpp
+void DoSmthWithRef(hello) {
+  print(hello);
+}
+```
+
+</div>
+
+<div>
+
+### Could be changed:
+```cpp
+void DoSmthWithRef(hello) {
+  hello.clear();
+}
+```
+  
+</div>
+</div>
+
+### 😱 Value of `hello` unknown without reading the function implementation!
 
 ---
 # Solution: use const references
-- Pass `const` reference to the function
+- Pass a `const` reference to the function!
 - Great speed as we pass a reference
-- Passed object stays intact, guaranteed!
+- Passed object stays intact, guaranteed because it's `const`!
   ```cpp
   void DoSmth(const std::string& huge_string);
   ```
@@ -217,9 +274,8 @@ I'll change the function `fillCup` to `Fill` in the examples
 
 ---
 # Function overloading - writing functions with the same names
-- Compiler infers which function to call from input arguments
+- Compiler infers which function to call from input parameters
 - We cannot overload based on return type
-- Return type is not part of the function signature
   ```cpp
   #include <iostream>
   #include <string>
@@ -240,6 +296,10 @@ I'll change the function `fillCup` to `Fill` in the examples
 
 ---
 # 🤔 Use default arguments?
+- Default parameters have a default value:
+  ```cpp
+  void DoSmth(int number = 42);
+  ```
 - Only **set in declaration** not in definition
 - **Pros:** simplify _some_ function calls
 - **Cons:**
