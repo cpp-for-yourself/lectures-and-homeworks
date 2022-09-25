@@ -8,3 +8,12 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - uses: gaurav-nelson/github-action-markdown-link-check@v1
+  
+  check-snippet-compilation:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Check that all snippets compile
+      run: python3 scripts/validate_code_snippets.py

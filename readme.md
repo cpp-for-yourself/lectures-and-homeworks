@@ -80,7 +80,7 @@ Enjoy! 😎
   - Sequence containers: `std::array`, `std::vector`, their usage and some caveats
   - Pair container: `std::pair`
   - Strings from STL: `std::string`
-  - Convertion to/from strings: `to_string`, `stoi`, `stod`, `stof`, etc.
+  - Conversion to/from strings: `to_string`, `stoi`, `stod`, `stof`, etc.
   - Aggregate initialization
   </details>
 - <details>
@@ -137,3 +137,6 @@ Enjoy! 😎
   - The program tells the user if they are above or below with their guess (or if they've won)
   </details>
 
+
+## PS :wink:
+Most of the code snippets are validated automatically. If you do find an error in some of those, please open an issue in this repo!

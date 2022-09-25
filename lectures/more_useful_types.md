@@ -51,10 +51,29 @@ Style (🎨) and software design (🎓) recommendations mostly come from [Google
 # Store value pairs in `std::pair`
 - `#include <utility>` to use [`std::pair`](https://en.cppreference.com/w/cpp/utility/pair)
 - Allows storing values of two types `std::pair<T1, T2>`
+  <!--
+  `CPP_SETUP_START`
+  #include <utility>
+  #include <string>
+  int main() {
+    $PLACEHOLDER
+    return 0;
+  }
+  `CPP_SETUP_END`
+  -->
   ```cpp
   std::pair<int, std::string> pair{42, "The answer"};
   ```
 - 🔼1️⃣7️⃣ The types will be guessed by the compiler:
+  <!--
+  `CPP_SETUP_START`
+  #include <utility>
+  int main() {
+    $PLACEHOLDER
+    return 0;
+  }
+  `CPP_SETUP_END`
+  -->
   ```cpp
   std::pair pair{42, "The answer"};
   ```
@@ -148,13 +167,23 @@ int main() {
 - `reserve(n)` allocates enough memory to store `n` items but **does not change** the `size()` of the vector
 - This is a very **important optimization**
 - Do it if you know (even just approximately) the number of elements you plan to add in advance
+  <!--
+  `CPP_SETUP_START`
+  #include <vector>
+  #include <string>
+  int main() {
+    $PLACEHOLDER
+    return 0;
+  }
+  `CPP_SETUP_END`
+  -->
   ```cpp
   // Somewhere in some function
   std::vector<std::string> vec;
   const int number_of_iterations = 100;
   // Always call reserve when you know the size.
   vec.reserve(number_of_iterations);
-  for (int i = 0; i < kIterNum; ++i) {
+  for (int i = 0; i < number_of_iterations; ++i) {
     vec.emplace_back("hello");
   }
   ```
@@ -219,7 +248,15 @@ int main() {
   - [`std::stod`](https://en.cppreference.com/w/cpp/string/basic_string/stof) --- `std::string` $\rightarrow$ `double`
   - [`std::stoul`](https://en.cppreference.com/w/cpp/string/basic_string/stoul) --- `std::string` $\rightarrow$ `unsigned long`
   - There are more flavors (click the links :wink:)
-
+<!--
+`CPP_SETUP_START`
+#include <string>
+int main() {
+  $PLACEHOLDER
+  return 0;
+}
+`CPP_SETUP_END`
+-->
 ```cpp
 // Somewhere in some function
 const int starting_number{42};
@@ -238,6 +275,15 @@ int another_number{std::stoi("42 is the number")};
 - Be careful when creating containers with strings:
   **Reason:** compiler will use C-style `char` arrays instead of `std::string` as a storage type
 - 💡 `std::vector` has a special 2-element constructor:
+  <!--
+  `CPP_SETUP_START`
+  #include <vector>
+  int main() {
+    $PLACEHOLDER
+    return 0;
+  }
+  `CPP_SETUP_END`
+  -->
   ```cpp
   const std::size_t size{10};
   const int content{42};
@@ -259,12 +305,31 @@ int another_number{std::stoi("42 is the number")};
 - 🚨 We **must** use `auto`
 - Also supports `const` and references (`&`)
 - Example with `std::array`:
+  <!--
+  `CPP_SETUP_START`
+  #include <array>
+  int main() {
+    $PLACEHOLDER
+    return 0;
+  }
+  `CPP_SETUP_END`
+  -->
   ```cpp
   const std::array arr{1, 2, 3};
   // Initialize a = 1, b = 2, c = 3
   const auto [a, b, c] = arr;
   ```
 - Example with `std::pair`:
+  <!--
+  `CPP_SETUP_START`
+  #include <utility>
+  #include <string>
+  int main() {
+    $PLACEHOLDER
+    return 0;
+  }
+  `CPP_SETUP_END`
+  -->
   ```cpp
   using std::string_literals::operator""s;
   const std::pair pair{"Hello"s, "World"s};

@@ -29,6 +29,16 @@ Style (🎨) and software design (🎓) recommendations mostly come from [Google
 
 ---
 # If statement
+<!--
+`CPP_SETUP_START`
+int main() {
+  bool STATEMENT{};
+  bool OTHER_STATEMENT{};
+  $PLACEHOLDER
+  return 0;
+}
+`CPP_SETUP_END`
+-->
 ```cpp
 if (STATEMENT) {
   // This is executed if STATEMENT == true
@@ -43,6 +53,18 @@ if (STATEMENT) {
 - All the `else` cases can be omitted if needed
 - `STATEMENT` can be **any boolean expression**
 - 💡 Curly brackets can be omitted for single-line statements
+  <!--
+  `CPP_SETUP_START`
+  
+  inline void DoThis(){}
+  
+  int main() {
+    bool STATEMENT{};
+    $PLACEHOLDER
+    return 0;
+  }
+  `CPP_SETUP_END`
+  -->
   ```cpp
   if (STATEMENT)
     DoThis();
@@ -55,11 +77,33 @@ if (STATEMENT) {
 
 - There is a short-hand version of writing an if statement
 - Let's look at an example
+  <!--
+  `CPP_SETUP_START`
+  inline bool GetRandomTrueOrFalse() {return false;}
+  inline void CallIfTrue() {}
+  inline void CallIfFalse() {}
+  int main() {
+    $PLACEHOLDER
+    return 0;
+  }
+  `CPP_SETUP_END`
+  -->
   ```cpp
   bool condition = GetRandomTrueOrFalse();
   condition ? CallIfTrue() : CallIfFalse();
   ``` 
 - This is **equivalent** to the following `if` statement:
+  <!--
+  `CPP_SETUP_START`
+  inline bool GetRandomTrueOrFalse() {return false;}
+  inline void CallIfTrue() {}
+  inline void CallIfFalse() {}
+  int main() {
+    $PLACEHOLDER
+    return 0;
+  }
+  `CPP_SETUP_END`
+  -->
   ```cpp
   bool condition = GetRandomTrueOrFalse();
   if (condition) {
@@ -73,6 +117,17 @@ if (STATEMENT) {
 
 ---
 # Switch statement
+<!--
+`CPP_SETUP_START`
+constexpr int kConst1{42};
+constexpr int kConst2{23};
+inline int GetNumber() {return 42;}
+int main() {
+  $PLACEHOLDER
+  return 0;
+}
+`CPP_SETUP_END`
+-->
 ```cpp
 const int statement = GetNumber();
 switch(statement) {
@@ -84,6 +139,7 @@ switch(statement) {
     break;
   default:  // optional
     // This runs if no other options worked
+    break;
 }
 ```
 - Used to conditionally execute code
@@ -97,6 +153,16 @@ switch(statement) {
 - If the `break` is omitted from a `case` we call it a **fallthrough**
 - It means that the **next** case will be executed too
 - ✅ Always use `[[fallthrough]]` [C++ attribute](https://en.cppreference.com/w/cpp/language/attributes) to annotate situation where you want a fallthrough 🔼1️⃣7️⃣
+<!--
+`CPP_SETUP_START`
+constexpr int kConst1{42};
+constexpr int kConst2{23};
+int main() {
+  $PLACEHOLDER
+  return 0;
+}
+`CPP_SETUP_END`
+-->
 ```cpp
 // Somewhere in main
 const int statement = 1;
@@ -116,12 +182,31 @@ default:  // optional
 ---
 
 # While loop
+<!--
+`CPP_SETUP_START`
+int main() {
+  bool STATEMENT{};
+  $PLACEHOLDER
+  return 0;
+}
+`CPP_SETUP_END`
+-->
 ```cpp
 while (STATEMENT) {
   // Loop while STATEMENT == true.
 }
 ```
 - Example `while` loop:
+<!--
+`CPP_SETUP_START`
+inline int GetRandomBool() {return false;}
+int main() {
+  bool STATEMENT{};
+  $PLACEHOLDER
+  return 0;
+}
+`CPP_SETUP_END`
+-->
 ```cpp
 bool condition = true;
 while (condition) {
@@ -155,12 +240,32 @@ while (condition) {
 
 
 # For loop
+<!--
+`CPP_SETUP_START`
+#define INITIAL_CONDITION int i = 0
+#define END_CONDITION i < 42
+#define INCREMENT ++i
+int main() {
+  $PLACEHOLDER
+  return 0;
+}
+`CPP_SETUP_END`
+-->
 ```cpp
 for (INITIAL_CONDITION; END_CONDITION; INCREMENT) {
   // This happens until END_CONDITION == false
 }
 ```
 - Example `for` loop:
+<!--
+`CPP_SETUP_START`
+int main() {
+  const auto kIterationCount{100};
+  $PLACEHOLDER
+  return 0;
+}
+`CPP_SETUP_END`
+-->
 ```cpp
 for (int i = 0; i < kIterationCount; ++i) {
   // This happens kIterationCount times.
@@ -174,12 +279,32 @@ for (int i = 0; i < kIterationCount; ++i) {
 - ✅ Iterate over a standard containers with simpler syntax: 
   `std::array`, `std::vector`, or even `std::map`, *etc*.
 - Allows us to avoid mistakes with indices and shows intent
+  <!--
+  `CPP_SETUP_START`
+  #include<vector>
+  #include<iostream>
+  int main() {
+    $PLACEHOLDER
+    return 0;
+  }
+  `CPP_SETUP_END`
+  -->
   ```cpp
   const std::vector<int> numbers{42, 23};
   for (const auto &number : numbers) {
     std::cout << number << std::endl;
   }
   ```
+  <!--
+  `CPP_SETUP_START`
+  #include<map>
+  #include<iostream>
+  int main() {
+    $PLACEHOLDER
+    return 0;
+  }
+  `CPP_SETUP_END`
+  -->
   ```cpp
   const std::map<int, double> container{{42, 23.23}, {23, 42.42}};
   for (const auto &[key, value] : container) {
@@ -199,12 +324,28 @@ for (int i = 0; i < kIterationCount; ++i) {
 
 - We can create loops that never end with both `while` and `for`
 - ✅ `while` expresses the intent better
+  <!--
+  `CPP_SETUP_START`
+  int main() {
+    $PLACEHOLDER
+    return 0;
+  }
+  `CPP_SETUP_END`
+  -->
   ```cpp
   while(true) {
     // Do this forever
   }
   ```
 - Syntax for `for` is less obvious:
+  <!--
+  `CPP_SETUP_START`
+  int main() {
+    $PLACEHOLDER
+    return 0;
+  }
+  `CPP_SETUP_END`
+  -->
   ```cpp
   for(;;) {
     // Do this forever
@@ -217,6 +358,12 @@ for (int i = 0; i < kIterationCount; ++i) {
 - We have control over loop iterations
 - Use `continue` to skip to next iteration
 - Use `break` to exit the loop
+<!--
+`CPP_SETUP_START`
+int GetRandomInt() {return 42;}
+$PLACEHOLDER
+`CPP_SETUP_END`
+-->
 ```cpp
 #include <iostream>
 int main() {
