@@ -35,12 +35,18 @@ Style (🎨) and software design (🎓) recommendations mostly come from [Google
 
 - Variables (and other stuff) can live in namespaces
 - Namespaces are defined with the keyword `namespace`:
+  <!--
+  `CPP_SKIP_SNIPPET`
+  -->
   ```cpp
   namespace cpp_course {
   // Variables, functions etc.
   }  // namespace cpp_course
   ```
 - Namespaces can live within other namespaces:
+  <!--
+  `CPP_SKIP_SNIPPET`
+  -->
   ```cpp
   namespace foo {
   namespace bar {

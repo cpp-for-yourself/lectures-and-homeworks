@@ -36,10 +36,28 @@ Style (🎨) and software design (🎓) recommendations mostly come from [Google
 - Implemented _usually_ as a **Red-Black tree** (not guaranteed)
 - Key can be any type with operator `<` defined
 - By default takes two template parameters:
+  <!-- 
+  `CPP_SETUP_START`
+  #include <map>
+  int main() {
+    $PLACEHOLDER
+    return 0;
+  }
+  `CPP_SETUP_END`
+  -->
   ```cpp
   std::map<char, double> map_default{};
   ```
 - We can also use `>` operator by creating the map like this:
+  <!-- 
+  `CPP_SETUP_START`
+  #include <map>
+  int main() {
+    $PLACEHOLDER
+    return 0;
+  }
+  `CPP_SETUP_END`
+  -->
   ```cpp
   std::map<int, float, std::greater<int>> map_greater{};
   ```
@@ -48,10 +66,28 @@ Style (🎨) and software design (🎓) recommendations mostly come from [Google
 ---
 # Add data to `std::map`
 - We can create a map from data:
-- ```cpp
+  <!-- 
+  `CPP_SETUP_START`
+  #include <map>
+  int main() {
+    $PLACEHOLDER
+    return 0;
+  }
+  `CPP_SETUP_END`
+  -->
+  ```cpp
   const std::map<int, double> map_explicit = {{42, 42.42}};
   ```
 - 🔼1️⃣7️⃣
+  <!-- 
+  `CPP_SETUP_START`
+  #include <map>
+  int main() {
+    $PLACEHOLDER
+    return 0;
+  }
+  `CPP_SETUP_END`
+  -->
   ```cpp
   const std::map map_implicit = {std::pair{42, 42.42}};
   ```
@@ -96,7 +132,7 @@ int main() {
 ```
 ---
 # Use `std::unordered_map` to store unordered data
-- 🔼1️⃣1️⃣ `#include <unordered_map>` 
+- 🔼1️⃣1️⃣ `#include <unordered_map>`
   to use [`std::unordered_map`](https://en.cppreference.com/w/cpp/container/unordered_map)
 - Serves same purpose as `std::map` but is implemented as a **hash table** and not a tree
 - Key type has to be **hashable** (all fundamental types are)
@@ -110,6 +146,17 @@ int main() {
   - Elements of `map2` not in `map1` are added to `map1`
   - Elements of `map2` with keys already in `map1` are ignored
 - Works for both: `std::map` and `std::unordered_map`:
+- 
+  <!-- 
+  `CPP_SETUP_START`
+  #include <string>
+  #include <map>
+  int main() {
+    $PLACEHOLDER
+    return 0;
+  }
+  `CPP_SETUP_END`
+  -->
   ```cpp
   std::map<std::string, int> map1{
       {"A", 1}, {"B", 2}, {"C", 3}};
@@ -117,6 +164,16 @@ int main() {
       {"A", 4}, {"B", 2}, {"D", 4}};
   map1.merge(map2);
   ```
+  <!-- 
+  `CPP_SETUP_START`
+  #include <string>
+  #include <unordered_map>
+  int main() {
+    $PLACEHOLDER
+    return 0;
+  }
+  `CPP_SETUP_END`
+  -->
   ```cpp
   std::unordered_map<std::string, int> map1{
       {"A", 1}, {"B", 2}, {"C", 3}};

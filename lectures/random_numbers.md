@@ -86,6 +86,16 @@ This gives an output that looks smth like this:
 - [`rand()`](https://en.cppreference.com/w/cpp/numeric/random/rand) is a C function (**not** C++) 
 - The only option before `C++11`
 - :scream: Let's see how it's typically used:
+  <!--
+  `CPP_SETUP_START`
+  #include <cstdlib>
+  constexpr static int seed{};
+  int main() {
+    $PLACEHOLDER
+    return 0;
+  }
+  `CPP_SETUP_END`
+  -->
   ```cpp
   // Somewhere in main
   std::srand(seed);  // Initialize random seed
