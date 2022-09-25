@@ -150,7 +150,7 @@ int main() {
   <!-- 
   `CPP_SETUP_START`
   #include <string>
-  #include <map>
+  #include <map
   int main() {
     $PLACEHOLDER
     return 0;
