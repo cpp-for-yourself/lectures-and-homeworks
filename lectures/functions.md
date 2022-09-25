@@ -34,6 +34,18 @@ Style (🎨) and software design (🎓) recommendations mostly come from [Google
 ---
 # Function help organize the code
 - Functions look smth like this:
+  <!--
+  `CPP_SETUP_START`
+  using ReturnType = int;
+  using ParamType1 = int;
+  using ParamType2 = int;
+  constexpr auto return_value{42};
+  $PLACEHOLDER
+  int main() {
+    return 0;
+  }
+  `CPP_SETUP_END`
+  -->
   ```cpp
   ReturnType DoSmth(ParamType1 in_1, ParamType2 in_2) {
     // Some awesome code here.
@@ -41,6 +53,17 @@ Style (🎨) and software design (🎓) recommendations mostly come from [Google
   }
   ```
 - We can then call such a function as follows:
+  <!--
+  `CPP_SETUP_START`
+  constexpr auto param1{42};
+  constexpr auto param2{42};
+  int DoSmth(int a, int b) {return a+b;}
+  int main() {
+    $PLACEHOLDER
+    return 0;
+  }
+  `CPP_SETUP_END`
+  -->
   ```cpp
   const auto smth = DoSmth(param1, param2);
   ```
@@ -93,8 +116,19 @@ Style (🎨) and software design (🎓) recommendations mostly come from [Google
   1 warning generated.
   ```
 - No warning if result is actually used:
+  <!--
+  `CPP_SETUP_START`
+  [[nodiscard]] double SquareNumber(double input) { 
+    return input * input; 
+  }
+  int main() {
+    $PLACEHOLDER
+    return 0;
+  }
+  `CPP_SETUP_END`
+  -->
   ```cpp
-  auto smth = SquareNumber(42.0);
+  const auto smth = SquareNumber(42.0);
   ```
 - Helps to avoid logical errors while programming
 
@@ -154,6 +188,16 @@ int main() {
 - Function declaration can be separated from the implementation details
 - Function **declaration** sets up an interface
 - Function **definition** holds the implementation of the function that can even be hidden from the user (stay tuned)
+  <!--
+  `CPP_SETUP_START`
+  #include<iostream>
+  using namespace std;
+  $PLACEHOLDER
+  int main() {
+    return 0;
+  }
+  `CPP_SETUP_END`
+  -->
   ```cpp
   void FuncName();  // Ends with a ";"
 
@@ -174,6 +218,15 @@ int main() {
 - **Quick for small objects** (e.g., [fundamental](1.2_cpp_basic_types_and_variables.md#variables-of-fundamental-types) types)
 - **Slow for bigger objects** (usually any other type)
 - ✅ **Pass bigger objects by reference** to avoid copying!
+  <!--
+  `CPP_SETUP_START`
+  #include <string>
+  $PLACEHOLDER
+  int main() {
+    return 0;
+  }
+  `CPP_SETUP_END`
+  -->
   ```cpp
   void DoSmthSmall(float number);                // Ok ✅
   void DoSmthBig(std::string huge_string);       // Slow 😱
@@ -207,9 +260,12 @@ int main() {
 ---
 # Do you see any problems?
 Is the string `hello` still the same after calling the function?
+<!--
+`CPP_SKIP_SNIPPET`
+-->
 ```cpp
 void DoSmthWithRef(std::string& huge_string);
-
+// Then somewhere in some function
 std::string hello = "some_important_long_string";
 DoSmthWithRef(hello);
 // 🤔 Is hello the same here?
@@ -219,6 +275,9 @@ DoSmthWithRef(hello);
 <div>
 
 ### Could be the same:
+<!--
+`CPP_SKIP_SNIPPET`
+-->
 ```cpp
 void DoSmthWithRef(hello) {
   print(hello);
@@ -230,6 +289,9 @@ void DoSmthWithRef(hello) {
 <div>
 
 ### Could be changed:
+<!--
+`CPP_SKIP_SNIPPET`
+-->
 ```cpp
 void DoSmthWithRef(hello) {
   hello.clear();
@@ -246,6 +308,15 @@ void DoSmthWithRef(hello) {
 - Pass a `const` reference to the function!
 - Great speed as we pass a reference
 - Passed object stays intact, guaranteed because it's `const`!
+  <!--
+  `CPP_SETUP_START`
+  #include <string>
+  $PLACEHOLDER
+  int main() {
+    return 0;
+  }
+  `CPP_SETUP_END`
+  -->
   ```cpp
   void DoSmth(const std::string& huge_string);
   ```
@@ -262,6 +333,14 @@ void DoSmthWithRef(hello) {
 - Objects created in a function live within its scope
 - When function ends, all its variables die
 - Returning a reference to a local object leads to UB:
+  <!--
+  `CPP_SETUP_START`
+  $PLACEHOLDER
+  int main() {
+    return 0;
+  }
+  `CPP_SETUP_END`
+  -->
   ```cpp
   int& ReallyNastyFunction() {
     int local_variable{};
@@ -297,6 +376,14 @@ void DoSmthWithRef(hello) {
 ---
 # 🤔 Use default arguments?
 - Default parameters have a default value:
+  <!--
+  `CPP_SETUP_START`
+  $PLACEHOLDER
+  int main() {
+    return 0;
+  }
+  `CPP_SETUP_END`
+  -->
   ```cpp
   void DoSmth(int number = 42);
   ```
