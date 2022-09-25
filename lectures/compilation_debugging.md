@@ -32,7 +32,7 @@ Style (🎨) and software design (🎓) recommendations mostly come from [Google
 # Compilation flags
 - Lots of flags can be passed while compiling the code
 - We have seen some already: `-std=c++17`, `-o`, etc.
-  ```cpp
+  ```cmd
   c++ -std=c++17 -o test test.cpp
   ```
 - ✅ Enable **most** [warnings](https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wall), treat them as errors: 
@@ -60,9 +60,21 @@ Style (🎨) and software design (🎓) recommendations mostly come from [Google
 # Using print statements
 - Just add any printout statements to your code
 - I usually use a form of a print statement shown below:
-    ```cpp
-    cerr << __FILE__ << ":" << __LINE__ << ": " << value << endl;
-    ```
+  <!--
+  `CPP_SETUP_START`
+  #include <iostream>
+  using std::cerr;
+  using std::endl;
+  int main() {
+    int value{};
+    $PLACEHOLDER
+    return 0;
+  }
+  `CPP_SETUP_END`
+  -->
+  ```cpp
+  cerr << __FILE__ << ":" << __LINE__ << ": " << value << endl;
+  ```
 - This will print the filename and a line where its called
 - We can also print a `value` of interest at any point
 - Usually requires to recompile only part of the program
@@ -113,7 +125,7 @@ int main() {
   for (auto i = numbers.size(); i >= 0; --i) {
     std::cerr << "i = " << i << std::endl;  // <- Debug print
     std::cout << numbers[i] << std::endl;
-    if (count++ > 10) {break;}  // -> Early exit
+    if (count++ > 10) {break;}  // <- Early exit
   }
   return 0;
 }
