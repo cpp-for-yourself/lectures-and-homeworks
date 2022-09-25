@@ -36,6 +36,9 @@ Style (🎨) and software design (🎓) recommendations mostly come from [Google
 
 # Declaring variables
 Variable declaration follows one of the following patterns:
+<!--
+`CPP_SKIP_SNIPPET`
+-->
 ```cpp
 Type variable_name;  // 😱 Uninitialized! Contains random value!
 Type variable_name = value;
@@ -82,6 +85,14 @@ See [Google naming rules](https://google.github.io/styleguide/cppguide.html#Gene
 ---
 
 # Variables of fundamental types
+<!--
+`CPP_SETUP_START`
+int main() {
+  $PLACEHOLDER
+  return 0;
+}
+`CPP_SETUP_END`
+-->
 ```cpp
 char caret_return = '\n';      // Single character
 int meaning_of_life = 42;      // Integer number
@@ -96,6 +107,14 @@ auto some_double = 13.0;       // Automatic type [double]
 bool this_is_fun = false;      // Boolean: true or false
 ```
 There are also `unsigned` equivalents for integer types
+<!--
+`CPP_SETUP_START`
+int main() {
+  $PLACEHOLDER
+  return 0;
+}
+`CPP_SETUP_END`
+-->
 ```cpp
 unsigned int meaning_of_life = 42U;   // Unsigned integer number
 unsigned long bigger_int = 42UL;      // Unsigned long number
@@ -132,10 +151,25 @@ int main() {
 # Always initialize all variables! 🚨
 
 (unless measured slow, stay tuned to a later point in the course)
-
+<!--
+`CPP_SETUP_START`
+int main() {
+  $PLACEHOLDER
+  return 0;
+}
+`CPP_SETUP_END`
+-->
 ```cpp
 int sad_uninitialized_variable;  // 😱 Really, don't do this!
 ```
+<!--
+`CPP_SETUP_START`
+int main() {
+  $PLACEHOLDER
+  return 0;
+}
+`CPP_SETUP_END`
+-->
 ```cpp
 bool initializing_is_good = true;  // ✅ Always initialize!
 bool use_uniform_initialization{true};
@@ -143,6 +177,9 @@ auto also_works_with_auto{true};
 auto this_works_too = true;
 ```
 # Also use "value initialization"
+<!--
+`CPP_SKIP_SNIPPET`
+-->
 ```cpp
 bool set_to_default_value{};  // Initialize to false
 int some_int_number{};        // Initialize to 0
@@ -179,6 +216,15 @@ Here is the typical output:
 
 # Initialization vs assignment
 We can also **initialize** the variables from other variables
+<!--
+`CPP_SETUP_START`
+int main() {
+  int other_int{};
+  $PLACEHOLDER
+  return 0;
+}
+`CPP_SETUP_END`
+-->
 ```cpp
 int some_int{other_int};
 auto some_int_copy = some_int;
@@ -205,6 +251,14 @@ Here is a rule of thumb to tell them apart :+1:
 - Can be used for constants created at **run time**
 - Can be initialized with **any** provided value
 - _Sometimes_ will be available at compile time
+<!--
+`CPP_SETUP_START`
+int main() {
+  $PLACEHOLDER
+  return 0;
+}
+`CPP_SETUP_END`
+-->
 ```cpp
 int a = 42;
 const int b = a;    // ✅
@@ -221,6 +275,9 @@ const auto e = c;   // ✅
 - Can only be used for constants created at 
   **compile time**
 - Can only be initialized from a `constexpr` value
+<!--
+`CPP_SKIP_SNIPPET`
+-->
 ```cpp
 int a = 42;
 const int a_const = 42;
@@ -259,12 +316,20 @@ There are some exemptions from this rule, but it mostly works
 - Reference is part of the type:
   variable `ref` has type `<OriginalType> &`
 - Changing a reference changes the variable and vice versa
-    ```c++
-    int some_variable = 42;
-    int& some_variable_ref = some_variable;
-    some_variable_ref = 23;
-    // some_variable is now == 23
-    ```
+  <!--
+  `CPP_SETUP_START`
+  int main() {
+    $PLACEHOLDER
+    return 0;
+  }
+  `CPP_SETUP_END`
+  -->
+  ```c++
+  int some_variable = 42;
+  int& some_variable_ref = some_variable;
+  some_variable_ref = 23;
+  // some_variable is now == 23
+  ```
 - Yields performance gain as references **avoid copying data**
   Will be more important when we talk about functions later
 
@@ -320,11 +385,27 @@ int main() {  // Start of main scope
 
 # Naming of constants
 - 🎨 Name constants in the **global scope** in `CamelCase` starting with a small letter `k`:
+<!--
+`CPP_SETUP_START`
+int main() {
+  $PLACEHOLDER
+  return 0;
+}
+`CPP_SETUP_END`
+-->
 ```cpp
 constexpr float kImportantFloat = 42.42f;
 const int kHello{42};
 ```
 - 🎨 Name constants in any **local scope** in `snake_case`
+<!--
+`CPP_SETUP_START`
+int main() {
+  $PLACEHOLDER
+  return 0;
+}
+`CPP_SETUP_END`
+-->
 ```cpp
 const auto local_scope_constant{42UL};
 ```
@@ -358,9 +439,18 @@ Prints `4294967277` due to an "underflow" (stay tuned)
 # More operations on variables
 - Logical operations defined over boolean variables:
   **or**: `||`, **and**: `&&`, **not**: `!`
-    ```cpp
-    bool is_happy = (!is_hungry && is_warm) || is_rich;
-    ```
+  <!--
+  `CPP_SETUP_START`
+  int main() {
+    bool is_hungry, is_rich, is_warm;
+    $PLACEHOLDER
+    return 0;
+  }
+  `CPP_SETUP_END`
+  -->
+  ```cpp
+  bool is_happy = (!is_hungry && is_warm) || is_rich;
+  ```
 - Additional operations on integer variables:
 - `/` is integer division: i.e. `7 / 3 == 2`
 - `%` is modulo division: i.e. `7 % 3 == 1`
