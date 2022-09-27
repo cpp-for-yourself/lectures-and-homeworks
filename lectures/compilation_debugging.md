@@ -12,7 +12,7 @@ footer: ![width:80px](images/C++ForYourselfIcon.png)
 - What compilation flags to use
 - How to debug code
 
-### 📺 Watch the related [YouTube video](blah)! 
+### 📺 Watch the related [YouTube video](https://youtu.be/NTlcDv7W2-c)! 
 
 ---
 # Special symbols used in slides

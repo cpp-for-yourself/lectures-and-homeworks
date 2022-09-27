@@ -136,7 +136,19 @@ Enjoy! 😎
   - The user guesses this number
   - The program tells the user if they are above or below with their guess (or if they've won)
   </details>
+- <details>
+  <summary>
+  Compilation flags and debugging
+  </summary>
 
+  [`[video]`](https://youtu.be/NTlcDv7W2-c)
+  [`[slides]`](lectures/compilation_debugging.md)
+
+  - Useful compilation flags
+  - Debugging a program with:
+    - Print statements
+    - `lldb` debugger
+  </details>
 
 ## PS :wink:
 Most of the code snippets are validated automatically. If you do find an error in some of those, please open an issue in this repo!
