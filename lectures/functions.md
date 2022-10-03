@@ -75,7 +75,7 @@ Style (🎨) and software design (🎓) recommendations mostly come from [Google
   - Impossible without functions in C++
 ---
 # Some technical details
-- Functions **create a [scope](1.2_cpp_basic_types_and_variables.md#all-variables-live-in-scopes)**
+- Functions **create a [scope](cpp_basic_types_and_variables.md#all-variables-live-in-scopes)**
 - A function is fully defined by:
   - Its name
   - Its return type
@@ -215,7 +215,7 @@ int main() {
 # Passing big objects
 - Objects are copied by default when passed into functions
   (the compiler can sometimes avoid the copy, stay tuned)
-- **Quick for small objects** (e.g., [fundamental](1.2_cpp_basic_types_and_variables.md#variables-of-fundamental-types) types)
+- **Quick for small objects** (e.g., [fundamental](cpp_basic_types_and_variables.md#variables-of-fundamental-types) types)
 - **Slow for bigger objects** (usually any other type)
 - ✅ **Pass bigger objects by reference** to avoid copying!
   <!--
