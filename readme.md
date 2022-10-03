@@ -154,7 +154,7 @@ Enjoy! 😎
   Functions 
   </summary>
 
-  [`[video]`](blah)
+  [`[video]`](https://youtu.be/RaSw0g2aPig)
   [`[slides]`](lectures/functions.md)
 
   - What is a function

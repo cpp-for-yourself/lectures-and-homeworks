@@ -15,7 +15,7 @@ paginate: true
 - Overloading
 - Using default arguments
 
-### 📺 Watch the related [YouTube video](blah)! 
+### 📺 Watch the related [YouTube video](https://youtu.be/RaSw0g2aPig)! 
 
 ---
 # Special symbols used in slides
