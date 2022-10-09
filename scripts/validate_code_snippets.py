@@ -2,30 +2,39 @@ import re
 import sys
 import logging
 import tempfile
-from os import environ, killpg
+import itertools
+import shlex
+from os import environ, killpg, terminal_size
 from pathlib import Path
 from string import Template
 from signal import SIGINT
 from typing import Union, List, Optional, Mapping, Any
 from subprocess import PIPE, Popen, TimeoutExpired, CalledProcessError, CompletedProcess
 
-logging.basicConfig()
+FORMAT = "%(message)s"
+logging.basicConfig(format=FORMAT)
 log = logging.getLogger("code_validation")
 log.setLevel(logging.INFO)
 
-# See a playground here: https://regex101.com/r/wtt7AA/1
+
+# See a playground here: https://regex101.com/r/Tfwjsq/1
 REGEX_TEMPLATE = r"""
-(?:\s*
-<!--                                  # Start of html comment
-    (:?\s*`CPP_SETUP_START`\n         # Start of the setup
-        (?P<setup>(?:[^`]+)\n)\s*     # Actual setup contents
-    `CPP_SETUP_END`\s*)*\s*           # End of the setup
-    (?P<skip>`CPP_SKIP_SNIPPET`)*\s*  # Skip the snippet if needed
--->\s*)*                              # End of html comment and some whitespace
-```cpp\s*                             # Start of cpp snippet
-    (?P<code>(?:[^`]+)\n)+\s*         # Actual cpp snippet code
-```\s*                                # End of cpp snippet
+(?:\s*<!--
+(:?\s*`CPP_SETUP_START`\n(?P<setup>(?:[^`]+)\n)\s*`CPP_SETUP_END`\s*)*\s*
+(?P<skip>`CPP_SKIP_SNIPPET`)*\s*
+(?:`CPP_COPY_SNIPPET`\s*(?P<copy>.*$))*\s*
+(?:`CPP_RUN_CMD`\s*(?:CWD:(?P<cwd>[\w/]+))*\s*(?P<cmd>.*$))*\s*
+-->\s*)*
+```(?P<language>\w+)
+(?P<code>(?:[^`]+)\n)+\s*
+```\s*
 """
+
+DEFAULT_CMD_PER_LANGUAGE = {
+    "cpp": "c++ -std=c++17 $FILENAME",
+    "c++": "c++ -std=c++17 $FILENAME",
+    "cmake": "cmake .. && make",
+}
 
 
 class CmdResult:
@@ -125,48 +134,78 @@ def __run_subprocess(
 
 
 def compile_all_snippets(regex_pattern, file):
+    def get_file_object(language, file_name=None):
+        if not file_name:
+            return tempfile.NamedTemporaryFile(suffix="." + language, delete=False)
+        return open(file_name, "wb")
+
     error_count = 0
-    CMD = ["c++", "-std=c++17"]
+    temp_folder = Path(tempfile.gettempdir())
     for match in re.finditer(pattern=regex_pattern, string=file.read_text()):
         found_group_dict = match.groupdict()
         skip = found_group_dict["skip"]
         setup = found_group_dict["setup"]
         code = found_group_dict["code"]
+        copy_destination = found_group_dict["copy"]
+        cmd = found_group_dict["cmd"]
+        cwd = found_group_dict["cwd"]
+        language = found_group_dict["language"]
+        if language not in DEFAULT_CMD_PER_LANGUAGE:
+            continue
         if skip is not None:
-            continue;
+            continue
         if setup is not None:
             code = Template(setup).substitute(PLACEHOLDER=code)
-        with tempfile.NamedTemporaryFile(suffix=".cpp", delete=False) as temp_code_file:
-            temp_code_file.write(bytes(code, encoding="utf-8"))
-            temp_code_file.flush()
-            result = run_command(
-                command=CMD + [temp_code_file.name],
-                timeout=20,
-                cwd=tempfile.gettempdir(),
-            )
-            if result.status != 0:
-                error_count += 1
-                log.error("--------------------------------------------------")
-                log.error("Failed to compile snippet:\n%s", code)
-                log.error("--------------------------------------------------")
-                log.error("stderr:\n%s", result.stderr)
-                log.error("==================================================")
+        if copy_destination is not None:
+            copy_destination = temp_folder / copy_destination
+            copy_destination.parent.mkdir(parents=True, exist_ok=True)
+            log.info("Creating file copy: %s", copy_destination)
+            if cwd is not None:
+                cwd = temp_folder / cwd
+        code_file_name = None
+        with get_file_object(
+            file_name=copy_destination, language=language
+        ) as code_file:
+            code_file.write(bytes(code, encoding="utf-8"))
+            code_file_name = code_file.name
+            if not cwd:
+                cwd = Path(code_file.name).parent
+        if not cmd:
+            if copy_destination is not None:
+                # We just want to copy the file, not run the command here
+                continue
+            cmd = DEFAULT_CMD_PER_LANGUAGE[language]
+        cmd = Template(cmd).substitute(FILENAME=code_file_name)
+        log.info("🤞  Validating with command: %s", cmd)
+        result = run_command(
+            command=shlex.split(cmd),
+            timeout=20,
+            cwd=cwd,
+        )
+        if result.status != 0:
+            error_count += 1
+            terminal_width = 80
+            log.error("%s", "-" * terminal_width)
+            log.error("❌ Failed to compile snippet:\n%s", code)
+            log.error("%s", "-" * terminal_width)
+            log.error("stderr:\n\n%s\n", result.stderr)
+            log.error("%s", "=" * terminal_width)
     return error_count
 
 
 def main():
-    regex_pattern = re.compile(REGEX_TEMPLATE, flags=re.VERBOSE)
+    regex_pattern = re.compile(REGEX_TEMPLATE, flags=re.VERBOSE | re.MULTILINE)
     lectures_dir = Path.cwd() / "lectures"
     error_count = 0
     for file in lectures_dir.iterdir():
         if file.suffix != ".md":
             continue
-        log.info("Processing file: %s", file)
+        log.info("ℹ️ Processing file: %s", file)
         error_count += compile_all_snippets(regex_pattern=regex_pattern, file=file)
     if error_count == 0:
-        log.info("All snippets compile successfully!")
+        log.info("✅ All snippets compile successfully!")
     else:
-        log.fatal("Errors encountered: %s snippets did not compile!", error_count)
+        log.fatal("❌ Errors encountered: %s snippets did not compile!", error_count)
         sys.exit(1)
 
 
