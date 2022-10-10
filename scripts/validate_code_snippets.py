@@ -65,7 +65,7 @@ def run_command(
             stdout=PIPE,
             stderr=PIPE,
             stdin=PIPE,
-            shell=False,
+            shell=True,
             cwd=str(cwd),
             env=env,
             startupinfo=startupinfo,
@@ -159,7 +159,7 @@ def compile_all_snippets(regex_pattern, file):
         if copy_destination is not None:
             copy_destination = temp_folder / copy_destination
             copy_destination.parent.mkdir(parents=True, exist_ok=True)
-            log.info("Creating file copy: %s", copy_destination)
+            log.info("🖇️ Creating file copy: %s", copy_destination)
             if cwd is not None:
                 cwd = temp_folder / cwd
         code_file_name = None
@@ -178,7 +178,7 @@ def compile_all_snippets(regex_pattern, file):
         cmd = Template(cmd).substitute(FILENAME=code_file_name)
         log.info("🤞  Validating with command: %s", cmd)
         result = run_command(
-            command=shlex.split(cmd),
+            command=cmd,
             timeout=20,
             cwd=cwd,
         )
