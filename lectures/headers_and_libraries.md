@@ -2,9 +2,37 @@
 marp: true
 math: katex
 theme: custom-theme
-paginate: true
-# footer: ![width:80px](images/C++ForYourselfIcon.png)
+footer: ![width:80px](images/C++ForYourselfIcon.png)
 ---
+# Libraries
+
+#### Today:
+- Different types of libraries
+  - Header-only
+  - Static
+  - Dynamic
+- What is linking
+- When to use the keyword `inline`
+- Some common best practices
+
+### 📺 Watch the related [YouTube video](https://youtu.be/Lxo8ftglwXE)! 
+
+---
+# Special symbols used in slides
+- 🎨 - Style recommendation
+- 🎓 - Software design recommendation
+- 😱 - **Not** a good practice! Avoid in real life!
+- ✅ - Good practice!
+- ❌ - Whatever is marked with this is wrong
+- 🚨 - Alert! Important information!
+- 💡 - Hint or a useful exercise
+- 🔼1️⃣7️⃣ - Holds for this version of C++(here, `17`) and **above**
+- 🔽1️⃣1️⃣ - Holds for versions **until** this one C++(here, `11`)
+
+Style (🎨) and software design (🎓) recommendations mostly come from [Google Style Sheet](https://google.github.io/styleguide/cppguide.html) and the [CppCoreGuidelines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines)
+
+---
+
 # Let's start with an example
 
 Let's say we implement a new machine learning framework :wink:
@@ -35,7 +63,7 @@ int main() {
 ```
 
 ---
-# What if we want to use it somewhere else?
+# What if we want to use it in multiple places?
 - For now code lives **in a single binary**
 - Now assume that we have **two programs** we want to write:
   - One to predict the **house pricing**
@@ -52,7 +80,12 @@ int main() {
 - It requires **us** to keep this in mind - which is **error prone**
 - (violates the **DRY** principle)
 <br>
-![center](images/im-not-sure.jpg)
+
+<div data-marpit-fragment>
+
+![center w:700](images/im-not-sure.jpg)
+
+</div>
 
 ---
 # Better solution: header files!
@@ -65,10 +98,10 @@ $PLACEHOLDER
 `CPP_COPY_SNIPPET` ml/ml.h
 -->
 ```cpp
-#pragma once
+#pragma once  // Stay tuned 😉
 #include <vector>
-[[nodiscard]] inline int 
-PredictNumber(const std::vector<int>& numbers) {
+[[nodiscard]] inline  // Stay tuned for "inline"
+int PredictNumber(const std::vector<int>& numbers) {
   // Compute next number (skipped to fit on the slide)
   return next_number;
 }
@@ -141,7 +174,7 @@ int main() {
 
 **Pros:**
 - **Compiler sees all code** so it can optimize it well
-- Compilation remains **simple**
+- Compilation remains **simple** (just need the new `-I` flag)
   ```cmd
   c++ -std=c++17 -I folder_with_headers binary.cpp
   ```
@@ -169,73 +202,83 @@ int main() {
 - They also ensure the header file will be included only once
 - ✅ Always use one of these in your header files!
 ---
-# Avoid long compilation by using binary libraries!
+# Avoid long compilation times by using binary libraries!
 - Move only **declarations** to header files: `*.h` or `*.hpp`
 - Move **definitions** to source files: `*.cpp` or `*.cc`
-- Compile corresponding source files to modules
-- Bind the modules into libraries
+- Compile corresponding source files to **object files**
+- Bind the object files into **libraries**
 - **Link** the libraries to executables
+- The library is **built once**, and **linked** to multiple targets!
+- If we change the code in a library we only need to:
+  - Rebuild **only** the library
+  - `[maybe]` Relink this library to our executables
 
 ---
-- **Declaration:** `ml.h`<br>
-  <!--
-  `CPP_COPY_SNIPPET` ml_lib/ml.h
-  -->
-  ```cpp
-  #pragma once
-  #include <vector>
-  [[nodiscard]] int 
-  PredictNumber(const std::vector<int>& numbers);
-  ```
-- **Definition:** `ml.cpp`
-  <!--
-  `CPP_SETUP_START`
-  inline constexpr auto next_number{42};
-  $PLACEHOLDER
-  `CPP_SETUP_END`
-  `CPP_COPY_SNIPPET` ml_lib/ml.cpp
-  -->
-  ```cpp
-  #include <ml.h>
-  #include <vector>
-  [[nodiscard]] int PredictNumber(const std::vector<int>& numbers) {
-    // Compute next number (skipped to fit on the slide)
-    return next_number;
-  }
-  ```
-- **Calling it:** `predict_prices.cpp`:<br>
-  <!--
-  `CPP_SETUP_START`
-  #include <vector>
-  std::vector<int> MagicallyGetBitcoinPrices() {
-    return {1, 2, 3};
-  }
-  $PLACEHOLDER
-  `CPP_SETUP_END`
-  `CPP_COPY_SNIPPET` ml_lib/predict_prices.cpp
-  `CPP_RUN_CMD` CWD:ml_lib c++ -std=c++17 -I . ml.cpp predict_prices.cpp
-  -->
-  ```cpp
-  #include <ml.h>
-  #include <iostream>
-  int main() {
-    const auto prices = MagicallyGetBitcoinPrices();
-    std::cout << "Upcoming price: " << PredictNumber(prices);
-    return 0;
-  }
-  ```
+**Declaration:** `ml.h`<br>
+<!--
+`CPP_COPY_SNIPPET` ml_lib/ml.h
+-->
+```cpp
+#pragma once
+#include <vector>
+[[nodiscard]] int 
+PredictNumber(const std::vector<int>& numbers);
+```
+
+**Definition:** `ml.cpp`
+<!--
+`CPP_SETUP_START`
+inline constexpr auto next_number{42};
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` ml_lib/ml.cpp
+-->
+```cpp
+#include <ml.h>
+#include <vector>
+[[nodiscard]] int 
+PredictNumber(const std::vector<int>& numbers) {
+  // Compute next number (skipped to fit on the slide)
+  return next_number;
+}
+```
+
+**Calling it:** `predict_prices.cpp`:<br>
+<!--
+`CPP_SETUP_START`
+#include <vector>
+std::vector<int> MagicallyGetBitcoinPrices() {
+  return {1, 2, 3};
+}
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` ml_lib/predict_prices.cpp
+`CPP_RUN_CMD` CWD:ml_lib c++ -std=c++17 -I . ml.cpp predict_prices.cpp
+-->
+```cpp
+#include <ml.h>
+#include <iostream>
+int main() {
+  const auto prices = MagicallyGetBitcoinPrices();
+  std::cout << "Upcoming price: " << PredictNumber(prices);
+  return 0;
+}
+```
+
 ---
 
 # Just build it as before?
 ```cmd
-c++ -std=c++17 predict_prices.cpp -o predict_prices
+c++ -std=c++17 predict_prices.cpp -I . -o predict_prices
 ```
+<div data-marpit-fragment>
+
 ### Error: compiler sees only the declaration
 ```css
-λ › c++ -std=c++17 predict_prices.cpp
 Undefined symbols for architecture arm64:
-  "PredictNumber()", referenced from:
-      _main in predict_prices-a44513.o
+  "PredictNumber(
+    std::__1::vector<int, std::__1::allocator<int> > const&)", 
+    referenced from: _main in predict_prices-066946.o
 ld: symbol(s) not found for architecture arm64
 clang: error: linker command failed with exit code 1
 (use -v to see invocation)
@@ -245,13 +288,18 @@ clang: error: linker command failed with exit code 1
 
 ### :thinking: Compile all together - solution?
 ```cmd
-c++ -std=c++17 predict_prices.cpp ml.cpp
+c++ -std=c++17 -I . ml.cpp predict_prices.cpp
 ```
+<div data-marpit-fragment>
+
 :x: not really - does not solve our "recompilation" issue!
+
+</div>
+</div>
 
 ---
 
-# Compile modules and libraries
+# Compile objects and libraries
 - **Compile** source files into **object files** (use the `-c` flag) <br>
   ```cmd
   c++ -std=c++17 -c ml.cpp -I includes -o ml_static.o
@@ -273,18 +321,33 @@ c++ -std=c++17 predict_prices.cpp ml.cpp
 - Finally, we **link** the libraries to our binary
 
 ---
-# Then link libraries to binaries
-- Linking tells the compiler in which binary file to find the **definition** for a **declaration** it sees
+# Linking libraries to binaries
+- Linking tells the compiler in which binary library file to find the **definition** for a **declaration** it sees in a header file
 - **Link** our `main` executable to the libraries it uses
   ```cmd
-  c++ -std=c++17 main.cpp -L folder -lml -o main
+  c++ -std=c++17 main.cpp -L folder -I includes -lml -o main
   ```
+  - `-I includes` - Headers are in the `includes` folder
   - `-L folder` - Add `folder` to the library search path
   - `-lml` - Link to the library file `libml.a` or `libml.so`
-  - 🚨 Same usage for both static and dynamic libraries but different result!
+  - 🚨 Note that `-l` flags must be **after** all `.cpp` or `.o` files
+  - 🚨 Same usage for both static and dynamic libraries but a different resulting executable
 - **Static** libraries are **copied** inside the resulting `main` binary
 - **Dynamic** libraries are **linked** to the resulting `main` binary
-- TODO: show difference
+
+---
+# What's the difference between static and dynamic libraries?
+- Binaries with **static linkage**:
+  - Contain **binary code** of other libraries, usually **bigger**
+  - Can be copied anywhere on any similar operating system
+- Binaries with **dynamic linkage**:
+  - Contain **references** to other libraries, usually **smaller**
+  - Dependencies (dynamic libraries) are looked up at runtime
+    - Relative to the current path
+    - In the paths stored in `LD_LIBRARY_PATH` variable
+  - If you move your binary or libraries you might break it
+  - See linked libs with `ldd` (Linux) or `otool -L` (MacOS)
+- In this course **we will use static libraries**
 
 ---
 # Mixing header-only and compiled libraries requires caution 🚨
@@ -363,25 +426,31 @@ void Bar() {
   ```
 - And compile it as an executable `main`:
   ```cmd
+  c++ -std=c++17 -c -I . main.cpp -o main.o
   c++ -std=c++17 -c -I . foo.cpp -o foo.o
   ar rcs libfoo.a foo.o
   c++ -std=c++17 -c -I . bar.cpp -o bar.o
   ar rcs libbar.a bar.o
-  c++ -std=c++17 main.cpp -L . -I . -lfoo -lbar -o main
+  c++ main.o -L . -I . -lfoo -lbar -o main
   ```
-- :x: Oops, it does not link! (build it to see the error :wink:)
+
+<div data-marpit-fragment>
+
+:x: Oops, it does not link! (build it to see the error :wink:)
+
+</div>
 
 ---
 # But.. why?
 - Linker failed because we violated **ODR** --- [**O**ne **D**efinition **R**ule](https://en.cppreference.com/w/cpp/language/definition)
 - It states that there must be **exactly one** definition of every symbol in the program, i.e., your **functions** and **variables**
-- We have two libraries `foo.a` and `bar.a` with source files that both include the `print.h` and therefore have a **definition** of the `Print(...)` function
-- Our executable links to both `foo.a` and `bar.a`, so it has two definitions for the `Print(...)` function --- :x: **error**
+- We have two libraries `libfoo.a` and `libbar.a` with source files that both include the `print.h` and therefore have a **definition** of the `Print(...)` function
+- Our executable links to both `libfoo.a` and `libbar.a`, so it has two definitions for the `Print(...)` function, which causes an **error** :x:
 ---
 # `inline` to the rescue! 🦸‍♀️
 
-- It is allowed to have multiple definitions of `inline` functions (as long as all of them are in different translation units)
-- So adding `inline` to `Print(...)` will tell the compiler that we know there will be multiple definitions of it and we guarantee that they are all the same!
+- ODR allows to have multiple definitions of `inline` functions (as long as all of them are in different translation units)
+- So adding `inline` to `Print(...)` will tell the compiler that we know there will be multiple definitions of it and we **guarantee that they are all the same**!
   <!--
   `CPP_COPY_SNIPPET` print/print.h
   `CPP_RUN_CMD` CWD:print c++ -std=c++17 -c -I . foo.cpp -o foo.o && c++ -std=c++17 -c -I . bar.cpp -o bar.o && ar rcs libfoo.a foo.o && ar rcs libbar.a bar.o && c++ -std=c++17 main.cpp -L . -I . -lfoo -lbar -o main
@@ -391,10 +460,11 @@ void Bar() {
   inline void 
   Print(const std::string& str) { std::cout << str << "\n"; }
   ```
-- So we must use `inline` for functions that have a definition in a header file in case they are used in compiled libraries
+- 🚨 `inline` can only be used in function **definition**
+- :bulb: `inline` also **hints** to the compiler that it should **inline** a function --- copy its binary code in-place
 
 ---
-# Not so fast cowboy!
+# We have to be careful!
 Let's change our `foo.cpp` and `bar.cpp` a little
 <div class="grid-container">
 <div>
@@ -417,7 +487,7 @@ void Foo() { Print(); }
 `bar.cpp`
 <!--
 `CPP_COPY_SNIPPET` print/bar_inline.cpp
-`CPP_RUN_CMD` CWD:print c++ -std=c++17 -c -I . foo_inline.cpp -o foo_inline.o && c++ -std=c++17 -c -I . bar_inline.cpp -o bar_inline.o && ar rcs libfoo_inline.a foo_inline.o && ar rcs libbar_inline.a bar_inline.o && c++ -std=c++17 main.cpp -L . -I . -lfoo_inline -lbar_inline -o main_inline
+`CPP_RUN_CMD` CWD:print c++ -std=c++17 -c -I . main.cpp -o main.o && c++ -std=c++17 -c -I . foo_inline.cpp -o foo_inline.o && c++ -std=c++17 -c -I . bar_inline.cpp -o bar_inline.o && ar rcs libfoo_inline.a foo_inline.o && ar rcs libbar_inline.a bar_inline.o && c++ main.o -L . -I . -lfoo_inline -lbar_inline -o main_inline
 -->
 ```cpp
 #include <iostream>
@@ -430,26 +500,55 @@ void Bar() { Print(); }
 </div>
 </div>
 
-- Let's compile it in exactly the same way:
-  ```cmd
-  c++ -std=c++17 -c -I . foo.cpp -o foo.o
-  ar rcs libfoo.a foo.o
-  c++ -std=c++17 -c -I . bar.cpp -o bar.o
-  ar rcs libbar.a bar.o
-  c++ -std=c++17 main.cpp -L . -I . -lfoo -lbar -o main
-  ```
-- What will be the output of `./main`?
----
-## <br><br><br><br><br><br><br><br><br>Output is...
-![bg w:100%](images/ub.jpg)
+<div class="grid-container">
+<div>
+
+`main.cpp`
+<!--
+`CPP_COPY_SNIPPET` print/main.cpp
+`CPP_RUN_CMD` CWD:print c++ -std=c++17 -c -I . foo.cpp -o foo.o && c++ -std=c++17 -c -I . bar.cpp -o bar.o && ar rcs libfoo.a foo.o && ar rcs libbar.a bar.o
+-->
+```cpp
+#include <foo.h>
+#include <bar.h>
+int main() {
+  Foo(); Bar(); return 0;
+}
+```
+
+
+</div>
+
+<div>
+
+#### Output of `./main`?
+  
+<div data-marpit-fragment>
+
 ```
 Bar
 Bar
 ```
+:scream:
+
+</div>
+</div>
+
+</div>
+
+```cmd
+c++ -std=c++17 -c -I . foo.cpp -o foo.o && ar rcs libfoo.a foo.o
+c++ -std=c++17 -c -I . bar.cpp -o bar.o && ar rcs libbar.a bar.o
+c++ -std=c++17 main.cpp -L . -I . -lfoo -lbar -o main
+```
+
+---
+# Welcome back to the UB land!
+![bg center w:1100](images/this-is-fine.gif)
 
 ---
 
-# What happened? How to fix this?
+# What happened?
 - We have two functions with the same signature:
   <!--
   `CPP_SKIP_SNIPPET`
@@ -458,8 +557,21 @@ Bar
   void Print();
   ```
 - The definitions of this function are different and are in different translation units `foo.cpp` and `bar.cpp`
-- When we link them together into `main` the compiler sees multiple signatures and assumes they are the same
-- It picks the first one it sees and discard the other one
+- When we link them together into `main` the compiler sees multiple definitions and **assumes they are the same**
+- It **picks the first one** it sees and discard the other one
+
+---
+
+# How to avoid errors?
+- Don't use `inline` in source files
+- ✅ Always use `inline` if you **define** functions in headers
+- ✅ Do the same for constants 🔼1️⃣7️⃣ 
+  ```c++
+  inline constexpr auto kConst = 42;
+  ```
+- ✅ Use **namespaces** rigorously
+- ✅ Use **unnamed namespaces** in your source files for functions and constants used only within that source file
+
 <div class="grid-container">
 <div>
 
@@ -499,17 +611,19 @@ void Bar() { Print(); }
 </div>
 
 ---
+# Summary
+- Use libraries to reuse/share your code
+- You have **3 options** for libraries:
+  - **Header-only**
+  - **Static**
+  - **Dynamic**
+- Each has their own benefits and downsides
+- In this course we will mostly use a combination of
+  header-only and static libraries
 
-# What to do
-- Don't use `inline` in source files --- only use it in headers!
-- Always use `inline` if you define functions in headers
-- Do the same holds for constants:
-  ```c++
-  inline constexpr auto kConst = 42;
-  ```
-- Use **namespaces** rigorously. A good rule of thumb is to mimic the folder structure of your project with namespaces
-- Use **anonymous (unnamed) namespaces** in your source files for local functions and constants
+---
 
+![bg](https://fakeimg.pl/1280x1024/226699/fff/?text=Good%20luck!&font=bebas)
 
 <!-- 
 Great article: https://jm4r.github.io/Inline/
