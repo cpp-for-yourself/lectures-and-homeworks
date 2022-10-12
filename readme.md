@@ -163,6 +163,24 @@ Enjoy! 😎
   - Overloading
   - Using default arguments
   </details>
+- <details>
+  <summary>
+  Libraries and header files
+  </summary>
+
+  [`[video]`](https://youtu.be/Lxo8ftglwXE)
+  [`[slides]`](lectures/headers_and_libraries.md)
+
+  - Different types of libraries
+    - Header-only
+    - Static
+    - Dynamic
+  - What is linking
+  - When to use the keyword `inline`
+  - Some common best practices
+  </details>
+
+
 
 ## PS :wink:
 Most of the code snippets are validated automatically. If you do find an error in some of those, please open an issue in this repo!
