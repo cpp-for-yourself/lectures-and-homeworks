@@ -19,5 +19,6 @@ jobs:
 
     - name: Check that all snippets compile
       run: |
+        pip install pipenv
         cd scripts
         pipenv run python3 validate_code_snippets.py --project-folder ../

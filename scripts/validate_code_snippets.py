@@ -13,6 +13,7 @@ from rich.panel import Panel
 from rich.padding import Padding
 from rich.syntax import Syntax
 from rich.console import Group
+from rich.pretty import Pretty
 from typing import List, Optional, Mapping, Any
 from subprocess import PIPE, Popen, TimeoutExpired, CalledProcessError, CompletedProcess
 
@@ -198,12 +199,12 @@ def compile_all_snippets(regex_pattern: str, file: Path):
                 1,
             )
             code_panel = Panel(highlighted_code, title="Snippet code")
-            error_panel = Panel(
+            error_panel = Panel.fit(
                 Syntax(result.stderr, "gdscript", line_numbers=False),
                 title="Error",
                 style="red",
             )
-            print(Padding(Panel(Group(text, code_panel, error_panel)), 1))
+            print(Padding(Panel.fit(Group(text, code_panel, error_panel)), 1))
             error_count += 1
     return error_count
 
@@ -213,14 +214,27 @@ def get_all_files(path: Path, suffix: str):
 
 
 def get_all_changed_files(path: Path, suffix: str):
-    git_command = (
-        "{ git diff --name-only ; git diff --name-only --staged ; } | sort | uniq"
-    )
+    git_command = """
+    { 
+        git diff HEAD origin/main --name-only; 
+        git diff HEAD origin/main --name-only --staged; 
+        git diff --name-only; 
+        git diff --name-only --staged; 
+    } | sort | uniq"""
     result = run_command(command=git_command, timeout=20, cwd=path)
     files = [
         path / file_name for file_name in result.stdout.split("\n") if file_name.strip()
     ]
-    print(files)
+    print(
+        Padding(
+            Panel.fit(
+                Pretty(files),
+                title="Files changed compared to origin/main",
+                subtitle="Only selecting markdown files from these",
+            ),
+            1,
+        )
+    )
     return [file for file in files if file.suffix == suffix]
 
 
