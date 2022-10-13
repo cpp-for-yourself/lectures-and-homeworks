@@ -2,13 +2,18 @@ import re
 import sys
 import logging
 import tempfile
-import itertools
-import shlex
+import typer
 from os import environ, killpg, terminal_size
 from pathlib import Path
 from string import Template
 from signal import SIGINT
-from typing import Union, List, Optional, Mapping, Any
+from rich import print
+from rich.text import Text
+from rich.panel import Panel
+from rich.padding import Padding
+from rich.syntax import Syntax
+from rich.console import Group
+from typing import List, Optional, Mapping, Any
 from subprocess import PIPE, Popen, TimeoutExpired, CalledProcessError, CompletedProcess
 
 FORMAT = "%(message)s"
@@ -133,7 +138,7 @@ def __run_subprocess(
     return CompletedProcess(process.args, return_code, stdout, stderr)
 
 
-def compile_all_snippets(regex_pattern, file):
+def compile_all_snippets(regex_pattern: str, file: Path):
     def get_file_object(language, file_name=None):
         if not file_name:
             return tempfile.NamedTemporaryFile(suffix="." + language, delete=False)
@@ -183,31 +188,91 @@ def compile_all_snippets(regex_pattern, file):
             cwd=cwd,
         )
         if result.status != 0:
+            highlighted_code = Syntax(code, "c++", line_numbers=True)
+            text = Padding(
+                Text(
+                    "❌ Failed to compile file {} ❌".format(code_file_name),
+                    style="bold red",
+                    justify="center",
+                ),
+                1,
+            )
+            code_panel = Panel(highlighted_code, title="Snippet code")
+            error_panel = Panel(
+                Syntax(result.stderr, "gdscript", line_numbers=False),
+                title="Error",
+                style="red",
+            )
+            print(Padding(Panel(Group(text, code_panel, error_panel)), 1))
             error_count += 1
-            terminal_width = 80
-            log.error("%s", "-" * terminal_width)
-            log.error("❌ Failed to compile snippet:\n%s", code)
-            log.error("%s", "-" * terminal_width)
-            log.error("stderr:\n\n%s\n", result.stderr)
-            log.error("%s", "=" * terminal_width)
     return error_count
 
 
-def main():
+def get_all_files(path: Path, suffix: str):
+    return [file for file in path.iterdir() if file.suffix == suffix]
+
+
+def get_all_changed_files(path: Path, suffix: str):
+    git_command = (
+        "{ git diff --name-only ; git diff --name-only --staged ; } | sort | uniq"
+    )
+    result = run_command(command=git_command, timeout=20, cwd=path)
+    files = [
+        path / file_name for file_name in result.stdout.split("\n") if file_name.strip()
+    ]
+    print(files)
+    return [file for file in files if file.suffix == suffix]
+
+
+def main(
+    changes_only: bool = typer.Option(
+        False,
+        help="Only run on changed files.",
+        rich_help_panel="Customization and Utils",
+    ),
+    project_folder: str = typer.Option(
+        ..., help="Project folder.", rich_help_panel="Customization and Utils"
+    ),
+):
     regex_pattern = re.compile(REGEX_TEMPLATE, flags=re.VERBOSE | re.MULTILINE)
-    lectures_dir = Path.cwd() / "lectures"
+    lectures_dir = Path(project_folder) / "lectures"
     error_count = 0
-    for file in lectures_dir.iterdir():
-        if file.suffix != ".md":
-            continue
+    if changes_only:
+        files = get_all_changed_files(Path(project_folder), ".md")
+    else:
+        files = get_all_files(lectures_dir, ".md")
+
+    for file in files:
         log.info("ℹ️ Processing file: %s", file)
         error_count += compile_all_snippets(regex_pattern=regex_pattern, file=file)
     if error_count == 0:
-        log.info("✅ All snippets compile successfully!")
+        print(
+            Padding(
+                Panel(
+                    Padding(
+                        Text(
+                            "All snippets compiled successfully!",
+                            justify="center",
+                        ),
+                        1,
+                    ),
+                    style="green bold",
+                ),
+                1,
+            )
+        )
     else:
-        log.fatal("❌ Errors encountered: %s snippets did not compile!", error_count)
+        text = Text(
+            "{} snippets did not compile! 😢".format(error_count),
+            style="bold",
+            justify="center",
+        )
+        error = Padding(
+            Panel(Padding(text, 1), title="Errors encountered", style="red"), 1
+        )
+        print(error)
         sys.exit(1)
 
 
 if __name__ == "__main__":
-    main()
+    typer.run(main)
