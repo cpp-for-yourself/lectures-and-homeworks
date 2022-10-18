@@ -195,6 +195,18 @@ Enjoy! 😎
   - When to use the keyword `inline`
   - Some common best practices
   </details>
+- <details>
+  <summary>
+  Build systems intro
+  </summary>
+
+  [`[video]`](blah)
+  [`[slides]`](lectures/build_systems.md)
+
+  - Intro to build systems
+  - Build commands in a script
+  - Build commands in Makefile
+  </details>
 
 
 ## PS

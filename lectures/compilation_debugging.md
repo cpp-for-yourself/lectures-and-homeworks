@@ -12,7 +12,7 @@ footer: ![width:80px](images/C++ForYourselfIcon.png)
 - What compilation flags to use
 - How to debug code
 
-### 📺 Watch the related [YouTube video](https://youtu.be/NTlcDv7W2-c)! 
+### 📺 Watch the related [YouTube video](https://youtu.be/NTlcDv7W2-c)!
 
 ---
 # Special symbols used in slides
@@ -35,7 +35,7 @@ Style (🎨) and software design (🎓) recommendations mostly come from [Google
   ```cmd
   c++ -std=c++17 -o test test.cpp
   ```
-- ✅ Enable **most** [warnings](https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wall), treat them as errors: 
+- ✅ Enable **most** [warnings](https://gcc.gnu.org/onlinedocs/gcc/gcc-command-options/options-to-request-or-suppress-warnings.html#cmdoption-Wall), treat them as errors:
   `-Wall`, `-Wextra`, `-Wpedantic`, `-Werror`
 - Other warnings possible too:
   `-Wimplicit-fallthrough`, `-Wsign-conversion`, etc.
@@ -48,14 +48,14 @@ Style (🎨) and software design (🎓) recommendations mostly come from [Google
 # Debugging your code
 - Debugging **will** take more time than writing your code
 - :bulb: Read about [how to think about debugging](https://github.com/kmille/linux-debugging/blob/1e863038859420a50e2ebe3e7e18362aa70e8f57/mindset.md) (**really**, do it!)
-- When it comes to tools used for debugging, 
+- When it comes to tools used for debugging,
   there are largely two different philosophies:
   - Using **print** statements `[my preference]`
   - Using a **debugger**
 - Each has advantages and disadvantages
 - No debugging methods is complete without you thinking about the **probable cause of the problem**
 - You can read [a discussion](https://news.ycombinator.com/item?id=26925570) on Hacker News about it
-  
+
 ---
 # Using print statements
 - Just add any printout statements to your code
@@ -165,4 +165,3 @@ int main() {
 
 
 ![bg](https://fakeimg.pl/1280x1024/226699/fff/?text=Good%20luck!&font=bebas)
-
