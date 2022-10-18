@@ -208,7 +208,19 @@ Enjoy! 😎
   - Build commands as a script
   - Build commands in a `Makefile`
   </details>
+- <details>
+  <summary>
+  CMake introduction
+  </summary>
 
+  [`[video]`](blah)
+  [`[slides]`](lectures/cmake.md)
+
+  - Build process with CMake
+  - CMake Variables
+  - Targets and their properties
+  - Example CMake project
+  </details>
 
 ## PS
 
