@@ -39,7 +39,9 @@ REGEX_TEMPLATE = r"""
 DEFAULT_CMD_PER_LANGUAGE = {
     "cpp": "c++ -std=c++17 $FILENAME",
     "c++": "c++ -std=c++17 $FILENAME",
-    "cmake": "cmake .. && make",
+    "cmake": "cmake -P $FILENAME",
+    "bash": "",
+    "make": "make",
 }
 
 
@@ -215,11 +217,11 @@ def get_all_files(path: Path, suffix: str):
 
 def get_all_changed_files(path: Path, suffix: str):
     git_command = """
-    { 
-        git diff HEAD origin/main --name-only; 
-        git diff HEAD origin/main --name-only --staged; 
-        git diff --name-only; 
-        git diff --name-only --staged; 
+    {
+        git diff HEAD origin/main --name-only;
+        git diff HEAD origin/main --name-only --staged;
+        git diff --name-only;
+        git diff --name-only --staged;
     } | sort | uniq"""
     result = run_command(command=git_command, timeout=20, cwd=path)
     files = [

@@ -51,7 +51,7 @@ path {
 
 span.edgeLabel {
     background-color: white;
-    color: black;    
+    color: black;
 }
 
 svg {
@@ -61,6 +61,7 @@ svg {
 code {
     font-family: 'Fira Mono', monospace !important;
     font-weight: 500;
+    line-height: 1.15em;
     padding-top: 3px;
     padding-left: 5px;
     padding-right: 5px;
@@ -75,6 +76,7 @@ pre {
     margin-bottom: 0.5em;
     box-shadow: none;
     outline: auto;
+    width: fit-content;
     outline-color: #519EF0;
 }
 
@@ -123,6 +125,18 @@ ul, ol {
     margin-top: 0.2em;
     margin-bottom: 0.2em;
     margin-left: 0.2em;
+}
+
+kbd {
+    font-family: 'Fira Mono', monospace !important;
+    font-weight: 500;
+    background-color: rgba(0,0,0,0.05);
+    color: black;
+    padding-left: 0.3em;
+    padding-right: 0.3em;
+    margin-left: 0.1em;
+    margin-right: 0.2em;
+    box-shadow: 0.1em 0.1em 0em rgba(0,0,0,0.2);
 }
 
 img[alt~="center"] {
