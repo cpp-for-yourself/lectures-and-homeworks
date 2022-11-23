@@ -13,7 +13,7 @@ footer: ![width:80px](images/C++ForYourselfIcon.png)
 - How to use them
 - How **not** to use them
 
-### 📺 Watch the related [YouTube video](blah)! 
+### 📺 Watch the related [YouTube video](blah)!
 
 ---
 # Special symbols used in slides
@@ -109,7 +109,7 @@ int main() {
   `CPP_SKIP_SNIPPET`
   -->
   ```cpp
-  enum MyEnum{kValue1, kValue2};  // 😱 Don't do this in C++11 
+  enum MyEnum{kValue1, kValue2};  // 😱 Don't do this in C++11
   ```
 - Old enums can be implicitly converted to int:
 - These enums are **not** scoped like the `class` ones
