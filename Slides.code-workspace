@@ -1,0 +1,91 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../../modern-cpp-course"
+		}
+	],
+	"settings": {
+		"markdown.marp.themes": [
+			"theme.css"
+		],
+		"revealjs.css": [
+			"theme-reveal.css"
+		],
+		"revealjs.highlightTheme": "atom-one-dark-reasonable",
+		"revealjs.theme": "black",
+		"revealjs.transitionSpeed": "fast",
+		"revealjs.slideNumber": true,
+		"revealjs.showSlideNumber": "print",
+		"markdown.marp.enableHtml": true,
+		"files.associations": {
+			"iostream": "cpp",
+			"__bit_reference": "cpp",
+			"__bits": "cpp",
+			"__config": "cpp",
+			"__debug": "cpp",
+			"__errc": "cpp",
+			"__hash_table": "cpp",
+			"__locale": "cpp",
+			"__mutex_base": "cpp",
+			"__node_handle": "cpp",
+			"__nullptr": "cpp",
+			"__split_buffer": "cpp",
+			"__string": "cpp",
+			"__threading_support": "cpp",
+			"__tuple": "cpp",
+			"array": "cpp",
+			"atomic": "cpp",
+			"bit": "cpp",
+			"bitset": "cpp",
+			"cctype": "cpp",
+			"chrono": "cpp",
+			"clocale": "cpp",
+			"cmath": "cpp",
+			"compare": "cpp",
+			"complex": "cpp",
+			"concepts": "cpp",
+			"cstdarg": "cpp",
+			"cstddef": "cpp",
+			"cstdint": "cpp",
+			"cstdio": "cpp",
+			"cstdlib": "cpp",
+			"cstring": "cpp",
+			"ctime": "cpp",
+			"cwchar": "cpp",
+			"cwctype": "cpp",
+			"exception": "cpp",
+			"initializer_list": "cpp",
+			"ios": "cpp",
+			"iosfwd": "cpp",
+			"istream": "cpp",
+			"limits": "cpp",
+			"locale": "cpp",
+			"memory": "cpp",
+			"mutex": "cpp",
+			"new": "cpp",
+			"optional": "cpp",
+			"ostream": "cpp",
+			"ratio": "cpp",
+			"sstream": "cpp",
+			"stdexcept": "cpp",
+			"streambuf": "cpp",
+			"string": "cpp",
+			"string_view": "cpp",
+			"system_error": "cpp",
+			"tuple": "cpp",
+			"type_traits": "cpp",
+			"typeinfo": "cpp",
+			"unordered_map": "cpp",
+			"variant": "cpp",
+			"vector": "cpp",
+			"__functional_base": "cpp",
+			"algorithm": "cpp",
+			"functional": "cpp",
+			"iterator": "cpp",
+			"utility": "cpp"
+		}
+	}
+}

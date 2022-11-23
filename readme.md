@@ -195,6 +195,19 @@ Enjoy! 😎
   - When to use the keyword `inline`
   - Some common best practices
   </details>
+- <details>
+  <summary>
+  Build systems introduction
+  </summary>
+
+  [Video](https://www.youtube.com/watch?v=kbk4DphsYPU)|[Slides](lectures/build_systems.md)
+  :---:|:---:
+  <a href="https://www.youtube.com/watch?v=kbk4DphsYPU"><img src="https://img.youtube.com/vi/kbk4DphsYPU/0.jpg" alt="Video" width=100%></a> |  <a href="lectures/build_systems.md"><img src="lectures/images/statistics.png" alt="Slides" width=50></a>
+
+  - Intro to build systems
+  - Build commands as a script
+  - Build commands in a `Makefile`
+  </details>
 
 
 ## PS
