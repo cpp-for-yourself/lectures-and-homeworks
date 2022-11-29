@@ -132,7 +132,6 @@ int main() {
 ```
 - We can see smth like this on `stderr`:
   ```
-  i = 3
   i = 2
   i = 1
   i = 0
