@@ -104,7 +104,7 @@ Style (🎨) and software design (🎓) recommendations mostly come from [Google
 #include <vector>
 int main() {
   std::vector<int> numbers{1, 2, 3};
-  for (auto i = numbers.size(); i >= 0; --i) {
+  for (auto i = numbers.size() - 1UL; i >= 0; --i) {
     std::cout << numbers[i] << std::endl;
   }
   return 0;
@@ -122,7 +122,7 @@ Once we run the program it crashes at some point:
 int main() {
   std::vector<int> numbers{1, 2, 3};
   int count{};  // <- Count used for debugging
-  for (auto i = numbers.size(); i >= 0; --i) {
+  for (auto i = numbers.size() - 1UL; i >= 0; --i) {
     std::cerr << "i = " << i << std::endl;  // <- Debug print
     std::cout << numbers[i] << std::endl;
     if (count++ > 10) {break;}  // <- Early exit
@@ -132,7 +132,6 @@ int main() {
 ```
 - We can see smth like this on `stderr`:
   ```
-  i = 3
   i = 2
   i = 1
   i = 0
