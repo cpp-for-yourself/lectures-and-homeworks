@@ -213,8 +213,9 @@ Enjoy! 😎
   CMake introduction
   </summary>
 
-  [`[video]`](blah)
-  [`[slides]`](lectures/cmake.md)
+  [Video](https://www.youtube.com/watch?v=UH6F6ypdYbw)|[Slides](lectures/build_systems.md)
+  :---:|:---:
+  <a href="https://www.youtube.com/watch?v=UH6F6ypdYbw"><img src="https://img.youtube.com/vi/UH6F6ypdYbw/0.jpg" alt="Video" width=100%></a> |  <a href="lectures/cmake.md"><img src="lectures/images/statistics.png" alt="Slides" width=50></a>
 
   - Build process with CMake
   - CMake Variables

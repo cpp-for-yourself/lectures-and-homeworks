@@ -14,7 +14,7 @@ paginate: true
 - Targets and their properties
 - Example CMake project
 
-### 📺 Watch the related [YouTube video](blah)!
+### 📺 Watch the related [YouTube video](https://youtu.be/UH6F6ypdYbw)!
 
 ---
 # Special symbols used in slides
@@ -100,6 +100,7 @@ cmake --build build -j 8  # Run make with 8 threads
 ```bash
 cd <project_folder>  # One that has CMakeLists.txt in it
 ccmake -S . -B build  # Press "c" to configure and "g" to generate
+cmake --build build -j 8  # Run make with 8 threads
 ```
 :scream: If you only have an older CMake version (🔽`3.13`)
 ```bash
@@ -114,11 +115,10 @@ make -j8      # Run make with 8 threads
 
 
 ---
-# Variables to configure your build
+# Variables and cache 👇
 - CMake maintains a **cache of variables**
-  (look for `CMakeCache.txt` file after running `cmake`)
+  (look for `CMakeCache.txt` file after running CMake)
 - Two types of CMake variables: **cached** and **scope-local**
-- 🚨 Variables in CMake can be confusing because of this
   ```cmake
   # Local variable hides any cached variable with the same name
   set(VAR "value")  # Does not get copied to cache!
@@ -128,12 +128,15 @@ make -j8      # Run make with 8 threads
   set(VAR "value" CACHE STRING "" FORCE)
   set(VAR "value" CACHE INTERNAL "")
   ```
+- Use `option` (`ON` or `OFF`) for a boolean cached variable
+  ```cmake
+  option(CUSTOM_OPTION "Description" OFF)
+  ```
 - **Use** the value of a variable as `${VAR}`
 - We can add a variable to cache from command line:<br>
   ```bash
   cmake -D FOO="foo" -D BAR="bar" -S . -B build
   ```
-- Some special variables are already in the cache
 ---
 # Print a message in CMake
 - Show a **simple message**:<br>
@@ -165,6 +168,11 @@ make -j8      # Run make with 8 threads
     message(FATAL_ERROR "FOO is not defined!")
   endif()
   ```
+- **Omit the message type** to always print the message:
+  ```cmake
+  message("Always print this")
+  ```
+
 
 ---
 # Create libraries: `add_library`
