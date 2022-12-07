@@ -13,7 +13,7 @@ footer: ![width:80px](images/C++ForYourselfIcon.png)
 - How to use them
 - How **not** to use them
 
-### 📺 Watch the related [YouTube video](blah)!
+### 📺 Watch the related [YouTube video](https://youtu.be/4kZyQ-TwH00)!
 
 ---
 # Special symbols used in slides
