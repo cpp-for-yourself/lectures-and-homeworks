@@ -180,6 +180,19 @@ Enjoy! 😎
   </details>
 - <details>
   <summary>
+  Enumerations
+  </summary>
+
+  [Video](https://www.youtube.com/watch?v=4kZyQ-TwH00)|[Slides](lectures/enums.md)
+  :---:|:---:
+  <a href="https://www.youtube.com/watch?v=4kZyQ-TwH00"><img src="https://img.youtube.com/vi/4kZyQ-TwH00/0.jpg" alt="Video" width=100%></a> |  <a href="lectures/enums.md"><img src="lectures/images/statistics.png" alt="Slides" width=50></a>
+
+  - What are `enums`
+  - How to use them?
+  - Why not to use old style `enums`
+  </details>
+- <details>
+  <summary>
   Libraries and header files
   </summary>
 
