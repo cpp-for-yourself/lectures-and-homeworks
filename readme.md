@@ -1,5 +1,8 @@
 # Lectures and homeworks
 
+![Build status](https://img.shields.io/github/workflow/status/cpp-for-yourself/supplementary-materials/Checks?label=Link%20and%20code%20validation&style=for-the-badge)
+![Visitors](https://api.visitorbadge.io/api/visitors?path=code-for-yourself%2Fcode-for-yourself&labelColor=%23697689&countColor=%23263759)
+
 This is a list of lectures from the [C++ for yourself](https://youtube.com/playlist?list=PLwhKb0RIaIS1sJkejUmWj-0lk7v_xgCuT) course.
 
 ## How to follow this course
@@ -243,5 +246,3 @@ If you **do** find an error in some of those, please open an issue in this repo!
 ### Icons used in this file
 - <a href="https://www.flaticon.com/free-icons/presentation" title="presentation icons">Presentation icon created by Freepik - Flaticon</a>
 - <a href="https://www.flaticon.com/free-icons/teaching" title="teaching icons">Teaching icon created by Eucalyp - Flaticon</a>
-
-![Visitors](https://api.visitorbadge.io/api/visitors?path=code-for-yourself%2Fcode-for-yourself&labelColor=%23697689&countColor=%23263759)
