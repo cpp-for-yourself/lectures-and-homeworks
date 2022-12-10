@@ -1,4 +1,4 @@
-# Google tests
+# [Introduction to testing with googletest](https://www.youtube.com/watch?v=blah)
 
 <p align="center">
   <a href="https://www.youtube.com/watch?v=blah"><img src="https://img.youtube.com/vi/blah/0.jpg" alt="Video" align="right" width=50%></a>
@@ -106,6 +106,8 @@ code external/CMakeLists.txt
 `CPP_COPY_SNIPPET` try_googletest/external/CMakeLists.txt
 -->
 ```cmake
+# Setting this will only affect the folders down from the current one
+set(CMAKE_CXX_STANDARD 17)
 add_subdirectory(googletest)
 ```
 
