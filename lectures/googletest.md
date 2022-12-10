@@ -1,5 +1,9 @@
 # Google tests
 
+<p align="center">
+  <a href="https://www.youtube.com/watch?v=blah"><img src="https://img.youtube.com/vi/blah/0.jpg" alt="Video" align="right" width=50%></a>
+</p>
+
 ## Why you should care about testing
 
 <!-- Talking head -->
@@ -82,6 +86,9 @@ cd try_googletest
 code CMakeLists.txt
 ```
 `CMakeLists.txt`
+<!--
+`CPP_SKIP_SNIPPET`
+-->
 ```cmake
 cmake_minimum_required(VERSION 3.16..3.24)
 project(try_googletest VERSION 0.0.1
@@ -95,6 +102,9 @@ We then want to add a `CMakeLists.txt` to the `external` folder too:
 code external/CMakeLists.txt
 ```
 `external/CMakeLists.txt`
+<!--
+`CPP_COPY_SNIPPET` try_googletest/external/CMakeLists.txt
+-->
 ```cmake
 add_subdirectory(googletest)
 ```
@@ -111,6 +121,9 @@ For that we have to add a couple of things to our CMake:
 - We want to call `include(CTest)` in the main `CMakeLists.txt` file of the project to enable tests:
 
   `CMakeLists.txt`
+  <!--
+  `CPP_COPY_SNIPPET` try_googletest/CMakeLists.txt
+  -->
   ```cmake
   cmake_minimum_required(VERSION 3.16..3.24)
   project(try_googletest VERSION 0.0.1
@@ -125,6 +138,9 @@ For that we have to add a couple of things to our CMake:
 - In the folder with your test files create test binaries and register them with CTest using the [gtest_discover_tests](https://cmake.org/cmake/help/latest/module/GoogleTest.html) command:
 
   `try_googletest/CMakeLists.txt`
+  <!--
+  `CPP_COPY_SNIPPET` try_googletest/try_googletest/CMakeLists.txt
+  -->
   ```cmake
   # BUILD_TESTING variable is created by include(CTest)
   # It is set to ON by default
@@ -147,6 +163,10 @@ But wait! We don't have the actual test code there! Let's fix that right now!
 <!-- B-roll live editor -->
 We jump back into our editor, create a new file `try_googletest/my_test.cpp` and type away.
 
+<!--
+`CPP_COPY_SNIPPET` try_googletest/try_googletest/my_test.cpp
+`CPP_RUN_CMD` CWD:try_googletest rm -rf external/googletest/ && git clone https://github.com/google/googletest.git external/googletest && cmake -S . -B build && cmake --build build
+-->
 ```cpp
 // Must include the gtest header to use the testing library
 #include <gtest/gtest.h>
@@ -261,6 +281,9 @@ For that, create a new folder `cmake` in your project root and add the file `Upd
 - update them
 
 `try_googletest/cmake/UpdateSubmodules.cmake`:
+<!--
+`CPP_SKIP_SNIPPET`
+-->
 ```cmake
 # Adapted from https://cliutils.gitlab.io/modern-cmake/chapters/projects/submodule.html
 find_package(Git QUIET)
@@ -286,6 +309,9 @@ endif()
 ```
 
 We can call this script by adding an additional line to our root `CMakeLists.txt` file:
+<!--
+`CPP_SKIP_SNIPPET`
+-->
 ```cmake
 cmake_minimum_required(VERSION 3.16..3.24)
 project(try_googletest VERSION 0.0.1
