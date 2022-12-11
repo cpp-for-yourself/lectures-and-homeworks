@@ -1,7 +1,7 @@
-# [Introduction to testing with googletest](https://www.youtube.com/watch?v=blah)
+# [Introduction to testing with googletest](https://www.youtube.com/blah)
 
 <p align="center">
-  <a href="https://www.youtube.com/watch?v=blah"><img src="https://img.youtube.com/vi/blah/0.jpg" alt="Video" align="right" width=50%></a>
+  <a href="https://www.youtube.com/blah"><img src="https://img.youtube.com/vi/blah/0.jpg" alt="Video" align="right" width=50%></a>
 </p>
 
 ## Why you should care about testing
@@ -9,13 +9,13 @@
 <!-- Talking head -->
 You already know how to write some C++ code. Furthermore, you also know that the code should be structured into bite-sized chunks and that you can write functions that you can put into libraries.
 
-<!-- B-roll person typing -->
-So, you write your next amazing project, you spend hours on writing out the code and thinking about how amazing it's going to work.
+<!-- B-roll person typing ✅ -->
+So, you write your next amazing project, you spend hours on writing out the code and thinking about how great everything's going to work.
 
-<!-- B-roll person closing laptop -->
+<!-- B-roll person closing laptop ✅ -->
 Finally, you're there, you run your code.
 
-<!-- Explosion -->
+<!-- Explosion ✅ -->
 And...
 
 <!-- Talking head -->
@@ -23,8 +23,8 @@ Of course it crashes! At least my code would in such a scenario...
 
 Wouldn't it be nice if there was some automated framework we could use to reduce the likelihood of this outcome?
 
-<!-- B-roll Googletest running -->
-Well, of course there is! There are various testing libraries out there that combined become our first line of defense against the bugs. They all allow writing "test code" to test that our code does what we expect it to.
+<!-- B-roll Googletest running | voice ✅ -->
+Well, of course such a framework exists! There are actually various testing libraries out there that combined become our first line of defense against the bugs. They all allow writing "test code" to test that our code does what we expect it to.
 
 <!-- Talking head -->
 So today we're talking about how to set up such a system and make it work for our purposes. 😉
@@ -38,7 +38,7 @@ Well, essentially, testing our code means that we want to verify that it does wh
 
 This testing can happen on many levels!
 
-<!-- B-roll show on screen -->
+<!-- B-roll show on screen | voice ✅ -->
 We won't go too deep into this, but largely speaking we usually have these layers:
 - **Unit testing** --- test if each module works on its own
 - **Integration testing** --- test how the modules work together
@@ -61,24 +61,24 @@ Largely speaking there are 3 frameworks that I am aware of that are being used i
 
 All of these can be integrated into your CMake or bazel project. Also, they all follow relatively similar concepts, so once you learn one you'll easily use the other ones too.
 
-<!-- B-roll scroll googletest website -->
+<!-- B-roll scroll googletest website | voice ✅ -->
 In this course, we're going to be using the [googletest](https://github.com/google/googletest) framework as this is the one I've seen most often in the industries I've been working in.
 
 ### How to get the googletest code
 <!-- Talking head -->
 There are multiple ways to include the googletest framework into your project.
 
-<!-- B-roll highlight google statement -->
+<!-- B-roll highlight google statement | voice ✅ -->
 Google recommends compiling their testing framework along with your project, so we won't install it as a dependency system-wide and will instead use the source code directly in our project
 
-<!-- B-roll downloading manually -->
+<!-- B-roll downloading manually | voice ✅ -->
 For a start we'll just download it manually, unzip it and put it into the `external` subfolder of our project folder to be used by our build system.
 
 <!-- Talking head -->
 We do start with this manual way, but stick until the end of the video to find out why it's not what we want to do and what we should do instead.
 
 ### How to include googletest in our CMake project
-<!-- B-roll write the cmake file -->
+<!-- B-roll write the cmake file | voice ✅ -->
 Anyway, now that the code is in the project folder, we can use it in our CMake project by adding the necessary `add_subdirectory` command to the `CMakeLists.txt` file.
 ```cmd
 mkdir try_googletest
@@ -111,7 +111,7 @@ set(CMAKE_CXX_STANDARD 17)
 add_subdirectory(googletest)
 ```
 
-<!-- B-roll build the code -->
+<!-- B-roll build the code | voice ✅ -->
 That's it! If we now build our project it will build the googletest code.
 
 ### How to use the googletest framework
@@ -196,7 +196,7 @@ TEST(TestTopic, MoreEqualityTests) {
   // ASSERT_* is similar to EXPECT_* but stops the execution
   // of the test if fails.
   // EXPECT_* continues execution on failure too.
-  ASSERT_EQ(42, 0) << "Oh no, a mistake!";
+  ASSERT_EQ(GetMeaningOfLife(), 0) << "Oh no, a mistake!";
   EXPECT_FLOAT_EQ(23.23F, 23.23F);
 }
 ```
@@ -214,13 +214,13 @@ GTEST_COLOR=1 ctest --test-dir build --output-on-failure -j12
 ```
 
 <!-- Talking head with error overlay -->
-Unfortunately, one of our tests is failing! It shows up in read and prints our custom error message too! Let's go back to the editor and fix it!
+Unfortunately, one of our tests is failing! It shows up in red and prints our custom error message too! Let's go back to the editor and fix it!
 
 <!-- B-roll code -->
 We can easily fix this error by changing the code in our test.
 ```diff
--ASSERT_EQ(42, 0) << "Oh no, a mistake!";
-+ASSERT_EQ(42, 42) << "Oh no, a mistake!";
+-ASSERT_EQ(GetMeaningOfLife(), 0) << "Oh no, a mistake!";
++ASSERT_EQ(GetMeaningOfLife(), 42) << "Oh no, a mistake!";
 ```
 We now execute this again and see that all the tests have passed! Hooray! **(cheerful video)**
 
@@ -271,7 +271,7 @@ The only issue with this is that people _will_ forget to do this, which will lea
 
 Remember how I told you that "CMake is just a scripting language"?
 
-**We can bake the update procedure into CMake directly!**
+**We can bake the submodule update procedure into CMake directly!**
 
 ### Update the submodules automagically
 
