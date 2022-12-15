@@ -75,7 +75,7 @@ Google recommends compiling their testing framework along with your project, so 
 For a start we'll just download it manually, unzip it and put it into the `external` subfolder of our project folder to be used by our build system.
 
 <!-- Talking head -->
-We do start with this manual way, but stick until the end of the video to find out why it's not what we want to do and what we should do instead.
+Even though we _do_ start with this manual way, but stick until the end of the video to find out why it's not what we want to do and what we should do instead.
 
 ### How to include googletest in our CMake project
 <!-- B-roll write the cmake file | voice ✅ -->
@@ -203,7 +203,7 @@ TEST(TestTopic, MoreEqualityTests) {
 
 ### How to run a Google test?
 <!-- Talking head -->
-Now with these tests defined and our CMake configured to discover them, let's see how to run them!
+Now with these tests defined and our CMake configured to discover them, we can eventually actually run them!
 
 <!-- B-roll building and executing -->
 We now just need to build the project again and run `ctest`:
@@ -214,7 +214,8 @@ GTEST_COLOR=1 ctest --test-dir build --output-on-failure -j12
 ```
 
 <!-- Talking head with error overlay -->
-Unfortunately, one of our tests is failing! It shows up in red and prints our custom error message too! Let's go back to the editor and fix it!
+Unfortunately, one of our tests is failing!
+It shows up in red and prints our custom error message too! Let's go back to the editor and fix it!
 
 <!-- B-roll code -->
 We can easily fix this error by changing the code in our test.
@@ -226,7 +227,8 @@ We now execute this again and see that all the tests have passed! Hooray! **(che
 
 ### Testing our own libraries
 <!-- Talking head -->
-For now we've only checked very trivial things in our tests. If we want to use other libraries here we can easily do that by adding those libraries as dependencies and including the appropriate header files here.
+For now we've only checked very trivial things in our tests. I mean, we've been testing a function that we wrote directly _in the test file_!
+If we want to use other libraries here we can easily do that by adding those libraries as dependencies to the test CMake target and including the appropriate header files in the C++ test file.
 
 If you don't know what I'm talking about then watch [this tutorial about libraries](headers_and_libraries.md) and then [this one about cmake](cmake.md).
 
@@ -235,23 +237,23 @@ If you don't know what I'm talking about then watch [this tutorial about librari
 <!-- Talking head -->
 Ok, remember how I told you to stick around?
 <!-- show b/w part where I ask to stick around -->
-Now is the time for this.
 Copying the code from GitHub like we did before into your project is not enough. Let me illustrate!
 
-Imagine you're developing your project in a team (or, if you don't like people, imagine that you're developing your project on multiple machines). You've just copied the googletest code into your project and wrote some tests. You push your code changes in your git repo (but not the googletest code, because it's not yours).
+Imagine you're developing your project in a team (or, if you don't like people, imagine that you're developing your project on multiple machines). You've just copied the googletest code into your project and wrote some tests. You push your code changes into your git repository. You don't want to push the googletest code because it's not _your_ code, it is some _external_ code that you don't want to maintain.
 
-What will happen to your colleagues when they pull the changes and try to build?
+Now, what will happen to your colleagues when they pull the changes and try to build?
 
 <!-- B-roll failing to find the tests folder -->
 This. CMake fails to find the googletest folder so now they would also need to manually download it into the external folder.
 
 <!-- Talking head -->
-And now you also need to sync on the version of the googletest library that all of you download. You can probably guess that this is not the way. And you're right! There are multiple ways people deal with this:
+And now you also need to sync on the version of the googletest library that all of you download. You can probably guess that this is not the way.
+And you're right! There are multiple ways people deal with this:
 
 <!-- show options on screen -->
 - Installing googletest as a system dependency (deprecated, but still used)
 - Using the CMake's [`FetchContent`](https://cmake.org/cmake/help/latest/module/FetchContent.html) to download the code on every build (you can read all about it in Googletest's [Quickstart](https://google.github.io/googletest/quickstart-cmake.html) section)
-- Or using submodules (this is my preference and I'll show you how to do it now) (adapted from [here](https://cliutils.gitlab.io/modern-cmake/chapters/projects/submodule.html))
+- Or adding Googletest as a submodule to your repository (this is my preference and I'll show you how to do it now) (adapted from [here](https://cliutils.gitlab.io/modern-cmake/chapters/projects/submodule.html))
 
 <!-- B-roll terminal -->
 We copy the link to the googletest library from GitHub and initialize a submodule with it:
