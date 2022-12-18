@@ -1,7 +1,7 @@
-# [Introduction to testing with googletest](https://www.youtube.com/blah)
+# [Introduction to testing with googletest](https://youtu.be/pxJoVRfpRPE)
 
 <p align="center">
-  <a href="https://www.youtube.com/blah"><img src="https://img.youtube.com/vi/blah/0.jpg" alt="Video" align="right" width=50%></a>
+  <a href="https://youtu.be/pxJoVRfpRPE"><img src="https://img.youtube.com/vi/pxJoVRfpRPE/0.jpg" alt="Video" align="right" width=50%></a>
 </p>
 
 ## Why you should care about testing
@@ -23,14 +23,13 @@ Of course it crashes! At least my code would in such a scenario...
 
 Wouldn't it be nice if there was some automated framework we could use to reduce the likelihood of this outcome?
 
-<!-- B-roll Googletest running | voice ✅ -->
+<!-- B-roll Googletest running | ✅ -->
 Well, of course such a framework exists! There are actually various testing libraries out there that combined become our first line of defense against the bugs. They all allow writing "test code" to test that our code does what we expect it to.
 
 <!-- Talking head -->
 So today we're talking about how to set up such a system and make it work for our purposes. 😉
 
 ## What does "testing" even mean
-
 <!-- Talking head -->
 Before we talk about a concrete framework, let's chat about what does it mean to "test" the code.
 
@@ -72,7 +71,7 @@ There are multiple ways to include the googletest framework into your project.
 Google recommends compiling their testing framework along with your project, so we won't install it as a dependency system-wide and will instead use the source code directly in our project
 
 <!-- B-roll downloading manually | voice ✅ -->
-For a start we'll just download it manually, unzip it and put it into the `external` subfolder of our project folder to be used by our build system.
+For a start we'll just download it manually, unzip it and put it into the `external` subfolder of our project folder to be used by our build system. Let's put it to `my_project/external` folder.
 
 <!-- Talking head -->
 Even though we _do_ start with this manual way, but stick until the end of the video to find out why it's not what we want to do and what we should do instead.
@@ -81,8 +80,8 @@ Even though we _do_ start with this manual way, but stick until the end of the v
 <!-- B-roll write the cmake file | voice ✅ -->
 Anyway, now that the code is in the project folder, we can use it in our CMake project by adding the necessary `add_subdirectory` command to the `CMakeLists.txt` file.
 ```cmd
-mkdir try_googletest
-cd try_googletest
+mkdir my_project
+cd my_project
 code CMakeLists.txt
 ```
 `CMakeLists.txt`
@@ -103,7 +102,7 @@ code external/CMakeLists.txt
 ```
 `external/CMakeLists.txt`
 <!--
-`CPP_COPY_SNIPPET` try_googletest/external/CMakeLists.txt
+`CPP_COPY_SNIPPET` my_project/external/CMakeLists.txt
 -->
 ```cmake
 # Setting this will only affect the folders down from the current one
@@ -124,7 +123,7 @@ For that we have to add a couple of things to our CMake:
 
   `CMakeLists.txt`
   <!--
-  `CPP_COPY_SNIPPET` try_googletest/CMakeLists.txt
+  `CPP_COPY_SNIPPET` my_project/CMakeLists.txt
   -->
   ```cmake
   cmake_minimum_required(VERSION 3.16..3.24)
@@ -135,13 +134,13 @@ For that we have to add a couple of things to our CMake:
   include(CTest)
   # Add subdirectories with code
   add_subdirectory(external)
-  add_subdirectory(try_googletest)
+  add_subdirectory(my_project)
   ```
 - In the folder with your test files create test binaries and register them with CTest using the [gtest_discover_tests](https://cmake.org/cmake/help/latest/module/GoogleTest.html) command:
 
-  `try_googletest/CMakeLists.txt`
+  `my_project/CMakeLists.txt`
   <!--
-  `CPP_COPY_SNIPPET` try_googletest/try_googletest/CMakeLists.txt
+  `CPP_COPY_SNIPPET` my_project/my_project/CMakeLists.txt
   -->
   ```cmake
   # BUILD_TESTING variable is created by include(CTest)
@@ -163,11 +162,11 @@ That's all we need to integrate our tests with CMake.
 But wait! We don't have the actual test code there! Let's fix that right now!
 
 <!-- B-roll live editor -->
-We jump back into our editor, create a new file `try_googletest/my_test.cpp` and type away.
+We jump back into our editor, create a new file `my_project/my_test.cpp` and type away.
 
 <!--
-`CPP_COPY_SNIPPET` try_googletest/try_googletest/my_test.cpp
-`CPP_RUN_CMD` CWD:try_googletest rm -rf external/googletest/ && git clone https://github.com/google/googletest.git external/googletest && cmake -S . -B build && cmake --build build
+`CPP_COPY_SNIPPET` my_project/my_project/my_test.cpp
+`CPP_RUN_CMD` CWD:my_project rm -rf external/googletest/ && git clone https://github.com/google/googletest.git external/googletest && cmake -S . -B build && cmake --build build
 -->
 ```cpp
 // Must include the gtest header to use the testing library
@@ -258,7 +257,7 @@ And you're right! There are multiple ways people deal with this:
 <!-- B-roll terminal -->
 We copy the link to the googletest library from GitHub and initialize a submodule with it:
 ```cmd
-cd try_googletest
+cd my_project
 git submodule add https://github.com/google/googletest.git external/googletest
 ```
 
@@ -284,7 +283,7 @@ For that, create a new folder `cmake` in your project root and add the file `Upd
 - list available submodules
 - update them
 
-`try_googletest/cmake/UpdateSubmodules.cmake`:
+`my_project/cmake/UpdateSubmodules.cmake`:
 <!--
 `CPP_SKIP_SNIPPET`
 -->
@@ -327,7 +326,7 @@ include(cmake/UpdateSubmodules.cmake)
 include(CTest)
 # Add subdirectories with code
 add_subdirectory(external)
-add_subdirectory(try_googletest)
+add_subdirectory(my_project)
 ```
 
 <!-- B-roll terminal -->
