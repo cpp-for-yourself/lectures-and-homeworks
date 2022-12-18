@@ -237,6 +237,21 @@ Enjoy! 😎
   - Targets and their properties
   - Example CMake project
   </details>
+- <details>
+  <summary>
+  Using <code>googletest</code> framework for testing code
+  </summary>
+
+  [Video](https://www.youtube.com/watch?v=pxJoVRfpRPE)|[Slides](lectures/googletest.md)
+  :---:|:---:
+  <a href="https://www.youtube.com/watch?v=pxJoVRfpRPE"><img src="https://img.youtube.com/vi/pxJoVRfpRPE/0.jpg" alt="Video" width=100%></a> |  <a href="lectures/googletest.md"><img src="lectures/images/statistics.png" alt="Slides" width=50></a>
+
+  - Explain what testing is for
+  - Explain what testing is
+  - Show how to download and setup googletest
+  - Show how to write a simple test
+  </details>
+
 
 ## PS
 
