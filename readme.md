@@ -1,6 +1,6 @@
 # Lectures and homeworks
 
-![Build status](https://img.shields.io/github/workflow/status/cpp-for-yourself/supplementary-materials/Checks?label=Link%20and%20code%20validation&style=for-the-badge)
+![Build status](https://img.shields.io/github/actions/workflow/status/cpp-for-yourself/supplementary-materials/action.yml?branch=main&label=Link%20and%20code%20validation&style=for-the-badge)
 ![Visitors](https://api.visitorbadge.io/api/visitors?path=code-for-yourself%2Fcode-for-yourself&labelColor=%23697689&countColor=%23263759)
 
 This is a list of lectures from the [C++ for yourself](https://youtube.com/playlist?list=PLwhKb0RIaIS1sJkejUmWj-0lk7v_xgCuT) course.
