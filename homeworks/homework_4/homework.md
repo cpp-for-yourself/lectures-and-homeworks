@@ -74,6 +74,8 @@ They also should have header files so that they can be included with:
     ```cpp
     std::vector<std::string> Split(const std::string& str, const std::string& delimiter);
     ```
+    > Hint: You might want to use the [`find`](https://en.cppreference.com/w/cpp/string/basic_string/find) method from `std::string` when implementing this function.
+
     Examples:
       - `Split("hello world", " ")` ➡️ `std::vector{"hello", "world"}`
       - `Split("aaabaaba", "aa")` ➡️ `std::vector{"", "ab", "ba"}`
