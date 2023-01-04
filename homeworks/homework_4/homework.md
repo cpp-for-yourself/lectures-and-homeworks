@@ -8,7 +8,6 @@ Today we will write a small library for string processing with an unassuming nam
 <!-- Screen record -->
 Speaking about putting to the test, you will have to write tests for your library.
 
-
 <!-- Talking head -->
 We'll also implement a couple of examples to show how this library works.
 
@@ -16,15 +15,22 @@ We'll also implement a couple of examples to show how this library works.
 They all live in the examples folder and allow to:
 - Split string by running: `examples/split_strings`
 - Trim strings by running: `examples/trim_strings`
-- Check if they contain a substring by running `examples/string_contains`
 
 <!-- Talking head -->
 That's about it. As always, follow to the description of this video for a link to a formal definition of the homework. And good luck!
 
 ## Formal homework definition
+The main task of this homework is to write a library that splits and trims strings. It is checked in two ways:
+1. Through tests using the `googletest` framework
+2. Through binaries in the `examples` folder
+
+Below we cover all the details that you might need for the implementation.
+
+### Prerequisites
+Please make sure you've done the previous homework and that you're comfortable with all lectures since that homework until this one. The [Readme](../../readme.md) is a convenient way to check this.
 
 ### The expected project structure
-The project has to follow the template described in the [CMake](../../lectures/cmake.md) and [Googletest](../../lectures/googletest.md) lectures. Here is how it will look inside of the `homework_4` folder in your homework repository (that you can [create from this template](https://github.com/cpp-for-yourself/homeworks)).
+The project has to follow the template described in the [CMake](../../lectures/cmake.md) and [GoogleTest](../../lectures/googletest.md) lectures. Here is how it will look inside of the `homework_4` folder in your homework repository (that you can [create from this template](https://github.com/cpp-for-yourself/homeworks)).
 
 ```bash
 homework_4/
@@ -43,7 +49,6 @@ homework_4/
     │   ├── split_string.h
     │   ├── split_string_test.cpp
     │   └── ... # Same for all other libraries
-    ├── build/  # All generated build files. Don't modify manually!
     ├── .clang-format
     └── readme.md  # Description of your project. Go nuts!
 ```
@@ -66,7 +71,7 @@ They also should have header files so that they can be included with:
 - `#include <no_strings_attached/split_string.h>`
 - `#include <no_strings_attached/string_trim.h>`
 
-> Such small libraries are a bit excessive for the real world use, but we are learning how to write libraries here, so it'll do :wink:
+> :bulb: Such small libraries are a bit excessive for the real world use, but we are learning how to write libraries here, so it'll do :wink:
 
 #### Expected functionality
 - Splitting strings library `string_split` should have the following functions:
@@ -74,7 +79,7 @@ They also should have header files so that they can be included with:
     ```cpp
     std::vector<std::string> Split(const std::string& str, const std::string& delimiter);
     ```
-    > Hint: You might want to use the [`find`](https://en.cppreference.com/w/cpp/string/basic_string/find) method from `std::string` when implementing this function.
+    > :bulb: Hint: You might want to use the [`find`](https://en.cppreference.com/w/cpp/string/basic_string/find) method from `std::string` when implementing this function.
 
     Examples:
       - `Split("hello world", " ")` ➡️ `std::vector{"hello", "world"}`
@@ -112,9 +117,30 @@ They also should have header files so that they can be included with:
 #### Tests for libraries
 All of the libraries must have unit tests using the `googletest` framework available as a submodule in the project's `external` folder, just like it is presented in the [Googletest](../../lectures/googletest.md) lecture. All of the tests must live in the same folder as the file that contains the code that they test and must be registered through `ctest`.
 
-For validating the right functionality, the homework checking system will inject another folder `validation_test` into your project and run the custom-designed tests on your code. This will show up as a separate line in the output from the homework checker bot.
+For validating the right functionality, the homework checking system will inject an additional folder `validation_test` into your project and run the custom-designed tests on your code. This will show up as a separate line in the output from the homework checker in your PR and wiki.
 
 #### Example binaries
 To show off the functionality we will also have binaries that use this functionality. These should be reachable after building the project under these paths and behave as follows:
-- An example for splitting strings: `build/examples/split_strings`
-  - It should behave as follows:
+- The binary to split string: `build/examples/split_strings`
+  - It should ask the user for a string and print this string split on the `" "` character with every word surrounded in `'` characters
+  - Example:
+    ```
+    echo "hello world" | ./build/examples/split_strings
+    Example program that splits strings.
+    Please enter a string:
+    Your split string: 'hello' 'world'
+    ```
+- The binary to trim strings: `build/examples/trim_strings`
+  - It should ask the user for a string and trim the spaces around it. It should then print this string to the terminal surrounded in `'` characters
+  - Example:
+    ```
+    echo "  hello world  " | ./build/examples/trim_strings
+    Example program that trims strings.
+    Please enter a string:
+    Your split string: 'hello world'
+    ```
+
+> :bulb: In your binaries, you might want to use the [`std::getline`](https://en.cppreference.com/w/cpp/string/basic_string/getline) function instead of directly using `std::cin` as the latter splits input on the <kbd>space</kbd> character, while the former does not.
+
+## That's it!
+Congratulations! You've implemented your own library in relatively modern C++! On to the next challenge! Do share your thoughts on the whole process in the [discussions page](https://github.com/orgs/cpp-for-yourself/discussions/categories/general) :pray:.
