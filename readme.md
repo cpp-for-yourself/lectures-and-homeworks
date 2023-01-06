@@ -239,7 +239,7 @@ Enjoy! 😎
   </details>
 - <details>
   <summary>
-  Using <code>googletest</code> framework for testing code
+  Using GoogleTest framework for testing code
   </summary>
 
   [Video](https://www.youtube.com/watch?v=pxJoVRfpRPE)|[Slides](lectures/googletest.md)
@@ -251,7 +251,20 @@ Enjoy! 😎
   - Show how to download and setup googletest
   - Show how to write a simple test
   </details>
+- <details>
+  <summary><code>Homework</code>: string processing library</summary>
 
+  [Video](https://youtu.be/f0x2qcFgu5o)|[Homework](homeworks/homework_4/homework.md)
+  :---:|:---:
+  <a href="https://youtu.be/f0x2qcFgu5o"><img src="https://img.youtube.com/vi/f0x2qcFgu5o/0.jpg" alt="Video" width=100%></a> |  <a href="homeworks/homework_4/homework.md"><img src="lectures/images/lecture.png" alt="Homework" width=50></a>
+
+  - You will write library that allows to split and trim strings
+  - You will learn how to:
+    - Write a CMake project from scratch
+    - Write your own libraries
+    - Test them with googletest
+    - Link them to binaries
+  </details>
 
 ## PS
 
