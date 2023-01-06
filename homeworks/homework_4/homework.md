@@ -1,19 +1,23 @@
 # Writing a string processing library
 
+<p align="center">
+  <a href="blah"><img src="https://img.youtube.com/vi/blah/0.jpg" alt="Video" align="right" width=40%></a>
+</p>
+
 <!-- Talking head -->
 It's time for the next homework. We now know a lot about writing functions, putting them into header and source files and organizing all of those into libraries, so it's about time we put it to the test.
 
 Today we will write a small library for string processing with an unassuming name `"no_strings_attached"` :wink:
 
 <!-- Screen record -->
-Speaking about putting to the test, you will have to write tests for your library.
+Speaking about "putting to the test", you will have to write tests for your library.
 
 <!-- Talking head -->
 We'll also implement a couple of examples to show how this library works.
 
 <!-- Screen record -->
 They all live in the examples folder and allow to:
-- Split string by running: `examples/split_strings`
+- Split strings by running: `examples/split_strings`
 - Trim strings by running: `examples/trim_strings`
 
 <!-- Talking head -->
@@ -97,7 +101,7 @@ They also should have header files so that they can be included with:
     - `Side::kLeft`
     - `Side::kRight`
     - `Side::kBoth`
-    > Think where you want to put this enumeration. Should it live in a separate header?
+    > :bulb: Think where you want to put this enumeration. Should it live in a separate header?
   - A function that allows trimming strings from a given direction:
     ```cpp
     std::string Trim(const std::string& str, char char_to_trim, Side side);
@@ -137,7 +141,7 @@ To show off the functionality we will also have binaries that use this functiona
     echo "  hello world  " | ./build/examples/trim_strings
     Example program that trims strings.
     Please enter a string:
-    Your split string: 'hello world'
+    Your trimmed string: 'hello world'
     ```
 
 > :bulb: In your binaries, you might want to use the [`std::getline`](https://en.cppreference.com/w/cpp/string/basic_string/getline) function instead of directly using `std::cin` as the latter splits input on the <kbd>space</kbd> character, while the former does not.
