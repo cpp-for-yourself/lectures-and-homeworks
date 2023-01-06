@@ -1,7 +1,7 @@
 # Writing a string processing library
 
 <p align="center">
-  <a href="blah"><img src="https://img.youtube.com/vi/blah/0.jpg" alt="Video" align="right" width=40%></a>
+  <a href="https://youtu.be/f0x2qcFgu5o"><img src="https://img.youtube.com/vi/f0x2qcFgu5o/0.jpg" alt="Video" align="right" width=40%></a>
 </p>
 
 <!-- Talking head -->
@@ -34,7 +34,11 @@ Below we cover all the details that you might need for the implementation.
 Please make sure you've done the previous homework and that you're comfortable with all lectures since that homework until this one. The [Readme](../../readme.md) is a convenient way to check this.
 
 ### The expected project structure
-The project has to follow the template described in the [CMake](../../lectures/cmake.md) and [GoogleTest](../../lectures/googletest.md) lectures. Here is how it will look inside of the `homework_4` folder in your homework repository (that you can [create from this template](https://github.com/cpp-for-yourself/homeworks)).
+The project has to be implemented in the `homework_4` folder in your homework repository (that you can [create from this template](https://github.com/cpp-for-yourself/homeworks)). Otherwise automatic checking won't work.
+
+The project must follow the template described in the [CMake](../../lectures/cmake.md) and [GoogleTest](../../lectures/googletest.md) lectures.
+
+Here is how the structure of the project folder will look like:
 
 ```bash
 homework_4/
@@ -61,7 +65,7 @@ homework_4/
 Here is a more formal definition about what the libraries must do and how they should be organized.
 
 #### Namespace
-Just as we discussed in the videos, make sure that the namespaces follow the project structure. Thus, all functions in this project must live in the `no_strings_attached` namespace.
+Just as we discussed in the videos, make sure that the namespaces _follow the project structure_. Thus, all functions in this project must live in the `no_strings_attached` namespace.
 
 #### CMake targets
 There will be 2 libraries (more concretely, CMake targets), one per functionality:
@@ -144,7 +148,7 @@ To show off the functionality we will also have binaries that use this functiona
     Your trimmed string: 'hello world'
     ```
 
-> :bulb: In your binaries, you might want to use the [`std::getline`](https://en.cppreference.com/w/cpp/string/basic_string/getline) function instead of directly using `std::cin` as the latter splits input on the <kbd>space</kbd> character, while the former does not.
+> :bulb: In your binaries, you might want to use the [`std::getline`](https://en.cppreference.com/w/cpp/string/basic_string/getline) function instead of using `std::cin` as the latter splits input on the <kbd>space</kbd> character, while the former does not.
 
 ## That's it!
 Congratulations! You've implemented your own library in relatively modern C++! On to the next challenge! Do share your thoughts on the whole process in the [discussions page](https://github.com/orgs/cpp-for-yourself/discussions/categories/general) :pray:.

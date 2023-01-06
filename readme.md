@@ -254,9 +254,9 @@ Enjoy! 😎
 - <details>
   <summary><code>Homework</code>: string processing library</summary>
 
-  [Video](blah)|[Homework](homeworks/homework_4/homework.md)
+  [Video](https://youtu.be/f0x2qcFgu5o)|[Homework](homeworks/homework_4/homework.md)
   :---:|:---:
-  <a href="blah"><img src="https://img.youtube.com/vi/blah/0.jpg" alt="Video" width=100%></a> |  <a href="homeworks/homework_3/homework.md"><img src="lectures/images/lecture.png" alt="Homework" width=50></a>
+  <a href="https://youtu.be/f0x2qcFgu5o"><img src="https://img.youtube.com/vi/f0x2qcFgu5o/0.jpg" alt="Video" width=100%></a> |  <a href="homeworks/homework_4/homework.md"><img src="lectures/images/lecture.png" alt="Homework" width=50></a>
 
   - You will write library that allows to split and trim strings
   - You will learn how to:
