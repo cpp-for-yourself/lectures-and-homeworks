@@ -21,7 +21,7 @@ They all live in the examples folder and allow to:
 - Trim strings by running: `examples/trim_strings`
 
 <!-- Talking head -->
-That's about it. As always, follow to the description of this video for a link to a formal definition of the homework. And good luck!
+That's about it. Please see below for a formal definition of the homework. And good luck!
 
 ## Formal homework definition
 The main task of this homework is to write a library that splits and trims strings. It is checked in two ways:
