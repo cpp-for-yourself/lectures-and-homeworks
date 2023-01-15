@@ -173,16 +173,18 @@ The types can be declared and defined just like [functions](functions.md#declara
 To **declare** a custom type do the following:
 <table>
 <tr>
-  <th><code>class</code></th>
-  <th><code>struct</code></th>
-</tr>
-<tr>
-  <td><pre><code class="language-c++">
+  <td>
+
+  ```c++
   class CustomType;
-  </code></pre></td>
-  <td><pre><code class="language-c++">
+  ```
+  </td>
+  <td>
+
+  ```c++
   struct CustomType;
-  </code></pre></td>
+  ```
+  </td>
 </tr>
 </table>
 
@@ -190,20 +192,22 @@ To **declare** a custom type do the following:
 To **define** a custom type do the following:
 <table>
 <tr>
-  <th><code>class</code></th>
-  <th><code>struct</code></th>
-</tr>
-<tr>
-  <td><pre><code class="language-c++">
+  <td>
+
+  ```c++
   class CustomType {
     // Contents
   };
-  </code></pre></td>
-  <td><pre><code class="language-c++">
+  ```
+  </td>
+  <td>
+
+  ```c++
   struct CustomType {
     // Contents
   };
-  </code></pre></td>
+  ```
+  </td>
 </tr>
 </table>
 
@@ -223,15 +227,9 @@ Here is the difference on a small example:
   <th><code>struct</code></th>
 </tr>
 <tr>
-  <td><pre><code class="language-c++">
-  struct Foo {
-    int bar;
-  };
-  // Somewhere in main
-  Foo foo;
-  foo.bar;  // ✅
-  </code></pre></td>
-  <td><pre><code class="language-c++">
+  <td>
+
+  ```c++
   class Foo {
     int bar;
    public:
@@ -239,13 +237,35 @@ Here is the difference on a small example:
    private:
     int blah;
   };
+
   // Somewhere in main
   Foo foo;
   foo.bar;   // ❌
   foo.buzz;  // ✅
   foo.blah;  // ❌
-  </code></pre></td>
+  ```
+  </td>
+  <td>
+
+  ```c++
+  struct Foo {
+    int bar;
+  };
+
+  // Somewhere in main
+  Foo foo;
+  foo.bar;  // ✅
+  ```
+  </td>
+
 </tr>
 </table>
 
+> :bulb: I'm using `int` here but any other type will of course also work.
+
 <!-- TODO: to be continued -->
+TODO:
+- Initializers
+- Constructor
+- Functions
+- Const with classes (cover the case of const data)
