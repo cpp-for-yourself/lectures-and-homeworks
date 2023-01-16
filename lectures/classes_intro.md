@@ -43,7 +43,7 @@ Sounds good? So how can we model this in code?
 
 <!-- B-roll code -->
 One way or another, we will probably come up with something like this:
-```c++
+```cpp
 #include <iostream>
 
 namespace {
@@ -109,7 +109,7 @@ And of course there is such a way (otherwise there would be no lecture about it 
 Before we go into the mechanics of the custom types, let's first see how we could theoretically use them. The idea is that we bundle our data along with the methods to process them into a new `Cat` type:
 
 <!-- B-roll change the code from before -->
-```c++
+```cpp
 #include <iostream>
 
 // Magically define the Cat type here
@@ -130,7 +130,7 @@ int main() {
 Or, we could simplify the interface even further by hiding the details into a function `FindNextAdventure`!
 
 <!-- B-roll change the code from before -->
-```c++
+```cpp
 #include <iostream>
 
 // Magically define the Cat type here
@@ -152,7 +152,7 @@ Now *this* looks much better than before! The code is shorter, more readable and
 <!-- Talk while changing the code -->
 To introduce the "world" as we discussed before, we could create another type `World` that would allow us to `GetEventAt(int x, int y)` and pass its instance into the `FindNextAdventure(const World& world)` function. The cat could then get two more properties for its position in the world. Or even one packed into a new type `Coordinate`. See? It's neat!
 
-```c++
+```cpp
 #include <iostream>
 
 // Magically define the Cat and World types here
@@ -179,7 +179,7 @@ Now that we know at least a little about what we need the custom types for, we c
 ## How to call things
 <!-- B-roll write code in the middle of the screen -->
 First of all, let's get the language out of the way:
-```c++
+```cpp
 Cat grumpy_cat;
 Cat cute_cat{};  // ✅ Force the initialization of all Cat data
 ```
@@ -218,7 +218,7 @@ In other words, methods of the class form its **public interface** answering the
 Armed with this, let's implement our `Cat` class:
 
 <!-- B-roll code -->
-```c++
+```cpp
 class Cat {
   public:
     bool IsAlive() const { return number_of_lives_ > 0; }
@@ -285,7 +285,7 @@ A trailing `const` for a method of a class means that when this function is call
 The cool thing is that the compiler is able to check this! This significantly reduces the amount of potential errors! Let's illustrate this on a small example:
 
 <!-- B-roll: code -->
-```c++
+```cpp
 // Somewhere in main
 const Cat cat{};
 const auto cat_is_alive = cat.IsAlive(); // ✅ Compiles as the method is const
@@ -302,7 +302,7 @@ There are two places specific to classes in which we should be using `const`:
 
 <!-- B-roll code -->
 Let's illustrate this for a method returning the cat's position:
-```c++
+```cpp
 class Cat {
   public:
     // Same as before
@@ -320,7 +320,7 @@ class Cat {
 
 <!-- B-roll code -->
 We can now use this function even if we have a *constant* of type `Cat`:
-```c++
+```cpp
 const Cat cat{};
 const auto& position = cat.position();
 ```
@@ -335,7 +335,7 @@ Well, let's give it a try! Removing each of the `const` modifiers results in a s
 <!-- Talking head -->
 The last thing I want to talk about today is how to create a new instance of a custom type. In our code before we've seen how to create new objects:
 <!-- B-roll code -->
-```c++
+```cpp
 Cat cat{};
 ```
 <!-- Talking head -->
@@ -349,7 +349,7 @@ That being said, we can, of course, write any number of custom constructors for 
 
 <!-- B-roll code -->
 Let's illustrate this by writing a constructor that takes a happiness value and the number of lives for our cat (omitting all the other details of the class):
-```c++
+```cpp
 class Cat {
   public:
     Cat(int number_of_lives, int happiness) : number_of_lives_{number_of_lives}, happiness_{happiness} {}
@@ -379,7 +379,7 @@ Well, now we *did* provide one, so the compiler thinks that we know what we're d
 
 <!-- B-roll code -->
 However, we can easily add this constructor back by adding one line to our class:
-```c++
+```cpp
 class Cat {
   public:
     Cat() = default;  // ⬅️ Add back the default constructor
@@ -395,7 +395,7 @@ class Cat {
 Last but not least, if we write a single-argument constructor, we should [mark it as `explicit`](https://google.github.io/styleguide/cppguide.html#Implicit_Conversions).
 <!-- B-roll code -->
 This is needed to avoid an implicit conversion in situations like this:
-```c++
+```cpp
 void Foo(const Cat& cat);
 
 class Cat {
