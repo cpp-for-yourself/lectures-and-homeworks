@@ -1,5 +1,9 @@
 # Simple classes in C++
 
+<p align="center">
+  <a href="blah/number"><img src="https://img.youtube.com/vi/number/0.jpg" alt="Video" align="right" width=50%></a>
+</p>
+
 - [Simple classes in C++](#simple-classes-in-c)
 - [The cat's life example](#the-cats-life-example)
   - [Let's model this using just the functions first](#lets-model-this-using-just-the-functions-first)
