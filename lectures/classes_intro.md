@@ -21,7 +21,7 @@
 <!-- Talking head done -->
 By now we all should be quite comfortable using functions, but there are some things for which using just the functions alone doesn't really provide enough abstraction. The solution to this is to introduce the custom types, otherwise known as **classes**.
 
-<!-- Intro -->*
+<!-- Intro -->
 
 # The cat's life example
 <!-- Talking head done -->
