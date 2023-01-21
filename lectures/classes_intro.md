@@ -38,13 +38,11 @@ Sounds good? So how can we model this in code taking into account everything we 
 <!-- Talking head done -->
 Before we jump into coding this, we first would want to *model* our world and the cat using some variables.
 
+<!-- B-roll visualize done -->
+For simplicity, we will assume a line-like world, which we then can represent as a vector of fun and dangerous events randomly generated for each game. The cat then can be represented by its position in the world, number of lives, and happiness. The coordinate increases and the cat "finds" more events which update the cat's parameters.
 
 <!-- Talking head done -->
 > :bulb: I suggest you to pause here and to try to model this game on your own. How would *you* write it using functions? Give it a try - it's a good exercise!
-
-
-<!-- B-roll visualize done -->
-For simplicity, we will assume a line-like world, which we then can represent as a vector of fun and dangerous events randomly generated for each game. The cat then can be represented by its position in the world, number of lives, and happiness. The coordinate increases and the cat "finds" more events which update the cat's parameters.
 
 <!-- B-roll code done -->
 One way or another, we will probably come up with something like this:
@@ -72,6 +70,9 @@ enum class Event {
 // Generate a random world to explore
 std::vector<Event> GenerateWorld();
 
+// Move the cat in some way
+std::size_t MoveCat(std::size_t cat_position);
+
 // Return a random event in the simplest case
 Event FindNextAdventure(const std::vector<Event>& world, std::size_t cat_position);
 
@@ -87,6 +88,7 @@ int main() {
   int cat_lives_counter{kMaxLives};
   int cat_happiness{0};
   while (true) {
+    cat_position = MoveCat(cat_position);
     const auto event = FindNextAdventure(world, cat_position);
     if (event == Event::kWorldExplored) {
       std::cout << "The world is fully explored. We won!\n";
@@ -134,6 +136,7 @@ struct Cat {
   Event FindNextAdventure(const World& world);
   void UpdateLives(Event event);
   void UpdateHappiness(Event event);
+  void Move();
   bool IsTotallyHappy();
   bool IsAlive();
 };
@@ -152,6 +155,7 @@ int main() {
   World world{};
   Cat cat{};
   while(true) {
+    cat.Move();
     const auto event = cat.FindNextAdventure(world);
     if (event == Event::kWorldExplored) {
       std::cout << "The world is fully explored. We won!\n";
@@ -172,7 +176,7 @@ int main() {
 }
 ```
 <!-- Talking head done -->
-Or, if we think more about it, when we interact with our `cat`, the `UpdateLives` and the `UpdateHappiness` functions look more like an implementation detail so we could hide them into our existing `FindNextAdventure` function, further simplifying the `cat` interface!
+Or, if we think more about it, when we interact with our `cat`, the `Move`, `UpdateLives` and the `UpdateHappiness` functions look more like an implementation detail so we could hide them into our existing `FindNextAdventure` function, further simplifying the `cat` interface!
 
 <!-- B-roll change the code from before done -->
 <!--
@@ -267,7 +271,7 @@ First of all, there are two C++ keywords that indicate to the compiler that we a
 - `struct`
 
 <!-- B-roll: Overlay, word class moves to the middle -->
-We're going to use `class` for now and talk about struct at the end of this lecture.
+We're going to use `class` for now and talk about `struct` at the end of this lecture.
 
 <!-- Talking head done -->
 In the beginning of this lecture, we kinda *already* designed our `Cat` class methods without even thinking about the data it has to store.
