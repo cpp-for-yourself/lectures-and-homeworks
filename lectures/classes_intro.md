@@ -1,7 +1,7 @@
 # Simple classes in C++
 
 <p align="center">
-  <a href="blah/number"><img src="https://img.youtube.com/vi/number/0.jpg" alt="Video" align="right" width=50%></a>
+  <a href="https://youtu.be/IijP--Xf5kQ"><img src="https://img.youtube.com/vi/IijP--Xf5kQ/maxresdefault.jpg" alt="Video" align="right" width=50%></a>
 </p>
 
 - [Simple classes in C++](#simple-classes-in-c)
@@ -15,6 +15,7 @@
     - [Let's define our own type `Cat`!](#lets-define-our-own-type-cat)
     - [Access modifiers `public` and `private`](#access-modifiers-public-and-private)
     - [Let's look at the class data](#lets-look-at-the-class-data)
+    - [What's with the `const` after the function?](#whats-with-the-const-after-the-function)
   - [But what about `struct`?](#but-what-about-struct)
 - [That's about it for now](#thats-about-it-for-now)
 
@@ -246,7 +247,7 @@ $PLACEHOLDER
 -->
 ```cpp
 Cat grumpy_uninitialized_cat;
-Cat cute_initialized_cat{};  // ✅ Force the initialization of all Cat data
+Cat cute_initialized_cat{};  // ✅ Force the initialization of all Cat  data
 ```
 🚨 Here, `Cat` (with the capital `C`) is called a **class** or a **user-defined type**. The `grumpy_uninitialized_cat` and the `cute_initialized_cat` are variables of type `Cat`. They are also often called **instances** or an **object** of type `Cat`.
 
@@ -411,6 +412,12 @@ All the data in a class [**must** live under `private:` part](https://google.git
 
 <!-- Talking head TAG_3 done -->
 > :bulb: Note that we don't leave variables uninitialized as discussed in [the lecture on variable](cpp_basic_types_and_variables.md#always-initialize-all-variables). This helps us avoid the hard-to-debug undefined behavior.
+
+<!-- Talking head TAG_4 -->
+### What's with the `const` after the function?
+Essentially, this means that these functions guarantee that the object on which this function is called will not be changed. It works by the compiler basically assuming that this object is const while in the scope of such a function.
+
+🚨 If a method is not marked as `const` the compiler assumes that it _might need_ to change the object data, so if we call a non-`const` method on a `const` object, the code won't compile!
 
 <!-- Talking head done -->
 ## But what about `struct`?
