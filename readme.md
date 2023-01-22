@@ -265,6 +265,20 @@ Enjoy! 😎
     - Test them with googletest
     - Link them to binaries
   </details>
+- <details>
+  <summary>
+  Writing simple custom types with classes and structs
+  </summary>
+
+  [Video](https://youtu.be/IijP--Xf5kQ)|[Slides](lectures/classes_intro.md)
+  :---:|:---:
+  <a href="blah"><img src="https://img.youtube.com/vi/IijP--Xf5kQ/maxresdefault.jpg" alt="Video" width=100%></a> |  <a href="lectures/classes_intro.md"><img src="lectures/images/statistics.png" alt="Slides" width=50></a>
+
+  - Explain why the classes are needed
+  - Implement an example game about a car
+  - Define classes and structs more formally
+
+  </details>
 
 ## PS
 
