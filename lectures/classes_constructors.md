@@ -1,13 +1,21 @@
-<!-- TODO: move constructors to the next lecture? -->
 ## Constructors
 <!-- Talking head -->
-The last thing I want to talk about today is how to create a new instance of a custom type. In our code before we've seen how to create new objects:
+Until now we've been creating our custom types with default initialization.
 <!-- B-roll code -->
 ```cpp
 Cat cat{};
 ```
+
+This is boring and not very useful. This changes now. After today's lecture we'll be able to create a new object of our class like this:
+```cpp
+Cat cat{number_of_lives, happiness};
+```
+i.e., passing the parameters to initialize the class internal data!
+
+<!-- Intro -->
+
 <!-- Talking head -->
-Under the hood, when a new object of a custom type is created a special function called a **constructor** is called. In the above example, a **default constructor** (one that takes 0 parameters) is called. We don't see it in the implementation of our `Cat` class because if we don't write our own constructors [a default one will be generated for us](https://en.cppreference.com/w/cpp/language/default_constructor).
+Under the hood, when a new object of a custom type is created a special function called a **constructor** is called. We don't see it in the implementation of our `Cat` class because if we don't write our own constructors [a default one will be generated for us](https://en.cppreference.com/w/cpp/language/default_constructor).
 
 <!-- B-roll show both cases -->
 > :bulb: Such a default constructor will leave the data uninitialized unless it is initialized in-place.
