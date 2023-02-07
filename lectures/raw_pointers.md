@@ -16,7 +16,7 @@
 - [That's about it](#thats-about-it)
 
 
-<!-- Talking head -->
+<!-- Talking head DONE -->
 Today we talk about pointers. Largely speaking there are two kinds of pointers in modern C++:
 - Smart pointers
 - Raw pointers
@@ -25,30 +25,30 @@ The difference between them is ownership. Smart pointers own their data, and the
 <!-- Spell out words on screen -->
 > **whoever owns data - cleans up its memory**.
 
-<!-- Talking head -->
+<!-- Talking head DONE -->
 Today we talk about the non-owning kind of pointers - the raw pointers. We already talked about something very similar: [references](cpp_basic_types_and_variables.md#references-to-variables). But with raw pointers you get more flexibility, i.e., ever tried putting references into an [`std::vector`](more_useful_types.md#use-stdvector-when-number-of-items-is-unknown-before-wise)?
 <!-- Code -->
 ```cpp
 std::vector<int&> vector_of_refs{};  // ❌ Doesn't compile
 ```
-<!-- Talking head -->
+<!-- Talking head DONE -->
 You can do that (and more) with raw pointers but you do pay with some syntax overhead as well as with a potential infamous **"segfault"**. Let's dig into the details!
 
 <!-- Intro -->
 
 # The pointer type
-<!-- Talking head -->
+<!-- Talking head DONE -->
 <!-- Show int and int* on top -->
 First of all, when we talk about pointers, we talk about **variables** of a special **pointer type**. We form such "pointer types" from other types by appending the `*` symbol on the right. So, just as `int` is a type, `int*` is a "pointer to `int`" type. Of course it doesn't have to `int`, it can be any other type, including other pointer types, for example `Cat**` type is a "pointer to a pointer of a `Cat` class".
 
 # Pointers = variables of pointer types
-<!-- Talking head -->
+<!-- Talking head DONE -->
 Anyway, as I said before, **pointers** are just **variables** of **pointer types**. So what do these variables hold?
 
-<!-- Draw memory and a pointer, also write the address as integer as in hex -->
+<!-- Draw memory and a pointer, also write the address as integer as in hex DONE -->
 They hold nothing else than an address in memory of another variable. Intuitively, we can think about this address as if it were simply a large integer number (usually represented in hexadecimal system). That's why all pointer variables occupy the same amount of memory that is also usually equal to a long integer.
 
-<!-- Talking head -->
+<!-- Talking head DONE -->
 However, C++ pointers are *much* better than just a number that represents an address. A pointer always *points to a variable of a certain type*. Which means that for every pointer the compiler knows:
 - The address of the start of a variable it points to
 - Type of the variable it points to
@@ -62,7 +62,7 @@ int var{};         // Some variable that we will point to
 int* ptr1{&var};   // The & operator returns a pointer to a variable
 int* ptr2 = &var;  // Same as above
 ```
-<!-- Talking head -->
+<!-- Talking head DONE -->
 The use of `&` might confuse you as we've seen it also when declaring references. In references, it is **part of the type**, e.g. `int&` stands for a type "reference to int". But at the same time we can also use the same symbol `&` as an **"address operator"** to get a pointer to a variable.
 
 <!-- Code -->
@@ -73,7 +73,7 @@ int* var_ptr{&var};  // ❌ Won't compile!
 ```
 
 # How to get the data?
-<!-- Talking head -->
+<!-- Talking head DONE -->
 Being able to create pointers is all great, but we would like to get to the underlying data too! We use the `*` operator for that. It is called a **"dereferencing operator"**.
 
 <!-- Overlay illustration -->
@@ -91,7 +91,7 @@ std::cout << var << " " << *var_ptr << std::endl;
 <!-- Skip -->
 > :bulb: What does the above print?
 
-<!-- Talking head -->
+<!-- Talking head DONE -->
 Oh, and one more thing. When pointing to more complex types, e.g. `std::string` or any type that has methods that we can call we technically have to:
 - Dereference the pointer to get to the object
 - Call the method on our object
@@ -103,7 +103,7 @@ std::string* str_ptr{&blah};
 // 😱 Ugh, this is ugly!
 std::cout << "String size: " << (*str_ptr).size() << std::endl;
 ```
-<!-- Talking head -->
+<!-- Talking head DONE -->
 There is a shortcut for this! We can use the `->` operator which does exactly the two steps we actually perform here:
 <!-- Code -->
 ```cpp
@@ -114,7 +114,7 @@ std::cout << "String size: " << str_ptr->size() << std::endl;
 ```
 
 # Initialization and assignment
-<!-- Talking head -->
+<!-- Talking head DONE -->
 It's time we talk about the main difference between references and pointers. Pointers **are re-assignable**, while a reference is initialized directly from a given variable and cannot be reassigned later.
 
 <!-- Code -->
@@ -131,7 +131,7 @@ int& var_ref{var_1};
 // Copies the data into var_1, does not re-assign var_ref.
 var_ref = var_2;
 ```
-<!-- Talking head -->
+<!-- Talking head DONE -->
 This is the feature that allows us to put pointers into containers!
 <!-- Code -->
 ```cpp
@@ -142,7 +142,7 @@ int bar{23};
 std::vector<int*> my_numbers{&foo, &bar};
 ```
 
-<!-- Talking head -->
+<!-- Talking head DONE -->
 This flexibility for pointers also means that we *can* have an uninitialized pointer or a pointer pointing to nothing (also known as the `nullptr`).
 <!-- Code -->
 For example:
@@ -153,14 +153,14 @@ int* empty_ptr_1{};         // ✅ do this instead!
 int* empty_ptr_2{nullptr};  // ✅ or this, same as above
 ```
 
-<!-- Talking head -->
+<!-- Talking head DONE -->
 The `nullptr` is a special value with which to initialize the pointers that don't point to any existing variable. By definition is means "points to nothing".
 
 <!-- Code -->
 Oh, by the way, wanna see smth cool? Pointers get implicitly converted to `bool`, so we can check if a pointer is set to `nullptr` very neatly:
 ```cpp
-if (empty_ptr_1) { /* do smth with empty_ptr_1 */ }
-if (!empty_ptr_2) { /* do smth when empty_ptr_2 is nullptr */ }
+if (some_ptr) { /* do smth with some_ptr */ }
+if (!empty_ptr) { /* do smth when empty_ptr is nullptr */ }
 ```
 
 <!-- Code -->
@@ -170,17 +170,17 @@ int* nothing{nullptr};
 *nothing;  // ❌ Will compile but fail at runtime with a segfault.
 ```
 
-<!-- Talking head -->
+<!-- Talking head DONE -->
 It's unpleasant, yes, but this is not the worst that can happen! Dereferencing a `nullptr` is a well-defined runtime error. To fix it is just a matter of finding which pointer points to `nullptr`.
 
 <!-- Draw pointer pointing to a random memory -->
 🚨 But if you don't initialize your pointer at all, it will point to a random address and if you dereference it, it will interpret whatever it finds under that random address as the required type. It might segfault but might also just return some garbage data. Welcome back to the undefined behavior land :scream:
 
 # Using const with pointers
-<!-- Talking head with overlay -->
+<!-- Talking head with overlay DONE -->
 Switching gears, just as with references, we want to be able to forbid modification of data when using pointers. This is a topic that routinely leaves the best of us with a twitching eye... The issue here is that `int*`, `int *const`, `const int*`, and `const int* const` all represent their own types and all mean different things! So... what's the difference? And how to make sense of it?
 
-<!-- Talking head point right, point left -->
+<!-- Talking head point right, point left DONE -->
 There is a trick to this: read the types that involve pointers from right to left. Let's see some examples:
 
 ## Non-const pointer to const data
@@ -192,7 +192,7 @@ There is a trick to this: read the types that involve pointers from right to lef
 //  |    | integer...
 //  | constant!
 ```
-<!-- Talking head -->
+<!-- Talking head DONE -->
 Which means that we cannot change the underlying data, but can reassign `blah` to point to other data!
 
 <!-- Code -->
@@ -201,7 +201,7 @@ const int * blah{&some_var};
 blah = &some_other_var;  // ✅
 *blah = 42;              // ❌
 ```
-<!-- Talking head -->
+<!-- Talking head DONE -->
 :bulb: This is the most common use of `const` with pointers.
 
 But there are other ways too! Let's quickly look at those.
@@ -215,17 +215,17 @@ But there are other ways too! Let's quickly look at those.
 //  |  | pointer to an...
 //  | integer!
 ```
-<!-- Talking head -->
+<!-- Talking head DONE -->
 Which means that we **can** change the underlying data, but cannot reassign `blah` to point to other data!
 <!-- Code -->
 ```cpp
 int * const blah{&some_var};
-blah = &some_other_var;  // ❌
 *blah = 42;              // ✅
+blah = &some_other_var;  // ❌
 ```
 
 ## Constant pointer to constant data
-<!-- Talking head -->
+<!-- Talking head DONE -->
 Finally, there is a way to forbid any changes as follows:
 
 <!-- Overlay with highlight -->
@@ -237,7 +237,7 @@ Finally, there is a way to forbid any changes as follows:
 //  |    | to an integer...
 //  | constant!
 ```
-<!-- Talking head -->
+<!-- Talking head DONE -->
 which means that we cannot change the underlying data, **and** we cannot reassign `blah` to point to other data!
 <!-- Skip -->
 ```cpp
@@ -246,7 +246,7 @@ blah = &some_other_var;  // ❌
 *blah = 42;              // ❌
 ```
 
-<!-- Talking head -->
+<!-- Talking head DONE -->
 > :bulb: To make sure you understood how it works, try the same exercise yourself for the following:
 > ```cpp
 > int const * const blah{};
@@ -254,7 +254,7 @@ blah = &some_other_var;  // ❌
 > What does it translate to?
 
 # That's about it
-<!-- Talking head -->
+<!-- Talking head DONE -->
 This is about everything we have to know now about the raw pointers. They give us some flexibility but we pay the cost of possible segfaults and sometimes even with a potential for an undefined behavior in our code. The rule of thumb is to use references whenever you possibly can and resort to raw pointers if you cannot use a reference instead.
 
 That being said, understanding what raw pointers are is very important and they also will become more useful once we start talking more about the Object Oriented Programming and Polymorphism in that context.
