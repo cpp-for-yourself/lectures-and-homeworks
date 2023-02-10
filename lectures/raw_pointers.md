@@ -28,6 +28,9 @@ The difference between them is ownership. Smart pointers own their data, and the
 <!-- Talking head DONE -->
 Today we talk about the non-owning kind of pointers - the raw pointers. We already talked about something very similar: [references](cpp_basic_types_and_variables.md#references-to-variables). But with raw pointers you get more flexibility, i.e., ever tried putting references into an [`std::vector`](more_useful_types.md#use-stdvector-when-number-of-items-is-unknown-before-wise)?
 <!-- Code -->
+<!--
+`CPP_SKIP_SNIPPET`
+-->
 ```cpp
 std::vector<int&> vector_of_refs{};  // ❌ Doesn't compile
 ```
@@ -57,6 +60,15 @@ This allows the compiler to check that we point to the correct type making our l
 
 <!-- Code -->
 Which brings us to how such pointers can be created and initialized in code:
+<!--
+`CPP_SETUP_START`
+int main() {
+  $PLACEHOLDER
+}
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` simple_ptr/main.cpp
+`CPP_RUN_CMD` CWD:simple_ptr c++ -std=c++17 -c main.cpp
+-->
 ```cpp
 int var{};         // Some variable that we will point to
 int* ptr1{&var};   // The & operator returns a pointer to a variable
@@ -67,6 +79,9 @@ The use of `&` might confuse you as we've seen it also when declaring references
 
 <!-- Code -->
 Once we're at it, let's quickly illustrate my point from before that compiler is our friend. If we try to create a pointer to a variable of a wrong type we get an error:
+<!--
+`CPP_SKIP_SNIPPET`
+-->
 ```cpp
 double var{};
 int* var_ptr{&var};  // ❌ Won't compile!
@@ -80,8 +95,18 @@ Being able to create pointers is all great, but we would like to get to the unde
 The compiler then is able to look at where the pointer points to in memory and, knowing the size of the underlying type, interpret the appropriate number of bytes as the underlying type giving us direct access to the underlying variable.
 
 <!-- Code -->
+<!--
+`CPP_SETUP_START`
+#include <iostream>
+int main() {
+  $PLACEHOLDER
+}
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` modify_ptr/main.cpp
+`CPP_RUN_CMD` CWD:modify_ptr c++ -std=c++17 -c main.cpp
+-->
 ```cpp
-int var{}
+int var{};
 int* var_ptr{&var};
 var = 42;
 std::cout << var << " " << *var_ptr << std::endl;
@@ -97,6 +122,17 @@ Oh, and one more thing. When pointing to more complex types, e.g. `std::string` 
 - Call the method on our object
 Which ends up looking something like this:
 <!-- Code -->
+<!--
+`CPP_SETUP_START`
+#include <iostream>
+#include <string>
+int main() {
+  $PLACEHOLDER
+}
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` ugly_string/main.cpp
+`CPP_RUN_CMD` CWD:ugly_string c++ -std=c++17 -c main.cpp
+-->
 ```cpp
 std::string blah{"blah"};
 std::string* str_ptr{&blah};
@@ -106,6 +142,17 @@ std::cout << "String size: " << (*str_ptr).size() << std::endl;
 <!-- Talking head DONE -->
 There is a shortcut for this! We can use the `->` operator which does exactly the two steps we actually perform here:
 <!-- Code -->
+<!--
+`CPP_SETUP_START`
+#include <iostream>
+#include <string>
+int main() {
+  $PLACEHOLDER
+}
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` nicer_string/main.cpp
+`CPP_RUN_CMD` CWD:nicer_string c++ -std=c++17 -c main.cpp
+-->
 ```cpp
 std::string blah{"blah"};
 std::string* str_ptr{&blah};
@@ -119,6 +166,17 @@ It's time we talk about the main difference between references and pointers. Poi
 
 <!-- Code -->
 For example:
+<!--
+`CPP_SETUP_START`
+#include <iostream>
+#include <string>
+int main() {
+  $PLACEHOLDER
+}
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` diff_ptr_ref/main.cpp
+`CPP_RUN_CMD` CWD:diff_ptr_ref c++ -std=c++17 -c main.cpp
+-->
 ```cpp
 int var_1{42};
 int var_2{23};
@@ -134,6 +192,17 @@ var_ref = var_2;
 <!-- Talking head DONE -->
 This is the feature that allows us to put pointers into containers!
 <!-- Code -->
+<!--
+`CPP_SETUP_START`
+#include <iostream>
+#include <vector>
+int main() {
+  $PLACEHOLDER
+}
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` vector_ptr/main.cpp
+`CPP_RUN_CMD` CWD:vector_ptr c++ -std=c++17 -c main.cpp
+-->
 ```cpp
 int foo{42};
 int bar{23};
@@ -146,6 +215,9 @@ std::vector<int*> my_numbers{&foo, &bar};
 This flexibility for pointers also means that we *can* have an uninitialized pointer or a pointer pointing to nothing (also known as the `nullptr`).
 <!-- Code -->
 For example:
+<!--
+`CPP_SKIP_SNIPPET`
+-->
 ```cpp
 int& unassigned_ref;        // ❌ won't compile!
 int* unassigned_ptr;        // 😱 compiles but don't do this!
@@ -158,6 +230,17 @@ The `nullptr` is a special value with which to initialize the pointers that don'
 
 <!-- Code -->
 Oh, by the way, wanna see smth cool? Pointers get implicitly converted to `bool`, so we can check if a pointer is set to `nullptr` very neatly:
+<!--
+`CPP_SETUP_START`
+int main() {
+  int* some_ptr{};
+  int* empty_ptr{};
+  ${PLACEHOLDER}
+}
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` if/main.cpp
+`CPP_RUN_CMD` CWD:if c++ -std=c++17 -c main.cpp
+-->
 ```cpp
 if (some_ptr) { /* do smth with some_ptr */ }
 if (!empty_ptr) { /* do smth when empty_ptr is nullptr */ }
@@ -165,6 +248,9 @@ if (!empty_ptr) { /* do smth when empty_ptr is nullptr */ }
 
 <!-- Code -->
 Trying to dereference a `nullptr` will lead to a **"segmentation fault"** runtime error, or, shorter, a **"segfault"**.
+<!--
+`CPP_SKIP_SNIPPET`
+-->
 ```cpp
 int* nothing{nullptr};
 *nothing;  // ❌ Will compile but fail at runtime with a segfault.
@@ -185,6 +271,13 @@ There is a trick to this: read the types that involve pointers from right to lef
 
 ## Non-const pointer to const data
 <!-- Overlay with highlight -->
+<!--
+`CPP_SETUP_START`
+int main() {
+  ${PLACEHOLDER}
+}
+`CPP_SETUP_END`
+-->
 ```cpp
   const int * blah{};
 //  |    |  |  | blah is a...
@@ -196,6 +289,9 @@ There is a trick to this: read the types that involve pointers from right to lef
 Which means that we cannot change the underlying data, but can reassign `blah` to point to other data!
 
 <!-- Code -->
+<!--
+`CPP_SKIP_SNIPPET`
+-->
 ```cpp
 const int * blah{&some_var};
 blah = &some_other_var;  // ✅
@@ -208,6 +304,13 @@ But there are other ways too! Let's quickly look at those.
 
 ## Constant pointer to non-const data
 <!-- Overlay with highlight -->
+<!--
+`CPP_SETUP_START`
+int main() {
+  ${PLACEHOLDER}
+}
+`CPP_SETUP_END`
+-->
 ```cpp
    int * const blah{};
 //  |  |   |   | blah is a...
@@ -218,6 +321,9 @@ But there are other ways too! Let's quickly look at those.
 <!-- Talking head DONE -->
 Which means that we **can** change the underlying data, but cannot reassign `blah` to point to other data!
 <!-- Code -->
+<!--
+`CPP_SKIP_SNIPPET`
+-->
 ```cpp
 int * const blah{&some_var};
 *blah = 42;              // ✅
@@ -229,6 +335,13 @@ blah = &some_other_var;  // ❌
 Finally, there is a way to forbid any changes as follows:
 
 <!-- Overlay with highlight -->
+<!--
+`CPP_SETUP_START`
+int main() {
+  ${PLACEHOLDER}
+}
+`CPP_SETUP_END`
+-->
 ```cpp
   const int * const blah{};
 //  |    |  |   |   | blah is a...
@@ -240,6 +353,9 @@ Finally, there is a way to forbid any changes as follows:
 <!-- Talking head DONE -->
 which means that we cannot change the underlying data, **and** we cannot reassign `blah` to point to other data!
 <!-- Skip -->
+<!--
+`CPP_SKIP_SNIPPET`
+-->
 ```cpp
 const int * const blah{&some_var};
 blah = &some_other_var;  // ❌
@@ -248,6 +364,9 @@ blah = &some_other_var;  // ❌
 
 <!-- Talking head DONE -->
 > :bulb: To make sure you understood how it works, try the same exercise yourself for the following:
+> <!--
+> `CPP_SKIP_SNIPPET`
+> -->
 > ```cpp
 > int const * const blah{};
 > ```
