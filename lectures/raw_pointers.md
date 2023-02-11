@@ -1,7 +1,7 @@
 # Raw pointers
 
 <p align="center">
-  <a href="https://youtu.be/blah"><img src="https://img.youtube.com/vi/blah/maxresdefault.jpg" alt="Video" align="right" width=40%></a>
+  <a href="https://youtu.be/pptRG345jnU"><img src="https://img.youtube.com/vi/pptRG345jnU/maxresdefault.jpg" alt="Video" align="right" width=40%></a>
 </p>
 
 - [Raw pointers](#raw-pointers)
@@ -42,7 +42,7 @@ You can do that (and more) with raw pointers but you do pay with some syntax ove
 # The pointer type
 <!-- Talking head DONE -->
 <!-- Show int and int* on top -->
-First of all, when we talk about pointers, we talk about **variables** of a special **pointer type**. We form such "pointer types" from other types by appending the `*` symbol on the right. So, just as `int` is a type, `int*` is a "pointer to `int`" type. Of course it doesn't have to `int`, it can be any other type, including other pointer types, for example `Cat**` type is a "pointer to a pointer of a `Cat` class".
+First of all, when we talk about pointers, we talk about **variables** of a special **pointer type**. We form such "pointer types" from other types by appending the `*` symbol on the right. So, just as `int` is a type, `int*` is a "pointer to `int`" type. Of course it doesn't have to be `int`, it can be any other type, including other pointer types, for example `Cat**` type is a "pointer to a pointer of a `Cat` class".
 
 # Pointers = variables of pointer types
 <!-- Talking head DONE -->
