@@ -279,6 +279,25 @@ Enjoy! 😎
   - Define classes and structs more formally
 
   </details>
+- <details>
+  <summary>
+  Raw pointers
+  </summary>
+
+  [Video](https://youtu.be/pptRG345jnU)|[Slides](lectures/raw_pointers.md)
+  :---:|:---:
+  <a href="blah"><img src="https://img.youtube.com/vi/pptRG345jnU/maxresdefault.jpg" alt="Video" width=100%></a> |  <a href="lectures/classes_intro.md"><img src="lectures/images/statistics.png" alt="Slides" width=50></a>
+
+  - The pointer type
+  - Pointers = variables of pointer types
+  - How to get the data?
+  - Initialization and assignment
+  - Using const with pointers
+  - Non-const pointer to const data
+  - Constant pointer to non-const data
+  - Constant pointer to constant data
+
+  </details>
 
 ## PS
 
