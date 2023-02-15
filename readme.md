@@ -286,7 +286,7 @@ Enjoy! 😎
 
   [Video](https://youtu.be/pptRG345jnU)|[Slides](lectures/raw_pointers.md)
   :---:|:---:
-  <a href="blah"><img src="https://img.youtube.com/vi/pptRG345jnU/maxresdefault.jpg" alt="Video" width=100%></a> |  <a href="lectures/classes_intro.md"><img src="lectures/images/statistics.png" alt="Slides" width=50></a>
+  <a href="blah"><img src="https://img.youtube.com/vi/pptRG345jnU/maxresdefault.jpg" alt="Video" width=100%></a> |  <a href="lectures/raw_pointers.md"><img src="lectures/images/statistics.png" alt="Slides" width=50></a>
 
   - The pointer type
   - Pointers = variables of pointer types
