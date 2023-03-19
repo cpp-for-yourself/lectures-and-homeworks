@@ -14,296 +14,327 @@ Enjoy! 😎
 
 ## C++ for yourself
 
-- <details>
-  <summary>
-  Hello world program dissection
-  </summary>
+<details>
+<summary>
+Hello world program dissection
+</summary>
 
-  [Video](https://www.youtube.com/watch?v=t2h1geGSww4)|[Slides](lectures/hello_world_dissection.md)
-  :---:|:---:
-  <a href="https://www.youtube.com/watch?v=t2h1geGSww4"><img src="https://img.youtube.com/vi/t2h1geGSww4/maxresdefault.jpg" alt="Video" width=100%></a> |  <a href="lectures/hello_world_dissection.md"><img src="lectures/images/statistics.png" alt="Slides" width=50></a>
+----------------------------------------------------------
+[![Video thumbnail](https://img.youtube.com/vi/t2h1geGSww4/maxresdefault.jpg)](https://youtu.be/t2h1geGSww4)
 
-  - First keywords
-  - What brackets mean
-  - What do different signs mean
-  - Intro to "scopes"
-  - Intro to functions
-  - Intro to includes
-  </details>
-- <details>
-  <summary><code>Homework</code>: hello world program</summary>
+[Lecture script](lectures/hello_world_dissection.md)
+- First keywords
+- What brackets mean
+- What do different signs mean
+- Intro to "scopes"
+- Intro to functions
+- Intro to includes
+----------------------------------------------------------
+</details>
 
-  <p align="center">
-  <a href="homeworks/homework_1/homework.md"><img src="lectures/images/lecture.png" alt="Homework" width=50></a>
-  </p>
+<details>
+<summary><code>Homework</code>: hello world program</summary>
 
-  - Write a simple program that prints `Hello World!`
-  - Learn to compile and run simple programs
-  </details>
-- <details>
-  <summary>
-  Variables of fundamental types
-  </summary>
+----------------------------------------------------------
+[Homework script](homeworks/homework_1/homework.md)
+- Write a simple program that prints `Hello World!`
+- Learn to compile and run simple programs
+----------------------------------------------------------
+</details>
 
-  [Video](https://www.youtube.com/watch?v=0z0gvv_Tb_U)|[Slides](lectures/cpp_basic_types_and_variables.md)
-  :---:|:---:
-  <a href="https://www.youtube.com/watch?v=0z0gvv_Tb_U"><img src="https://img.youtube.com/vi/0z0gvv_Tb_U/maxresdefault.jpg" alt="Video" width=100%></a> |  <a href="lectures/cpp_basic_types_and_variables.md"><img src="lectures/images/statistics.png" alt="Slides" width=50></a>
+<details>
+<summary>
+Variables of fundamental types
+</summary>
 
-  - How to create variables of fundamental types
-  - Naming variables
-  - Using `const`, `constexpr` with variables
-  - References to variables
-  </details>
-- <details>
-  <summary>
-  Namespaces for variables
-  </summary>
+----------------------------------------------------------
+[![Video thumbnail](https://img.youtube.com/vi/0z0gvv_Tb_U/maxresdefault.jpg)](https://youtu.be/0z0gvv_Tb_U)
 
-  [Video](https://www.youtube.com/watch?v=cP2IDg4_BRk)|[Slides](lectures/namespaces_using.md)
-  :---:|:---:
-  <a href="https://www.youtube.com/watch?v=cP2IDg4_BRk"><img src="https://img.youtube.com/vi/cP2IDg4_BRk/maxresdefault.jpg" alt="Video" width=100%></a> |  <a href="lectures/namespaces_using.md"><img src="lectures/images/statistics.png" alt="Slides" width=50></a>
+[Lecture script](lectures/cpp_basic_types_and_variables.md)
+- How to create variables of fundamental types
+- Naming variables
+- Using `const`, `constexpr` with variables
+- References to variables
+----------------------------------------------------------
+</details>
 
-  - Namespaces with variables
-  - The word `using` with variables
-  </details>
-- <details>
-  <summary>
-  Input/output streams
-  </summary>
+<details>
+<summary>
+Namespaces for variables
+</summary>
 
-  [Video](https://www.youtube.com/watch?v=hy3eOpZmxbY)|[Slides](lectures/io_streams.md)
-  :---:|:---:
-  <a href="https://www.youtube.com/watch?v=hy3eOpZmxbY"><img src="https://img.youtube.com/vi/hy3eOpZmxbY/maxresdefault.jpg" alt="Video" width=100%></a> |  <a href="lectures/io_streams.md"><img src="lectures/images/statistics.png" alt="Slides" width=50></a>
+-----------------------------------------------------------
+[![Video thumbnail](https://img.youtube.com/vi/cP2IDg4_BRk/maxresdefault.jpg)](https://youtu.be/cP2IDg4_BRk)
 
-  - `std::cout`, `std::cerr`, `std::cin`
-  </details>
-- <details>
-  <summary>
-  Sequence and utility containers
-  </summary>
+[Lecture script](lectures/namespaces_using.md)
+- Namespaces with variables
+- The word `using` with variables
+----------------------------------------------------------
+</details>
 
-  [Video](https://www.youtube.com/watch?v=dwkSVkGsvFk)|[Slides](lectures/more_useful_types.md)
-  :---:|:---:
-  <a href="https://www.youtube.com/watch?v=dwkSVkGsvFk"><img src="https://img.youtube.com/vi/dwkSVkGsvFk/maxresdefault.jpg" alt="Video" width=100%></a> |  <a href="lectures/more_useful_types.md"><img src="lectures/images/statistics.png" alt="Slides" width=50></a>
+<details>
+<summary>
+Input/output streams
+</summary>
 
-  - Sequence containers: `std::array`, `std::vector`, their usage and some caveats
-  - Pair container: `std::pair`
-  - Strings from STL: `std::string`
-  - Conversion to/from strings: `to_string`, `stoi`, `stod`, `stof`, etc.
-  - Aggregate initialization
-  </details>
-- <details>
-  <summary>
-  Associative containers:
-  </summary>
+----------------------------------------------------------
+[![Video thumbnail](https://img.youtube.com/vi/hy3eOpZmxbY/maxresdefault.jpg)](https://youtu.be/hy3eOpZmxbY)
 
-  [Video](https://www.youtube.com/watch?v=TCu76SYmVCg)|[Slides](lectures/associative_containers.md)
-  :---:|:---:
-  <a href="https://www.youtube.com/watch?v=TCu76SYmVCg"><img src="https://img.youtube.com/vi/TCu76SYmVCg/maxresdefault.jpg" alt="Video" width=100%></a> |  <a href="lectures/associative_containers.md"><img src="lectures/images/statistics.png" alt="Slides" width=50></a>
+[Lecture script](lectures/more_useful_types.md)
+- `std::cout`, `std::cerr`, `std::cin`
+----------------------------------------------------------
+</details>
 
-  - `std::map` and `std::unordered_map`
-  - Touch up on `std::set` and `std::unordered_set`
-  </details>
-- <details>
-  <summary><code>Homework</code>: fortune teller program</summary>
+<details>
+<summary>
+Sequence and utility containers
+</summary>
 
-  <p align="center">
-  <a href="homeworks/homework_2/homework.md"><img src="lectures/images/lecture.png" alt="Homework" width=50></a>
-  </p>
+----------------------------------------------------------
+[![Video thumbnail](https://img.youtube.com/vi/dwkSVkGsvFk/maxresdefault.jpg)](https://youtu.be/dwkSVkGsvFk)
 
-  - Write a program that tells your C++ fortune
-  - It reads and writes data from and to terminal
-  - Stores and accesses these data in containers
-  </details>
-- <details>
-  <summary>
-  Control structures
-  </summary>
+[Lecture script](lectures/more_useful_types.md)
+- Sequence containers: `std::array`, `std::vector`, their usage and some caveats
+- Pair container: `std::pair`
+- Strings from STL: `std::string`
+- Conversion to/from strings: `to_string`, `stoi`, `stod`, `stof`, etc.
+- Aggregate initialization
+----------------------------------------------------------
+</details>
 
-  [Video](https://www.youtube.com/watch?v=jzgTxosgGIA)|[Slides](lectures/control_structures.md)
-  :---:|:---:
-  <a href="https://www.youtube.com/watch?v=jzgTxosgGIA"><img src="https://img.youtube.com/vi/jzgTxosgGIA/maxresdefault.jpg" alt="Video" width=100%></a> |  <a href="lectures/control_structures.md"><img src="lectures/images/statistics.png" alt="Slides" width=50></a>
+<details>
+<summary>
+Associative containers
+</summary>
 
-  - `if`, `switch` and ternary operator
-  - `for`, `while` and `do ... while`
-  </details>
-- <details>
-  <summary>
-  Random number generation
-  </summary>
+----------------------------------------------------------
+[![Video thumbnail](https://img.youtube.com/vi/TCu76SYmVCg/maxresdefault.jpg)](https://youtu.be/TCu76SYmVCg)
 
-  [Video](https://www.youtube.com/watch?v=IUoqMTGGo6k)|[Slides](lectures/random_numbers.md)
-  :---:|:---:
-  <a href="https://www.youtube.com/watch?v=IUoqMTGGo6k"><img src="https://img.youtube.com/vi/IUoqMTGGo6k/maxresdefault.jpg" alt="Video" width=100%></a> |  <a href="lectures/random_numbers.md"><img src="lectures/images/statistics.png" alt="Slides" width=50></a>
+[Lecture script](lectures/associative_containers.md)
+- `std::map` and `std::unordered_map`
+- Touch up on `std::set` and `std::unordered_set`
+----------------------------------------------------------
+</details>
 
-  - What are random numbers
-  - How to generate them in modern C++
-  - Why not to use `rand()`
-  </details>
-- <details>
-  <summary><code>Homework</code>: the guessing game</summary>
+<details>
+<summary><code>Homework</code>: fortune teller program</summary>
 
-  [Video](https://www.youtube.com/watch?v=TYs_xwihCNc)|[Homework](homeworks/homework_3/homework.md)
-  :---:|:---:
-  <a href="https://www.youtube.com/watch?v=TYs_xwihCNc"><img src="https://img.youtube.com/vi/TYs_xwihCNc/maxresdefault.jpg" alt="Video" width=100%></a> |  <a href="homeworks/homework_3/homework.md"><img src="lectures/images/lecture.png" alt="Homework" width=50></a>
+----------------------------------------------------------
+[Homework script](homeworks/homework_2/homework.md)
+- Write a program that tells your C++ fortune
+- It reads and writes data from and to terminal
+- Stores and accesses these data in containers
+----------------------------------------------------------
+</details>
 
-  - A program that generates a number
-  - The user guesses this number
-  - The program tells the user if they are above or below with their guess (or if they've won)
-  </details>
-- <details>
-  <summary>
-  Compilation flags and debugging
-  </summary>
+<details>
+<summary>
+Control structures
+</summary>
 
-  [Video](https://www.youtube.com/watch?v=NTlcDv7W2-c)|[Slides](lectures/compilation_debugging.md)
-  :---:|:---:
-  <a href="https://www.youtube.com/watch?v=NTlcDv7W2-c"><img src="https://img.youtube.com/vi/NTlcDv7W2-c/maxresdefault.jpg" alt="Video" width=100%></a> |  <a href="lectures/compilation_debugging.md"><img src="lectures/images/statistics.png" alt="Slides" width=50></a>
+----------------------------------------------------------
+[![Video thumbnail](https://img.youtube.com/vi/jzgTxosgGIA/maxresdefault.jpg)](https://youtu.be/jzgTxosgGIA)
 
-  - Useful compilation flags
-  - Debugging a program with:
-    - Print statements
-    - `lldb` debugger
-  </details>
-- <details>
-  <summary>
-  Functions
-  </summary>
+[Lecture script](lectures/control_structures.md)
+- `if`, `switch` and ternary operator
+- `for`, `while` and `do ... while`
+----------------------------------------------------------
+</details>
 
-  [Video](https://www.youtube.com/watch?v=RaSw0g2aPig)|[Slides](lectures/functions.md)
-  :---:|:---:
-  <a href="https://www.youtube.com/watch?v=RaSw0g2aPig"><img src="https://img.youtube.com/vi/RaSw0g2aPig/maxresdefault.jpg" alt="Video" width=100%></a> |  <a href="lectures/functions.md"><img src="lectures/images/statistics.png" alt="Slides" width=50></a>
+<details>
+<summary>
+Random number generation
+</summary>
 
-  - What is a function
-  - Declaration and definition
-  - Passing by reference
-  - Overloading
-  - Using default arguments
-  </details>
-- <details>
-  <summary>
-  Enumerations
-  </summary>
+----------------------------------------------------------
+[![Video thumbnail](https://img.youtube.com/vi/IUoqMTGGo6k/maxresdefault.jpg)](https://youtu.be/IUoqMTGGo6k)
 
-  [Video](https://www.youtube.com/watch?v=4kZyQ-TwH00)|[Slides](lectures/enums.md)
-  :---:|:---:
-  <a href="https://www.youtube.com/watch?v=4kZyQ-TwH00"><img src="https://img.youtube.com/vi/4kZyQ-TwH00/maxresdefault.jpg" alt="Video" width=100%></a> |  <a href="lectures/enums.md"><img src="lectures/images/statistics.png" alt="Slides" width=50></a>
+[Lecture script](lectures/random_numbers.md)
+- What are random numbers
+- How to generate them in modern C++
+- Why not to use `rand()`
+----------------------------------------------------------
+</details>
 
-  - What are `enums`
-  - How to use them?
-  - Why not to use old style `enums`
-  </details>
-- <details>
-  <summary>
-  Libraries and header files
-  </summary>
+<details>
+<summary><code>Homework</code>: the guessing game</summary>
 
-  [Video](https://www.youtube.com/watch?v=Lxo8ftglwXE)|[Slides](lectures/headers_and_libraries.md)
-  :---:|:---:
-  <a href="https://www.youtube.com/watch?v=Lxo8ftglwXE"><img src="https://img.youtube.com/vi/Lxo8ftglwXE/maxresdefault.jpg" alt="Video" width=100%></a> |  <a href="lectures/headers_and_libraries.md"><img src="lectures/images/statistics.png" alt="Slides" width=50></a>
+----------------------------------------------------------
+[![Video thumbnail](https://img.youtube.com/vi/TYs_xwihCNc/maxresdefault.jpg)](https://youtu.be/TYs_xwihCNc)
 
-  - Different types of libraries
-    - Header-only
-    - Static
-    - Dynamic
-  - What is linking
-  - When to use the keyword `inline`
-  - Some common best practices
-  </details>
-- <details>
-  <summary>
-  Build systems introduction
-  </summary>
+[Homework script](homeworks/homework_3/homework.md)
+- A program that generates a number
+- The user guesses this number
+- The program tells the user if they are above or below with their guess (or if they've won)
+----------------------------------------------------------
+</details>
 
-  [Video](https://www.youtube.com/watch?v=kbk4DphsYPU)|[Slides](lectures/build_systems.md)
-  :---:|:---:
-  <a href="https://www.youtube.com/watch?v=kbk4DphsYPU"><img src="https://img.youtube.com/vi/kbk4DphsYPU/maxresdefault.jpg" alt="Video" width=100%></a> |  <a href="lectures/build_systems.md"><img src="lectures/images/statistics.png" alt="Slides" width=50></a>
+<details>
+<summary>
+Compilation flags and debugging
+</summary>
 
-  - Intro to build systems
-  - Build commands as a script
-  - Build commands in a `Makefile`
-  </details>
-- <details>
-  <summary>
-  CMake introduction
-  </summary>
+----------------------------------------------------------
+[![Video thumbnail](https://img.youtube.com/vi/NTlcDv7W2-c/maxresdefault.jpg)](https://youtu.be/NTlcDv7W2-c)
 
-  [Video](https://www.youtube.com/watch?v=UH6F6ypdYbw)|[Slides](lectures/build_systems.md)
-  :---:|:---:
-  <a href="https://www.youtube.com/watch?v=UH6F6ypdYbw"><img src="https://img.youtube.com/vi/UH6F6ypdYbw/maxresdefault.jpg" alt="Video" width=100%></a> |  <a href="lectures/cmake.md"><img src="lectures/images/statistics.png" alt="Slides" width=50></a>
+[Lecture script](lectures/compilation_debugging.md)
+- Useful compilation flags
+- Debugging a program with:
+  - Print statements
+  - `lldb` debugger
+----------------------------------------------------------
+</details>
 
-  - Build process with CMake
-  - CMake Variables
-  - Targets and their properties
-  - Example CMake project
-  </details>
-- <details>
-  <summary>
-  Using GoogleTest framework for testing code
-  </summary>
+<details>
+<summary>
+Functions
+</summary>
 
-  [Video](https://www.youtube.com/watch?v=pxJoVRfpRPE)|[Slides](lectures/googletest.md)
-  :---:|:---:
-  <a href="https://www.youtube.com/watch?v=pxJoVRfpRPE"><img src="https://img.youtube.com/vi/pxJoVRfpRPE/maxresdefault.jpg" alt="Video" width=100%></a> |  <a href="lectures/googletest.md"><img src="lectures/images/statistics.png" alt="Slides" width=50></a>
+----------------------------------------------------------
+[![Video thumbnail](https://img.youtube.com/vi/RaSw0g2aPig/maxresdefault.jpg)](https://youtu.be/RaSw0g2aPig)
 
-  - Explain what testing is for
-  - Explain what testing is
-  - Show how to download and setup googletest
-  - Show how to write a simple test
-  </details>
-- <details>
-  <summary><code>Homework</code>: string processing library</summary>
+[Lecture script](lectures/functions.md)
+- What is a function
+- Declaration and definition
+- Passing by reference
+- Overloading
+- Using default arguments
+----------------------------------------------------------
+</details>
 
-  [Video](https://youtu.be/f0x2qcFgu5o)|[Homework](homeworks/homework_4/homework.md)
-  :---:|:---:
-  <a href="https://youtu.be/f0x2qcFgu5o"><img src="https://img.youtube.com/vi/f0x2qcFgu5o/maxresdefault.jpg" alt="Video" width=100%></a> |  <a href="homeworks/homework_4/homework.md"><img src="lectures/images/lecture.png" alt="Homework" width=50></a>
+<details>
+<summary>
+Enumerations
+</summary>
 
-  - You will write library that allows to split and trim strings
-  - You will learn how to:
-    - Write a CMake project from scratch
-    - Write your own libraries
-    - Test them with googletest
-    - Link them to binaries
-  </details>
-- <details>
-  <summary>
-  Writing simple custom types with classes and structs
-  </summary>
+----------------------------------------------------------
+[![Video thumbnail](https://img.youtube.com/vi/4kZyQ-TwH00/maxresdefault.jpg)](https://youtu.be/4kZyQ-TwH00)
 
-  [Video](https://youtu.be/IijP--Xf5kQ)|[Slides](lectures/classes_intro.md)
-  :---:|:---:
-  <a href="blah"><img src="https://img.youtube.com/vi/IijP--Xf5kQ/maxresdefault.jpg" alt="Video" width=100%></a> |  <a href="lectures/classes_intro.md"><img src="lectures/images/statistics.png" alt="Slides" width=50></a>
+[Lecture script](lectures/enums.md)
+- What are `enums`
+- How to use them?
+- Why not to use old style `enums`
+----------------------------------------------------------
+</details>
 
-  - Explain why the classes are needed
-  - Implement an example game about a car
-  - Define classes and structs more formally
+<details>
+<summary>
+Libraries and header files
+</summary>
 
-  </details>
-- <details>
-  <summary>
-  Raw pointers
-  </summary>
+----------------------------------------------------------
+[![Video thumbnail](https://img.youtube.com/vi/Lxo8ftglwXE/maxresdefault.jpg)](https://youtu.be/Lxo8ftglwXE)
 
-  [Video](https://youtu.be/pptRG345jnU)|[Slides](lectures/raw_pointers.md)
-  :---:|:---:
-  <a href="blah"><img src="https://img.youtube.com/vi/pptRG345jnU/maxresdefault.jpg" alt="Video" width=100%></a> |  <a href="lectures/raw_pointers.md"><img src="lectures/images/statistics.png" alt="Slides" width=50></a>
+[Lecture script](lectures/headers_and_libraries.md)
+- Different types of libraries
+  - Header-only
+  - Static
+  - Dynamic
+- What is linking
+- When to use the keyword `inline`
+- Some common best practices
+----------------------------------------------------------
+</details>
 
-  - The pointer type
-  - Pointers = variables of pointer types
-  - How to get the data?
-  - Initialization and assignment
-  - Using const with pointers
-  - Non-const pointer to const data
-  - Constant pointer to non-const data
-  - Constant pointer to constant data
+<details>
+<summary>
+Build systems introduction
+</summary>
 
-  </details>
+----------------------------------------------------------
+[![Video thumbnail](https://img.youtube.com/vi/kbk4DphsYPU/maxresdefault.jpg)](https://youtu.be/kbk4DphsYPU)
+
+[Lecture script](lectures/build_systems.md)
+- Intro to build systems
+- Build commands as a script
+- Build commands in a `Makefile`
+----------------------------------------------------------
+</details>
+
+<details>
+<summary>
+CMake introduction
+</summary>
+
+----------------------------------------------------------
+[![Video thumbnail](https://img.youtube.com/vi/UH6F6ypdYbw/maxresdefault.jpg)](https://youtu.be/UH6F6ypdYbw)
+
+[Lecture script](lectures/cmake.md)
+- Build process with CMake
+- CMake Variables
+- Targets and their properties
+- Example CMake project
+----------------------------------------------------------
+</details>
+
+<details>
+<summary>
+Using GoogleTest framework for testing code
+</summary>
+
+----------------------------------------------------------
+[![Video thumbnail](https://img.youtube.com/vi/pxJoVRfpRPE/maxresdefault.jpg)](https://youtu.be/pxJoVRfpRPE)
+
+[Lecture script](lectures/googletest.md)
+- Explain what testing is for
+- Explain what testing is
+- Show how to download and setup googletest
+- Show how to write a simple test
+----------------------------------------------------------
+</details>
+
+<details>
+<summary><code>Homework</code>: string processing library</summary>
+
+----------------------------------------------------------
+[![Video thumbnail](https://img.youtube.com/vi/f0x2qcFgu5o/maxresdefault.jpg)](https://youtu.be/f0x2qcFgu5o)
+
+[Homework script](homeworks/homework_4/homework.md)
+- You will write library that allows to split and trim strings
+- You will learn how to:
+  - Write a CMake project from scratch
+  - Write your own libraries
+  - Test them with googletest
+  - Link them to binaries
+----------------------------------------------------------
+</details>
+
+<details>
+<summary>
+Simple custom types with classes and structs
+</summary>
+
+----------------------------------------------------------
+[![Video thumbnail](https://img.youtube.com/vi/IijP--Xf5kQ/maxresdefault.jpg)](https://youtu.be/IijP--Xf5kQ)
+
+[Lecture script](lectures/classes_intro.md)
+- Explain why the classes are needed
+- Implement an example game about a car
+- Define classes and structs more formally
+----------------------------------------------------------
+</details>
+
+<details>
+<summary>
+Raw pointers
+</summary>
+
+----------------------------------------------------------
+[![Video thumbnail](https://img.youtube.com/vi/pptRG345jnU/maxresdefault.jpg)](https://youtu.be/pptRG345jnU)
+
+[Lecture script](lectures/raw_pointers.md)
+- The pointer type
+- Pointers = variables of pointer types
+- How to get the data?
+- Initialization and assignment
+- Using const with pointers
+- Non-const pointer to const data
+- Constant pointer to non-const data
+- Constant pointer to constant data
+----------------------------------------------------------
+</details>
 
 ## PS
 
 ### Most of the code snippets are validated automatically
 If you **do** find an error in some of those, please open an issue in this repo!
-
-### Icons used in this file
-- <a href="https://www.flaticon.com/free-icons/presentation" title="presentation icons">Presentation icon created by Freepik - Flaticon</a>
-- <a href="https://www.flaticon.com/free-icons/teaching" title="teaching icons">Teaching icon created by Eucalyp - Flaticon</a>
