@@ -104,7 +104,7 @@ Sequence and utility containers
 
 <details>
 <summary>
-Associative containers:
+Associative containers
 </summary>
 
 ----------------------------------------------------------
