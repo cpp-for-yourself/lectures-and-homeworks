@@ -132,10 +132,9 @@ Enjoy! 😎
   Random number generation
   </summary>
 
-  [Video](https://www.youtube.com/watch?v=IUoqMTGGo6k)|[Slides](lectures/random_numbers.md)
-  :---:|:---:
-  <a href="https://www.youtube.com/watch?v=IUoqMTGGo6k"><img src="https://img.youtube.com/vi/IUoqMTGGo6k/maxresdefault.jpg" alt="Video" width=100%></a> |  <a href="lectures/random_numbers.md"><img src="lectures/images/statistics.png" alt="Slides" width=50></a>
+  [![Video thumbnail](https://img.youtube.com/vi/IUoqMTGGo6k/maxresdefault.jpg)]((https://youtu.be/IUoqMTGGo6k))
 
+  [Homework script](lectures/random_numbers.md)
   - What are random numbers
   - How to generate them in modern C++
   - Why not to use `rand()`
@@ -143,10 +142,9 @@ Enjoy! 😎
 - <details>
   <summary><code>Homework</code>: the guessing game</summary>
 
-  [Video](https://www.youtube.com/watch?v=TYs_xwihCNc)|[Homework](homeworks/homework_3/homework.md)
-  :---:|:---:
-  <a href="https://www.youtube.com/watch?v=TYs_xwihCNc"><img src="https://img.youtube.com/vi/TYs_xwihCNc/maxresdefault.jpg" alt="Video" width=100%></a> |  <a href="homeworks/homework_3/homework.md"><img src="lectures/images/lecture.png" alt="Homework" width=50></a>
+  [![Video thumbnail](https://img.youtube.com/vi/TYs_xwihCNc/maxresdefault.jpg)]((https://youtu.be/TYs_xwihCNc))
 
+  [Homework script](homeworks/homework_3/homework.md)
   - A program that generates a number
   - The user guesses this number
   - The program tells the user if they are above or below with their guess (or if they've won)
@@ -156,10 +154,9 @@ Enjoy! 😎
   Compilation flags and debugging
   </summary>
 
-  [Video](https://www.youtube.com/watch?v=NTlcDv7W2-c)|[Slides](lectures/compilation_debugging.md)
-  :---:|:---:
-  <a href="https://www.youtube.com/watch?v=NTlcDv7W2-c"><img src="https://img.youtube.com/vi/NTlcDv7W2-c/maxresdefault.jpg" alt="Video" width=100%></a> |  <a href="lectures/compilation_debugging.md"><img src="lectures/images/statistics.png" alt="Slides" width=50></a>
+  [![Video thumbnail](https://img.youtube.com/vi/NTlcDv7W2-c/maxresdefault.jpg)]((https://youtu.be/NTlcDv7W2-c))
 
+  [Lecture script](lectures/compilation_debugging.md)
   - Useful compilation flags
   - Debugging a program with:
     - Print statements
@@ -170,10 +167,9 @@ Enjoy! 😎
   Functions
   </summary>
 
-  [Video](https://www.youtube.com/watch?v=RaSw0g2aPig)|[Slides](lectures/functions.md)
-  :---:|:---:
-  <a href="https://www.youtube.com/watch?v=RaSw0g2aPig"><img src="https://img.youtube.com/vi/RaSw0g2aPig/maxresdefault.jpg" alt="Video" width=100%></a> |  <a href="lectures/functions.md"><img src="lectures/images/statistics.png" alt="Slides" width=50></a>
+  [![Video thumbnail](https://img.youtube.com/vi/RaSw0g2aPig/maxresdefault.jpg)]((https://youtu.be/RaSw0g2aPig))
 
+  [Lecture script](lectures/functions.md)
   - What is a function
   - Declaration and definition
   - Passing by reference
@@ -189,6 +185,9 @@ Enjoy! 😎
   :---:|:---:
   <a href="https://www.youtube.com/watch?v=4kZyQ-TwH00"><img src="https://img.youtube.com/vi/4kZyQ-TwH00/maxresdefault.jpg" alt="Video" width=100%></a> |  <a href="lectures/enums.md"><img src="lectures/images/statistics.png" alt="Slides" width=50></a>
 
+  [![Video thumbnail](https://img.youtube.com/vi/4kZyQ-TwH00/maxresdefault.jpg)]((https://youtu.be/4kZyQ-TwH00))
+
+  [Lecture script](lectures/enums.md)
   - What are `enums`
   - How to use them?
   - Why not to use old style `enums`
@@ -198,10 +197,9 @@ Enjoy! 😎
   Libraries and header files
   </summary>
 
-  [Video](https://www.youtube.com/watch?v=Lxo8ftglwXE)|[Slides](lectures/headers_and_libraries.md)
-  :---:|:---:
-  <a href="https://www.youtube.com/watch?v=Lxo8ftglwXE"><img src="https://img.youtube.com/vi/Lxo8ftglwXE/maxresdefault.jpg" alt="Video" width=100%></a> |  <a href="lectures/headers_and_libraries.md"><img src="lectures/images/statistics.png" alt="Slides" width=50></a>
+  [![Video thumbnail](https://img.youtube.com/vi/Lxo8ftglwXE/maxresdefault.jpg)]((https://youtu.be/Lxo8ftglwXE))
 
+  [Lecture script](lectures/headers_and_libraries.md)
   - Different types of libraries
     - Header-only
     - Static
@@ -215,10 +213,9 @@ Enjoy! 😎
   Build systems introduction
   </summary>
 
-  [Video](https://www.youtube.com/watch?v=kbk4DphsYPU)|[Slides](lectures/build_systems.md)
-  :---:|:---:
-  <a href="https://www.youtube.com/watch?v=kbk4DphsYPU"><img src="https://img.youtube.com/vi/kbk4DphsYPU/maxresdefault.jpg" alt="Video" width=100%></a> |  <a href="lectures/build_systems.md"><img src="lectures/images/statistics.png" alt="Slides" width=50></a>
+  [![Video thumbnail](https://img.youtube.com/vi/kbk4DphsYPU/maxresdefault.jpg)]((https://youtu.be/kbk4DphsYPU))
 
+  [Lecture script](lectures/build_systems.md)
   - Intro to build systems
   - Build commands as a script
   - Build commands in a `Makefile`
@@ -228,10 +225,9 @@ Enjoy! 😎
   CMake introduction
   </summary>
 
-  [Video](https://www.youtube.com/watch?v=UH6F6ypdYbw)|[Slides](lectures/build_systems.md)
-  :---:|:---:
-  <a href="https://www.youtube.com/watch?v=UH6F6ypdYbw"><img src="https://img.youtube.com/vi/UH6F6ypdYbw/maxresdefault.jpg" alt="Video" width=100%></a> |  <a href="lectures/cmake.md"><img src="lectures/images/statistics.png" alt="Slides" width=50></a>
+  [![Video thumbnail](https://img.youtube.com/vi/UH6F6ypdYbw/maxresdefault.jpg)]((https://youtu.be/UH6F6ypdYbw))
 
+  [Lecture script](lectures/cmake.md)
   - Build process with CMake
   - CMake Variables
   - Targets and their properties
@@ -242,10 +238,9 @@ Enjoy! 😎
   Using GoogleTest framework for testing code
   </summary>
 
-  [Video](https://www.youtube.com/watch?v=pxJoVRfpRPE)|[Slides](lectures/googletest.md)
-  :---:|:---:
-  <a href="https://www.youtube.com/watch?v=pxJoVRfpRPE"><img src="https://img.youtube.com/vi/pxJoVRfpRPE/maxresdefault.jpg" alt="Video" width=100%></a> |  <a href="lectures/googletest.md"><img src="lectures/images/statistics.png" alt="Slides" width=50></a>
+  [![Video thumbnail](https://img.youtube.com/vi/pxJoVRfpRPE/maxresdefault.jpg)]((https://youtu.be/pxJoVRfpRPE))
 
+  [Lecture script](lectures/googletest.md)
   - Explain what testing is for
   - Explain what testing is
   - Show how to download and setup googletest
@@ -254,10 +249,9 @@ Enjoy! 😎
 - <details>
   <summary><code>Homework</code>: string processing library</summary>
 
-  [Video](https://youtu.be/f0x2qcFgu5o)|[Homework](homeworks/homework_4/homework.md)
-  :---:|:---:
-  <a href="https://youtu.be/f0x2qcFgu5o"><img src="https://img.youtube.com/vi/f0x2qcFgu5o/maxresdefault.jpg" alt="Video" width=100%></a> |  <a href="homeworks/homework_4/homework.md"><img src="lectures/images/lecture.png" alt="Homework" width=50></a>
+  [![Video thumbnail](https://img.youtube.com/vi/f0x2qcFgu5o/maxresdefault.jpg)]((https://youtu.be/f0x2qcFgu5o))
 
+  [Homework script](homeworks/homework_4/homework.md)
   - You will write library that allows to split and trim strings
   - You will learn how to:
     - Write a CMake project from scratch
@@ -270,10 +264,9 @@ Enjoy! 😎
   Writing simple custom types with classes and structs
   </summary>
 
-  [Video](https://youtu.be/IijP--Xf5kQ)|[Slides](lectures/classes_intro.md)
-  :---:|:---:
-  <a href="blah"><img src="https://img.youtube.com/vi/IijP--Xf5kQ/maxresdefault.jpg" alt="Video" width=100%></a> |  <a href="lectures/classes_intro.md"><img src="lectures/images/statistics.png" alt="Slides" width=50></a>
+  [![Video thumbnail](https://img.youtube.com/vi/IijP--Xf5kQ/maxresdefault.jpg)]((https://youtu.be/IijP--Xf5kQ))
 
+  [Lecture script](lectures/classes_intro.md)
   - Explain why the classes are needed
   - Implement an example game about a car
   - Define classes and structs more formally
@@ -284,10 +277,9 @@ Enjoy! 😎
   Raw pointers
   </summary>
 
-  [Video](https://youtu.be/pptRG345jnU)|[Slides](lectures/raw_pointers.md)
-  :---:|:---:
-  <a href="blah"><img src="https://img.youtube.com/vi/pptRG345jnU/maxresdefault.jpg" alt="Video" width=100%></a> |  <a href="lectures/raw_pointers.md"><img src="lectures/images/statistics.png" alt="Slides" width=50></a>
+  [![Video thumbnail](https://img.youtube.com/vi/pptRG345jnU/maxresdefault.jpg)]((https://youtu.be/pptRG345jnU))
 
+  [Lecture script](lectures/raw_pointers.md)
   - The pointer type
   - Pointers = variables of pointer types
   - How to get the data?
@@ -303,7 +295,3 @@ Enjoy! 😎
 
 ### Most of the code snippets are validated automatically
 If you **do** find an error in some of those, please open an issue in this repo!
-
-### Icons used in this file
-- <a href="https://www.flaticon.com/free-icons/presentation" title="presentation icons">Presentation icon created by Freepik - Flaticon</a>
-- <a href="https://www.flaticon.com/free-icons/teaching" title="teaching icons">Teaching icon created by Eucalyp - Flaticon</a>
