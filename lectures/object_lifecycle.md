@@ -19,11 +19,26 @@ Object lifecycle
 - [Full class lifecycle explained](#full-class-lifecycle-explained)
 
 <!-- Talking head -->
-By now we kinda know how to create objects of custom types and that they get created and destroyed just like any other variable. But there is more to it!
+By now we kinda know how to create objects of [custom types](classes_intro.md) and that they get created and destroyed just like any other variable. But there is more to it!
 
 So today we look under the hood and tap into the machinery that allows Modern C++ to be what it is - a flexible, efficient, and memory safe language all without the use of any sort of garbage collector! We're talking about the machinery of **constructors** and **destructors**!
 
 Oh, and we'll also see how it enables us to create objects in a more expressive way, for example:
+<!--
+`CPP_SETUP_START`
+struct Cat {
+  Cat(int, int) {};
+};
+
+int main() {
+  int number_of_lives{};
+  int happiness{};
+  $PLACEHOLDER
+}
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` cat_simple/main.cpp
+`CPP_RUN_CMD` CWD:cat_simple c++ -std=c++17 -c main.cpp
+-->
 ```cpp
 Cat cat{number_of_lives, happiness};
 ```
@@ -55,6 +70,15 @@ Other than that we are free to do whatever we want: there can be as many constru
 ## User-defined custom constructors for expressive object creation
 <!-- B-roll code -->
 Anyway, let's get our hands dirty and write a couple of constructors that take, say, `happiness` and `number_of_lives` values for some `Cat` class:
+<!--
+`CPP_SETUP_START`
+$PLACEHOLDER
+
+int main() {}
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` cat_constructors/main.cpp
+`CPP_RUN_CMD` CWD:cat_constructors c++ -std=c++17 -c main.cpp
+-->
 ```cpp
 constexpr int kDefaultNumberOfLives = 9;
 
@@ -100,6 +124,14 @@ In the Cat example, we see a couple of places where the variables are initialize
 ## A default constructor is (sometimes) auto-generated
 <!-- B-roll code -->
 After creating our custom constructors, if we try creating the `Cat` object without parameters we get an error! The compiler sees no "default constructor" which would be called in such a case.
+<!--
+`CPP_SETUP_START`
+using Cat = int;
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` no_default_constructor/main.cpp
+`CPP_RUN_CMD` CWD:no_default_constructor c++ -std=c++17 -c main.cpp
+-->
 ```cpp
 int main() {
   Cat cat{};  // ❌ Won't compile when custom constructors present
@@ -123,6 +155,15 @@ So, as it follows, now we *did* provide custom constructors, so the compiler thi
 ## Use `= default` to re-enable a trivial default constructor
 <!-- B-roll code -->
 However, we can easily add this constructor back by adding just one line to our class:
+<!--
+`CPP_SETUP_START`
+struct Cat {
+  $PLACEHOLDER
+};
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` default_constructor/main.cpp
+`CPP_RUN_CMD` CWD:default_constructor c++ -std=c++17 -c main.cpp
+-->
 ```cpp
 // Somewhere in the public part of our class
 Cat() = default;  // Tell the compiler to use the default implementation
@@ -141,6 +182,14 @@ Google style suggests that if we write a single-argument constructor, we should 
 <!-- Talking head -->
 Well, without it, there are some implicit conversions that a compiler might perform that are a bit confusing and should be avoided. Let me illustrate:
 <!-- B-roll code -->
+<!--
+`CPP_SETUP_START`
+using Cat = int;
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` explicit_cat/main.cpp
+`CPP_RUN_CMD` CWD:explicit_cat c++ -std=c++17 -c main.cpp
+-->
 ```cpp
 void Foo(const Cat &cat) {}
 
@@ -181,6 +230,8 @@ So, to summarize todays' video, it is important to remember that essentially eve
 <!-- B-roll code -->
 We can illustrate it with a small example where we print a message from a constructor and a destructor of an object:
 ```cpp
+#include <iostream>
+
 struct Foo {
   Foo() {std::cout << "Created" << std::endl; }
   ~Foo() {std::cout << "Destroyed" << std::endl; }
