@@ -20,7 +20,7 @@ Hello world program dissection
 </summary>
 
 ----------------------------------------------------------
-[![Video thumbnail](https://img.youtube.com/vi/t2h1geGSww4/maxresdefault.jpg)]((https://youtu.be/t2h1geGSww4))
+[![Video thumbnail](https://img.youtube.com/vi/t2h1geGSww4/maxresdefault.jpg)](https://youtu.be/t2h1geGSww4)
 
 [Lecture script](lectures/hello_world_dissection.md)
 - First keywords
@@ -48,7 +48,7 @@ Variables of fundamental types
 </summary>
 
 ----------------------------------------------------------
-[![Video thumbnail](https://img.youtube.com/vi/0z0gvv_Tb_U/maxresdefault.jpg)]((https://youtu.be/0z0gvv_Tb_U))
+[![Video thumbnail](https://img.youtube.com/vi/0z0gvv_Tb_U/maxresdefault.jpg)](https://youtu.be/0z0gvv_Tb_U)
 
 [Lecture script](lectures/cpp_basic_types_and_variables.md)
 - How to create variables of fundamental types
@@ -64,7 +64,7 @@ Namespaces for variables
 </summary>
 
 -----------------------------------------------------------
-[![Video thumbnail](https://img.youtube.com/vi/cP2IDg4_BRk/maxresdefault.jpg)]((https://youtu.be/cP2IDg4_BRk))
+[![Video thumbnail](https://img.youtube.com/vi/cP2IDg4_BRk/maxresdefault.jpg)](https://youtu.be/cP2IDg4_BRk)
 
 [Lecture script](lectures/namespaces_using.md)
 - Namespaces with variables
@@ -78,7 +78,7 @@ Input/output streams
 </summary>
 
 ----------------------------------------------------------
-[![Video thumbnail](https://img.youtube.com/vi/hy3eOpZmxbY/maxresdefault.jpg)]((https://youtu.be/hy3eOpZmxbY))
+[![Video thumbnail](https://img.youtube.com/vi/hy3eOpZmxbY/maxresdefault.jpg)](https://youtu.be/hy3eOpZmxbY)
 
 [Lecture script](lectures/more_useful_types.md)
 - `std::cout`, `std::cerr`, `std::cin`
@@ -91,7 +91,7 @@ Sequence and utility containers
 </summary>
 
 ----------------------------------------------------------
-[![Video thumbnail](https://img.youtube.com/vi/dwkSVkGsvFk/maxresdefault.jpg)]((https://youtu.be/dwkSVkGsvFk))
+[![Video thumbnail](https://img.youtube.com/vi/dwkSVkGsvFk/maxresdefault.jpg)](https://youtu.be/dwkSVkGsvFk)
 
 [Lecture script](lectures/more_useful_types.md)
 - Sequence containers: `std::array`, `std::vector`, their usage and some caveats
@@ -108,7 +108,7 @@ Associative containers:
 </summary>
 
 ----------------------------------------------------------
-[![Video thumbnail](https://img.youtube.com/vi/TCu76SYmVCg/maxresdefault.jpg)]((https://youtu.be/TCu76SYmVCg))
+[![Video thumbnail](https://img.youtube.com/vi/TCu76SYmVCg/maxresdefault.jpg)](https://youtu.be/TCu76SYmVCg)
 
 [Lecture script](lectures/associative_containers.md)
 - `std::map` and `std::unordered_map`
@@ -133,7 +133,7 @@ Control structures
 </summary>
 
 ----------------------------------------------------------
-[![Video thumbnail](https://img.youtube.com/vi/jzgTxosgGIA/maxresdefault.jpg)]((https://youtu.be/jzgTxosgGIA))
+[![Video thumbnail](https://img.youtube.com/vi/jzgTxosgGIA/maxresdefault.jpg)](https://youtu.be/jzgTxosgGIA)
 
 [Lecture script](lectures/control_structures.md)
 - `if`, `switch` and ternary operator
@@ -147,7 +147,7 @@ Random number generation
 </summary>
 
 ----------------------------------------------------------
-[![Video thumbnail](https://img.youtube.com/vi/IUoqMTGGo6k/maxresdefault.jpg)]((https://youtu.be/IUoqMTGGo6k))
+[![Video thumbnail](https://img.youtube.com/vi/IUoqMTGGo6k/maxresdefault.jpg)](https://youtu.be/IUoqMTGGo6k)
 
 [Lecture script](lectures/random_numbers.md)
 - What are random numbers
@@ -160,7 +160,7 @@ Random number generation
 <summary><code>Homework</code>: the guessing game</summary>
 
 ----------------------------------------------------------
-[![Video thumbnail](https://img.youtube.com/vi/TYs_xwihCNc/maxresdefault.jpg)]((https://youtu.be/TYs_xwihCNc))
+[![Video thumbnail](https://img.youtube.com/vi/TYs_xwihCNc/maxresdefault.jpg)](https://youtu.be/TYs_xwihCNc)
 
 [Homework script](homeworks/homework_3/homework.md)
 - A program that generates a number
@@ -175,7 +175,7 @@ Compilation flags and debugging
 </summary>
 
 ----------------------------------------------------------
-[![Video thumbnail](https://img.youtube.com/vi/NTlcDv7W2-c/maxresdefault.jpg)]((https://youtu.be/NTlcDv7W2-c))
+[![Video thumbnail](https://img.youtube.com/vi/NTlcDv7W2-c/maxresdefault.jpg)](https://youtu.be/NTlcDv7W2-c)
 
 [Lecture script](lectures/compilation_debugging.md)
 - Useful compilation flags
@@ -191,7 +191,7 @@ Functions
 </summary>
 
 ----------------------------------------------------------
-[![Video thumbnail](https://img.youtube.com/vi/RaSw0g2aPig/maxresdefault.jpg)]((https://youtu.be/RaSw0g2aPig))
+[![Video thumbnail](https://img.youtube.com/vi/RaSw0g2aPig/maxresdefault.jpg)](https://youtu.be/RaSw0g2aPig)
 
 [Lecture script](lectures/functions.md)
 - What is a function
@@ -208,7 +208,7 @@ Enumerations
 </summary>
 
 ----------------------------------------------------------
-[![Video thumbnail](https://img.youtube.com/vi/4kZyQ-TwH00/maxresdefault.jpg)]((https://youtu.be/4kZyQ-TwH00))
+[![Video thumbnail](https://img.youtube.com/vi/4kZyQ-TwH00/maxresdefault.jpg)](https://youtu.be/4kZyQ-TwH00)
 
 [Lecture script](lectures/enums.md)
 - What are `enums`
@@ -223,7 +223,7 @@ Libraries and header files
 </summary>
 
 ----------------------------------------------------------
-[![Video thumbnail](https://img.youtube.com/vi/Lxo8ftglwXE/maxresdefault.jpg)]((https://youtu.be/Lxo8ftglwXE))
+[![Video thumbnail](https://img.youtube.com/vi/Lxo8ftglwXE/maxresdefault.jpg)](https://youtu.be/Lxo8ftglwXE)
 
 [Lecture script](lectures/headers_and_libraries.md)
 - Different types of libraries
@@ -242,7 +242,7 @@ Build systems introduction
 </summary>
 
 ----------------------------------------------------------
-[![Video thumbnail](https://img.youtube.com/vi/kbk4DphsYPU/maxresdefault.jpg)]((https://youtu.be/kbk4DphsYPU))
+[![Video thumbnail](https://img.youtube.com/vi/kbk4DphsYPU/maxresdefault.jpg)](https://youtu.be/kbk4DphsYPU)
 
 [Lecture script](lectures/build_systems.md)
 - Intro to build systems
@@ -257,7 +257,7 @@ CMake introduction
 </summary>
 
 ----------------------------------------------------------
-[![Video thumbnail](https://img.youtube.com/vi/UH6F6ypdYbw/maxresdefault.jpg)]((https://youtu.be/UH6F6ypdYbw))
+[![Video thumbnail](https://img.youtube.com/vi/UH6F6ypdYbw/maxresdefault.jpg)](https://youtu.be/UH6F6ypdYbw)
 
 [Lecture script](lectures/cmake.md)
 - Build process with CMake
@@ -273,7 +273,7 @@ Using GoogleTest framework for testing code
 </summary>
 
 ----------------------------------------------------------
-[![Video thumbnail](https://img.youtube.com/vi/pxJoVRfpRPE/maxresdefault.jpg)]((https://youtu.be/pxJoVRfpRPE))
+[![Video thumbnail](https://img.youtube.com/vi/pxJoVRfpRPE/maxresdefault.jpg)](https://youtu.be/pxJoVRfpRPE)
 
 [Lecture script](lectures/googletest.md)
 - Explain what testing is for
@@ -287,7 +287,7 @@ Using GoogleTest framework for testing code
 <summary><code>Homework</code>: string processing library</summary>
 
 ----------------------------------------------------------
-[![Video thumbnail](https://img.youtube.com/vi/f0x2qcFgu5o/maxresdefault.jpg)]((https://youtu.be/f0x2qcFgu5o))
+[![Video thumbnail](https://img.youtube.com/vi/f0x2qcFgu5o/maxresdefault.jpg)](https://youtu.be/f0x2qcFgu5o)
 
 [Homework script](homeworks/homework_4/homework.md)
 - You will write library that allows to split and trim strings
@@ -305,7 +305,7 @@ Simple custom types with classes and structs
 </summary>
 
 ----------------------------------------------------------
-[![Video thumbnail](https://img.youtube.com/vi/IijP--Xf5kQ/maxresdefault.jpg)]((https://youtu.be/IijP--Xf5kQ))
+[![Video thumbnail](https://img.youtube.com/vi/IijP--Xf5kQ/maxresdefault.jpg)](https://youtu.be/IijP--Xf5kQ)
 
 [Lecture script](lectures/classes_intro.md)
 - Explain why the classes are needed
@@ -320,7 +320,7 @@ Raw pointers
 </summary>
 
 ----------------------------------------------------------
-[![Video thumbnail](https://img.youtube.com/vi/pptRG345jnU/maxresdefault.jpg)]((https://youtu.be/pptRG345jnU))
+[![Video thumbnail](https://img.youtube.com/vi/pptRG345jnU/maxresdefault.jpg)](https://youtu.be/pptRG345jnU)
 
 [Lecture script](lectures/raw_pointers.md)
 - The pointer type
