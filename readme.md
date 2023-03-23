@@ -334,6 +334,23 @@ Raw pointers
 ----------------------------------------------------------
 </details>
 
+<details>
+<summary>
+Object lifecycle
+</summary>
+
+----------------------------------------------------------
+[![Video thumbnail](https://img.youtube.com/vi/TFoav6vhgdg/maxresdefault.jpg)](https://youtu.be/TFoav6vhgdg)
+
+[Lecture script](lectures/object_lifecycle.md)
+- Creating a new object
+- What happens when an object dies
+- Full class lifecycle explained
+----------------------------------------------------------
+</details>
+
+---
+
 ## PS
 
 ### Most of the code snippets are validated automatically
