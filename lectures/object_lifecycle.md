@@ -64,6 +64,14 @@ Other than that we are free to do whatever we want: there can be as many constru
 ### A default constructor
 <!-- B-roll code -->
 Such a constructor without parameters is called a **default** constructor.
+<!--
+`CPP_SETUP_START`
+$PLACEHOLDER
+int main() { Foo{}; }
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` foo_default_constructor/main.cpp
+`CPP_RUN_CMD` CWD:foo_default_constructor c++ -std=c++17 -c main.cpp
+-->
 ```cpp
 class Foo {
 public:
@@ -71,6 +79,14 @@ public:
 };
 ```
 And, we can use the `= default` after the constructor to tell the compiler that it can generate it as it wants which is even better because the compiler is usually smarter than us:
+<!--
+`CPP_SETUP_START`
+$PLACEHOLDER
+int main() { Foo{}; }
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` better_default_constructor/main.cpp
+`CPP_RUN_CMD` CWD:better_default_constructor c++ -std=c++17 -c main.cpp
+-->
 ```cpp
 class Foo {
 public:
@@ -283,6 +299,19 @@ Nowadays in Modern C++ we need to write our own destructor only rarely, mostly w
 # Full class lifecycle explained
 <!-- B-roll code 🚨 -->
 So, to summarize todays' video, it is important to remember that essentially every object is created by calling one and only one of its constructors, used for a while and eventually its destructor will be called as the last thing before the object is destroyed.
+<!--
+`CPP_SETUP_START`
+struct Cat{
+  void RunAround();
+  void BeAwesome();
+  void ThrowThingsFromAbove();
+  int a;
+};
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` object_life/main.cpp
+`CPP_RUN_CMD` CWD:object_life c++ -std=c++17 -c main.cpp
+-->
 ```cpp
 int main() {
   Cat cat{100}; // Cat(int happiness) is called.
