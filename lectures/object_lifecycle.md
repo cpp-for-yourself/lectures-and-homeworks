@@ -78,9 +78,9 @@ public:
 };
 ```
 
-<!-- Talking head 🚨 -->
+<!-- Talking head -->
 > :bulb: Note that when such default constructor is called it will leave the data uninitialized unless these data are initialized in-place:
-> <!-- B-roll add private part code 🚨 -->
+> <!-- B-roll add private part code  -->
 > ```cpp
 > class Foo {
 > public:
@@ -93,10 +93,10 @@ public:
 > ```
 > Here, the `uninitialized` variable will remain uninitialized while the `initialized` one will be initialized to a default value.
 >
-> <!-- Talking head 🚨 -->
+> <!-- Talking head  -->
 > To avoid mistakes, we should _always_ initialize data in-place unless there is a good performance-related reason for not doing so.
 
-<!-- B-roll code, remove the constructor from the above 🚨 -->
+<!-- B-roll code, remove the constructor from the above  -->
 > :bulb: Also note that if we provide no constructors at all the compiler will **generate** a default one automagically! 🦄
 
 ### User-defined custom constructors for expressive object creation
