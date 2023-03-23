@@ -2,7 +2,7 @@ Object lifecycle
 ---
 
 <p align="center">
-  <a href="https://youtu.be/blah"><img src="https://img.youtube.com/vi/blah/maxresdefault.jpg" alt="Video" align="right" width=50%></a>
+  <a href="https://youtu.be/TFoav6vhgdg"><img src="https://img.youtube.com/vi/TFoav6vhgdg/maxresdefault.jpg" alt="Video" align="right" width=50%></a>
 </p>
 
 - [Creating a new object](#creating-a-new-object)
