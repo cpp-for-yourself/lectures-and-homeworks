@@ -349,6 +349,22 @@ Object lifecycle
 ----------------------------------------------------------
 </details>
 
+<details>
+<summary>
+Value semantics, <code>std::move</code>
+</summary>
+
+----------------------------------------------------------
+[![Video thumbnail](https://img.youtube.com/vi/blah/maxresdefault.jpg)](https://youtu.be/blah)
+
+[Lecture script](lectures/value_semantics.md)
+- Why we care about value semantics
+- Let’s re-design value semantics from scratch
+- How is it actually designed and called in Modern C++?
+
+----------------------------------------------------------
+</details>
+
 ---
 
 ## PS

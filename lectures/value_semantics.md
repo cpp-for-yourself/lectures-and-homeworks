@@ -11,8 +11,8 @@ Value semantics
   - [Problems with the naïve solution](#problems-with-the-naïve-solution)
   - [Better solution - add a new "stealing reference" type to the language!](#better-solution---add-a-new-stealing-reference-type-to-the-language)
   - [We also design how the "stealing references" are created from other objects](#we-also-design-how-the-stealing-references-are-created-from-other-objects)
-    - [From temporary objects](#from-temporary-objects)
-    - [From existing objects already stored as variables](#from-existing-objects-already-stored-as-variables)
+    - ["Stealing references" from temporary objects](#stealing-references-from-temporary-objects)
+    - ["Stealing references" from existing objects already stored as variables](#stealing-references-from-existing-objects-already-stored-as-variables)
     - [Showcase of what we can do with our new "stealing references"](#showcase-of-what-we-can-do-with-our-new-stealing-references)
   - [Yay! We've reinvented value semantics!](#yay-weve-reinvented-value-semantics)
 - [How is it actually designed and called in Modern C++?](#how-is-it-actually-designed-and-called-in-modern-c)
@@ -46,17 +46,38 @@ But first we need to set the stage. Please bear with me.
 
 <!-- Code -->
 Imagine that we have [a custom type](classes_intro.md) `HugeObject` that **owns** some **big** chunk of memory.
+<!--
+`CPP_SETUP_START`
+#include <cstddef>
+
+std::byte *AllocateMemory(std::size_t length) {
+  return new std::byte[length];
+}
+void FreeMemory(std::byte *ptr) { delete[] ptr; }
+
+$PLACEHOLDER
+
+int main() {
+  HugeObject object_1;
+  HugeObject object_2{100};
+}
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` huge_object_1/main.cpp
+`CPP_RUN_CMD` CWD:huge_object_1 c++ -std=c++17 -c main.cpp
+-->
 ```cpp
-class HugeObject {
-public:
+#include <cstddef>
+
+// 😱 Note that this struct does not follow best style.
+// We only use it to illustrate the concept here.
+struct HugeObject {
   HugeObject() = default;
 
   explicit HugeObject(std::size_t data_length)
-      : length{data_length}, data_ptr{AllocateMemory(length)} {}
+      : length{data_length}, ptr{AllocateMemory(length)} {}
 
-  ~HugeObject() { FreeMemory(data_ptr); }
+  ~HugeObject() { FreeMemory(ptr); }
 
-private:
   std::size_t length{};
   std::byte *ptr{};
 };
@@ -76,26 +97,42 @@ It allocates this memory using some magic function `std::byte* AllocateMemory(st
 Anyway, back to our code...
  -->
 We also want to be able to assign another `HugeObject` to our current object after creation for the sake of this example, so we also add an "assignment operator" to it. This "operator" is just a **function** with a certain signature that takes a reference to a `HugeObject` as an input and copies this incoming object's data into the current instance. You can think of such an operator as being just a function with a funky name.
+<!--
+`CPP_SETUP_START`
+#include <cstddef>
+
+std::byte *AllocateMemory(std::size_t length) {
+  return new std::byte[length];
+}
+void FreeMemory(std::byte *ptr) { delete[] ptr; }
+
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` huge_object_copy/object.hpp
+-->
 ```cpp
+#include <cstddef>
+#include <algorithm>
+
 // 😱 Note that this struct does not follow best style.
 // We only use it to illustrate the concept here.
 struct HugeObject {
   HugeObject() = default;
 
   explicit HugeObject(std::size_t data_length)
-      : length{data_length}, data_ptr{AllocateMemory(length)} {}
+      : length{data_length}, ptr{AllocateMemory(length)} {}
 
   // Think of it as just a function with a funky name.
   HugeObject &operator=(const HugeObject &object) {
     if (this == &object) { return *this; }  // Do not self-assign.
-    FreeMemory(data_ptr);  // In case we already owned some memory from before.
+    FreeMemory(ptr);  // In case we already owned some memory from before.
     length = object.length;
-    data_ptr = AllocateMemory(length);
-    std::copy(object.data_ptr, object.data_ptr + length, data_ptr);
+    ptr = AllocateMemory(length);
+    std::copy(object.ptr, object.ptr + length, ptr);
     return *this;
   }
 
-  ~HugeObject() { FreeMemory(data_ptr); }
+  ~HugeObject() { FreeMemory(ptr); }
 
   std::size_t length{};
   std::byte *ptr{};
@@ -110,6 +147,15 @@ Finally, as the last step of our setup, let's say we also want to store these `H
 
 <!-- Code changes -->
 This allows us to put an existing `HugeObject` into a `HugeObjectStorage` object in the `main` function:
+<!--
+`CPP_SETUP_START`
+#include "object.hpp"
+
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` huge_object_copy/main.cpp
+`CPP_RUN_CMD` CWD:huge_object_copy c++ -std=c++17 -c main.cpp
+-->
 ```cpp
 struct HugeObjectStorage {
   HugeObject member_object;
@@ -172,6 +218,34 @@ That is, however, easy enough to fix. Let's just forget everything that we talke
 
 <!-- Code -->
 So let's now change the logic from "copying" to "stealing" by setting the data pointer of the incoming object to `nullptr`:
+<!--
+`CPP_SETUP_START`
+#include <cstddef>
+
+std::byte *AllocateMemory(std::size_t length) {
+  return new std::byte[length];
+}
+void FreeMemory(std::byte *ptr) { delete[] ptr; }
+
+// 😱 Note that this struct does not follow best style.
+// We only use it to illustrate the concept here.
+struct HugeObject {
+  HugeObject() = default;
+
+  explicit HugeObject(std::size_t data_length)
+      : length{data_length}, ptr{AllocateMemory(length)} {}
+
+  $PLACEHOLDER
+
+  ~HugeObject() { FreeMemory(ptr); }
+
+  std::size_t length{};
+  std::byte *ptr{};
+};
+
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` huge_object_move/object.hpp
+-->
 ```cpp
 // 😱 This is not a good practice and is only here for illustrating purposes
 HugeObject &operator=(HugeObject &object) {
@@ -186,6 +260,19 @@ HugeObject &operator=(HugeObject &object) {
 
 <!-- Talking head -->
 Great! Now, here is what happens if we have a look at our old main function:
+<!--
+`CPP_SETUP_START`
+#include "object.hpp"
+
+struct HugeObjectStorage {
+  HugeObject member_object;
+};
+
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` huge_object_move/main.cpp
+`CPP_RUN_CMD` CWD:huge_object_move c++ -std=c++17 -c main.cpp
+-->
 ```cpp
 int main() {
   HugeObject object{100};
@@ -211,11 +298,17 @@ However, the whole story is not as simple... While we *did* achieve what we want
 - We cannot copy the data anymore 😐. Sometimes we still might want to! We can only steal now.
 - We cannot pass a temporary object anymore! This won't work!
   <!-- Code -->
+  <!--
+  `CPP_SKIP_SNIPPET`
+  -->
   ```cpp
   storage.member_object = HugeObject{200};  // ❌ Does not compile.
   ```
   <!-- More code -->
   The reason for this is that we can't bind a non-const reference to a temporary object (try it yourselves to see the actual error)
+  <!--
+  `CPP_SKIP_SNIPPET`
+  -->
   ```cpp
   int& answer = 42;  // ❌ Does not compile.
   ```
@@ -232,7 +325,23 @@ Given any type, `HugeObject` in our case, we have a reference type for it: `Huge
 
 <!-- Talking head moving to code -->
 This enables us to just write a different assignment operator overload for this new `&&` reference type. So writing something like this should be possible:
+
+<!--
+`CPP_SETUP_START`
+#include <cstddef>
+
+std::byte *AllocateMemory(std::size_t length) {
+  return new std::byte[length];
+}
+void FreeMemory(std::byte *ptr) { delete[] ptr; }
+
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` huge_object_copy_move/object.hpp
+-->
 ```cpp
+#include <algorithm>
+
 struct HugeObject {
   HugeObject() = default;
 
@@ -244,7 +353,7 @@ struct HugeObject {
     FreeMemory(ptr);  // In case we already owned some memory from before.
     length = object.length;
     ptr = AllocateMemory(length);
-    std::copy(object.ptr.begin(), object.ptr.begin() + length, ptr.begin());
+    std::copy(object.ptr, object.ptr + length, ptr);
     return *this;
   }
 
@@ -273,15 +382,15 @@ Here, the two operators are nearly the same with the sole significant difference
 
 ## We also design how the "stealing references" are created from other objects
 <!-- Talking head -->
-This is awesome! We now have different implementations and the compiler picks the appropriate one by using the same rules as it uses for any other [function overload resolution](functions.md#function-overloading---writing-functions-with-the-same-names)!
+We now have different implementations and the compiler should be able to pick the appropriate one by using the same rules as it uses for any other [function overload resolution](functions.md#function-overloading---writing-functions-with-the-same-names)! There is just one thing missing... How are the `&&` references created?
 
 <!-- Talking head from a different view -->
-Now we just need to design how our new `&&` reference type is created from various objects and we are done! We mostly care about these two use cases:
+Ok, so we do need to design how our new `&&` reference type is created from various objects but then we are done! We mostly care about these two use cases:
 <!-- Overlay text -->
 - Passing temporary objects like `HugeObject{}`
 - Passing objects that we as programmers know will not be in use anymore and so can be stolen from
 
-### From temporary objects
+### "Stealing references" from temporary objects
 <!-- Let's start with the temporaries -->
 <!-- Code -->
 For temporary objects we can postulate that they can be bound to our `&&` references, and that the compiler always picks the `&&` reference overload of a function if a temporary is provided as a parameter:
@@ -297,7 +406,7 @@ int main() {
 ```
 > :bulb: Feel free to print something from these functions to make sure they work as intended.
 
-### From existing objects already stored as variables
+### "Stealing references" from existing objects already stored as variables
 <!-- Talking head -->
 For the objects stored as normal variables but ones that we know will not be used anymore, we can add a function that converts any object into its `&&` reference.
 
@@ -315,6 +424,19 @@ We will skip the actual implementation here for now as it is not important to un
 ### Showcase of what we can do with our new "stealing references"
 <!-- Code -->
 These new `&&` reference types enable us to write the code like this:
+<!--
+`CPP_SETUP_START`
+#include "object.hpp"
+
+struct HugeObjectStorage {
+  HugeObject member_object;
+};
+
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` huge_object_copy_move/main.cpp
+`CPP_RUN_CMD` CWD:huge_object_copy_move c++ -std=c++17 -c main.cpp
+-->
 ```cpp
 int main() {
   HugeObject object{100};
