@@ -82,10 +82,12 @@ struct HugeObject {
   std::byte *ptr{};
 };
 ```
-It allocates this memory using some magic function `std::byte* AllocateMemory(std::size_t length)` on creation and frees this memory using another magic function `FreeMemory(std::byte* ptr)` when it dies. Please see the [object lifecycle](object_lifecycle.md) lecture if this part sounds confusing.
+It allocates this memory using some magic function `std::byte* AllocateMemory(std::size_t length)` on creation and frees this memory using another magic function `FreeMemory(std::byte* ptr)` when it dies. Please see the lecture on [object lifecycle](object_lifecycle.md) if this part sounds confusing.
 
 <!-- Talking head -->
-> At this point it is not important how exactly the memory allocation happens. We will talk about it in the future. We just have to remember that allocating, copying and freeing memory are all time-wise costly operations. But for the impatient, here is one way to allocate the memory that we need in real code.
+> At this point it is not important how exactly the memory allocation happens. We will talk about it in the future. We just have to remember that allocating, copying and freeing memory are all time-wise costly operations.
+> <!-- For the impatient, you can see example of such functions in the script, which is as always linked in the description below  -->
+> But for the impatient, here is one way to allocate the memory that we need in real code.
 > ```cpp
 > // 😱 Please don't do this in real code, for illustration purposes only!
 > // 💡 We will talk about how to properly allocate and free memory later!
