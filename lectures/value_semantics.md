@@ -188,14 +188,14 @@ At this point, we might observe that we actually **do not use `object` after it 
 This situation is *exactly* why value semantics exists! It exists to enable **ownership transfer** in addition to copying and borrowing the data which we have seen before.
 
 # Let's re-design value semantics from scratch
-<!-- Illustrate data stealing ✅ -->
+<!-- Illustrate data stealing ✅✅ -->
 Essentially we want a way to "steal" the data from `object` and give it to `storage.member_object` if we know that `object` will not use these data anymore. Let's design such a way!
 
 ## Can we avoid having this "stealing" behavior?
 <!-- Talking head ✅ -->
 Before designing such a way to steal the data, let's think if there is really no other way. Do we _really_ need to steal the data?
 
-<!-- Illustrate ✅ -->
+<!-- Illustrate ✅✅ -->
 We see why we can't copy them - it's slow - but why can't we just set the `member_object.ptr` to point to the same memory as `object.ptr` instead?
 
 <!-- Show code and illustrate ✅ -->

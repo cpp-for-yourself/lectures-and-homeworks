@@ -1,6 +1,5 @@
 import {makeScene2D} from '@motion-canvas/2d/lib/scenes';
-import {createRef, useDuration} from '@motion-canvas/core/lib/utils';
-import {zoomInTransition} from '@motion-canvas/core/lib/transitions';
+import {createRef} from '@motion-canvas/core/lib/utils';
 import {
   CodeBlock,
   edit,
@@ -298,7 +297,7 @@ export default makeScene2D(function* (view) {
   yield * waitFor(duration);
   yield * all(
     codeRef().scale(zoom_fn(1.0), duration),
-    codeRef().position(new Vector2(0, 300), duration),
+    codeRef().position([0, 260], duration),
     codeRef().edit(duration, true)(
       ...simplify(
         code(
@@ -308,13 +307,13 @@ export default makeScene2D(function* (view) {
           insert(operator_move)))),
   );
   yield * waitFor(duration);
-  yield * codeRef().selection([...word(9, 26, 24), ...lines(14)], duration);
+  yield * codeRef().selection([...word(9, 26, 24), ...lines(13, 14)], duration);
   yield * waitFor(duration);
   yield * codeRef().selection([...word(18, 26, 19), ...lines(22, 23)], duration);
   yield * waitFor(duration);
 
   const comment_temp_bind = `// Can be bound to a temporary`
-  const comment_pick_overload = `// The compiler picks Blah(int&&)`
+  const comment_pick_overload = ` // The compiler picks Blah(int&&)`
 
   const blah_code = (
     comment_temp:any = ``,
@@ -342,11 +341,11 @@ export default makeScene2D(function* (view) {
 
   yield * waitFor(duration);
   yield * all(
+    codeRef().edit(duration, false)(...blah_code()),
     codeRef().selection(DEFAULT, duration),
     codeRef().scale(zoom_fn(1.0), 0),
     codeRef().position(new Vector2(0, 0), 0),
   );
-  yield * codeRef().edit(duration, false)(...blah_code());
   yield * waitFor(duration);
   yield * codeRef().selection([...lines(11)], duration);
   yield * codeRef().edit(duration, false)(...simplify(blah_code(insert(comment_temp_bind))));
