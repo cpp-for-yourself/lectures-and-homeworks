@@ -20,28 +20,29 @@ Value semantics
   - ["Stealing references" are rrefs and they are lvalues 🤯](#stealing-references-are-rrefs-and-they-are-lvalues-)
 - [That's all folks!](#thats-all-folks)
 
-<!-- Talking head + overlay words -->
+<!-- Talking head + overlay words ✅ -->
 If you heard anything about modern C++, you've probably heard these words: value semantics, move semantics, rvalues, lvalues, rvalue references, rrefs etc.
 
-<!-- Talking head -->
+<!-- Talking head ✅  -->
 The concepts behind these words form the foundational principles behind Modern C++ as we know it.
 
-<!-- Talking head + b-rolls being scared, magic, confusion -->
+<!-- Talking head + b-rolls being scared, magic, confusion ✅ -->
 However, for various reasons these concepts are **very confusing to a lot of people**! I've seen people being scared of these things, treating them like magic, and having a lot of misunderstandings along the way. Navigating these waters effortlessly is a must for being able to design great software.
 
-<!-- Talking head -->
+<!-- Talking head ✅ -->
 So, today I'm here to tell you - **there is no black magic!**
 
-<!-- Talking head + scooby doo meme of unveiling rrefs -->
+<!-- Talking head + scooby doo meme of unveiling rrefs ✅ -->
 Actually, to build a better understanding, we're about to design the value semantics mechanism from scratch using nothing more than the concepts that we already know from the previous videos, mostly references and function overloading!
 
 <!-- Intro -->
 
 # Why we care about value semantics
-<!-- Talking head -->
+<!-- Talking head ✅ -->
 So, in the spirit of "starting with why", I want us to start with an example that will illustrate why we need value semantics.
 
 ## Setting up the example to illustrate why we need value semantics
+<!-- Talking head ✅ -->
 But first we need to set the stage. Please bear with me.
 
 <!-- Code -->
@@ -82,9 +83,10 @@ struct HugeObject {
   std::byte *ptr{};
 };
 ```
+<!-- ✅ -->
 It allocates this memory using some magic function `std::byte* AllocateMemory(std::size_t length)` on creation and frees this memory using another magic function `FreeMemory(std::byte* ptr)` when it dies. Please see the lecture on [object lifecycle](object_lifecycle.md) if this part sounds confusing.
 
-<!-- Talking head -->
+<!-- Talking head ✅ -->
 > At this point it is not important how exactly the memory allocation happens. We will talk about it in the future. We just have to remember that allocating, copying and freeing memory are all time-wise costly operations.
 > <!-- For the impatient, you can see example of such functions in the script, which is as always linked in the description below  -->
 > But for the impatient, here is one way to allocate the memory that we need in real code.
@@ -96,7 +98,7 @@ It allocates this memory using some magic function `std::byte* AllocateMemory(st
 > ```
 
 <!-- Code
-Anyway, back to our code...
+Anyway, back to our code... ✅
  -->
 We also want to be able to assign another `HugeObject` to our current object after creation for the sake of this example, so we also add an "assignment operator" to it. This "operator" is just a **function** with a certain signature that takes a reference to a `HugeObject` as an input and copies this incoming object's data into the current instance. You can think of such an operator as being just a function with a funky name.
 <!--
@@ -141,13 +143,13 @@ struct HugeObject {
 };
 ```
 
-<!-- Talking head in different location -->
+<!-- Talking head in different location ✅ -->
 > :bulb: :scream: It's important to note here that this struct does not follow good style, but it is useful to us to illustrate the concept of value semantics. There are important parts missing here, like some constructors, operators or the fact that it should be a class in the first place, so don't copy this code blindly.
 
-<!-- Talking head -->
+<!-- Talking head ✅ -->
 Finally, as the last step of our setup, let's say we also want to store these `HugeObject`s somewhere, in some storage class. It could be an `std::vector` or any other container, but for now we will just have a struct `HugeObjectStorage` that holds a `HugeObject` instance as a `member_object`.
 
-<!-- Code changes -->
+<!-- Code changes ✅ -->
 This allows us to put an existing `HugeObject` into a `HugeObjectStorage` object in the `main` function:
 <!--
 `CPP_SETUP_START`
@@ -170,6 +172,7 @@ int main() {
   return 0;
 }
 ```
+<!-- ✅ -->
 Let's quickly talk about what happens here:
 - We create an `object` in the `main` function scope (⚠️ costly)
 - We create an empty `storage.member_object` for the `storage` object (✅ cheap)
@@ -177,48 +180,48 @@ Let's quickly talk about what happens here:
 - The `storage.member_object` is destroyed, freeing its data memory
 - The `object` is destroyed, freeing its data memory
 
-<!-- Talking head or code highlight -->
+<!-- Talking head or code highlight ✅ -->
 At this point, we might observe that we actually **do not use `object` after it is copied into `storage.member_object`**! But both objects `object` and `storage.member_object` are **still maintained** and ready to use. Because of this the data is **copied**, costing us time.
 
 ## Value semantics enables ownership transfer
-<!-- Talking head -->
+<!-- Talking head ✅  -->
 This situation is *exactly* why value semantics exists! It exists to enable **ownership transfer** in addition to copying and borrowing the data which we have seen before.
 
 # Let's re-design value semantics from scratch
-<!-- Illustrate data stealing -->
+<!-- Illustrate data stealing ✅ -->
 Essentially we want a way to "steal" the data from `object` and give it to `storage.member_object` if we know that `object` will not use these data anymore. Let's design such a way!
 
 ## Can we avoid having this "stealing" behavior?
-<!-- Talking head -->
+<!-- Talking head ✅ -->
 Before designing such a way to steal the data, let's think if there is really no other way. Do we _really_ need to steal the data?
 
-<!-- Illustrate -->
+<!-- Illustrate ✅ -->
 We see why we can't copy them - it's slow - but why can't we just set the `member_object.ptr` to point to the same memory as `object.ptr` instead?
 
-<!-- Show code and illustrate -->
+<!-- Show code and illustrate ✅ -->
 To answer this, let's just look at the destructor of our `HugeObject` class. Essentially it frees the memory that the pointer points to.
 
-<!-- Talking head -->
+<!-- Talking head ✅ -->
 If we have pointers of two objects pointing to the same memory, this memory will be freed twice. This is not allowed and will cause a runtime error!
 
 ## What does it mean to "steal" the data from an object?
-<!-- Illustrate with animation, maybe some heist reference -->
+<!-- Illustrate with animation, maybe some heist reference ✅ -->
 So, we want to be able to steal the data. But what does it even mean to "steal" them? Well, essentially, it only really makes sense in the context of pointers. If we have a pointer `a` that points to some address `0x42424242` in memory and a pointer `b` "steals" its data it means that at the end of this operation the following is true:
 - Data stays where it was **with no modification**
 - Pointer `b` is set to point to `0x42424242` address
 - Pointer `a` is set to `nullptr`
 
-<!-- Talking head -->
+<!-- Talking head ✅ -->
 The emphasis here is on the **need to modify the pointer that we steal from**!
 
-<!-- Code -->
+<!-- Code ✅ -->
 If we want to implement this behavior in our existing assignment operator we can't! :shrug: Our assignment operator takes a **`const` reference** which makes it impossible to modify the underlying object!
 
 ## Naïve implementation of "stealing"
-<!-- Talking head -->
+<!-- Talking head ✅ -->
 That is, however, easy enough to fix. Let's just forget everything that we talked about passing objects into functions for a second and just remove the `const` :wink:.
 
-<!-- Code -->
+<!-- Code ✅-->
 So let's now change the logic from "copying" to "stealing" by setting the data pointer of the incoming object to `nullptr`:
 <!--
 `CPP_SETUP_START`
@@ -260,7 +263,7 @@ HugeObject &operator=(HugeObject &object) {
 }
 ```
 
-<!-- Talking head -->
+<!-- Talking head ✅ -->
 Great! Now, here is what happens if we have a look at our old main function:
 <!--
 `CPP_SETUP_START`
@@ -289,14 +292,14 @@ int main() {
 - The `storage.member_object` is destroyed, freeing its data memory
 - The `object` is destroyed without cleaning any data as its `ptr` points to `nullptr`
 
-<!-- Talking head -->
+<!-- Talking head ✅  -->
 Stop for a second to admire what we've done! This is essentially how we can steal resources without copying! If we have huge data stored under some pointer, stealing will be much quicker than copying while still not introducing any issues when destroying our objects! And if you ever heard phrases like "we move these data" this is what it is about! We've just "moved" one object into another.
 
 ## Problems with the naïve solution
-<!-- Talking head from a different view -->
+<!-- Talking head from a different view ✅ -->
 However, the whole story is not as simple... While we *did* achieve what we wanted in this small example, we've made a pretty terrible decision. There is now no more way to do the following:
 
-<!-- Overlay text -->
+<!-- Overlay text ✅ -->
 - We cannot copy the data anymore 😐. Sometimes we still might want to! We can only steal now.
 - We cannot pass a temporary object anymore! This won't work!
   <!-- Code -->
@@ -306,7 +309,7 @@ However, the whole story is not as simple... While we *did* achieve what we want
   ```cpp
   storage.member_object = HugeObject{200};  // ❌ Does not compile.
   ```
-  <!-- More code -->
+  <!-- More code ✅ -->
   The reason for this is that we can't bind a non-const reference to a temporary object (try it yourselves to see the actual error)
   <!--
   `CPP_SKIP_SNIPPET`
@@ -315,17 +318,17 @@ However, the whole story is not as simple... While we *did* achieve what we want
   int& answer = 42;  // ❌ Does not compile.
   ```
 
-<!-- Talking head + photos of cake mom made + image of growing C++ -->
+<!-- Talking head + photos of cake mom made + image of growing C++ ✅ -->
 So the question is - how can we have our cake and eat it at the same time? We will have to extend our language for this (which is exactly what happened with C++11).
 
 ## Better solution - add a new "stealing reference" type to the language!
-<!-- Talking head -->
+<!-- Talking head ✅ -->
 If we agree to add new things to the language, the answer to our problem is actually genius in its simplicity - we just invent a new type that means "reference that can be stolen from"!
 
-<!-- Overlay text or code -->
+<!-- Overlay text or code ✅ -->
 Given any type, `HugeObject` in our case, we have a reference type for it: `HugeObject&`. By analogy, let's name our new type `HugeObject&&` and define it as such that it can bind to objects that we are allowed to steal from.
 
-<!-- Talking head moving to code -->
+<!-- Talking head moving to code ✅ -->
 This enables us to just write a different assignment operator overload for this new `&&` reference type. So writing something like this should be possible:
 
 <!--
@@ -374,7 +377,7 @@ struct HugeObject {
   std::byte *ptr{};
 };
 ```
-<!-- Voiceover code
+<!-- Voiceover code ✅
 - Highlight new operator
 - Highlight both operators
 - Highlight const and copying
@@ -383,48 +386,48 @@ struct HugeObject {
 Here, the two operators are nearly the same with the sole significant difference of one taking a constant reference and copying the data, while the other is taking "reference that can be stolen from" and then, well, stealing the data.
 
 ## We also design how the "stealing references" are created from other objects
-<!-- Talking head -->
+<!-- Talking head ✅ -->
 We now have different implementations and the compiler should be able to pick the appropriate one by using the same rules as it uses for any other [function overload resolution](functions.md#function-overloading---writing-functions-with-the-same-names)! There is just one thing missing... How are the `&&` references created?
 
-<!-- Talking head from a different view -->
+<!-- Talking head from a different view ✅  -->
 Ok, so we do need to design how our new `&&` reference type is created from various objects but then we are done! We mostly care about these two use cases:
-<!-- Overlay text -->
+<!-- Overlay text ✅ -->
 - Passing temporary objects like `HugeObject{}`
 - Passing objects that we as programmers know will not be in use anymore and so can be stolen from
 
 ### "Stealing references" from temporary objects
-<!-- Let's start with the temporaries -->
+<!-- Let's start with the temporaries ✅ -->
 <!-- Code -->
 For temporary objects we can postulate that they can be bound to our `&&` references, and that the compiler always picks the `&&` reference overload of a function if a temporary is provided as a parameter:
 ```cpp
-void Blah(int) {}
+void Blah(int&) {}
 
 void Blah(int&&) {}
 
 int main() {
-  int&& answer = 42;
-  Blah(answer);  // The compiler picks Blah(int&&)
+  int&& answer = 42;  // Can be bound to a temporary
+  Blah(42);  // The compiler picks Blah(int&&)
 }
 ```
 > :bulb: Feel free to print something from these functions to make sure they work as intended.
 
 ### "Stealing references" from existing objects already stored as variables
-<!-- Talking head -->
+<!-- Talking head ✅ -->
 For the objects stored as normal variables but ones that we know will not be used anymore, we can add a function that converts any object into its `&&` reference.
 
-<!-- Overlay text or code -->
+<!-- Overlay text or code ✅ -->
 We could call this function `CanBeStolenFrom(object)` but in C++11 this function has a name `std::move(object)`.
 
 <!-- Talking head
-Maybe overlay providing different types and getting && ones out
+Maybe overlay providing different types and getting && ones out ✅
 -->
 This naming might be slightly confusing as it does not actually *do* anything - it just makes a `&&` reference of any type we provide into it. This then serves as an indication that the resources of this object can be stolen.
 
-<!-- Talking head -->
+<!-- Talking head ✅ -->
 We will skip the actual implementation here for now as it is not important to understand the concept but feel free to look it up on [cppreference.com](https://en.cppreference.com/w/cpp/utility/move).
 
 ### Showcase of what we can do with our new "stealing references"
-<!-- Code -->
+<!-- Code ✅ -->
 These new `&&` reference types enable us to write the code like this:
 <!--
 `CPP_SETUP_START`
@@ -449,60 +452,60 @@ int main() {
   return 0;
 }
 ```
-<!-- Highlight -->
+<!-- Highlight ✅ -->
 All of the behaviors from before are present here!
-- We **copy** `object` into `member_object`
+- We **copy** `object` into `storage.member_object`
 - We **move** a temporary `HugeObject{200}` into `storage.member_object`
 - We **move** the existing `object` into `storage.member_object`
 
 ## Yay! We've reinvented value semantics!
-<!-- Talking head + celebrations -->
+<!-- Talking head + celebrations ✅  -->
 That is it! Conceptually, we've just reinvented, at least conceptually, the whole thing that is called value semantics in modern C++! At this point, it should be pretty clear what happens in the previous examples and why we need all of this.
 
-<!-- Text overlay -->
+<!-- Text overlay ✅  -->
 There is a couple of things that logically follow from what we've just done:
 - Moving objects only makes sense if they own some resource through a pointer. All the other data is simply copied over, yielding no benefit.
 - We should never use the object that has been "moved from" as its resources are left in some undefined but valid state.
 
 # How is it actually designed and called in Modern C++?
-<!-- Talking head -->
+<!-- Talking head ✅ -->
 Not to spoil all the fun, but there is one final thing before we can close this chapter. Let's return from our fairyland back to reality and make sure we are aligned with how things actually *are* in Modern C++. Our definition of this new type of reference was a bit hand-wavy, C++ standard of course defines things much more strictly.
 
 ## Classes of values
-<!-- Text overlay -->
+<!-- Text overlay ??? -->
 Largely speaking there are a couple of different **kinds** of values:
 - `lvalues` - with the name derived from "left value", historically anything that could be found on the left of the `=` operator. Nowadays, anything that has a name and an address in memory
 - `prvalue` - with its name derived from "pure right value", maps most precisely to what we called a "temporary" before. These values don't have a name and a permanent address in memory and usually cannot appear on the left of the `=` operation
 - `xvalues` - so-called e**X**piring values: mostly `lvalues` after `std::move`, i.e., those whose resources can be stolen
 - `rvalues` - historically everything that is not an `lvalue`, nowadays, either an `xvalue` or an `prvalue`.
 
-<!-- Talking head + overlay of cppreference -->
+<!-- Talking head + overlay of cppreference ✅ -->
 The value categories are quite nuanced in C++, but you should now be prepared to be able to read all about them on the [related page of the cppreference.com](https://en.cppreference.com/w/cpp/language/value_category) :wink:
 
 ## "Stealing references" are rrefs and they are lvalues 🤯
-<!-- Talking head -->
+<!-- Talking head ✅ -->
 The "stealing" `&&` references that we (and the authors of C++11 standard) have invented are usually referred to as `rrefs` because they are `refs` that binds to things that are `rvalues` and so the name is a shortcut for "rvalue references".
 
-<!-- Talking head -->
+<!-- Talking head ✅ -->
 There is also one important quirk of `rrefs` to be aware of. If we store an `rref` into a variable, **it is an `lvalue` and not an `rvalue`**! So, by default, such a value, when passed to a function, will choose the "lvalue reference" overload! This means that we have to use `std::move` on a named `rref` in order to choose a correct `rref` overload. It might sound a bit confusing, so let me illustrate:
 
 <!-- Code overlay -->
 ```cpp
 #include <iostream>
 
-void Blah(int&&) {
-  std::cout << "rvalue reference" << std::endl;
+void Blah(int&) {
+  std::cout << "&" << std::endl;
 }
 
-void Blah(int&) {
-  std::cout << "lvalue reference" << std::endl;
+void Blah(int&&) {
+  std::cout << "&&" << std::endl;
 }
 
 int main() {
   int&& answer = 42;  // answer is an lvalue that stores an rvalue reference!
-  Blah(42);                 // Prints "rvalue reference"
-  Blah(answer);             // Prints "lvalue reference"
-  Blah(std::move(answer));  // Prints "rvalue reference"
+  Blah(42);                 // Prints "&&"
+  Blah(answer);             // Prints "&"
+  Blah(std::move(answer));  // Prints "&&"
   return 0;
 }
 ```
@@ -512,10 +515,10 @@ The function `Blah` is overloaded for taking lvalue references and rvalue refere
 - Passing `std::move(answer)` will allow binding to the rvalue reference overload again
 
 # That's all folks!
-<!-- Talking head -->
+<!-- Talking head ✅ -->
 Now we're done with this topic for good! We really do know close to everything there is to know about value semantics!
 
-<!-- Maybe again overlay illustrations -->
+<!-- Maybe again overlay illustrations ✅ -->
 We've learned that sometimes we want to transfer ownership of objects by moving the data as opposed to copying or borrowing them and, even more, we've designed the whole solution to achieve this, which, coincidentally is exactly the way it is implemented in the C++11 and later.
 
 <!-- Talking head -->
