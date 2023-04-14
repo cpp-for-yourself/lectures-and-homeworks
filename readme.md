@@ -349,6 +349,22 @@ Object lifecycle
 ----------------------------------------------------------
 </details>
 
+<details>
+<summary>
+Move semantics
+</summary>
+
+----------------------------------------------------------
+[![Video thumbnail](https://img.youtube.com/vi/kqQ90R0_GFI/maxresdefault.jpg)](https://youtu.be/kqQ90R0_GFI)
+
+[Lecture script](lectures/move_semantics.md)
+- Why we care about move semantics
+- Let’s re-design move semantics from scratch
+- How is it actually designed and called in Modern C++?
+
+----------------------------------------------------------
+</details>
+
 ---
 
 ## PS
