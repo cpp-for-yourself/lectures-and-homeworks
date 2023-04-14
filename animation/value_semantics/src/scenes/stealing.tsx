@@ -34,8 +34,7 @@ export default makeScene2D(function* (view) {
         y = {200}
         spacing={100}
         stroke={'#444'}
-        lineWidth={2}
-        lineCap="square"
+        lineWidth={5}
         opacity={0}
         cache
       />

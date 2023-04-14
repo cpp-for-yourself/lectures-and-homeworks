@@ -1,7 +1,7 @@
 {
   "version": 0,
   "shared": {
-    "background": "rgb(0,0,0)",
+    "background": "rgb(10,20,30)",
     "range": [
       0,
       null
@@ -17,7 +17,7 @@
     "resolutionScale": 1
   },
   "rendering": {
-    "fps": 60,
+    "fps": 30,
     "resolutionScale": 2,
     "colorSpace": "srgb",
     "exporter": {
@@ -25,7 +25,7 @@
       "options": {
         "fileType": "image/png",
         "quality": 100,
-        "groupByScene": false
+        "groupByScene": true
       }
     }
   }

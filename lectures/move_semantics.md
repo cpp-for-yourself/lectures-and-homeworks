@@ -1,10 +1,14 @@
-Value semantics
+Move semantics
 ---
 
-- [Why we care about value semantics](#why-we-care-about-value-semantics)
-  - [Setting up the example to illustrate why we need value semantics](#setting-up-the-example-to-illustrate-why-we-need-value-semantics)
-  - [Value semantics enables ownership transfer](#value-semantics-enables-ownership-transfer)
-- [Let's re-design value semantics from scratch](#lets-re-design-value-semantics-from-scratch)
+<p align="center">
+  <a href="https://youtu.be/kqQ90R0_GFI"><img src="https://img.youtube.com/vi/kqQ90R0_GFI/maxresdefault.jpg" alt="Video" align="right" width=50%></a>
+</p>
+
+- [Why we care about move semantics](#why-we-care-about-move-semantics)
+  - [Setting up the example to illustrate why we need move semantics](#setting-up-the-example-to-illustrate-why-we-need-move-semantics)
+  - [Move semantics enables ownership transfer](#move-semantics-enables-ownership-transfer)
+- [Let's re-design move semantics from scratch](#lets-re-design-move-semantics-from-scratch)
   - [Can we avoid having this "stealing" behavior?](#can-we-avoid-having-this-stealing-behavior)
   - [What does it mean to "steal" the data from an object?](#what-does-it-mean-to-steal-the-data-from-an-object)
   - [Naïve implementation of "stealing"](#naïve-implementation-of-stealing)
@@ -37,11 +41,11 @@ Actually, to build a better understanding, we're about to design the value seman
 
 <!-- Intro -->
 
-# Why we care about value semantics
+# Why we care about move semantics
 <!-- Talking head ✅ -->
-So, in the spirit of "starting with why", I want us to start with an example that will illustrate why we need value semantics.
+So, in the spirit of "starting with why", I want us to start with an example that will illustrate why we need move semantics.
 
-## Setting up the example to illustrate why we need value semantics
+## Setting up the example to illustrate why we need move semantics
 <!-- Talking head ✅ -->
 But first we need to set the stage. Please bear with me.
 
@@ -183,11 +187,11 @@ Let's quickly talk about what happens here:
 <!-- Talking head or code highlight ✅ -->
 At this point, we might observe that we actually **do not use `object` after it is copied into `storage.member_object`**! But both objects `object` and `storage.member_object` are **still maintained** and ready to use. Because of this the data is **copied**, costing us time.
 
-## Value semantics enables ownership transfer
+## Move semantics enables ownership transfer
 <!-- Talking head ✅  -->
-This situation is *exactly* why value semantics exists! It exists to enable **ownership transfer** in addition to copying and borrowing the data which we have seen before.
+This situation is *exactly* why move semantics exists! It exists to enable **ownership transfer** in addition to copying and borrowing the data which we have seen before.
 
-# Let's re-design value semantics from scratch
+# Let's re-design move semantics from scratch
 <!-- Illustrate data stealing ✅✅ -->
 Essentially we want a way to "steal" the data from `object` and give it to `storage.member_object` if we know that `object` will not use these data anymore. Let's design such a way!
 

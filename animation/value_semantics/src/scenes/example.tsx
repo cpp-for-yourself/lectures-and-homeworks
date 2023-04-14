@@ -223,7 +223,7 @@ export default makeScene2D(function* (view) {
   yield * all(
     codeRef().scale(zoom_fn(1.2), duration),
     codeRef().selection([...lines(9, 16)], duration),
-    codeRef().position(new Vector2(0, 400), duration),
+    codeRef().position(new Vector2(50, 400), duration),
   );
   yield * waitFor(duration);
   yield * all(
@@ -240,7 +240,7 @@ export default makeScene2D(function* (view) {
   );
   yield * all(
     codeRef().scale(zoom_fn(1.2), duration),
-    codeRef().position(new Vector2(0, 400), duration),
+    codeRef().position(new Vector2(50, 400), duration),
     codeRef().selection([...lines(9, 16)], duration),
   );
   yield *codeRef().selection([...lines(13, 14)], duration);
