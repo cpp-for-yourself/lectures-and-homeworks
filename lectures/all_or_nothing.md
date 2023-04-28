@@ -42,13 +42,13 @@ There are many rules about good style when it comes to writing classes but I don
 
 # Setting up the example
 <!-- Code voiceover
-- Show the whole struct
-- Change it to class
-- Highlight constructor
-- Highlight AllocateMemory function
-- Highlight destructor
-- Highlight FreeMemory function
-- Zoom out
+- Show the whole struct 🆗
+- Change it to class 🆗
+- Highlight constructor 🆗
+- Highlight AllocateMemory function 🆗
+- Highlight destructor 🆗
+- Highlight FreeMemory function 🆗
+- Zoom out 🆗
 -->
 So, in the [previous lecture](move_semantics.md) we had a struct `HugeObject` that owned some big chunk of memory. Today, we're going to make it a class to ensure encapsulation but other than that it does the same things as before. It allocates a chunk of memory in its constructor through some magic function `AllocateMemory` and frees this memory in its destructor through some other magic function `FreeMemory`.
 <!-- Just as before, their exact implementation is not important right now but you *can* find their implementation in the script to this video, link is as always in the description. -->
@@ -88,11 +88,11 @@ class HugeObject {
 <!-- Talking head -->
 To help us down the line we want to be able to get the address of the allocated memory, so let's add a function that will give it to us.
 <!-- Code voiceover
-- Add getter
-- highlight name
-- highlight return type
+- Add getter 🆗
+- highlight name 🆗
+- highlight return type 🆗
 -->
-As covered in the lecture about [object lifecycle](object_lifecycle.md), we can provide a simple getter function that returns a constant pointer to our data.
+As covered in the lecture about [object lifecycle](object_lifecycle.md), we can provide a simple getter function that returns a pointer to our const data.
 <!--
 `CPP_SETUP_START`
 #include <cstddef>
@@ -134,8 +134,8 @@ std::byte const *ptr() const { return ptr_; }
 <!-- The link is in the description and somewhere on the screen. -->
 
 <!-- Talking head + code voiceover
-- Add main function
-- Highlight const in getter
+- Add main function 🆗
+- Highlight const in getter 🆗
 -->
 One final preparatory touch, let's also introduce a simple `main` function that creates a `HugeObject` instance and prints the address of the memory allocated for it:
 <!--
@@ -183,15 +183,15 @@ If anything here confuses you, then do refresh your knowledge on [object lifecyc
 
 # Rule 1: destructor
 <!-- Code voiceover
-- Highlight destructor
+- Highlight destructor 🆗
 -->
 Now that we're done with the preparations, I would like to focus on the destructor here! What happens if it is missing?
 <!-- Animation on the side of the talking head
-- Create object, pointer, data
-- Remove data, pointer, object
-- Create object, pointer, data
-- Remove object and pointer
-- Wiggle data
+- Create object, pointer, data 🆗
+- Remove data, pointer, object 🆗
+- Create object, pointer, data 🆗
+- Remove object and pointer 🆗
+- Wiggle data 🆗
 -->
 Right now when an object is created it allocates memory and when it gets destroyed it frees this memory. If we miss the destructor, `FreeMemory` will not be called and the memory will stay behind, causing a memory leak.
 
@@ -200,7 +200,7 @@ This already gives us a glimpse into our first "rule":
 <!-- Overlay -->
 > **Rule 1:** If we manage resources manually in the constructor we must have a destructor that releases these resources.
 
-<!-- Highlight comment -->
+<!-- Highlight comment 🆗 -->
 Note that even with this destructor in place we still must explicitly state here that **this struct does not follow the best practices**. We'll find out why pretty soon.
 
 <!-- Talking head -->
@@ -208,8 +208,8 @@ Hopefully you did not learn anything _really_ new by now. We touched upon this t
 
 # Rule 2: copy constructor
 <!-- Code voiceover
-- Add new part of the main function
-- Highlight adding new object
+- Add new part of the main function 🆗
+- Highlight adding new object 🆗
 - Show the runtime error
 -->
 Let's illustrate an issue with our class by changing our `main` function a little bit. If we introduce another object of the `HugeObject` type and initialize it as a copy of our existing object the code will compile but will crash when we run it!
@@ -255,8 +255,8 @@ int main() {
 }
 ```
 <!-- Talking head + code voiceover
-- Show the whole code
-- Highlight all constructors
+- Show the whole code 🆗
+- Highlight all constructors 🆗
 - Add ??? signs
 -->
 Let's unpack this. First of all, why does it even compile in the first place? There is no constructor for `HugeObject` class that takes another instance of `HugeObject` class, and yet it still compiles! What is going on here?
@@ -265,10 +265,10 @@ Let's unpack this. First of all, why does it even compile in the first place? Th
 The reason is that the compiler is trying to be helpful. A constructor that takes a constant reference to the current type is called a **copy constructor** and the compiler generates a trivial copy constructor for our class **if none is provided by the user**. What do we mean by trivial? Means that it just copies all the variables from one object to another without giving it a second thought.
 
 <!-- Code voiceover
-- Add the constructor
-- Highlight the inputs
-- Highlight the copying
-- Highlight the use of private methods
+- Add the constructor 🆗
+- Highlight the inputs 🆗
+- Highlight the copying 🆗
+- Highlight the use of private methods 🆗
 -->
 We could even write one ourselves! Essentially, in our case a trivial copy constructor would take a constant `HugeObject` reference and will copy the length and the pointer to our new object:
 <!--
@@ -324,9 +324,9 @@ Really, try to figure this one out before watching further! Do re-watch the [mov
 <!-- Talking head -->
 Hope you got it by now! The issue is that the trivial constructor just copies over the pointer to a different object, **not the data**!
 <!-- Animation
-- One object that points to the data
-- Another object that points to the same data
-- Freeing memory twice
+- One object that points to the data 🆗
+- Another object that points to the same data 🆗
+- Freeing memory twice 🆗
 -->
 So now we have two objects pointing to the same data. And both of these have destructors that will try to remove these data! So in our case the destructor of the `other_object` will succeed at freeing the memory but the destructor of the `object` will try to free the memory that has already been freed, causing a runtime error that mentions something along the lines of freeing the memory twice:
 <!-- Code -->
