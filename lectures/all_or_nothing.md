@@ -6,6 +6,19 @@ The rule of "All Or Nothing" - safely copying and moving objects
   <a href="https://youtu.be/blah"><img src="https://img.youtube.com/vi/blah/maxresdefault.jpg" alt="Video" align="right" width=50%></a>
 </p>
 
+- ["Good style" as our guide](#good-style-as-our-guide)
+- [What is "good style"](#what-is-good-style)
+- [Setting up the example](#setting-up-the-example)
+- [Rule 1: destructor](#rule-1-destructor)
+- [Rule 2: copy constructor](#rule-2-copy-constructor)
+- [Rule 3: copy assignment operator](#rule-3-copy-assignment-operator)
+- [Rule 4: move constructor](#rule-4-move-constructor)
+- [Rule 5: move assignment operator](#rule-5-move-assignment-operator)
+- [Now we (mostly) follow best practices](#now-we-mostly-follow-best-practices)
+- [Rule of 5](#rule-of-5)
+- [The rule of "all or nothing"](#the-rule-of-all-or-nothing)
+
+
 <!-- Talking head -->
 If you ever wanted to embrace a teenager within you, to deal with the world in absolute categories then this topic is for you. Because when it comes to destructors, custom copy and move constructors and operators of a class it is *really* about having "all or nothing"!
 
