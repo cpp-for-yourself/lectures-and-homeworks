@@ -6,23 +6,41 @@ The rule of "All Or Nothing" - safely copying and moving objects
   <a href="https://youtu.be/blah"><img src="https://img.youtube.com/vi/blah/maxresdefault.jpg" alt="Video" align="right" width=50%></a>
 </p>
 
-If you ever wanted to embrace a teenager within you to deal with the world in absolute categories then this topic is for you. Because when it comes to destructors, custom copy and move constructors and operators of a class it comes down to having "all or nothing"!
+<!-- Talking head -->
+If you ever wanted to embrace a teenager within you, to deal with the world in absolute categories then this topic is for you. Because when it comes to destructors, custom copy and move constructors and operators of a class it is *really* about having "all or nothing"!
 
 <!-- Intro -->
 
-Jokes aside, we already used an assignment operator in the previous video Igor did about [move semantics](move_semantics.md) and we stressed that the struct we've been using did not follow the best style.
+# "Good style" as our guide
+<!-- Talking head -->
+Jokes aside, in the previous video about [move semantics](move_semantics.md) we had an example `struct` that made use of copy and move assignment operators. Turns out there are rules to follow when implementing these operators and their "friends". As a result the struct in that video did not follow a good style.
 <!-- Maybe insert a throwback to previous video here -->
 
-A logical question then seems to be "what is the good style then?"
+# What is "good style"
+<!-- Talking head -->
+A logical question then seems to be "what *is* the good style?". Long story short:
+<!-- Overlay -->
+> Good style is a style that helps us avoid mistakes and makes things easier to implement.
 
-There are many rules about good style when it comes to writing classes but I don't want to postulate this rule out of context. Rather, in the spirit of this course, let's build up to these good practices and summarize them afterwards as an easy-to-remember rule.
+<!-- Talking head
+Pop-up google style sheet and core guidelines
+-->
+There are many rules about good style when it comes to writing classes but I don't want to postulate any rules out of context. Rather, in the spirit of this course, let's build up to these good practices by formulating various "rules of good style" and summarize them as a single easy-to-remember rule afterwards.
 
-In the [previous lecture](move_semantics.md) we had a struct `HugeObject` that owned some big chunk of memory (and we already know that "if you own something you clean it up"). It allocated this memory through some magic function `AllocateMemory` and freed this memory through some other magic function `FreeMemory`. You can find their implementation in the script to this video in the description but it is not really important how they work here.
-
+# Setting up the example
+<!-- Code voiceover
+- Show the whole struct
+- Change it to class
+- Highlight constructor
+- Highlight AllocateMemory function
+- Highlight destructor
+- Highlight FreeMemory function
+- Zoom out
+-->
+So, in the [previous lecture](move_semantics.md) we had a struct `HugeObject` that owned some big chunk of memory. Today, we're going to make it a class to ensure encapsulation but other than that it does the same things as before. It allocates a chunk of memory in its constructor through some magic function `AllocateMemory` and frees this memory in its destructor through some other magic function `FreeMemory`.
+<!-- Just as before, their exact implementation is not important right now but you *can* find their implementation in the script to this video, link is as always in the description. -->
 <!--
 `CPP_SETUP_START`
-#include <cstddef>
-
 $PLACEHOLDER
 
 int main() {
@@ -30,60 +48,18 @@ int main() {
   HugeObject object_2{100};
 }
 `CPP_SETUP_END`
-`CPP_COPY_SNIPPET` huge_object_1/main.cpp
-`CPP_RUN_CMD` CWD:huge_object_1 c++ -std=c++17 -c main.cpp
+`CPP_COPY_SNIPPET` huge_object_initial/main.cpp
+`CPP_RUN_CMD` CWD:huge_object_initial c++ -std=c++17 -c main.cpp
 -->
 ```cpp
 #include <cstddef>
 
-std::byte *AllocateMemory(std::size_t length) {
-  return new std::byte[length];
-}
+std::byte *AllocateMemory(std::size_t length) { return new std::byte[length]; }
 void FreeMemory(std::byte *ptr) { delete[] ptr; }
 
 // 😱 Note that this struct does not follow best style.
-struct HugeObject {
-  HugeObject() = default;
-
-  explicit HugeObject(std::size_t data_length)
-      : length{data_length}, ptr{AllocateMemory(length)} {}
-
-  ~HugeObject() { FreeMemory(ptr); }
-
-  std::size_t length{};
-  std::byte *ptr{};
-};
-```
-
-Note that we must explicitly state here that this struct does not follow the best practices. And if you're anything like me this must annoy you to no end, so let's fix it :wink:
-
-First of all, we want to maintain encapsulation, meaning that we don't want to give away the access to our data to the outside without our control. The easiest way to do this is to make our `HugeObject` a class:
-
-<!--
-`CPP_SETUP_START`
-#include <cstddef>
-
-std::byte *AllocateMemory(std::size_t length) {
-  return new std::byte[length];
-}
-void FreeMemory(std::byte *ptr) { delete[] ptr; }
-
-$PLACEHOLDER
-
-int main() {
-  HugeObject object_1;
-  HugeObject object_2{100};
-}
-`CPP_SETUP_END`
-`CPP_COPY_SNIPPET` huge_object_1/main.cpp
-`CPP_RUN_CMD` CWD:huge_object_1 c++ -std=c++17 -c main.cpp
--->
-```cpp
-#include <cstddef>
-
-// 😱 Note that this class does not follow best style.
 class HugeObject {
-public:
+ public:
   HugeObject() = default;
 
   explicit HugeObject(std::size_t data_length)
@@ -91,151 +67,297 @@ public:
 
   ~HugeObject() { FreeMemory(ptr_); }
 
-private:
+ private:
   std::size_t length_{};
   std::byte *ptr_{};
 };
 ```
-
-This is slightly better, nobody can access the data we own anymore. Actually, just to make this class a bit more useful, let's give people access to the underlying data but in such a way that they cannot change this.
-
-As covered in the video about [object lifecycle](object_lifecycle.md), we can provide a simple getter function that returns a constant pointer to our data.
-
+<!-- Talking head -->
+To help us down the line we want to be able to get the address of the allocated memory, so let's add a function that will give it to us.
+<!-- Code voiceover
+- Add getter
+- highlight name
+- highlight return type
+-->
+As covered in the lecture about [object lifecycle](object_lifecycle.md), we can provide a simple getter function that returns a constant pointer to our data.
 <!--
 `CPP_SETUP_START`
 #include <cstddef>
 
-std::byte *AllocateMemory(std::size_t length) {
-  return new std::byte[length];
-}
+std::byte *AllocateMemory(std::size_t length) { return new std::byte[length]; }
 void FreeMemory(std::byte *ptr) { delete[] ptr; }
 
-$PLACEHOLDER
-
-int main() {
-  HugeObject object_1;
-  HugeObject object_2{100};
-}
-`CPP_SETUP_END`
-`CPP_COPY_SNIPPET` huge_object_1/main.cpp
-`CPP_RUN_CMD` CWD:huge_object_1 c++ -std=c++17 -c main.cpp
--->
-```cpp
-#include <cstddef>
-
-// 😱 Note that this class does not follow best style.
+// 😱 Note that this struct does not follow best style.
 class HugeObject {
-public:
+ public:
   HugeObject() = default;
 
   explicit HugeObject(std::size_t data_length)
       : length_{data_length}, ptr_{AllocateMemory(length_)} {}
 
-  std::byte const * ptr() const { return ptr_; }
+  $PLACEHOLDER
 
   ~HugeObject() { FreeMemory(ptr_); }
 
-private:
+ private:
   std::size_t length_{};
   std::byte *ptr_{};
 };
-```
-
-> 🎨 A simple getter function like the one above usually has a name of the variable it returns without the trailing underscore.
-
-> Oh, and if you are confused about the return type of this function give a video about the [raw pointers](raw_pointers.md) a watch. The link is in the description and somewhere on the screen.
-
-Let's also use our class for something by introducing a simple `main` function:
-
-<!--
-`CPP_SETUP_START`
-#include <cstddef>
-
-std::byte *AllocateMemory(std::size_t length) {
-  return new std::byte[length];
-}
-void FreeMemory(std::byte *ptr) { delete[] ptr; }
-
-$PLACEHOLDER
 
 int main() {
-  HugeObject object_1;
-  HugeObject object_2{100};
+  const HugeObject object_1;
+  object_1.ptr();
 }
 `CPP_SETUP_END`
-`CPP_COPY_SNIPPET` huge_object_1/main.cpp
-`CPP_RUN_CMD` CWD:huge_object_1 c++ -std=c++17 -c main.cpp
+`CPP_COPY_SNIPPET` huge_object_getter/main.cpp
+`CPP_RUN_CMD` CWD:huge_object_getter c++ -std=c++17 -c main.cpp
 -->
 ```cpp
+std::byte const *ptr() const { return ptr_; }
+```
+> 🎨 Note that such a simple getter function usually has a name of the variable it returns without the trailing underscore.
+
+> :bulb: Oh, and if you are confused about the return type of this function give a lecture about the [raw pointers](raw_pointers.md) a go.
+<!-- The link is in the description and somewhere on the screen. -->
+
+<!-- Talking head + code voiceover
+- Add main function
+- Highlight const in getter
+-->
+One final preparatory touch, let's also introduce a simple `main` function that creates a `HugeObject` instance and prints the address of the memory allocated for it:
+<!--
+`CPP_SETUP_START`
 #include <cstddef>
 #include <iostream>
 
-// 😱 Note that this class does not follow best style.
+std::byte *AllocateMemory(std::size_t length) { return new std::byte[length]; }
+void FreeMemory(std::byte *ptr) { delete[] ptr; }
+
+// 😱 Note that this struct does not follow best style.
 class HugeObject {
-public:
+ public:
   HugeObject() = default;
 
   explicit HugeObject(std::size_t data_length)
       : length_{data_length}, ptr_{AllocateMemory(length_)} {}
 
-  std::byte const * ptr() const { return ptr_; }
+  std::byte const *ptr() const { return ptr_; }
 
   ~HugeObject() { FreeMemory(ptr_); }
 
-private:
+ private:
   std::size_t length_{};
   std::byte *ptr_{};
 };
 
+$PLACEHOLDER
+
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` huge_object_getter_cout/main.cpp
+`CPP_RUN_CMD` CWD:huge_object_getter_cout c++ -std=c++17 -c main.cpp
+-->
+```cpp
 int main() {
   const HugeObject object{42};
   std::cout << "Data address: " << object.ptr() << std::endl;
   return 0;
 }
 ```
-
 > :bulb: Note that the `const` in the `ptr()` function allows us to call it on a constant `object` variable.
 
-So far so good. You might start to wonder, does the comment above the class still hold?
+<!-- Talking head -->
+If anything here confuses you, then do refresh your knowledge on [object lifecycle](object_lifecycle.md) in one of the previous lectures.
 
-Let's illustrate why it does by changing our `main` function a little bit. We will introduce another object of the `HugeObject` type and initialize it as a copy of our existing object:
+# Rule 1: destructor
+<!-- Code voiceover
+- Highlight destructor
+-->
+Now that we're done with the preparations, I would like to focus on the destructor here! What happens if it is missing?
+<!-- Animation on the side of the talking head
+- Create object, pointer, data
+- Remove data, pointer, object
+- Create object, pointer, data
+- Remove object and pointer
+- Wiggle data
+-->
+Right now when an object is created it allocates memory and when it gets destroyed it frees this memory. If we miss the destructor, `FreeMemory` will not be called and the memory will stay behind, causing a memory leak.
+
+<!-- Talking head -->
+This already gives us a glimpse into our first "rule":
+<!-- Overlay -->
+> **Rule 1:** If we manage resources manually in the constructor we must have a destructor that releases these resources.
+
+<!-- Highlight comment -->
+Note that even with this destructor in place we still must explicitly state here that **this struct does not follow the best practices**. We'll find out why pretty soon.
+
+<!-- Talking head -->
+Hopefully you did not learn anything _really_ new by now. We touched upon this topic in the [object lifecycle](object_lifecycle.md) lecture before. So now it is about time we focus on why does the comment above our class still hold?
+
+# Rule 2: copy constructor
+<!-- Code voiceover
+- Add new part of the main function
+- Highlight adding new object
+- Show the runtime error
+-->
+Let's illustrate an issue with our class by changing our `main` function a little bit. If we introduce another object of the `HugeObject` type and initialize it as a copy of our existing object the code will compile but will crash when we run it!
 
 <!--
 `CPP_SETUP_START`
 #include <cstddef>
-
-std::byte *AllocateMemory(std::size_t length) {
-  return new std::byte[length];
-}
-void FreeMemory(std::byte *ptr) { delete[] ptr; }
-
-$PLACEHOLDER
-
-int main() {
-  HugeObject object_1;
-  HugeObject object_2{100};
-}
-`CPP_SETUP_END`
-`CPP_COPY_SNIPPET` huge_object_1/main.cpp
-`CPP_RUN_CMD` CWD:huge_object_1 c++ -std=c++17 -c main.cpp
--->
-```cpp
-#include <cstddef>
 #include <iostream>
 
-// 😱 Note that this class does not follow best style.
+std::byte *AllocateMemory(std::size_t length) { return new std::byte[length]; }
+void FreeMemory(std::byte *ptr) { delete[] ptr; }
+
+// 😱 Note that this struct does not follow best style.
 class HugeObject {
-public:
+ public:
   HugeObject() = default;
 
   explicit HugeObject(std::size_t data_length)
       : length_{data_length}, ptr_{AllocateMemory(length_)} {}
 
-  std::byte const * ptr() const { return ptr_; }
+  std::byte const *ptr() const { return ptr_; }
 
   ~HugeObject() { FreeMemory(ptr_); }
 
-private:
+ private:
+  std::size_t length_{};
+  std::byte *ptr_{};
+};
+
+$PLACEHOLDER
+
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` huge_object_copy_fail/main.cpp
+`CPP_RUN_CMD` CWD:huge_object_copy_fail c++ -std=c++17 -c main.cpp
+-->
+```cpp
+int main() {
+  const HugeObject object{42};
+  std::cout << "object data address: " << object.ptr() << std::endl;
+  const HugeObject other_object{object};
+  std::cout << "other_object data address: " << other_object.ptr() << std::endl;
+  return 0;
+}
+```
+<!-- Talking head + code voiceover
+- Show the whole code
+- Highlight all constructors
+- Add ??? signs
+-->
+Let's unpack this. First of all, why does it even compile in the first place? There is no constructor for `HugeObject` class that takes another instance of `HugeObject` class, and yet it still compiles! What is going on here?
+
+<!-- Talking head -->
+The reason is that the compiler is trying to be helpful. A constructor that takes a constant reference to the current type is called a **copy constructor** and the compiler generates a trivial copy constructor for our class **if none is provided by the user**. What do we mean by trivial? Means that it just copies all the variables from one object to another without giving it a second thought.
+
+<!-- Code voiceover
+- Add the constructor
+- Highlight the inputs
+- Highlight the copying
+- Highlight the use of private methods
+-->
+We could even write one ourselves! Essentially, in our case a trivial copy constructor would take a constant `HugeObject` reference and will copy the length and the pointer to our new object:
+<!--
+`CPP_SETUP_START`
+#include <cstddef>
+#include <iostream>
+
+std::byte *AllocateMemory(std::size_t length) { return new std::byte[length]; }
+void FreeMemory(std::byte *ptr) { delete[] ptr; }
+
+// 😱 Note that this struct does not follow best style.
+class HugeObject {
+ public:
+  HugeObject() = default;
+
+  explicit HugeObject(std::size_t data_length)
+      : length_{data_length}, ptr_{AllocateMemory(length_)} {}
+
+  $PLACEHOLDER
+
+  std::byte const *ptr() const { return ptr_; }
+
+  ~HugeObject() { FreeMemory(ptr_); }
+
+ private:
+  std::size_t length_{};
+  std::byte *ptr_{};
+};
+
+int main() {
+  HugeObject object{42};
+  HugeObject object_2{object};
+}
+
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` huge_object_copy_trivial/main.cpp
+`CPP_RUN_CMD` CWD:huge_object_copy_trivial c++ -std=c++17 -c main.cpp
+-->
+```cpp
+// 😱 Not a good idea in our case, just showing what a trivial constructor is.
+HugeObject(const HugeObject &object)
+      : length_{object.length_}, ptr_{object.ptr_} {}
+```
+> Note how we can use private members of another object here as we are still within the same `HugeObject` class even though we're dealing with a different instance of this class.
+
+<!-- Talking head -->
+Those of you who watched the video on [move semantics](move_semantics.md) carefully might already notice the issue with such a trivial constructor. :wink:
+
+<!-- Talking head -->
+Really, try to figure this one out before watching further! Do re-watch the [move semantics](move_semantics.md) video if needed. I'll wait!
+<!-- Add video of reading a book, sleeping and doing other stuff -->
+
+<!-- Talking head -->
+Hope you got it by now! The issue is that the trivial constructor just copies over the pointer to a different object, **not the data**!
+<!-- Animation
+- One object that points to the data
+- Another object that points to the same data
+- Freeing memory twice
+-->
+So now we have two objects pointing to the same data. And both of these have destructors that will try to remove these data! So in our case the destructor of the `other_object` will succeed at freeing the memory but the destructor of the `object` will try to free the memory that has already been freed, causing a runtime error that mentions something along the lines of freeing the memory twice:
+<!-- Code -->
+```
+a.out(78797,0x1e21a6500) malloc: Double free of object 0x155e06ac0
+a.out(78797,0x1e21a6500) malloc: *** set a breakpoint in malloc_error_break to debug
+```
+<!-- Talking head -->
+Let's dig a little into why this happened. The reason for this error is that there is a number of functions that we use to **actively** manage the resources that a certain object owns. In our case, we have a constructor that allocates memory and a destructor that frees this memory. What we missed here is that we also need to **actively manage memory** when copying our object. A trivial copy constructor does not do it - it just copies the pointer. So, here is our new rule:
+
+<!-- Overlay words -->
+> **Rule 2:** If we manage resources manually in our class, we need a custom copy constructor.
+
+<!-- Talking head -->
+For completeness, let's add the missing proper copy constructor to our class.
+<!-- Code voiceover
+- Add a copy constructor
+- Highlight every action
+- Highlight copying
+ -->
+It needs to copy the length of the allocated memory, allocate the needed amount of memory and copy the content of the incoming object's data into its newly allocated memory:
+<!--
+`CPP_SETUP_START`
+#include <cstddef>
+#include <iostream>
+
+std::byte *AllocateMemory(std::size_t length) { return new std::byte[length]; }
+void FreeMemory(std::byte *ptr) { delete[] ptr; }
+
+// 😱 Note that this class does not follow best style.
+class HugeObject {
+ public:
+  HugeObject() = default;
+
+  explicit HugeObject(std::size_t data_length)
+      : length_{data_length}, ptr_{AllocateMemory(length_)} {}
+
+  $PLACEHOLDER
+
+  std::byte const *ptr() const { return ptr_; }
+
+  ~HugeObject() { FreeMemory(ptr_); }
+
+ private:
   std::size_t length_{};
   std::byte *ptr_{};
 };
@@ -244,60 +366,134 @@ int main() {
   const HugeObject object{42};
   std::cout << "object data address: " << object.ptr() << std::endl;
   const HugeObject other_object{object};
-  std::cout << "other_object data address: " << object.ptr() << std::endl;
+  std::cout << "other_object data address: " << other_object.ptr() << std::endl;
   return 0;
 }
-```
 
-First of all, does it compile? There is no constructor for `HugeObject` class that takes another instance of `HugeObject` class, and yet it compiles! Why?
-
-The reason is that the compiler is trying to be helpful. A constructor that takes a constant reference to the current type is called a **copy constructor** and the compiler generates a trivial copy constructor for our class **if none is provided by the user**. What do we mean by trivial? Means that it just copies all the variables from one object to another without giving it a second thought. Essentially, in our case we could write such a trivial constructor as follows:
-
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` copy_constructor/main.cpp
+`CPP_RUN_CMD` CWD:copy_constructor c++ -std=c++17 -c main.cpp
+-->
 ```cpp
-// 😱 Not a good idea in our case, just showing what a trivial constructor is.
-HugeObject(const HugeObject& other): length_{other.length}, ptr_{other.ptr_} {}
-```
-> Note how we can use private members of another object here as we are still within the same `HugeObject` class even though we're dealing with a different instance of this class.
-
-Those of you who watched the video on move semantics carefully might already notice the issue with such a trivial constructor. :wink:
-
-Really, try to figure this one out before watching further! Do re-watch the [move semantics](move_semantics.md) video if needed. I'll wait!
-
-Hope you got it by now! The issue is that the trivial constructor just copies over the pointer to a different object, **not the data**! So now we have two objects pointing to the same data. And both of these have destructors that will try to remove these data! So in our case the destructor of the `other_object` will succeed at freeing the memory but the destructor of the `object` will try to free the memory that has already been freed, causing a runtime error that looks something like this:
-```
-a.out(78797,0x1e21a6500) malloc: Double free of object 0x155e06ac0
-a.out(78797,0x1e21a6500) malloc: *** set a breakpoint in malloc_error_break to debug
-```
-
-Let's dig a little into why this happened. The reason for this error is that there is a number of functions that we use to **actively** manage the resources that a certain object owns. In our case, we have a constructor that allocates memory and a destructor that frees this memory. What we missed here is that we also need to **actively manage memory** when copying our object. A trivial copy constructor does not do it - it just copied the pointer. So, here is our first rule:
-
-🚨 **If we have a custom destructor, we need a custom copy constructor.**
-
-For completeness, let's add the missing copy constructor here. It needs to copy the length of the allocated memory, allocate the needed amount of memory and copy the content of the incoming object's data into its newly allocated memory:
-```cpp
-HugeObject(const HugeObject &object):
-  length_{object.length_},
-  ptr_{AllocateMemory(length_)} {
+HugeObject(const HugeObject &object)
+      : length_{object.length_}, ptr_{AllocateMemory(length_)} {
     std::copy(object.ptr_, object.ptr_ + length_, ptr_);
-}
+  }
 ```
 
-So far so good. But we still can't get rid of the annoying comment before the class. Why, I hear you ask? Let me illustrate by changing our `main` function again. Instead of creating `another_object` by copying `object` we will first create it and only then assign `object` to it:
+# Rule 3: copy assignment operator
+<!-- Talking head -->
+Can we remove the annoying comment now, I hear you ask? Unfortunately not yet :shrug:
+
+<!-- Code voiceover
+- Change copy constructor into copy assignment
+-->
+Let me illustrate by changing our `main` function again. Instead of creating `another_object` by copying `object` directly, we will first create a new object as empty and only then assign `object` to it:
+<!--
+`CPP_SETUP_START`
+#include <cstddef>
+#include <iostream>
+
+std::byte *AllocateMemory(std::size_t length) { return new std::byte[length]; }
+void FreeMemory(std::byte *ptr) { delete[] ptr; }
+
+// 😱 Note that this class does not follow best style.
+class HugeObject {
+ public:
+  HugeObject() = default;
+
+  explicit HugeObject(std::size_t data_length)
+      : length_{data_length}, ptr_{AllocateMemory(length_)} {}
+
+  HugeObject(const HugeObject &object)
+      : length_{object.length_}, ptr_{AllocateMemory(length_)} {
+    std::copy(object.ptr_, object.ptr_ + length_, ptr_);
+  }
+
+  std::byte const *ptr() const { return ptr_; }
+
+  ~HugeObject() { FreeMemory(ptr_); }
+
+ private:
+  std::size_t length_{};
+  std::byte *ptr_{};
+};
+
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` copy_assignment/main.cpp
+`CPP_RUN_CMD` CWD:copy_assignment c++ -std=c++17 -c main.cpp
+-->
 ```cpp
 int main() {
   const HugeObject object{42};
   std::cout << "object data address: " << object.ptr() << std::endl;
-  HugeObject other_object{23}
+  HugeObject other_object{23};
   other_object = object;
-  std::cout << "other_object data address: " << object.ptr() << std::endl;
+  std::cout << "other_object data address: " << other_object.ptr() << std::endl;
   return 0;
 }
 ```
+<!-- Talking head + flipping table, rage quit -->
 If we now compile and run this code we will get exactly the same runtime error as before. I know that at this moment it is very tempting to just flip the table and never return to C++ again but actually, nothing too magical happens here. It's just that the helpful compiler generates more than just a trivial copy constructor. It also generates a trivial copy assignment operator which we actually have already seen in the previous video!
 
+<!-- Animation -->
 > Actually, the situation here is even worse than with the copy constructor - not only we have a runtime error when our objects get destroyed but we also have a memory leak from the moment we perform the assignment! The memory allocated for the `other_object` is never freed!
 
-Fixing this is as easy as it was for the copy constructor. We just need to write our own custom copy assignment operator. It is very similar to the copy constructor with just two additional steps: it needs to check if we are trying to perform a self-assignment, like `object = object` and it needs to free the memory if we had any allocated from before.
+<!-- Talking head -->
+Fixing this is as easy as it was for the copy constructor. We just need to write our own custom copy assignment operator.
+<!-- Code voiceover
+- Add a copy constructor
+- Highlight return type
+- Highlight self-assign
+- Highlight freeing memory
+ -->
+It is very similar to the copy constructor with just a couple of differences. It returns a reference to `HugeObject` and performs two additional steps: it needs to check if we are trying to perform a self-assignment, like `object = object` and it needs to free the memory if we had any allocated from before.
+<!--
+`CPP_SETUP_START`
+#include <cstddef>
+#include <iostream>
+
+std::byte *AllocateMemory(std::size_t length) { return new std::byte[length]; }
+void FreeMemory(std::byte *ptr) { delete[] ptr; }
+
+// 😱 Note that this class does not follow best style.
+class HugeObject {
+ public:
+  HugeObject() = default;
+
+  explicit HugeObject(std::size_t data_length)
+      : length_{data_length}, ptr_{AllocateMemory(length_)} {}
+
+  HugeObject(const HugeObject &object)
+      : length_{object.length_}, ptr_{AllocateMemory(length_)} {
+    std::copy(object.ptr_, object.ptr_ + length_, ptr_);
+  }
+
+  $PLACEHOLDER
+
+  std::byte const *ptr() const { return ptr_; }
+
+  ~HugeObject() { FreeMemory(ptr_); }
+
+ private:
+  std::size_t length_{};
+  std::byte *ptr_{};
+};
+
+int main() {
+  const HugeObject object{42};
+  std::cout << "object data address: " << object.ptr() << std::endl;
+  HugeObject other_object{23};
+  other_object = object;
+  std::cout << "other_object data address: " << other_object.ptr() << std::endl;
+  return 0;
+}
+
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` copy_assignment_correct/main.cpp
+`CPP_RUN_CMD` CWD:copy_assignment_correct c++ -std=c++17 -c main.cpp
+-->
 ```cpp
 HugeObject &operator=(const HugeObject &object) {
   if (this == &object) { return *this; }  // Do not self-assign.
@@ -308,51 +504,171 @@ HugeObject &operator=(const HugeObject &object) {
   return *this;
 }
 ```
-<!-- Show diagram what happens -->
-This actually brings us to our second rule:
+<!-- Talking head -->
+This actually brings us to our third rule:
 
-🚨 **If we have a custom copy constructor, we need a custom copy assignment operator**
+> **Rule 3:** If we manage resources manually in our class, we need a custom copy assignment operator.
 
-If you live in a world where you use only C++ versions before 11 then you could stop here but in a modern world we are missing a big chunk of this topic. You might have already guessed what it is - **the move semantics**!
+# Rule 4: move constructor
+<!-- Talking head -->
+If you live in a world where you use only C++ versions before 11 then you could stop here but in a modern world we are missing a big chunk from this topic. You might have already guessed what it is - **the move semantics**!
 
+<!-- Talking head -->
 Just as compiler generates default copy constructor and assignment operator it also generates default move constructor and assignment operator with the same consequences in our case.
 
-Let's modify our main function again and make sure that we are using a move constructor.
+<!-- Code voiceover
+- Add std::move to the old example
+- Add printing address of object
+ -->
+Let's modify our main function again by adding `std::move` to our `object` when passing it to the `other_object` to make sure that we are using a move constructor of our `HugeObject` class. And while we're at it let's also print the address of `object` after move:
+<!--
+`CPP_SETUP_START`
+#include <cstddef>
+#include <iostream>
+
+std::byte *AllocateMemory(std::size_t length) { return new std::byte[length]; }
+void FreeMemory(std::byte *ptr) { delete[] ptr; }
+
+// 😱 Note that this class does not follow best style.
+class HugeObject {
+ public:
+  HugeObject() = default;
+
+  explicit HugeObject(std::size_t data_length)
+      : length_{data_length}, ptr_{AllocateMemory(length_)} {}
+
+  HugeObject(const HugeObject &object)
+      : length_{object.length_}, ptr_{AllocateMemory(length_)} {
+    std::copy(object.ptr_, object.ptr_ + length_, ptr_);
+  }
+
+  HugeObject(HugeObject &&object) : length_{object.length_}, ptr_{object.ptr_} {
+    object.ptr_ = nullptr;
+  }
+
+  std::byte const *ptr() const { return ptr_; }
+
+  ~HugeObject() { FreeMemory(ptr_); }
+
+ private:
+  std::size_t length_{};
+  std::byte *ptr_{};
+};
+
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` missing_move_constructor/main.cpp
+`CPP_RUN_CMD` CWD:missing_move_constructor c++ -std=c++17 -c main.cpp
+-->
 ```cpp
 int main() {
-  const HugeObject object{42};
+  HugeObject object{42};
   std::cout << "object data address: " << object.ptr() << std::endl;
   const HugeObject other_object{std::move(object)};
-  std::cout << "other_object data address: " << object.ptr() << std::endl;
+  std::cout << "object data address: " << object.ptr() << std::endl;
+  std::cout << "other_object data address: " << other_object.ptr() << std::endl;
   return 0;
 }
 ```
+<!-- Talking head + output overlay + reuse animation from copying -->
+When we run it, we see that the `other_object.ptr()` points to the same address as the `object.ptr()` after the move! The compiler doesn't know that it should set the `object.ptr_` which it moved from just now to `nullptr` and leaves it pointing to the same address causing the already dear to us runtime error when we inevitably free the memory twice.
 
-When we run it, we see that the `other_object.ptr()` points to the same address as the `object.ptr()` after the move! The compiler doesn't know that it should set the `object.ptr_` that it moved from to `nullptr` and just leaves it pointing to the same address causing the already dear to us runtime error when we inevitably free the memory twice.
+<!-- Talking head -->
+By now we already know what to do! We know that we just need to write a custom move constructor and that is it!
+<!-- Code voiceover
+- Add new constructor
+- Highlight inputs
+- Highlight copying pointer
+- Highlight setting other to nullptr
+-->
+We write it in a very similar way to the copy constructor with the slight difference that we take an rvalue reference to `HugeObject` as input, don't copy the data and set the other object's `ptr_` field to `nullptr` (again we cover this in-depth in the move semantics video):
+<!--
+`CPP_SETUP_START`
+#include <cstddef>
+#include <iostream>
 
-By now we already know what to do! We know that we just need to write a custom move constructor and that is it! We write it in a very similar way to the copy constructor with the slight difference that we don't copy the data and set the other object's `ptr_` field to `nullptr` (again we cover this in-depth in the move semantics video):
+std::byte *AllocateMemory(std::size_t length) { return new std::byte[length]; }
+void FreeMemory(std::byte *ptr) { delete[] ptr; }
+
+// 😱 Note that this class does not follow best style.
+class HugeObject {
+ public:
+  HugeObject() = default;
+
+  explicit HugeObject(std::size_t data_length)
+      : length_{data_length}, ptr_{AllocateMemory(length_)} {}
+
+  HugeObject(const HugeObject &object)
+      : length_{object.length_}, ptr_{AllocateMemory(length_)} {
+    std::copy(object.ptr_, object.ptr_ + length_, ptr_);
+  }
+
+  $PLACEHOLDER
+
+  HugeObject &operator=(const HugeObject &object) {
+    if (this == &object) { return *this; }  // Do not self-assign.
+    FreeMemory(ptr_);  // In case we already owned some memory from before.
+    length_ = object.length_;
+    ptr_ = AllocateMemory(length_);
+    std::copy(object.ptr_, object.ptr_ + length_, ptr_);
+    return *this;
+  }
+
+  std::byte const *ptr() const { return ptr_; }
+
+  ~HugeObject() { FreeMemory(ptr_); }
+
+ private:
+  std::size_t length_{};
+  std::byte *ptr_{};
+};
+
+int main() {
+  HugeObject object{42};
+  std::cout << "object data address: " << object.ptr() << std::endl;
+  const HugeObject other_object{std::move(object)};
+  std::cout << "object data address: " << object.ptr() << std::endl;
+  std::cout << "other_object data address: " << other_object.ptr() << std::endl;
+  return 0;
+}
+
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` move_constructor/main.cpp
+`CPP_RUN_CMD` CWD:move_constructor c++ -std=c++17 -c main.cpp
+-->
 ```cpp
-HugeObject(HugeObject &&object):
-  length_{object.length_},
-  ptr_{object.ptr_} {
-    object.ptr_ = nullptr;
+HugeObject(HugeObject &&object) : length_{object.length_}, ptr_{object.ptr_} {
+  object.ptr_ = nullptr;
 }
 ```
-
+<!-- Talking head -->
 It is clear that we must also have another rule which probably also connects to having a custom destructor just like it does for the copy constructor:
 
-🚨 **If we have a custom destructor, we need a custom move constructor**
+<!-- Overlay -->
+> **Rule 4:** If we manage resources manually in our class, we need a custom move constructor.
 
+# Rule 5: move assignment operator
+<!-- Talking head -->
 Remember how once we had a copy constructor we also needed a copy assignment operator? Would you be surprized if I told you that the same story repeats here?
 
+<!-- Talking head + overlay video thumbnails -->
 I'd like to leave the implementation of a move assignment operator to you as a small homework. I'm sure you are going to be able to piece it together from this and the move semantics videos. I do strongly encourage you to actually follow what we did before - find the case that causes the runtime error about freeing memory twice and implement the missing operator to fix this error. If you get stuck the full code is in the script to this video, as always.
 
+<!-- Talking head -->
 Anyway, once you're done you will know that there is one last rule that we need:
 
-🚨 **If we have a custom destructor, we need a custom move constructor**
+<!-- Overlay -->
+> **Rule 5:** If we manage resources manually in our class, we need a custom move assignment operator.
 
-We might notice here that all of these custom functions rely on the fact that we have to manage some resource of an object manually. In summary we can reformulate all of the previous rules as a single one:
+# Now we (mostly) follow best practices
+<!-- Talking head + code voiceover -->
+Don't forget that after you're done implementing the move assignment operator, while there are still some things to improve about our class, we can remove the annoying comment at the top of it as the rest of the improvements are pretty minor!
 
+# Rule of 5
+<!-- Talking head -->
+It's time we summarize our findings somewhat. We might notice here that all of these custom functions rely on the fact that we have to manage some resource of an object manually. In summary we can reformulate all of the previous rules as a single one:
+
+<!-- Overlay -->
 **If we manage some resource manually, we must implement the following:**
 - **A custom destructor**
 - **A custom copy constructor**
@@ -360,17 +676,23 @@ We might notice here that all of these custom functions rely on the fact that we
 - **A custom move constructor**
 - **A custom move assignment operator**
 
-The rule above is also known under the name of a **"rule of 5"** which was a **"rule of 3"** before move semantics was introduced.
+<!-- Talking head + overlay -->
+The rule above is also known under the name of a **"rule of 5"** as there are 5 special functions here which was a **"rule of 3"** before move semantics was introduced.
 
-An alternative way to think about it is to think that if we find that we need to implement **just one** of the special functions that we just discussed then we most likely need to implement **all the rest** of them.
+<!-- Talking head -->
+An alternative way to think about this rule is to think that if we find that we need to implement **just one** of the special functions that we just discussed then we most likely need to implement **all the rest** of them.
 
-And that's it! Once we have all of these implemented, we would be able to remove the annoying comment above our class.
+<!-- Talking head -->
+That being said, I want to stress that we actually nearly never manage our resources manually! And if we don't manage them manually there is no reason to implement any of the special functions we've just discussed!
 
-That being said, I want to stress that we should nearly never manage our resources manually! If we don't manage them manually there is no reason to implement any of the special functions we've just discussed!
-
+# The rule of "all or nothing"
+<!-- Talking head -->
 So instead of the "rule of 5" I prefer talking about the rule of **"all or nothing"**:
-**Most classes don't need to redefine default destructor, copy or move constructor or copy or move assignment operators. Ones that redefine just one of them should explicitly redefine the rest of those operations.** [[ref]](https://arne-mertz.de/2015/02/the-rule-of-zero-revisited-the-rule-of-all-or-nothing/#:~:text=Rule%20of%20All%20or%20Nothing%3A%20A%20class%20that%20needs%20to,or%20copy%2Fmove%20assignment%20operator.) [[ref]](http://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#c20-if-you-can-avoid-defining-default-operations-do)
+<!-- Overlay -->
+**Don't define custom destructor, copy or move constructor or copy or move assignment operators. If just one of them needs to be defined, explicitly define the rest of those operations.** [[ref]](https://arne-mertz.de/2015/02/the-rule-of-zero-revisited-the-rule-of-all-or-nothing/#:~:text=Rule%20of%20All%20or%20Nothing%3A%20A%20class%20that%20needs%20to,or%20copy%2Fmove%20assignment%20operator.) [[ref]](http://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#c20-if-you-can-avoid-defining-default-operations-do)
 
-This is a simple rule to follow and I hope that you now also understand why it is needed. We will touch more upon it when we start talking about polymorphism in the context of objective oriented programming but for now thanks for following along!
+<!-- Talking head -->
+This is a simple rule to follow and I hope that you now also understand *why* it is needed. We will touch more upon it when we start talking about polymorphism in the context of object oriented programming but for now thanks for following along!
 
+You can find the full code in this file: [all_or_nothing.cpp](all_or_nothing.cpp)
 <!-- See you in the next video, bye! -->
