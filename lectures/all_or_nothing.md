@@ -343,9 +343,9 @@ Let's dig a little into why this happened. The reason for this error is that the
 <!-- Talking head -->
 For completeness, let's add the missing proper copy constructor to our class.
 <!-- Code voiceover
-- Add a copy constructor
-- Highlight every action
-- Highlight copying
+- Add a copy constructor 🆗
+- Highlight every action 🆗
+- Highlight copying 🆗
  -->
 It needs to copy the length of the allocated memory, allocate the needed amount of memory and copy the content of the incoming object's data into its newly allocated memory:
 <!--
@@ -399,7 +399,7 @@ HugeObject(const HugeObject &object)
 Can we remove the annoying comment now, I hear you ask? Unfortunately not yet :shrug:
 
 <!-- Code voiceover
-- Change copy constructor into copy assignment
+- Change copy constructor into copy assignment 🆗
 -->
 Let me illustrate by changing our `main` function again. Instead of creating `another_object` by copying `object` directly, we will first create a new object as empty and only then assign `object` to it:
 <!--
@@ -450,18 +450,22 @@ int main() {
 <!-- Talking head + flipping table, rage quit -->
 If we now compile and run this code we will get exactly the same runtime error as before. I know that at this moment it is very tempting to just flip the table and never return to C++ again but actually, nothing too magical happens here. It's just that the helpful compiler generates more than just a trivial copy constructor. It also generates a trivial copy assignment operator which we actually have already seen in the previous video!
 
-<!-- Animation -->
-> Actually, the situation here is even worse than with the copy constructor - not only we have a runtime error when our objects get destroyed but we also have a memory leak from the moment we perform the assignment! The memory allocated for the `other_object` is never freed!
+<!-- Animation
+- Create two objects pointing to different data 🆗
+- Move the arrow of one of them to the first 🆗
+-->
+> And, the situation here is even worse than with the copy constructor - not only we have a runtime error when our objects get destroyed but we also have a memory leak from the moment we perform the assignment! The memory allocated for the `other_object` is never freed as nothing points to it!
 
 <!-- Talking head -->
 Fixing this is as easy as it was for the copy constructor. We just need to write our own custom copy assignment operator.
 <!-- Code voiceover
-- Add a copy constructor
-- Highlight return type
-- Highlight self-assign
-- Highlight freeing memory
+- Add a copy assignment operator 🆗
+- Highlight return type 🆗
+- Highlight self-assign 🆗
+- Highlight freeing memory 🆗
+- Highlight copying 🆗
  -->
-It is very similar to the copy constructor with just a couple of differences. It returns a reference to `HugeObject` and performs two additional steps: it needs to check if we are trying to perform a self-assignment, like `object = object` and it needs to free the memory if we had any allocated from before.
+It is very similar to the copy constructor with just a couple of differences. It returns a reference to `HugeObject` and performs two additional steps: it needs to check if we are trying to perform a self-assignment, meaning that we're trying to assign the object to itself, and it needs to free the memory if we had any allocated from before, fixing the memory leak that we've just talked about. Other than that it copies the length, allocates new memory and copies the memory of the incoming object into this newly allocated memory.
 <!--
 `CPP_SETUP_START`
 #include <cstddef>
@@ -530,10 +534,10 @@ If you live in a world where you use only C++ versions before 11 then you could 
 Just as compiler generates default copy constructor and assignment operator it also generates default move constructor and assignment operator with the same consequences in our case.
 
 <!-- Code voiceover
-- Add std::move to the old example
-- Add printing address of object
+- Add std::move to the old example 🆗
+- Add printing address of object 🆗
  -->
-Let's modify our main function again by adding `std::move` to our `object` when passing it to the `other_object` to make sure that we are using a move constructor of our `HugeObject` class. And while we're at it let's also print the address of `object` after move:
+Let's return back to our main function that used a copy constructor and modify it again by adding `std::move` to our `object` when passing it to the `other_object` to make sure that we are using a move constructor of our `HugeObject` class. And while we're at it let's also print the address of `object` after move:
 <!--
 `CPP_SETUP_START`
 #include <cstddef>
@@ -584,15 +588,15 @@ int main() {
 }
 ```
 <!-- Talking head + output overlay + reuse animation from copying -->
-When we run it, we see that the `other_object.ptr()` points to the same address as the `object.ptr()` after the move! The compiler doesn't know that it should set the `object.ptr_` which it moved from just now to `nullptr` and leaves it pointing to the same address causing the already dear to us runtime error when we inevitably free the memory twice.
+When we run it, we see that the `other_object.ptr()` points to the same address as the `object.ptr()` after the move! The compiler again generates a trivial constructor - a move constructor this time. This move constructor doesn't know that it should set the `object.ptr_` which it moved from just now to `nullptr` and leaves it pointing to the same address causing the already dear to us runtime error when we inevitably free the memory twice.
 
 <!-- Talking head -->
 By now we already know what to do! We know that we just need to write a custom move constructor and that is it!
 <!-- Code voiceover
-- Add new constructor
-- Highlight inputs
-- Highlight copying pointer
-- Highlight setting other to nullptr
+- Add new constructor 🆗
+- Highlight inputs 🆗
+- Highlight copying pointer 🆗
+- Highlight setting other to nullptr 🆗
 -->
 We write it in a very similar way to the copy constructor with the slight difference that we take an rvalue reference to `HugeObject` as input, don't copy the data and set the other object's `ptr_` field to `nullptr` (again we cover this in-depth in the move semantics video):
 <!--
@@ -674,7 +678,9 @@ Anyway, once you're done you will know that there is one last rule that we need:
 > **Rule 5:** If we manage resources manually in our class, we need a custom move assignment operator.
 
 # Now we (mostly) follow best practices
-<!-- Talking head + code voiceover -->
+<!-- Talking head + code voiceover
+- Remove the comment 🆗
+-->
 Don't forget that after you're done implementing the move assignment operator, while there are still some things to improve about our class, we can remove the annoying comment at the top of it as the rest of the improvements are pretty minor!
 
 # Rule of 5

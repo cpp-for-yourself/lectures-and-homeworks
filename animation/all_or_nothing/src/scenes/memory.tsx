@@ -14,6 +14,7 @@ const BLUE = '#68ABDF';
 
 export default makeScene2D(function* (view) {
   const data_ref = createRef<CodeBlock>();
+  const other_data_ref = createRef<CodeBlock>();
   const object_ref = createRef<CodeBlock>();
   const other_object_ref = createRef<CodeBlock>();
   const line_1 = createRef<Line>();
@@ -41,6 +42,14 @@ export default makeScene2D(function* (view) {
         ref={data_ref}
         fontSize={60}
         x={0}
+        y={200}
+        code={data}
+        opacity={0.0}
+      />
+      <CodeBlock
+        ref={other_data_ref}
+        fontSize={60}
+        x={400}
         y={200}
         code={data}
         opacity={0.0}
@@ -142,20 +151,38 @@ export default makeScene2D(function* (view) {
   );
   travolta_ref().play();
   yield* all(
-    // object_ref().scale(1.5, 2.0),
     node_ref().scale(1.5, 1.0),
     travolta_ref().opacity(1.0, 1.0),
-    // line_1().lineWidth(20, 2.0),
-    // line_1().arrowSize(40, 2.0),
   );
-
   yield* waitFor(3.5);
 
-  // yield* line_1().points([[1000, 50], [750, 300]], 2.0)
-
-  // yield* waitFor(2.0);
-  // yield* line_1().points([[0, 50], [250, 300]], 0.0)
-  // yield* waitFor(1.0);
-  // yield* line_2().opacity(1.0, 1.0)
-  // yield* waitFor(2.0);
+  // Copy assignment fail
+  travolta_ref().pause();
+  yield* all(
+    travolta_ref().opacity(0, 0),
+    object_ref().opacity(0, 0),
+    line_1().opacity(0, 0),
+    data_ref().opacity(0, 0),
+    node_ref().scale(1.0, 0),
+    data_ref().position([-400, 200], 0),
+    line_1().points([[-400, 50], [-400, 300]], 0),
+    line_2().points([[400, 50], [400, 300]], 0),
+  );
+  yield* all(
+    object_ref().opacity(1.0, 1.0),
+    line_1().opacity(1.0, 1.5),
+    data_ref().opacity(1.0, 2.0),
+  );
+  yield* all(
+    other_object_ref().opacity(1.0, 1.0),
+    line_2().opacity(1.0, 1.5),
+    other_data_ref().opacity(1.0, 2.0),
+  );
+  yield* waitFor(2.0);
+  yield* all(
+    line_2().points([[400, 50], [-120, 300]], 1.0),
+  );
+  yield* waitFor(2.0);
+  yield* other_data_ref().scale(1.2, 0.7).to(1.0, 0.7);
+  yield* waitFor(2.0);
 });
