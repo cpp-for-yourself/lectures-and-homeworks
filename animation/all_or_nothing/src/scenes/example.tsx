@@ -1,5 +1,6 @@
 import { makeScene2D } from '@motion-canvas/2d/lib/scenes';
 import { createRef } from '@motion-canvas/core/lib/utils';
+import { Rect, Node } from '@motion-canvas/2d/lib/components';
 import {
   CodeBlock,
   edit,
@@ -15,13 +16,24 @@ import { BBox, Vector2 } from '@motion-canvas/core/lib/types';
 
 export default makeScene2D(function* (view) {
   const codeRef = createRef<CodeBlock>();
+  const cutRef = createRef<Rect>();
 
-  yield view.add(<CodeBlock
-    ref={codeRef}
-    language="cpp"
-    fontSize={48}
-  />);
-
+  yield view.add(
+    <Node>
+      <CodeBlock
+        ref={codeRef}
+        language="cpp"
+        fontSize={48}
+      /><Rect
+        ref={cutRef}
+        x={0}
+        y={0}
+        fill={'white'}
+        width={1000}
+        height={1000}
+        opacity={0}
+      />
+    </Node>);
 
   const duration = 1.5
 
@@ -147,6 +159,7 @@ export default makeScene2D(function* (view) {
   const zoom_fn = (in_zoom: number) => new Vector2(in_zoom, in_zoom);
 
   // Initial struct -> class
+  yield* cutRef().opacity(1, 0).to(1, 0.5).to(0, 0);
   yield* codeRef().edit(duration, false)(...simplify(code(
     ``, ``, ``, ``, ``, `struct`, ``, ``)));
   yield* codeRef().edit(duration, false)(...simplify(code(
@@ -165,6 +178,7 @@ export default makeScene2D(function* (view) {
     insert(getter_code))));
 
   // Add getter
+  yield* cutRef().opacity(1, 0).to(1, 0.5).to(0, 0);
   yield* waitFor(duration);
   yield* all(
     codeRef().position([0, -200], duration),
@@ -179,6 +193,7 @@ export default makeScene2D(function* (view) {
   yield* waitFor(duration);
 
   // Add main function
+  yield* cutRef().opacity(1, 0).to(1, 0.5).to(0, 0);
   yield* all(
     codeRef().position([0, 0], 0),
     codeRef().scale(zoom_fn(0.8), 0),
@@ -200,6 +215,7 @@ export default makeScene2D(function* (view) {
   yield* waitFor(duration);
 
   // Destructor
+  yield* cutRef().opacity(1, 0).to(1, 0.5).to(0, 0);
   yield* all(
     codeRef().position([0, 0], 0),
     codeRef().scale(zoom_fn(0.8), 0),
@@ -215,6 +231,7 @@ export default makeScene2D(function* (view) {
   yield* waitFor(duration);
 
   // Comment
+  yield* cutRef().opacity(1, 0).to(1, 0.5).to(0, 0);
   yield* all(
     codeRef().position([0, 0], 0),
     codeRef().scale(zoom_fn(0.6), 0),
@@ -230,6 +247,7 @@ export default makeScene2D(function* (view) {
   yield* waitFor(duration);
 
   // Copy constructor
+  yield* cutRef().opacity(1, 0).to(1, 0.5).to(0, 0);
   yield* all(
     codeRef().scale(zoom_fn(1.3), 0),
     codeRef().position([400, -700], 0),
@@ -246,6 +264,7 @@ export default makeScene2D(function* (view) {
   yield* waitFor(duration);
 
   // Highlight constructors
+  yield* cutRef().opacity(1, 0).to(1, 0.5).to(0, 0);
   yield* all(
     codeRef().scale(zoom_fn(0.5), 0),
     codeRef().position([0, 0], 0),
@@ -259,6 +278,7 @@ export default makeScene2D(function* (view) {
   yield* waitFor(duration);
 
   // Add wrong copy constructor
+  yield* cutRef().opacity(1, 0).to(1, 0.5).to(0, 0);
   yield* all(
     codeRef().scale(zoom_fn(0.5), 0),
     codeRef().position([0, 0], 0),
@@ -283,6 +303,7 @@ export default makeScene2D(function* (view) {
       std::copy(object.ptr_, object.ptr_ + length_, ptr_);\n    `;
 
   // Add correct copy constructor
+  yield* cutRef().opacity(1, 0).to(1, 0.5).to(0, 0);
   yield* codeRef().selection(lines(11, 12), 0);
   yield* waitFor(duration);
   yield* all(
@@ -298,6 +319,7 @@ export default makeScene2D(function* (view) {
   yield* waitFor(duration);
 
   // Add copy to main
+  yield* cutRef().opacity(1, 0).to(1, 0.5).to(0, 0);
   yield* all(
     codeRef().scale(zoom_fn(0.5), 0),
     codeRef().position([0, 0], 0),
@@ -320,6 +342,7 @@ export default makeScene2D(function* (view) {
 
 
   // Add copy assignment operator
+  yield* cutRef().opacity(1, 0).to(1, 0.5).to(0, 0);
   const copy_assignment_code = `
     HugeObject &operator=(const HugeObject &object) {
       if (this == &object) { return *this; }
@@ -352,6 +375,7 @@ export default makeScene2D(function* (view) {
   yield* waitFor(duration);
 
   // Add std::move
+  yield* cutRef().opacity(1, 0).to(1, 0.5).to(0, 0);
   yield* all(
     codeRef().scale(zoom_fn(1.15), 0),
     codeRef().position([200, -1000], 0),
@@ -374,6 +398,7 @@ export default makeScene2D(function* (view) {
 
 
   // Add move constructor
+  yield* cutRef().opacity(1, 0).to(1, 0.5).to(0, 0);
   const move_constructor_code = `
 
     HugeObject(HugeObject &&object)
@@ -406,8 +431,9 @@ export default makeScene2D(function* (view) {
 
 
   // Remove comment
+  yield* cutRef().opacity(1, 0).to(1, 0.5).to(0, 0);
   const comment_text = `// Note that this class does not follow best style.`;
-  const new_code = (comment:any) => store`
+  const new_code = (comment: any) => store`
   ${comment}
   class HugeObject {
    public:
