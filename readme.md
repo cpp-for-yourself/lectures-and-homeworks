@@ -365,6 +365,30 @@ Move semantics
 ----------------------------------------------------------
 </details>
 
+<details>
+<summary>
+Constructors, operators, destructor - rule of all or nothing
+</summary>
+
+----------------------------------------------------------
+[![Video thumbnail](https://img.youtube.com/vi/vXnvczB4g-Y/maxresdefault.jpg)](https://youtu.be/vXnvczB4g-Y)
+
+[Lecture script](lectures/all_or_nothing.md)
+- “Good style” as our guide
+- What is “good style”
+- Setting up the example
+- Rule 1: destructor
+- Rule 2: copy constructor
+- Rule 3: copy assignment operator
+- Rule 4: move constructor
+- Rule 5: move assignment operator
+- Now we (mostly) follow best practices
+- Rule of 5 (and 3)
+- The rule of “all or nothing”
+
+----------------------------------------------------------
+</details>
+
 ---
 
 ## PS
