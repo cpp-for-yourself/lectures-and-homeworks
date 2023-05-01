@@ -3,7 +3,7 @@ The rule of "All Or Nothing" - safely copying and moving objects
 ---
 
 <p align="center">
-  <a href="https://youtu.be/blah"><img src="https://img.youtube.com/vi/blah/maxresdefault.jpg" alt="Video" align="right" width=50%></a>
+  <a href="https://youtu.be/vXnvczB4g-Y"><img src="https://img.youtube.com/vi/vXnvczB4g-Y/maxresdefault.jpg" alt="Video" align="right" width=50%></a>
 </p>
 
 - ["Good style" as our guide](#good-style-as-our-guide)
@@ -70,7 +70,7 @@ int main() {
 std::byte *AllocateMemory(std::size_t length) { return new std::byte[length]; }
 void FreeMemory(std::byte *ptr) { delete[] ptr; }
 
-// 😱 Note that this struct does not follow best style.
+// 😱 Note that this class does not follow best style.
 class HugeObject {
  public:
   HugeObject() = default;
@@ -100,7 +100,7 @@ As covered in the lecture about [object lifecycle](object_lifecycle.md), we can 
 std::byte *AllocateMemory(std::size_t length) { return new std::byte[length]; }
 void FreeMemory(std::byte *ptr) { delete[] ptr; }
 
-// 😱 Note that this struct does not follow best style.
+// 😱 Note that this class does not follow best style.
 class HugeObject {
  public:
   HugeObject() = default;
@@ -146,7 +146,7 @@ One final preparatory touch, let's also introduce a simple `main` function that 
 std::byte *AllocateMemory(std::size_t length) { return new std::byte[length]; }
 void FreeMemory(std::byte *ptr) { delete[] ptr; }
 
-// 😱 Note that this struct does not follow best style.
+// 😱 Note that this class does not follow best style.
 class HugeObject {
  public:
   HugeObject() = default;
@@ -198,10 +198,10 @@ Right now when an object is created it allocates memory and when it gets destroy
 <!-- Talking head -->
 This already gives us a glimpse into our first "rule":
 <!-- Overlay -->
-> **Rule 1:** If we manage resources manually in the constructor we must have a destructor that releases these resources.
+> **Rule 1:** If we acquire resources manually in the constructor we must have a destructor that releases these resources.
 
 <!-- Highlight comment 🆗 -->
-Note that even with this destructor in place we still must explicitly state here that **this struct does not follow the best practices**. We'll find out why pretty soon.
+Note that even with this destructor in place we still must explicitly state here that **this class does not follow the best practices**. We'll find out why pretty soon.
 
 <!-- Talking head -->
 Hopefully you did not learn anything _really_ new by now. We touched upon this topic in the [object lifecycle](object_lifecycle.md) lecture before. So now it is about time we focus on why does the comment above our class still hold?
@@ -222,7 +222,7 @@ Let's illustrate an issue with our class by changing our `main` function a littl
 std::byte *AllocateMemory(std::size_t length) { return new std::byte[length]; }
 void FreeMemory(std::byte *ptr) { delete[] ptr; }
 
-// 😱 Note that this struct does not follow best style.
+// 😱 Note that this class does not follow best style.
 class HugeObject {
  public:
   HugeObject() = default;
@@ -279,7 +279,7 @@ We could even write one ourselves! Essentially, in our case a trivial copy const
 std::byte *AllocateMemory(std::size_t length) { return new std::byte[length]; }
 void FreeMemory(std::byte *ptr) { delete[] ptr; }
 
-// 😱 Note that this struct does not follow best style.
+// 😱 Note that this class does not follow best style.
 class HugeObject {
  public:
   HugeObject() = default;
@@ -688,7 +688,7 @@ Don't forget that after you're done implementing the move assignment operator, w
 It's time we summarize our findings somewhat. We might notice here that all of these custom functions rely on the fact that we have to manage some resource of an object manually. In summary we can reformulate all of the previous rules as a single one:
 
 <!-- Overlay -->
-**If we manage some resource manually, we must implement the following:**
+**If the class manages resources manually, it must explicitly implement the following:**
 - **A custom destructor**
 - **A custom copy constructor**
 - **A custom copy assignment operator**
