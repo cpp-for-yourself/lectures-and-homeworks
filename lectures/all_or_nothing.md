@@ -708,7 +708,7 @@ That being said, I want to stress that we actually nearly never manage our resou
 <!-- Talking head -->
 So instead of the "rule of 5" I prefer talking about the rule of **"all or nothing"**:
 <!-- Overlay -->
-**Don't define custom destructor, copy or move constructor or copy or move assignment operators. If just one of them needs to be defined, explicitly define the rest of those operations.** [[ref]](https://arne-mertz.de/2015/02/the-rule-of-zero-revisited-the-rule-of-all-or-nothing/#:~:text=Rule%20of%20All%20or%20Nothing%3A%20A%20class%20that%20needs%20to,or%20copy%2Fmove%20assignment%20operator.) [[ref]](http://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#c20-if-you-can-avoid-defining-default-operations-do)
+**Don't define custom destructor, copy or move constructor or copy or move assignment operators. If just one of them needs to be defined, explicitly define the rest of those operations.** [[ref]](https://arne-mertz.de/2015/02/the-rule-of-zero-revisited-the-rule-of-all-or-nothing/) [[ref]](http://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#c20-if-you-can-avoid-defining-default-operations-do)
 
 <!-- Talking head -->
 This is a simple rule to follow and I hope that you now also understand *why* it is needed. We will touch more upon it when we start talking about polymorphism in the context of object oriented programming but for now thanks for following along!
