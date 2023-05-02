@@ -3,7 +3,7 @@ The rule of "All Or Nothing" - safely copying and moving objects
 ---
 
 <p align="center">
-  <a href="https://youtu.be/vXnvczB4g-Y"><img src="https://img.youtube.com/vi/vXnvczB4g-Y/maxresdefault.jpg" alt="Video" align="right" width=50%></a>
+  <a href="https://youtu.be/una89pkP9ms"><img src="https://img.youtube.com/vi/una89pkP9ms/maxresdefault.jpg" alt="Video" align="right" width=50%></a>
 </p>
 
 - ["Good style" as our guide](#good-style-as-our-guide)
@@ -128,7 +128,7 @@ int main() {
 ```cpp
 std::byte const *ptr() const { return ptr_; }
 ```
-> 🎨 Note that such a simple getter function usually has a name of the variable it returns without the trailing underscore.
+> 🎨 Note that such a simple getter function usually has a name of the variable it returns without the trailing underscore [[Google style]](https://google.github.io/styleguide/cppguide.html#Variable_Names).
 
 > :bulb: Oh, and if you are confused about the return type of this function give a lecture about the [raw pointers](raw_pointers.md) a go.
 <!-- The link is in the description and somewhere on the screen. -->
@@ -531,7 +531,7 @@ This actually brings us to our third rule:
 If you live in a world where you use only C++ versions before 11 then you could stop here but in a modern world we are missing a big chunk from this topic. You might have already guessed what it is - **the move semantics**!
 
 <!-- Talking head -->
-Just as compiler generates default copy constructor and assignment operator it also generates default move constructor and assignment operator with the same consequences in our case.
+Just as compiler generates implicit copy constructor and assignment operator it also sometimes generates implicit move constructor and assignment operator although in slightly different circumstances - it only generates them if the user has defined no explicit destructor or copy constructor and assignment operator. But it still might cause problems to us so let's dig into this.
 
 <!-- Code voiceover
 - Add std::move to the old example 🆗
@@ -588,7 +588,10 @@ int main() {
 }
 ```
 <!-- Talking head + output overlay + reuse animation from copying -->
-When we run it, we see that the `other_object.ptr()` points to the same address as the `object.ptr()` after the move! The compiler again generates a trivial constructor - a move constructor this time. This move constructor doesn't know that it should set the `object.ptr_` which it moved from just now to `nullptr` and leaves it pointing to the same address causing the already dear to us runtime error when we inevitably free the memory twice.
+When we run it, we see that the `other_object.ptr()` points to an address different from where the `object.ptr()` points to, even after the move! If you remember the lecture about the move semantics this is not what we want! We want the `other_object` to steal the data from `object`. Right now it sure looks like the data is just copied over. And this is indeed the case which you can verify by adding a printout to our copy constructor and see that it is indeed called.
+
+<!-- Talking head -->
+The reason for this is that the compiler will only generate a move constructor if there is no custom destructor and no custom copy constructor and assignment operator. By now our class has all of these! So the compiler will _not_ generate a move constructor for us and the rvalue reference will just bind to the normal lvalue reference in our existing copy constructor, so we _will_ perform an unnecessary copy! So, how do we make our class moveable?
 
 <!-- Talking head -->
 By now we already know what to do! We know that we just need to write a custom move constructor and that is it!
@@ -669,7 +672,7 @@ It is clear that we must also have another rule which probably also connects to 
 Remember how once we had a copy constructor we also needed a copy assignment operator? Would you be surprized if I told you that the same story repeats here?
 
 <!-- Talking head + overlay video thumbnails -->
-I'd like to leave the implementation of a move assignment operator to you as a small homework. I'm sure you are going to be able to piece it together from this and the move semantics videos. I do strongly encourage you to actually follow what we did before - find the case that causes the runtime error about freeing memory twice and implement the missing operator to fix this error. If you get stuck the full code is in the script to this video, as always.
+I'd like to leave the implementation of a move assignment operator to you as a small homework. I'm sure you are going to be able to piece it together from this and the move semantics videos. If you get stuck the full code is in the script to this video, as always.
 
 <!-- Talking head -->
 Anyway, once you're done you will know that there is one last rule that we need:
@@ -713,5 +716,5 @@ So instead of the "rule of 5" I prefer talking about the rule of **"all or nothi
 <!-- Talking head -->
 This is a simple rule to follow and I hope that you now also understand *why* it is needed. We will touch more upon it when we start talking about polymorphism in the context of object oriented programming but for now thanks for following along!
 
-You can find the full code in this file: [all_or_nothing.cpp](all_or_nothing.cpp)
+You can find the full code in this file: [all_or_nothing.cpp](code/all_or_nothing.cpp)
 <!-- See you in the next video, bye! -->

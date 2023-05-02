@@ -371,7 +371,7 @@ Constructors, operators, destructor - rule of all or nothing
 </summary>
 
 ----------------------------------------------------------
-[![Video thumbnail](https://img.youtube.com/vi/vXnvczB4g-Y/maxresdefault.jpg)](https://youtu.be/vXnvczB4g-Y)
+[![Video thumbnail](https://img.youtube.com/vi/una89pkP9ms/maxresdefault.jpg)](https://youtu.be/una89pkP9ms)
 
 [Lecture script](lectures/all_or_nothing.md)
 - “Good style” as our guide
