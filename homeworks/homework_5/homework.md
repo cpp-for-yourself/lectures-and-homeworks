@@ -49,6 +49,10 @@ Here is what we'll do:
    > Note that the `PixelDrawer` will draw the pixels from top-left of the terminal
 
 
+Note that you can still print some debug information if you want to by utilizing the `stderr` stream:
+```cmd
+./pixelate 2>stderr.txt
+```
 
 TODO, test code
 ```c++
