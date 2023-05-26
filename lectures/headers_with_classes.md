@@ -62,6 +62,13 @@ Finally, we need a `main` function to test that the chatbot does something.
 Putting it all together into a `chatbot.cpp` file, we get something like this:
 
 `chatbot.cpp`:
+<!--
+`CPP_SETUP_START`
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` chatbot_basic/main.cpp
+`CPP_RUN_CMD` CWD:chatbot_basic c++ -std=c++17 -c main.cpp
+-->
 ```cpp
 #include <iostream>
 #include <string>
@@ -133,7 +140,9 @@ c++ -std=c++17 main.cpp -o chatbot_example
 > :bulb: By the way, all class member functions defined in a header file are implicitly `inline`, so no need to worry about the One Definition Rule (ODR) violations.
 
 We can of course also put the appropriate commands into a `CMakeLists.txt` file:
-
+<!--
+`CPP_SKIP_SNIPPET`
+-->
 ```cmake
 # Indicate that we have header-only library
 add_library(chatbot INTERFACE)
@@ -158,6 +167,12 @@ Finally, note how the `const` postfix in functions that need it is present in **
 
 ## The final header-source code
 `ai.hpp`:
+<!--
+`CPP_SETUP_START`
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` chatbot_cmake/chatbot/chatbot.hpp
+-->
 ```cpp
 #pragma once
 
@@ -190,6 +205,12 @@ class Chatbot {
 ```
 
 `ai.cpp`:
+<!--
+`CPP_SETUP_START`
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` chatbot_cmake/chatbot/chatbot.cpp
+-->
 ```cpp
 #include <chatbot/chatbot.hpp>
 
@@ -216,8 +237,65 @@ void Chatbot::IngestData(const Data &data) {
 }
 ```
 
+`main.cpp`:
+<!--
+`CPP_SETUP_START`
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` chatbot_cmake/chatbot/main.cpp
+-->
+```cpp
+#include <chatbot/chatbot.hpp>
+
+#include <iostream>
+
+int main() {
+  Chatbot chatbot{};
+  chatbot.Train({{"How much is 2 + 2?",
+                  "What color is the sky?",
+                  "What is the answer to life and everything?"},
+                 {"4", "It depends", "42"}});
+  const auto question = "Are you self aware?";
+  std::cout << "Asking chatbot: " << question << std::endl;
+  std::cout << "Chatbot answered: " << chatbot.GetAnswer(question).text
+            << std::endl;
+  return 0;
+}
+```
+
 And that's it. Now we just need to update our `CMakeLists.txt` file, create a compiled library in it and link it to a binary that has the `main` function in it:
 
+<!--
+`CPP_SETUP_START`
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` chatbot_cmake/CMakeLists.txt
+-->
+```cmake
+cmake_minimum_required(VERSION 3.16..3.24)
+project(chatbot VERSION 0.0.1
+                    DESCRIPTION "Our first project"
+                    LANGUAGES CXX)
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Release CACHE STRING "" FORCE)
+endif()
+message(STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
+
+add_library(cxx_setup INTERFACE)
+target_compile_options(cxx_setup INTERFACE -Wall -Wpedantic -Wextra)
+target_compile_features(cxx_setup INTERFACE cxx_std_17)
+target_include_directories(cxx_setup INTERFACE ${PROJECT_SOURCE_DIR})
+
+add_subdirectory(${PROJECT_NAME})
+```
+
+<!--
+`CPP_SETUP_START`
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` chatbot_cmake/chatbot/CMakeLists.txt
+`CPP_RUN_CMD` CWD:chatbot_cmake cmake -S . -B build && cmake --build build -j4
+-->
 ```cmake
 # Indicate that we have header-only library
 add_library(chatbot chatbot.cpp)
