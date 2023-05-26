@@ -265,6 +265,7 @@ int main() {
 
 And that's it. Now we just need to update our `CMakeLists.txt` file, create a compiled library in it and link it to a binary that has the `main` function in it:
 
+Main `CMakeLists.txt` of the project:
 <!--
 `CPP_SETUP_START`
 $PLACEHOLDER
@@ -289,6 +290,7 @@ target_include_directories(cxx_setup INTERFACE ${PROJECT_SOURCE_DIR})
 add_subdirectory(${PROJECT_NAME})
 ```
 
+`chatbot/CMakeLists.txt`:
 <!--
 `CPP_SETUP_START`
 $PLACEHOLDER
