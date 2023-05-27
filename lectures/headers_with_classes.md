@@ -39,24 +39,27 @@ That being said, some things _are_ different.
 - Our methods also have some attributes, like the trailing `const` modifier. We must somehow deal with those
 
 # The `Chatbot` illustrative example
+<!-- Illustrate with a screen cast of a chatbot question -->
 Let's see all of this in detail. As always, we will be looking at an example. As the various AI chat bots are so popular now, we'll write a very stupid one :wink: And by very stupid, I mean _very stupid_!
 
 ## Modeling the interface
+<!-- Animation of an AI black box -->
 Largely speaking, any AI system is just a black box that "trains" by looking at lots of training data, stores them in some internal representation and then uses this representation to predict certain answers when new unseen test data arrives.
 
 Given that, our "chatbot" can be simply a class. To design such a class, let's talk about the public interface this class must have:
-- It should return an `Answer` through a method `GetAnswer` that gets a question as a `std::string` parameter
-- In order to be able to answer the provided question, we would have to train our chat bot. Therefore, it must be able to ingest some training `Data` into a method `Train` and do some magic to become smarter (don't get your hopes high)
+- It should return an `Answer` through a method `GetAnswer` that gets a question as a `std::string` parameter <!-- Add GetAnswer to the code animation ✅ -->
+- In order to be able to answer the provided question, we would have to train our chat bot. Therefore, it must be able to ingest some training `Data` into a method `Train` and do some magic to become smarter (don't get your hopes high) <!-- Add Train to the code animation ✅ -->
 
 ## Thinking about the implementation
 That's about all the interface we need here. Now we would have to fill in some details:
-- The `Answer` is going to be a very simple struct holding the actual answer and its probability (here is how you know our example is fictional, no chatbot is going to provide this to us anytime soon). Oh, and we can put this struct to be class-internal for our `Chatbot` class.
-- The `Data` is also going to be a class-internal struct with its own data in the form of questions and correct answers to them as well as some function to check its validity. I know it should be a class, but let's just stick with struct here for simplicity.
-- The `Chatbot` class must have some internal parameters that we train with our `Train` function and that influence its answers. We will just call our internal parameter `smartness` and represent it as an `int` :shrug: What? I did promise a _very_ stupid chatbot. :wink:
-- We need some implementation for all of the methods we discussed above. The implementation is going to be really trivial, this is a lecture about C++, not machine learning after all.
+- The `Answer` is going to be a very simple struct holding the actual answer and its probability (here is how you know our example is fictional, no chatbot is going to provide this to us anytime soon). Oh, and we can put this struct to be class-internal for our `Chatbot` class. <!-- Add Answer to the code animation ✅ -->
+- The `Data` is also going to be a class-internal struct with its own data in the form of questions and correct answers to them as well as some function to check its validity. I know it should be a class, but let's just stick with struct here for simplicity. <!-- Add Data to the code animation ✅ -->
+- The `Chatbot` class must have some internal parameters that we train with our `Train` function and that influence its answers. We will just call our internal parameter `smartness` and represent it as an `int` :shrug: What? I did promise a _very_ stupid chatbot. :wink: <!-- Add smartness_ to the code animation ✅ -->
+- We need some implementation for all of the methods we discussed above. The implementation is going to be really trivial, this is a lecture about C++, not machine learning after all. <!-- Add implementation ✅ -->
 <!-- See all the details in the script which is linked in the description of this video, as always. -->
 
 Finally, we need a `main` function to test that the chatbot does something.
+<!-- Add main function ✅ -->
 
 ## The code in a single cpp file
 Putting it all together into a `chatbot.cpp` file, we get something like this:
@@ -132,6 +135,7 @@ c++ -std=c++17 chatbot.cpp -o chatbot_example
 ```
 
 ## Making it a header-only library
+<!-- Show name of the file, change it to hpp, move main to another file -->
 But what if we want to be serious about our development and make a library out of our `Chatbot` class that we can use from our CMake project? Let's start by moving the implementation into a header file by simply renaming our `chatbot.cpp` into `chatbot.hpp`, adding the `#pragma once` or include guards statements to the top of the new header file, and moving the `main` function to some other file, say `main.cpp` that includes `chatbot.hpp`. If we now try to compile `main.cpp` in exactly the same way, it still compiles!
 
 ```cmd
@@ -140,6 +144,7 @@ c++ -std=c++17 main.cpp -o chatbot_example
 > :bulb: By the way, all class member functions defined in a header file are implicitly `inline`, so no need to worry about the One Definition Rule (ODR) violations.
 
 We can of course also put the appropriate commands into a `CMakeLists.txt` file:
+<!-- Show code + text that the full project is in the description -->
 <!--
 `CPP_SKIP_SNIPPET`
 -->
@@ -148,7 +153,7 @@ We can of course also put the appropriate commands into a `CMakeLists.txt` file:
 add_library(chatbot INTERFACE)
 target_link_libraries(chatbot INTERFACE cxx_setup)
 
-# A binary that uses the header-only library
+# A binary that uses our header-only library
 add_executable(chatbot_example main.cpp)
 target_link_libraries(chatbot_example PRIVATE chatbot cxx_setup)
 ```
@@ -156,17 +161,25 @@ target_link_libraries(chatbot_example PRIVATE chatbot cxx_setup)
 
 ## Converting it all into a compiled library
 If we only need a header-only library, we could stop there, but sometimes we want a compiled library. For that we would have to split our header file into a header and a source file.
+<!-- Show animation that moves declarations and definitions into separate files -->
 
 > :bulb: Oh, and if you are shaky on the differences between the two or why it is important that the class member functions are implicitly `inline`, do check out my [lecture on various kinds of libraries](headers_and_libraries.md).
 
 Generally speaking, all the data (apart from static data, stay tuned) belongs in the header file.
 
+<!--
+- Use split view between header and cpp ✅
+- Move all the code to the cpp file one by one with zoom ✅
+- Zoom in on prefixes ✅
+- Zoom on usage without prefixes ✅
+- Zoom in on const in both views ✅
+-->
 As for the implementation of any methods (and static data, stay tuned) we can move them to the source file, a new `chatbot.cpp` file, leaving only their **declarations** in the header file. In the **definitions**, we must tell the compiler that we are defining not just a free standing function, but one from a class, thus the `Chatbot::` and the `Chatbot::Data::` prefixes. Note also, that we have the `Answer` as a return type of the `GetAnswer` function. For such return types we also have to tell the compiler if they are part of some class, the `Chatbot` class in this example. *Within* the definition of the function we can use these types without the prefix as the compiler already knows that it operates within the namespace of a certain class.
 
 Finally, note how the `const` postfix in functions that need it is present in **both** the header and the source file.
 
 ## The final header-source code
-`ai.hpp`:
+`chatbot.hpp`:
 <!--
 `CPP_SETUP_START`
 $PLACEHOLDER
@@ -204,7 +217,7 @@ class Chatbot {
 };
 ```
 
-`ai.cpp`:
+`chatbot.cpp`:
 <!--
 `CPP_SETUP_START`
 $PLACEHOLDER
@@ -214,13 +227,13 @@ $PLACEHOLDER
 ```cpp
 #include <chatbot/chatbot.hpp>
 
-bool Chatbot::Data::IsValid() const {
-  return questions.size() == correct_answers.size();
-}
-
 void Chatbot::Train(const Data &data) {
   if (!data.IsValid()) { return; }
   IngestData(data);
+}
+
+bool Chatbot::Data::IsValid() const {
+  return questions.size() == correct_answers.size();
 }
 
 Chatbot::Answer Chatbot::GetAnswer(const std::string &question) const {
@@ -262,7 +275,6 @@ int main() {
   return 0;
 }
 ```
-
 And that's it. Now we just need to update our `CMakeLists.txt` file, create a compiled library in it and link it to a binary that has the `main` function in it:
 
 Main `CMakeLists.txt` of the project:
@@ -290,6 +302,7 @@ target_include_directories(cxx_setup INTERFACE ${PROJECT_SOURCE_DIR})
 add_subdirectory(${PROJECT_NAME})
 ```
 
+<!-- Animate updating cmake file -->
 `chatbot/CMakeLists.txt`:
 <!--
 `CPP_SETUP_START`
@@ -299,11 +312,11 @@ $PLACEHOLDER
 `CPP_RUN_CMD` CWD:chatbot_cmake cmake -S . -B build && cmake --build build -j4
 -->
 ```cmake
-# Indicate that we have header-only library
+# Create a compiled library
 add_library(chatbot chatbot.cpp)
 target_link_libraries(chatbot PUBLIC cxx_setup)
 
-# A binary that uses the header-only library
+# A binary that uses our library
 add_executable(chatbot_example main.cpp)
 target_link_libraries(chatbot_example PRIVATE chatbot cxx_setup)
 ```
