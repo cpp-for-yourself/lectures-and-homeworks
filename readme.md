@@ -389,6 +389,21 @@ Constructors, operators, destructor - rule of all or nothing
 ----------------------------------------------------------
 </details>
 
+<details>
+<summary>
+Headers with classes
+</summary>
+
+----------------------------------------------------------
+[![Video thumbnail](https://img.youtube.com/vi/9MB1nHDIM64/maxresdefault.jpg)](https://youtu.be/9MB1nHDIM64)
+
+[Lecture script](lectures/headers_with_classes.md)
+- What stays the same
+- What is different
+- Example to show it all
+
+----------------------------------------------------------
+</details>
 ---
 
 ## PS
