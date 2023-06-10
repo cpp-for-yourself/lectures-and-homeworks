@@ -2,7 +2,7 @@ Headers with classes
 ---
 
 <p align="center">
-  <a href="https://youtu.be/blah"><img src="https://img.youtube.com/vi/blah/maxresdefault.jpg" alt="Video" align="right" width=50%></a>
+  <a href="https://youtu.be/9MB1nHDIM64"><img src="https://img.youtube.com/vi/9MB1nHDIM64/maxresdefault.jpg" alt="Video" align="right" width=50%></a>
 </p>
 
 - [What stays the same](#what-stays-the-same)
