@@ -28,8 +28,10 @@ export default makeScene2D(function* (view) {
       radius={4}
       fill={color}
       clip={true}
-      marginLeft={20}
-      marginBottom={20}
+      marginLeft={10}
+      marginRight={10}
+      marginBottom={10}
+      marginTop={10}
     >
       <CodeBlock
         layout={false}
@@ -440,10 +442,10 @@ void Chatbot::IngestData(const Data &data) {
     code_block_left_ref().position([0, 1300], duration),
     code_block_left_ref().edit(duration, true)(...simplify(code({
       includes: includes({
-        pragma_once: insert("#pragma once\n\n"),
+        pragma_once: insert("#pragma once\n"),
         string: "\n#include <string>",
         vector: "\n#include <vector>",
-        iostream: "#include <iostream>"
+        iostream: "\n#include <iostream>"
       }),
       public_keyword: "\n public:\n",
       get_answer_method: get_answer_method_code({ impl: get_answer_impl }),
@@ -463,6 +465,8 @@ void Chatbot::IngestData(const Data &data) {
   );
 
   yield* all(
+    grow_factor(0.5, duration),
+    filename_right_ref().edit(0, false)`main.cpp`,
     code_block_left_ref().position([5, -160], duration),
     code_block_left_ref().scale(0.49, duration),
     code_block_left_ref().edit(duration, false)(...simplify(code({
@@ -470,6 +474,7 @@ void Chatbot::IngestData(const Data &data) {
         pragma_once: "#pragma once\n",
         string: "\n#include <string>",
         vector: "\n#include <vector>",
+        iostream: remove("\n#include <iostream>")
       }),
       public_keyword: "\n public:\n",
       get_answer_method: get_answer_method_code({ impl: get_answer_impl }),
@@ -479,8 +484,6 @@ void Chatbot::IngestData(const Data &data) {
       private_part: private_part({ ingest_data: ingest_data_impl }),
       main: remove(main),
     }))),
-    filename_right_ref().edit(0, false)`main.cpp`,
-    grow_factor(0.5, duration),
     code_block_right_ref().scale(0.6, duration),
     code_block_right_ref().position([0, 0], duration),
     code_block_right_ref().edit(duration, true)(...simplify(code_separate_main({
