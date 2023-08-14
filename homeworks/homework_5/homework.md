@@ -7,7 +7,7 @@
 - [What this homework is about](#what-this-homework-is-about)
 - [Prerequisites](#prerequisites)
 - [Here is what you will implement exactly](#here-is-what-you-will-implement-exactly)
-- [Detailed requirements](#detailed-requirements)
+- [Detailed requirements ‼️‼️ **Read this whole section carefully** ‼️‼️](#detailed-requirements-️️-read-this-whole-section-carefully-️️)
   - [The expected project structure](#the-expected-project-structure)
   - [Submodules and the `external` folder](#submodules-and-the-external-folder)
     - [FTXUI library](#ftxui-library)
@@ -57,10 +57,8 @@ While you _will_ implement parts of each of the above boxes, some of the functio
 
 > :bulb: The description of this homework project is quite extensive and might be a bit confusing. It _is_ a larger project if you are a beginner and while I tried to provide as much clarity as possible, the implementation _will_ take a long time. You can count multiple hours (maybe even days) to implement everything described below. This is normal and figuring all of these things out is part of the fun. So give yourself time and enjoy implementing this project as much as you can.
 
-## Detailed requirements
+## Detailed requirements ‼️‼️ **Read this whole section carefully** ‼️‼️
 In this part we will go over each of the block above as well as through the project structure.
-
-‼️‼️ **Read this whole section carefully** ‼️‼️
 
 ### The expected project structure
 The project has to be implemented in the `homework_5` folder in your homework repository (that you can [create from this template](https://github.com/cpp-for-yourself/homeworks) if you haven't done so before). If the structure of the project does not follow this guide the automatic checking won't work.
@@ -298,8 +296,8 @@ int col = 2;
 const ftxui::Color color = image.at(row, col);
 
 // ❌ The following code must NOT compile, copying the StbImage should NOT be allowed
-pixelator::StbImageDataView other_image = image;
-empty_image = image;
+pixelator::StbImageDataView other_image = image;  // ❌ Must not compile
+empty_image = image;  // ❌ Must not compile
 
 // We should be able to move the images
 pixelator::StbImageDataView other_image = std::move(image);
@@ -332,10 +330,13 @@ image.rows();  // Should be equal to rows.
 image.cols();  // Should be equal to cols.
 image.size();  // Should return pixelator::Size{rows, cols}.
 
-// Should provide read/write access to the colors.
+// Should provide read access to the colors.
+// All pixels must be initialized.
+image.at(0, 0) == ftxui::Color{};
+
+// Should provide write access to the colors.
 const ftxui::Color yellowish{ftxui::Color::RGB(255, 200, 100)};
 image.at(4, 2) = yellowish;
-image.at(0, 0) = ftxui::Color{};  // All pixels must be initialized.
 image.at(4, 2) == yellowish;  // Should be true.
 
 // We should be able to copy an image
