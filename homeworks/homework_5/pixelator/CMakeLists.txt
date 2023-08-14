@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.16..3.24)
 project(pixelator VERSION 1
-        DESCRIPTION "Pixelate images in terminal"
-        LANGUAGES CXX)
+  DESCRIPTION "Pixelate images in terminal"
+  LANGUAGES CXX)
 
 if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE Release CACHE STRING "" FORCE)
+  set(CMAKE_BUILD_TYPE Release CACHE STRING "" FORCE)
 endif()
 
 message(STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
@@ -23,5 +23,5 @@ include(CTest)
 
 # Add code in subdirectories
 add_subdirectory(external)
-add_subdirectory(pixelator)
+add_subdirectory(${PROJECT_NAME})
 add_subdirectory(examples)

@@ -1,6 +1,6 @@
-#include "tui_pixelator/drawer.hpp"
-#include "tui_pixelator/pixelate_image.hpp"
-#include "tui_pixelator/stb_image_data_view.hpp"
+#include "pixelator/drawer.hpp"
+#include "pixelator/pixelate_image.hpp"
+#include "pixelator/stb_image_data_view.hpp"
 
 #include <cstddef>
 #include <filesystem>

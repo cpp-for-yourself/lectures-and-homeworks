@@ -1,4 +1,3 @@
-# Do not modify this file
 find_package(Git QUIET)
 
 if(GIT_FOUND)
