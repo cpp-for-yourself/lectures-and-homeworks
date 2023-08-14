@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16..3.24)
-project(tui_pixelator VERSION 1
+project(pixelator VERSION 1
         DESCRIPTION "Pixelate images in terminal"
         LANGUAGES CXX)
 
@@ -23,5 +23,5 @@ include(CTest)
 
 # Add code in subdirectories
 add_subdirectory(external)
-add_subdirectory(${PROJECT_NAME})
+add_subdirectory(pixelator)
 add_subdirectory(examples)

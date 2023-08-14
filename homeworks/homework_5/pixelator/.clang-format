@@ -8,4 +8,6 @@ AllowShortLoopsOnASingleLine: true
 AllowShortIfStatementsOnASingleLine: true
 BinPackArguments: false
 BinPackParameters: false
+IncludeBlocks: Preserve
+SortIncludes: true
 ...
