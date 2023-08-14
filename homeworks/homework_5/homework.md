@@ -77,7 +77,7 @@ homework_5/
     │   └── googletest/  # Googletest library as a submodule
     ├── examples
     │   ├── CMakeLists.txt
-    │   ├── pixelate_image.cpp
+    │   ├── pixelate.cpp
     ├── pixelator/
     │   ├── test_data/
     │   │   └── test.png    # Test data, see below
@@ -412,7 +412,7 @@ full_screen_drawer.ToString();  // Prints to string, used for testing.
 > :bulb: Note that `ftxui::Screen` uses X and Y to describe coordinates, while we use rows and columns. Generally, `rows` correspond to `Y`, while `cols` correspond to `X`. It _is_ confusing, so don't worry if you don't get it right straight away.
 
 ### The binary to test your data
-The binary that loads an image from disk, pixelates it and outputs it to the terminal, is already provided to you in the project skeleton. You can find it here: [`pixelator/examples/pixelate_image.cpp`](pixelator/examples/pixelate_image.cpp). Note that you will have to add the needed CMake target on your own.
+The binary that loads an image from disk, pixelates it and outputs it to the terminal, is already provided to you in the project skeleton. You can find it here: [`pixelator/examples/pixelate.cpp`](pixelator/examples/pixelate.cpp). Note that you will have to add the needed CMake target on your own.
 
 ### Namespace
 All functions and classes in this project must live in the `pixelator` namespace.
