@@ -1,7 +1,7 @@
 **Pixelating images in terminal**
 
 <p align="center">
-  <a href="https://youtu.be/blah"><img src="https://img.youtube.com/vi/blah/0.jpg" alt="Video" align="right" width=40%></a>
+  <a href="https://youtu.be/Cj3x51iJdvM"><img src="https://img.youtube.com/vi/Cj3x51iJdvM/maxresdefault.jpg" alt="Video" align="right" width=40%></a>
 </p>
 
 - [What this homework is about](#what-this-homework-is-about)

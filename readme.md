@@ -404,6 +404,27 @@ Headers with classes
 
 ----------------------------------------------------------
 </details>
+
+<details>
+<summary><code>Homework</code>: pixelate images in terminal</summary>
+
+----------------------------------------------------------
+[![Video thumbnail](https://img.youtube.com/vi/Cj3x51iJdvM/maxresdefault.jpg)](https://youtu.be/Cj3x51iJdvM)
+
+[Homework script](homeworks/homework_5/homework.md)
+- You will write a library that allows to pixelate an image
+- You will learn how to:
+  - Work with classes
+  - Use external libraries
+    - Read images from disk using `stb_image.h`
+    - Draw stuff in the terminal using `FTXUI` library
+  - Manage memory allocated elsewhere correctly
+  - Writing multiple libraries and binaries and linking them together
+  - Manage a larger CMake project
+----------------------------------------------------------
+</details>
+
+
 ---
 
 ## PS
