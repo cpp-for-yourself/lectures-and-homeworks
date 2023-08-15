@@ -7,7 +7,7 @@
 - [What this homework is about](#what-this-homework-is-about)
 - [Prerequisites](#prerequisites)
 - [Here is what you will implement exactly](#here-is-what-you-will-implement-exactly)
-- [Detailed requirements ‼️‼️ **Read this whole section carefully** ‼️‼️](#detailed-requirements-️️-read-this-whole-section-carefully-️️)
+- [‼️‼️ Detailed requirements: read this whole section carefully\*\* ‼️‼️](#️️-detailed-requirements-read-this-whole-section-carefully-️️)
   - [The expected project structure](#the-expected-project-structure)
   - [Submodules and the `external` folder](#submodules-and-the-external-folder)
     - [FTXUI library](#ftxui-library)
@@ -57,7 +57,7 @@ While you _will_ implement parts of each of the above boxes, some of the functio
 
 > :bulb: The description of this homework project is quite extensive and might be a bit confusing. It _is_ a larger project if you are a beginner and while I tried to provide as much clarity as possible, the implementation _will_ take a long time. You can count multiple hours (maybe even days) to implement everything described below. This is normal and figuring all of these things out is part of the fun. So give yourself time and enjoy implementing this project as much as you can.
 
-## Detailed requirements ‼️‼️ **Read this whole section carefully** ‼️‼️
+## ‼️‼️ Detailed requirements: read this whole section carefully** ‼️‼️
 In this part we will go over each of the block above as well as through the project structure.
 
 ### The expected project structure
