@@ -254,9 +254,10 @@ Color at pixel: [3, 2] =  RGB: (255, 255, 255)
 
 There will be 4 libraries (more concretely, library CMake targets):
 - `stb_image_data_view` - A library that encapsulates the work with the external STB image library and makes using the data loaded from disk nicer
-- `drawer` - A library that implements a drawer - a class capable of drawing a pixelated image to the terminal
 - `image` - A library that encapsulates an image that can be created for example by the `PixelateImage` function from the next point in this list
-- `pixelate_image` - A library that provides the function `PixelateImage` that pixelates a provided `StbImage`
+- `pixelate_image` - A library that provides the function `PixelateImage` that pixelates a provided `StbImageDataView`
+- `drawer` - A library that implements a drawer - a class capable of drawing a pixelated image to the terminal
+
 
 These libraries must all be defined in the `pixelator/CMakeLists.txt` so that the binaries in the `examples` folder and the tests could be linked against those.
 
@@ -295,15 +296,17 @@ int row = 4;
 int col = 2;
 const ftxui::Color color = image.at(row, col);
 
-// ❌ The following code must NOT compile, copying the StbImage should NOT be allowed
-pixelator::StbImageDataView other_image = image;  // ❌ Must not compile
-empty_image = image;  // ❌ Must not compile
-
 // We should be able to move the images
 pixelator::StbImageDataView other_image = std::move(image);
 empty_image = std::move(image);
 
-// At the end, the StbImage objects should free the underlying memory upon destruction.
+// ❌ The following code must NOT compile, copying the StbImageDataView should
+// NOT be allowed
+pixelator::StbImageDataView other_image = image;  // ❌ Must not compile
+empty_image = image;                              // ❌ Must not compile
+
+// At the end, the StbImageDataView objects should free the underlying memory
+// upon destruction.
 ```
 
 > :bulb: It is your task to figure out which data this class must store. As long as the class correctly conforms to the required interface _what_ is stored within it is not important.
@@ -366,13 +369,13 @@ As you can see the interface is quite simple. But the devil is in the detail. Yo
 
 You will also have to handle the "aspect ratio". Meaning that the scaling factor for both rows and columns should be the same. You can choose it by picking the minimum one as follows:
 ```cpp
-// static_cast<float> "casts" its input to a float.
+// static_cast<float>(number) converts (aka "casts") a number to float.
 const auto factor_cols = smaller_size.cols / static_cast<float>(image.cols());
 const auto factor_rows = smaller_size.rows / static_cast<float>(image.rows());
 const auto smallest_factor = std::min(factor_cols, factor_rows);
 ```
 
-You might also make use of a function that can scale the coordinates downwards and upwards depending on the providing scale parameter:
+You might also make use of a function that can scale the coordinates downwards and upwards depending on the provided scale parameter:
 ```cpp
 int Scale(int number, float factor) {
   return static_cast<int>(number * factor);
@@ -412,7 +415,9 @@ full_screen_drawer.ToString();  // Prints to string, used for testing.
 > :bulb: Note that `ftxui::Screen` uses X and Y to describe coordinates, while we use rows and columns. Generally, `rows` correspond to `Y`, while `cols` correspond to `X`. It _is_ confusing, so don't worry if you don't get it right straight away.
 
 ### The binary to test your data
-The binary that loads an image from disk, pixelates it and outputs it to the terminal, is already provided to you in the project skeleton. You can find it here: [`pixelator/examples/pixelate.cpp`](pixelator/examples/pixelate.cpp). Note that you will have to add the needed CMake target on your own.
+The binary that loads an image from disk, pixelates it and outputs it to the terminal, is already provided to you in the project skeleton. You can find it here: [`pixelator/examples/pixelate.cpp`](pixelator/examples/pixelate.cpp).
+
+> :bulb: Note that you will have to add the needed CMake target on your own.
 
 ### Namespace
 All functions and classes in this project must live in the `pixelator` namespace.
