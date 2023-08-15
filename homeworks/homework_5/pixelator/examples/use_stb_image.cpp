@@ -24,7 +24,8 @@ int main(int argc, char **argv) {
   if (argc < 2) { std::cerr << "No image provided.\n"; }
   const std::filesystem::path image_path{argv[1]};
   if (!std::filesystem::exists(image_path)) {
-    std::cerr << "No image provided.\n";
+    std::cerr << "No image file: " << image_path << std::endl;
+    std::exit(1);
   }
 
   // Load the data
@@ -39,6 +40,7 @@ int main(int argc, char **argv) {
   if (!image_data) {
     std::cerr << "Failed to load image data from file: " << image_path
               << std::endl;
+    std::exit(1);
   }
 
   // The data is stored sequentially, in this order per pixel: red, green, blue,
