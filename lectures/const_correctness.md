@@ -1,7 +1,5 @@
 # Const correctness
-I like to think that the attention span of a typical software engineer is very close to that of a goldfish. At least that's true for myself. So we have to do everything in our power to reduce the amount of things we have to keep in our head when writing, and even more importantly, reading the code. Using `const` correctly with classes (also knows as **"const correctness"**) helps us with this.
-
-Let's see some concrete examples!
+I like to think that the attention span of a typical software engineer is very close to that of a goldfish. At least that's true for myself. So we have to do everything in our power to reduce the amount of things we have to keep in our head when writing, and even more importantly, reading the code. Using `const` correctly (also knows as **"const correctness"**) helps us with this.
 
 <!-- Intro -->
 
@@ -12,15 +10,15 @@ class Foo {
   explicit Foo(const int& data): data_{data} {}
   const int& data() const { return data_; }
  private:
-  const int& data_{};
+  const int& data_{};  // Can also be a const pointer
 };
 ```
-1. When passing `const` data into a function of a class (constructor _is_ a function)
+1. When passing `const` data into a function of a class (constructor _is_ a function, remember?)
 2. When returning `const` reference to our data from our class
 3. After a method of a class to indicate it doesn't change the internal data
 4. To make the data of the class `const`
 
-## Let's look at all of these!
+## Let's look at all of these and how they help us!
 
 Before we start, in this video we will use a "lifetime tracker" object that prints whenever it is copied or moved.
 
