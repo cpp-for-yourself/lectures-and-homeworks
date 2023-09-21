@@ -72,10 +72,11 @@ We can then model the situation of passing over the phone by creating an object 
 <!--
 `CPP_SETUP_START`
 #include "persons.h"
+void MehPerson::DoStuff(Phone &phone) {}
 $PLACEHOLDER
 `CPP_SETUP_END`
 `CPP_COPY_SNIPPET` persons/main.cpp
-`CPP_RUN_CMD` CWD:persons c++ -std=c++17 -c main.cpp
+`CPP_RUN_CMD` CWD:persons c++ -std=c++17 main.cpp
 -->
 ```cpp
 int main() {
@@ -105,12 +106,12 @@ struct GoodPerson {
 };
 class MehPerson {
  public:
-  void DoStuff(const Phone &phone);
+  void DoStuff(const Phone &phone) {}
 };
 $PLACEHOLDER
 `CPP_SETUP_END`
 `CPP_COPY_SNIPPET` persons/main.cpp
-`CPP_RUN_CMD` CWD:persons c++ -std=c++17 -c main.cpp
+`CPP_RUN_CMD` CWD:persons c++ -std=c++17 main.cpp
 -->
 ```cpp
 int main() {
@@ -133,7 +134,22 @@ We _do_ have another trick up our sleeves. It's time for the `GoodPerson` `struc
 In our case, we would then make a class `GoodPerson` that takes a reference to a temporary `Phone` (an rref) object in its constructor. We would then move the underlying `Phone` object into our `private` data and hold it there.
 
 We also have to think of how to expose this internal `Phone` object to the world, so we implement a "getter" function. This function would return a `const` reference to our internal `Phone` object. Furthermore, this function is not supposed to change the underlying object in any way and we have a mechanism to indicate this to the compiler: we mark the whole function `const` too!
+
+<!--
+`CPP_SETUP_START`
+using Phone = int;
+class MehPerson {
+ public:
+  void DoStuff(const Phone &phone) {}
+};
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` persons/main.cpp
+`CPP_RUN_CMD` CWD:persons c++ -std=c++17 main.cpp
+-->
 ```cpp
+#include <utility>  // For std::move
+
 class GoodPerson {
  public:
   explicit GoodPerson(Phone &&phone) : phone_{std::move(phone)} {}
@@ -142,6 +158,12 @@ class GoodPerson {
  private:
   Phone phone_;
 };
+
+int main() {
+  GoodPerson me{Phone{}};
+  MehPerson my_friend{};
+  my_friend.DoStuff(me.phone());
+}
 ```
 
 Which allows us to formulate rules 3 and 4 of const correctness:
@@ -156,6 +178,13 @@ It is important to note here, that if a class method is not marked as `const` th
 I want to note that in my experience, the `const` class functions are the reason most of the beginners struggle with `const` correctness in C++. Let's illustrate why.
 
 You have a class `Foo` with a function `bar` that is a "getter" and does not change the content of the `Foo` object:
+<!--
+`CPP_SETUP_START`
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` foo/main.cpp
+`CPP_RUN_CMD` CWD:foo c++ -std=c++17 -c main.cpp
+-->
 ```cpp
 class Foo {
  public:
@@ -163,10 +192,24 @@ class Foo {
 
  private:
   int bar_{};
-}
+};
 ```
 
 Now the `Foo` object is passed by a `const` reference to some function called `Whatever` that calls `bar()` on it:
+<!--
+`CPP_SETUP_START`
+class Foo {
+ public:
+  int bar() const { return bar_; }
+
+ private:
+  int bar_{};
+};
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` foo_new/main.cpp
+`CPP_RUN_CMD` CWD:foo_new c++ -std=c++17 -c main.cpp
+-->
 ```cpp
 void Whatever(const Foo& foo) {
   foo.bar();
@@ -179,10 +222,25 @@ int main() {
 }
 ```
 
-What will happen if we try to compile this code? The compiler will complain. At this point a lot of beginners will become frustrated: they know that they don't change the `foo` object, they pass a `const` reference to it and seem to be doing everything right. But the compiler sees that the `foo.bar()` method is not marked as `const` and assumes the worst. So it will complain that calling a non-`const` method on a `const` reference to an object might change the underlying object, which is forbidden. I've seen many frustrated students struggle with this concept but I, for one, like how it's implemented. Anyway, if you follow rules 3 and 4 that we just introduced, you should be fine :wink:
+What will happen if we try to compile this code? The compiler will complain:
+```
+main.cpp:4:3: error: 'this' argument to member function 'bar' has type 'const Foo', but function is not marked const
+   foo.bar();
+   ^~~
+```
+
+At this point a lot of beginners will become frustrated: they know that they don't change the `foo` object, they pass a `const` reference to it and seem to be doing everything right. But the compiler sees that the `foo.bar()` method is not marked as `const` and assumes the worst. So it will complain that calling a non-`const` method on a `const` reference to an object might change the underlying object, which is forbidden. I've seen many frustrated students struggle with this concept but I, for one, like how it's implemented. Anyway, if you follow rules 3 and 4 that we just introduced, you should be fine :wink:
 
 # Rule 5: don't mark class data as const unless you're implementing a view
 Finally, there is just one more place where `const` can be used and that I have to mention here. We can actually have `const` _data_ within a class. So, coming back to our example, we _could_ make the `Phone` object constant within our `GoodPerson` structure:
+<!--
+`CPP_SETUP_START`
+using Phone = int;
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` const_person/main.cpp
+`CPP_RUN_CMD` CWD:const_person c++ -std=c++17 -c main.cpp
+-->
 ```cpp
 struct GoodPerson {
   const Phone phone;  // 😱 not the best idea.
@@ -196,9 +254,34 @@ Think of what will happen to all the copy constructors and move constructors of 
 This is rarely useful with one significant outlier - the view paradigm. As one typical example consider this: say, a certain class has its interface but we would want it to have a different interface when we work with it. One way to achieve this is to introduce a thin wrapper around the class in question that holds a `const` reference to the object of interest and introduces new interface to working with this object. Feels a bit hand-wavy, right? Let's think of a concrete example then.
 
 Let's say, our friend and us from the previous example figure that the `MehPerson` class does not need the whole `Phone` object. They just need the weather! So they change the `DoStuff` function to take a const reference to the `Weather` object instead, which the `Phone` object readily provides:
+<!--
+`CPP_SETUP_START`
+#include <utility>
+using Weather = int;
+struct Phone {
+  Weather weather() const { return weather_; }
+  Weather weather_;
+};
+class GoodPerson {
+ public:
+  explicit GoodPerson(Phone &&phone) : phone_{std::move(phone)} {}
+  const Phone &phone() const { return phone_; }
+
+ private:
+  Phone phone_;
+};
+class MehPerson {
+ public:
+  void DoStuff(const Weather &phone) {}
+};
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` weather/main.cpp
+`CPP_RUN_CMD` CWD:weather c++ -std=c++17 main.cpp
+-->
 ```cpp
 int main() {
-  GoodPerson me{};
+  GoodPerson me{Phone{}};
   MehPerson my_friend{};
   my_friend.DoStuff(me.phone().weather());
   return 0;
@@ -206,6 +289,16 @@ int main() {
 ```
 
 However, the `Weather` object only has a function to get a forecast by GNSS coordinate:
+<!--
+`CPP_SETUP_START`
+using Latitude = int;
+using Longitude = int;
+using Forecast = int;
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` weather_details/main.cpp
+`CPP_RUN_CMD` CWD:weather_details c++ -std=c++17 -c main.cpp
+-->
 ```cpp
 class Weather {
 public:
@@ -214,24 +307,56 @@ public:
 };
 ```
 This is convenient for a very precise forecast but our friend wants to know the weather in Interlaken, remember? So they wrap the constant `Weather` reference into a view object, that uses some other functions and provides a better interface, calling the `weather.GetWeatherForLocation(lat, lon)` under the hood:
+<!--
+`CPP_SETUP_START`
+using Latitude = int;
+using Longitude = int;
+using Forecast = int;
+struct LatLon {
+  Latitude latitude;
+  Longitude longitude;
+};
+struct Weather {
+  Forecast GetWeatherForLocation(Latitude, Longitude) const {return {};}
+};
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` weather_view/view.h
+-->
 ```cpp
+#include <string>
+
+// Get latitude and longitude provided a city name
+LatLon GetGnssCoordinatesForCity(const std::string& city_name);
+
 class CityWeatherView {
  public:
   explicit CityWeatherView(const Weather &weather) : weather_{weather} {}
 
-  Forecast GetWeatherForCity(const std::string &city_name) {
+  Forecast GetWeatherForCity(const std::string &city_name) const {
     const auto lat_lon = GetGnssCoordinatesForCity(city_name);
+    // ❓Question: should GetWeatherForLocation be a const method?
     return weather_.GetWeatherForLocation(lat_lon.latitude, lat_lon.longitude);
   }
 
  private:
-  LatLon GetGnssCoordinatesForCity(const std::string& city_name);
-
   const Weather &weather_;
 };
 ```
 
 Such a `CityWeatherView` is not copyable or movable and exists for the sole purpose of simplifying the interface to the `Weather` object. This class is then typically used locally within some scope, say the `DoStuff` method of the `MehPerson` class:
+<!--
+`CPP_SETUP_START`
+#include "view.h"
+class MehPerson {
+ public:
+  void DoStuff(const Weather &weather);
+};
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` weather_view/main.cpp
+`CPP_RUN_CMD` CWD:weather_view c++ -std=c++17 -c main.cpp
+-->
 ```cpp
 void MehPerson::DoStuff(const Weather &weather) {
   const CityWeatherView weather_view{weather};
