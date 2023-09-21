@@ -147,9 +147,29 @@ def compile_all_snippets(regex_pattern: str, file: Path):
             return tempfile.NamedTemporaryFile(suffix="." + language, delete=False)
         return open(file_name, "wb")
 
+    def get_start_line_of_span(text, span):
+      line_count = 0
+      for i in range(span[0]):
+        if text[i] == "\n":
+          line_count += 1
+      return line_count + 2
+
+    def get_code_start_line(text, span):
+      line_count = 0
+      for i in range(span[0], span[1]):
+        if text[i] == "\n":
+          line_count += 1
+        if text[i] == "`" and text[i + 1] == "`":
+          break
+      return line_count
+
     error_count = 0
     temp_folder = Path(tempfile.gettempdir())
-    for match in re.finditer(pattern=regex_pattern, string=file.read_text()):
+    file_text = file.read_text()
+    for match in re.finditer(pattern=regex_pattern, string=file_text):
+        span = match.span()
+        span_start_line = get_start_line_of_span(file_text, span)
+        code_start_line = span_start_line + get_code_start_line(file_text, span)
         found_group_dict = match.groupdict()
         skip = found_group_dict["skip"]
         setup = found_group_dict["setup"]
@@ -167,7 +187,7 @@ def compile_all_snippets(regex_pattern: str, file: Path):
         if copy_destination is not None:
             copy_destination = temp_folder / copy_destination
             copy_destination.parent.mkdir(parents=True, exist_ok=True)
-            log.info("🖇️ Creating file copy: %s", copy_destination)
+            log.info("🗒️  Creating file copy: %s", copy_destination)
             if cwd is not None:
                 cwd = temp_folder / cwd
         code_file_name = None
@@ -192,10 +212,18 @@ def compile_all_snippets(regex_pattern: str, file: Path):
         )
         if result.status != 0:
             highlighted_code = Syntax(code, "c++", line_numbers=True)
-            text = Padding(
+            file_info = Padding(
                 Text(
                     "❌ Failed to compile file {} ❌".format(code_file_name),
                     style="bold red",
+                    justify="center",
+                ),
+                1,
+            )
+            print("code_start_line:", code_start_line)
+            code_info = Padding(
+                Text(
+                    "ℹ️ The code is situated in {}:{}".format(file, code_start_line),
                     justify="center",
                 ),
                 1,
@@ -206,7 +234,7 @@ def compile_all_snippets(regex_pattern: str, file: Path):
                 title="Error",
                 style="red",
             )
-            print(Padding(Panel.fit(Group(text, code_panel, error_panel)), 1))
+            print(Padding(Panel.fit(Group(file_info, code_info, code_panel, error_panel)), 1))
             error_count += 1
     return error_count
 
