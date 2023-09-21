@@ -1,153 +1,253 @@
-# Const correctness
-I like to think that the attention span of a typical software engineer is very close to that of a goldfish. At least that's true for myself. So we have to do everything in our power to reduce the amount of things we have to keep in our head when writing, and even more importantly, reading the code. Using `const` correctly (also knows as **"const correctness"**) helps us with this.
+Const correctness
+---
+
+<p align="center">
+  <a href="https://youtu.be/blah"><img src="https://img.youtube.com/vi/blah/maxresdefault.jpg" alt="Video" align="right" width=50%></a>
+</p>
+
+- [Modeling the example of passing the phone](#modeling-the-example-of-passing-the-phone)
+- [Rule 1: pass by const reference](#rule-1-pass-by-const-reference)
+- [Rule 2: create const objects](#rule-2-create-const-objects)
+- [Rules 3 and 4: return data by const reference, mark functions that don't change the object as const](#rules-3-and-4-return-data-by-const-reference-mark-functions-that-dont-change-the-object-as-const)
+  - [The `const` class methods can be confusing to beginners](#the-const-class-methods-can-be-confusing-to-beginners)
+- [Rule 5: don't mark class data as const unless you're implementing a view](#rule-5-dont-mark-class-data-as-const-unless-youre-implementing-a-view)
+- [Summary](#summary)
+
+
+Const correctness is a paradigm of how and when to use `const` with our objects and functions "correctly" to simplify the process of writing and reading of the code while using the compiler to protect us from changing data that should stay constant.
+
+<!-- Visual example
+We can even illustrate its usefulness in a somewhat dorky but still "real life" example. So... imagine a friend wants to borrow your phone...
+
+Dialog starts:
+- P1: Hey dude, how's it going?
+- P2: Good, good, I'm coding this cool project in C++ about...
+- P1: Yeah, yeah... That sounds great! Listen, can I borrow your phone for a sec?
+- P2: **taking out the phone** Sure... why?
+- P1: Nothing much, just need to check the weather tonight in Interlaken...
+- P2: **handing over the phone** Ah, ok, here you go.
+- P1: **taking the phone and clicking it** Thanks, man!
+**"a few moments later"**
+- P1: That's it! I'm done! Thanks a lot!
+- P2: **taking the phone** Sure! My pleasure... **looking at the phone, camera zooms in on a message to Bjarne that Java is cooler than C++** Wait... What the? WTF?
+
+Cut!!!! Stop! Whoah! That escalated quickly! What went wrong here? Well, we gave out too much access to an object that was important to us - a phone. What can we do to avoid this situation? Well, if we followed the "const correctness" paradigm we could have easily avoided this. In this particular situation, we could have provided a "view" over our phone instead of handing out the phone itself. Let's see how it would have played out:
+
+**Rewind**
+- P1: Listen, can I borrow your phone for a sec?
+- P2: **taking out the phone** Sure... why?
+- P1: Nothing much, just need to check the weather tonight in Interlaken...
+- P2: **showing the phone** Sure, here, have a look!
+
+See how by providing only a view of our phone we have eliminated a possibility of changing our phone object. And, you've guessed it, "providing a view" is just a fancy way of saying that we give out a const reference instead of the object itself. Now let's dig into how this and other similar situations would be represented in code and what exactly _is_ this "const correctness" when applied to C++, shall we?
+ -->
 
 <!-- Intro -->
 
-Let's say we have an `Example` class. This class takes references to some data in its constructor, owns some data, keeps a reference to other data, performs some operations on these data and returns these data when needed:
-<!-- Animation:
-- Add empty Example class
-- Add constructor and private part without comments
-- Add update and compare functions
-- Add getters
- -->
+# Modeling the example of passing the phone
+So let's say our friend wants to borrow our phone, how would we represent it in C++?
+
+I'd argue that both we and our friend would be objects of some classes, say `GoodPerson` and `MehPerson`. A `GoodPerson` would own a phone, i.e., the `Phone` object would be part of the data owned by the `GoodPerson`. And, being a `GoodPerson` open to the world, we will start by modelling a `GoodPerson` as a `struct` (see the [lecture on classes](classes_intro.md) for more on `struct` vs `class`). The `MehPerson` would have a function `DoStuff` that takes a reference to a phone:
+<!--
+`CPP_SETUP_START`
+using Phone = int;
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` persons/persons.h
+-->
 ```cpp
-class Example {
+struct GoodPerson {
+  Phone phone;
+};
+
+class MehPerson {
  public:
-  Example(const Data &copy_me, const Data &view_me)
-      : owned_data_{copy_me}, data_ref_{view_me} {}
-
-  void Update(const Data &copy_me) { owned_data_ = copy_me; }
-  bool Compare(const Data &other) const { return true; }
-
-  Data &owned_data() { return owned_data_; }
-  const Data &owned_data() const { return owned_data_; }
-
-  const Data &data() const { return data_ref_; }
-
- private:
-  Data owned_data_{};       // Technically can be const, but shouldn't
-  const Data &data_ref_{};  // Can also be a const pointer
+  // Imagine the implementation is hidden in a library - no way for us to know
+  // what this function actually does with the phone it gets.
+  void DoStuff(Phone &phone);
 };
 ```
 
-Largely speaking, there are four distinct places where we might want to put const within this class:
-1. When passing `const` data into a function of a class (constructor _is_ a function, [remember](object_lifecycle.md)?)
-2. After a method of a class to indicate that this method doesn't change the internal data
-3. When returning a `const` references to data from a class
-4. To make the data stored in the class `const`
-
-## Let's look at all of these and how they help us!
-
-Before we start, in this video we will use a "lifetime tracker" object that, whenever it is copied or moved, prints the appropriate event to the console. Here is how an object like this can be used:
-<!-- Animate:
-  - Add code
-  - Add results
-  - Highlight code lines and result printout at the same time
+We can then model the situation of passing over the phone by creating an object for each of me and my friend with by friends' object taking the phone from that object that represents me to do stuff with it:
+<!--
+`CPP_SETUP_START`
+#include "persons.h"
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` persons/main.cpp
+`CPP_RUN_CMD` CWD:persons c++ -std=c++17 -c main.cpp
 -->
 ```cpp
 int main() {
-  LifetimeTracker tracker{};
-  LifetimeTracker other_copied{tracker};
-  LifetimeTracker other_moved{std::move(tracker)};
-  other_copied = other_moved;
-  other_moved = std::move(other_copied);
+  GoodPerson me{};
+  MehPerson my_friend{};
+  my_friend.DoStuff(me.phone);
   return 0;
 }
 ```
 
-Which, when executed, prints the following sequence of actions:
-```
-construct
-copy construct
-move construct
-copy assign
-move assign
-destroy
-destroy
-destroy
-```
+# Rule 1: pass by const reference
+If you followed me talking about [functions](functions.md) before, then you will instantly see an issue with the `DoStuff` function: it takes a non-const `Phone` object. Which allows the `MehPerson` class to modify the `Phone` object in any way it wants. Even worse, the implementation of `MehPerson` can be hidden away into a [pre-compiled library](headers_and_libraries.md) from us so we can't know for sure what is happening there!
 
-After following the [move semantics tutorial](move_semantics.md) you should be able to write a class that behaves like this yourself. I encourage you to try. If you struggle, then the code for it is right here.
-<!-- Below the video -->
+Which leads us to **rule #1** of const correctness:
 
-<details>
-<summary><code>LifetimeTracker</code> code</summary>
+> **Rule 1️⃣**: Always pass big objects you don't intend to change by a `const` reference to any function. Pass small objects by copy.
 
+This is nothing new to us as we have talked about it before when we talked about functions. However, it does not help us much here, does it? The function `DoStuff` does not belong to us. For all we know, it belongs to some other library. But _they_ are interested in _our_ `Phone` object, right? So we _do_ have some form of control.
+
+# Rule 2: create const objects
+One way to enforce const correctness here would be to not have a non-const `Phone` object in the first place. And a way to achieve this would be to become an extremely stable person and create the object that represents us in the previous example as a `const` object in the first place:
+<!--
+`CPP_SETUP_START`
+using Phone = int;
+struct GoodPerson {
+  Phone phone;
+};
+class MehPerson {
+ public:
+  void DoStuff(const Phone &phone);
+};
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` persons/main.cpp
+`CPP_RUN_CMD` CWD:persons c++ -std=c++17 -c main.cpp
+-->
 ```cpp
-#include <iostream>
+int main() {
+  const GoodPerson me{};
+  MehPerson my_friend{};
+  my_friend.DoStuff(me.phone);  // ❌ Won't compile unless DoStuff takes a const reference or a copy of the Phone
+}
+```
 
-class LifetimeTracker {
-  public:
-    LifetimeTracker() { std::cout << "construct" << std::endl; }
-    LifetimeTracker(const LifetimeTracker&) { std::cout << "copy construct" << std::endl; }
-    LifetimeTracker(LifetimeTracker&&) { std::cout << "move construct" << std::endl; }
-    LifetimeTracker& operator=(const LifetimeTracker&) {
-      std::cout << "copy assign" << std::endl;
-      return *this;
-    }
-    LifetimeTracker& operator=(LifetimeTracker&&) {
-      std::cout << "move assign" << std::endl;
-      return *this;
-    }
-    ~LifetimeTracker() { std::cout << "destroy" << std::endl; }
+Which leads us to our **rule #2** of const correctness:
+> **Rule 2️⃣**: Make every object `const` unless it explicitly needs to be changed. If you can design an object that does not need to change throughout its lifetime - do so.
+
+The bad news here is that it is hard to achieve at all times. Think about it, while I believe that I am a very stable person, in no way I could model myself as a `const` object. Not even talking about the physiological or moral things, what if I want to buy a new `Phone` and replace my instance with this new one? So the `GoodPerson` object cannot be `const` here and such cases are quite common.
+
+# Rules 3 and 4: return data by const reference, mark functions that don't change the object as const
+So how else can we make sure that the `DoStuff` function must take a constant `Phone` reference?
+
+We _do_ have another trick up our sleeves. It's time for the `GoodPerson` `struct` to close up a little and become a `class`. This allows us a lot more control over how the others get access to our data.
+
+In our case, we would then make a class `GoodPerson` that takes a reference to a temporary `Phone` (an rref) object in its constructor. We would then move the underlying `Phone` object into our `private` data and hold it there.
+
+We also have to think of how to expose this internal `Phone` object to the world, so we implement a "getter" function. This function would return a `const` reference to our internal `Phone` object. Furthermore, this function is not supposed to change the underlying object in any way and we have a mechanism to indicate this to the compiler: we mark the whole function `const` too!
+```cpp
+class GoodPerson {
+ public:
+  explicit GoodPerson(Phone &&phone) : phone_{std::move(phone)} {}
+  const Phone &phone() const { return phone_; }
+
+ private:
+  Phone phone_;
 };
 ```
 
-</details>
+Which allows us to formulate rules 3 and 4 of const correctness:
+> **Rule 3️⃣**: Prefer returning a `const` reference to the private data of complex types of any object if you need to expose them to the user of your class. Return a copy for simple types instead. Only return a non-`const` reference if your class implements a data-agnostic container, e.g., a `std::vector` or alike.
 
-Going forward, we'll use this `LifetimeTracker` class in place of `Data` in our `Example` class from before.
+> **Rule 4️⃣**: Mark every class method as `const` unless it is explicitly _supposed_ to change the underlying object. Prefer `const` methods when designing a class.
 
 
-### 1. Passing `const` parameters to class methods
+## The `const` class methods can be confusing to beginners
+It is important to note here, that if a class method is not marked as `const` the compiler assumes that this method _can_ change the underlying object.
 
-This is the simplest case as it is not different from any [functions we wrote](functions.md) many times before. We just pass the data as a `const` reference into the method.
+I want to note that in my experience, the `const` class functions are the reason most of the beginners struggle with `const` correctness in C++. Let's illustrate why.
 
+You have a class `Foo` with a function `bar` that is a "getter" and does not change the content of the `Foo` object:
 ```cpp
-bool Compare(const int &other) const { return true; }
+class Foo {
+ public:
+  int bar() { return bar_; }
+
+ private:
+  int bar_{};
+}
 ```
 
-Still, let's reiterate what the benefits are.
-1. The `other` object is not copied, so we save time.
-2. At the same time we know that the `other` object will not be changed during the execution of the `example.Compare(other)` function. If we try to change it - we get a compilation error.
-    ```cpp
-    bool Compare(const int &other) const {
-      other = 42;  // ❌ Won't compile
-      return true;
-    }
-    ```
-
-This means that if we stick to passing parameters by `const` reference, we have one fewer things to think about. So that when we read the code:
+Now the `Foo` object is passed by a `const` reference to some function called `Whatever` that calls `bar()` on it:
 ```cpp
-const auto comparison result = example.Compare(other);
-```
-we know for a fact that `other` won't be changed, no need to read the function code (assuming we even have access to it).
+void Whatever(const Foo& foo) {
+  foo.bar();
+}
 
-### 2. Using `const` after a class method
-
-Now you might have noticed in our previous example the `const` at the end of the function. What's that about? Actually, we _have_ touched upon this before when we talked about [writing classes in headers](headers_with_classes.md).
-
-Such a `const` means this: if a method of some object is marked by a `const` at the end, it means that in this method the object on which the method is called will not be changed.
-
-Now, why is that important? Consider this example:
-```cpp
-const Example example{};  // Look, a const object!
-example.Compare(42);  // And we can do stuff with it!
-```
-It allows us to set the object as `const` which adds the peace of mind for us - we know that nobody can change this object! See? Const correctness!
-
-### 3. When returning `const` reference to our data from our class
-This is a very common pattern and people also call such functions "getters" because they _get_ the data without giving a way to modify the data from the outside.
-
-```cpp
 int main() {
-  const int number{42};
-  Foo foo{number};
-  std::cout << foo.number() << std::endl;
+  Foo foo{};
+  Whatever(foo);
   return 0;
 }
 ```
 
-🎓 If you need to make any data visible from your class - use this pattern! When used consistently, it reduces our attention scope by knowing that the data we return in such a way will remain unchanged, so we know that if the data changes it happens from within our class.
+What will happen if we try to compile this code? The compiler will complain. At this point a lot of beginners will become frustrated: they know that they don't change the `foo` object, they pass a `const` reference to it and seem to be doing everything right. But the compiler sees that the `foo.bar()` method is not marked as `const` and assumes the worst. So it will complain that calling a non-`const` method on a `const` reference to an object might change the underlying object, which is forbidden. I've seen many frustrated students struggle with this concept but I, for one, like how it's implemented. Anyway, if you follow rules 3 and 4 that we just introduced, you should be fine :wink:
 
+# Rule 5: don't mark class data as const unless you're implementing a view
+Finally, there is just one more place where `const` can be used and that I have to mention here. We can actually have `const` _data_ within a class. So, coming back to our example, we _could_ make the `Phone` object constant within our `GoodPerson` structure:
+```cpp
+struct GoodPerson {
+  const Phone phone;  // 😱 not the best idea.
+};
+```
 
-### 4. To make the data of the class `const`
+However, this is nearly never a good idea.
+<!-- If you _do_ know of a good use-case, please write it in the comments. -->
+Think of what will happen to all the copy constructors and move constructors of our `GoodPerson` class. Granted, we probably won't want to clone or copy ourselves or move into somebody's ownership but the same would happen with any other class that has `const` data. Basically, making any data of a class `const` makes it impossible to copy or move, destroying the value semantics for this class. Essentially by having `const` data any object of such a class is doomed to live and die within a single scope with no way to be copied or moved to any different scope.
+
+This is rarely useful with one significant outlier - the view paradigm. As one typical example consider this: say, a certain class has its interface but we would want it to have a different interface when we work with it. One way to achieve this is to introduce a thin wrapper around the class in question that holds a `const` reference to the object of interest and introduces new interface to working with this object. Feels a bit hand-wavy, right? Let's think of a concrete example then.
+
+Let's say, our friend and us from the previous example figure that the `MehPerson` class does not need the whole `Phone` object. They just need the weather! So they change the `DoStuff` function to take a const reference to the `Weather` object instead, which the `Phone` object readily provides:
+```cpp
+int main() {
+  GoodPerson me{};
+  MehPerson my_friend{};
+  my_friend.DoStuff(me.phone().weather());
+  return 0;
+}
+```
+
+However, the `Weather` object only has a function to get a forecast by GNSS coordinate:
+```cpp
+class Weather {
+public:
+  Forecast GetWeatherForLocation(const Latitude& latitude, const Longitude& longitude) const;
+// Other stuff in the Weather object
+};
+```
+This is convenient for a very precise forecast but our friend wants to know the weather in Interlaken, remember? So they wrap the constant `Weather` reference into a view object, that uses some other functions and provides a better interface, calling the `weather.GetWeatherForLocation(lat, lon)` under the hood:
+```cpp
+class CityWeatherView {
+ public:
+  explicit CityWeatherView(const Weather &weather) : weather_{weather} {}
+
+  Forecast GetWeatherForCity(const std::string &city_name) {
+    const auto lat_lon = GetGnssCoordinatesForCity(city_name);
+    return weather_.GetWeatherForLocation(lat_lon.latitude, lat_lon.longitude);
+  }
+
+ private:
+  LatLon GetGnssCoordinatesForCity(const std::string& city_name);
+
+  const Weather &weather_;
+};
+```
+
+Such a `CityWeatherView` is not copyable or movable and exists for the sole purpose of simplifying the interface to the `Weather` object. This class is then typically used locally within some scope, say the `DoStuff` method of the `MehPerson` class:
+```cpp
+void MehPerson::DoStuff(const Weather &weather) {
+  const CityWeatherView weather_view{weather};
+  const auto forecast = weather_view.GetWeatherForCity("interlaken");
+  // Do smth with the forecast.
+}
+```
+
+While you might argue that in this example we don't need the view class as we could've just called the `GetGnssCoordinatesForCity` function directly from the `DoStuff` function, imagine what would happen if this would happen in many parts of the code base? And what if the view helper function was longer than a couple of lines? These lines of code would then get copied in all the places that they would be needed, requiring us to repeat ourselves all the time, making changes that will inevitably come next much harder.
+
+Anyway, this leads us to our last rule of const correctness:
+> **Rule 5️⃣**: Never make class data const unless it is a const reference to other object when you are implementing a view over that object.
+
+:bulb: There is a slight caveat to that: we can and should mark the class `static` data const, but we'll talk about it some other time.
+
+# Summary
+Ok, we're done now! If you follow these 5 rules you should have no problem with `const` in C++. Not only that, you will actually employ the compiler as your friend who is able to look over your shoulder and find the mistakes in your logic. In the end, if you're trying to call a function not marked as `const` on a `const` object - you probably didn't really mean it! If the compiler does not catch this, you will have to spend time searching for the logic bug, which, in my experience, is _much_ harder. With time, using these rules will become second nature and will help you writing high-quality code that ends up saving you and the others time and nerves.
+
+<!-- And with this, I wish you a great day and see you in the next videos! And if you by chance need a refresher on move semantics, just click on the video over here. Ok, that's it! Bye!  -->
