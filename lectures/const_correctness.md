@@ -2,10 +2,10 @@ Const correctness
 ---
 
 <p align="center">
-  <a href="https://youtu.be/blah"><img src="https://img.youtube.com/vi/blah/maxresdefault.jpg" alt="Video" align="right" width=50%></a>
+  <a href="https://youtu.be/WsBdxq319OY"><img src="https://img.youtube.com/vi/WsBdxq319OY/maxresdefault.jpg" alt="Video" align="right" width=50%></a>
 </p>
 
-- [Modeling the example of passing the phone](#modeling-the-example-of-passing-the-phone)
+- [Modeling an example of passing the phone](#modeling-an-example-of-passing-the-phone)
 - [Rule 1: pass by const reference](#rule-1-pass-by-const-reference)
 - [Rule 2: create const objects](#rule-2-create-const-objects)
 - [Rules 3 and 4: return data by const reference, mark functions that don't change the object as const](#rules-3-and-4-return-data-by-const-reference-mark-functions-that-dont-change-the-object-as-const)
@@ -40,11 +40,12 @@ Cut!!!! Stop! Whoah! That escalated quickly! What went wrong here? Well, we gave
 - P2: **showing the phone** Sure, here, have a look!
 
 See how by providing only a view of our phone we have eliminated a possibility of changing our phone object. And, you've guessed it, "providing a view" is just a fancy way of saying that we give out a const reference instead of the object itself. Now let's dig into how this and other similar situations would be represented in code and what exactly _is_ this "const correctness" when applied to C++, shall we?
+
  -->
 
 <!-- Intro -->
 
-# Modeling the example of passing the phone
+# Modeling an example of passing the phone
 So let's say our friend wants to borrow our phone, how would we represent it in C++?
 
 I'd argue that both we and our friend would be objects of some classes, say `GoodPerson` and `MehPerson`. A `GoodPerson` would own a phone, i.e., the `Phone` object would be part of the data owned by the `GoodPerson`. And, being a `GoodPerson` open to the world, we will start by modelling a `GoodPerson` as a `struct` (see the [lecture on classes](classes_intro.md) for more on `struct` vs `class`). The `MehPerson` would have a function `DoStuff` that takes a reference to a phone:
@@ -68,7 +69,7 @@ class MehPerson {
 };
 ```
 
-We can then model the situation of passing over the phone by creating an object for each of me and my friend with by friends' object taking the phone from that object that represents me to do stuff with it:
+We can then model the situation of passing over the phone by creating an object of each of these classes and passing the phone object from one to another to do stuff with it:
 <!--
 `CPP_SETUP_START`
 #include "persons.h"
@@ -97,7 +98,7 @@ Which leads us to **rule #1** of const correctness:
 This is nothing new to us as we have talked about it before when we talked about functions. However, it does not help us much here, does it? The function `DoStuff` does not belong to us. For all we know, it belongs to some other library. But _they_ are interested in _our_ `Phone` object, right? So we _do_ have some form of control.
 
 # Rule 2: create const objects
-One way to enforce const correctness here would be to not have a non-const `Phone` object in the first place. And a way to achieve this would be to become an extremely stable person and create the object that represents us in the previous example as a `const` object in the first place:
+One way to enforce const correctness here would be to not have a mutable `Phone` object in the first place. And a way to achieve this would be to become an extremely stable person and create the object that represents us in the previous example as a `const` object in the first place:
 <!--
 `CPP_SETUP_START`
 using Phone = int;
@@ -131,7 +132,7 @@ So how else can we make sure that the `DoStuff` function must take a constant `P
 
 We _do_ have another trick up our sleeves. It's time for the `GoodPerson` `struct` to close up a little and become a `class`. This allows us a lot more control over how the others get access to our data.
 
-In our case, we would then make a class `GoodPerson` that takes a reference to a temporary `Phone` (an rref) object in its constructor. We would then move the underlying `Phone` object into our `private` data and hold it there.
+In our case, we would make `GoodPerson` a class that takes a reference to a temporary `Phone` (an rref) object in its constructor. We would then move the underlying `Phone` object into its `private` data and hold it there.
 
 We also have to think of how to expose this internal `Phone` object to the world, so we implement a "getter" function. This function would return a `const` reference to our internal `Phone` object. Furthermore, this function is not supposed to change the underlying object in any way and we have a mechanism to indicate this to the compiler: we mark the whole function `const` too!
 
@@ -175,6 +176,7 @@ Which allows us to formulate rules 3 and 4 of const correctness:
 ## The `const` class methods can be confusing to beginners
 It is important to note here, that if a class method is not marked as `const` the compiler assumes that this method _can_ change the underlying object.
 
+<!-- RERECORD -->
 I want to note that in my experience, the `const` class functions are the reason most of the beginners struggle with `const` correctness in C++. Let's illustrate why.
 
 You have a class `Foo` with a function `bar` that is a "getter" and does not change the content of the `Foo` object:
@@ -229,7 +231,9 @@ main.cpp:4:3: error: 'this' argument to member function 'bar' has type 'const Fo
    ^~~
 ```
 
-At this point a lot of beginners will become frustrated: they know that they don't change the `foo` object, they pass a `const` reference to it and seem to be doing everything right. But the compiler sees that the `foo.bar()` method is not marked as `const` and assumes the worst. So it will complain that calling a non-`const` method on a `const` reference to an object might change the underlying object, which is forbidden. I've seen many frustrated students struggle with this concept but I, for one, like how it's implemented. Anyway, if you follow rules 3 and 4 that we just introduced, you should be fine :wink:
+At this point a lot of beginners will become frustrated: they know that they don't change the `foo` object, they pass a `const` reference to the `Whatever` function and seem to be doing everything right. But the compiler sees that the `foo.bar()` method is not marked as `const` and assumes the worst. So it will complain that calling a non-`const` method on a `const` reference to an object might change the underlying object, which is forbidden. I've seen many frustrated students struggle with this concept but I, for one, like how it's implemented. Anyway, if you follow rules 3 and 4 that we just introduced, you should be fine :wink:
+
+<!-- Until here! -->
 
 # Rule 5: don't mark class data as const unless you're implementing a view
 Finally, there is just one more place where `const` can be used and that I have to mention here. We can actually have `const` _data_ within a class. So, coming back to our example, we _could_ make the `Phone` object constant within our `GoodPerson` structure:
@@ -301,9 +305,9 @@ $PLACEHOLDER
 -->
 ```cpp
 class Weather {
-public:
+ public:
   Forecast GetWeatherForLocation(const Latitude& latitude, const Longitude& longitude) const;
-// Other stuff in the Weather object
+  // Other stuff in the Weather object
 };
 ```
 This is convenient for a very precise forecast but our friend wants to know the weather in Interlaken, remember? So they wrap the constant `Weather` reference into a view object, that uses some other functions and provides a better interface, calling the `weather.GetWeatherForLocation(lat, lon)` under the hood:
