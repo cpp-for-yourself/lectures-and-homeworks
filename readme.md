@@ -406,6 +406,18 @@ Headers with classes
 </details>
 
 <details>
+<summary>Const correctness</summary>
+
+----------------------------------------------------------
+[![Video thumbnail](https://img.youtube.com/vi/WsBdxq319OY/maxresdefault.jpg)](https://youtu.be/WsBdxq319OY)
+
+[Lecture script](lectures/const_correctness.md)
+- What is const correctness
+- Some rules and examples to follow in order to work with `const` correctly
+----------------------------------------------------------
+</details>
+
+<details>
 <summary><code>Homework</code>: pixelate images in terminal</summary>
 
 ----------------------------------------------------------
@@ -423,7 +435,6 @@ Headers with classes
   - Manage a larger CMake project
 ----------------------------------------------------------
 </details>
-
 
 ---
 

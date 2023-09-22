@@ -108,7 +108,7 @@ int main() {
 - Can have many targets with many dependencies
 - If `target` **file** exists and is **not older** than its `dependencies` --- **nothing happens**!
 - :bulb: This allows us to **avoid doing the work twice**!
-- :bulb: A very good `make` tutorial: https://makefiletutorial.com
+- :bulb: A very good `make` tutorial is [here](https://web.archive.org/web/20230826174108/https://makefiletutorial.com/)
 
 ---
 # A [`Makefile`](code/make/simple_build/Makefile) to build C++ code
