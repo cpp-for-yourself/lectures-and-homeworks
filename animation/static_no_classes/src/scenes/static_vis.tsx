@@ -221,6 +221,7 @@ export default makeScene2D(function* (view: { add: (arg0: Node) => void; }) {
   `
 
   const foo_call = `\n    Foo();`
+  const foo_call_double = `\n    Foo();\n    Foo();`
 
   const code = (func_code: any = ``, func_call: any = ``, constant_def: any = ``) => store`
 ${constant_def}${func_code}
@@ -229,7 +230,7 @@ ${constant_def}${func_code}
   }
   `
 
-  yield* code_ref().edit(duration, false)(...simplify(code()));
+  yield* code_ref().edit(duration, false)(...simplify(code(foo_func(), foo_call)));
   yield* waitFor(duration / 2);
   yield* all(
     program_lifetime().opacity(1.0, 0),
@@ -241,15 +242,13 @@ ${constant_def}${func_code}
     main_lifetime().end(0.0, 0).to(1.0, duration / 2),
     main_text().opacity(0.0, 0).to(1.0, duration / 2),
   );
-  yield* waitFor(duration);
-
-  yield* code_ref().edit(duration, false)(...simplify(code(edit('', to_string(foo_func())), edit('', foo_call))));
   yield* all(
     foo_lifetime().opacity(1.0, 0),
     foo_lifetime().end(0.0, 0).to(1.0, duration / 2),
     foo_text().opacity(0.0, 0).to(1.0, duration / 2),
   );
-  yield* waitFor(duration / 2);
+  yield* waitFor(duration);
+
   yield* all(
     code_ref().selection(lines(2), duration / 2),
     value_lifetime().opacity(0.0, 0).to(1.0, duration / 2),
@@ -273,6 +272,18 @@ ${constant_def}${func_code}
     value_lifetime().fill(GREEN, duration),
   );
 
+  yield* waitFor(duration);
+  yield* code_ref().selection(DEFAULT, 0);
+  yield* waitFor(duration);
+
+  yield* all(
+    code_ref().edit(duration, false)(...simplify(code(foo_func('kValue', 'static '), edit(foo_call, foo_call_double), const_value_code))),
+  );
+  yield* waitFor(duration / 2);
+
+  yield* all(
+    code_ref().selection([...lines(6), ...lines(10, 11)], duration / 2),
+  );
   yield* waitFor(duration);
 
   // yield* waitFor(2.0);

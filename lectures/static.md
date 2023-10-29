@@ -67,12 +67,10 @@ We can then draw the execution time of the program, `main` and `Foo` functions a
 
 If we focus now on the lifetime of the `local_value` variable, shown as a blue box in the image, it lives as long as the execution of the `Foo` function. It's memory is allocated at the start of the function and is freed at the end of the scope.
 
-We say that a variable `local_value` and any other variable that lives in some local scope, be it one of a function or a class, has **automatic storage duration**
-
-But what happens with those variables declared outside of a class or a function scope?
+We say that a variable `local_value` and any other variable that lives in some local scope, be it one of a function or a class, has **automatic storage duration**.
 
 ### Static storage duration at namespace scope
-Let's extend our example by adding some value `kValue` that is defined at **namespace scope** and using to initialize our `local_value`. We will introduce it in an unnamed namespace following the best practices, but it could live in any namespace including the global one.
+Let's further extend our example by adding some value `kValue` that is defined at **namespace scope** and using to initialize our `local_value`. We will introduce it in an unnamed namespace following the best practices, but it could live in any namespace including the global one.
 
 
 <img src="images/static_storage.png" align="right" width=250 style="margin: 0.5rem">
@@ -92,7 +90,7 @@ int main() {
   return 0;
 }
 ```
-The `kValue` here has what is called the **static storage duration** and lives for the whole duration of the program. Its data gets allocated at the start of the program and feed at the end of the program. I believe that this is what inspired the name `static` back when it was introduced in C. Anyway, we _can_ use `static` for an object declaration at namespace scope to indicate that it has the static storage duration **but we don't have to**, as any such object has this storage duration by default. So the following definitions are equivalent in terms of storage duration:
+The `kValue` here has what is called the **static storage duration** and lives for the whole duration of the program. Its data gets allocated at the start of the program and freed at the end of the program. While we _can_ use `static` for an object declaration at namespace scope to indicate that it has the static storage duration **we don't have to**, as any such object has this storage duration by default. So the following definitions are equivalent in terms of storage duration:
 <!--
 `CPP_SETUP_START`
 $PLACEHOLDER
@@ -115,7 +113,7 @@ static auto answer_6 = 42;  // 😱 please don't create non-const globals...
 ### Static storage duration at function scope
 Finally, use of `static` can extend the storage duration of a local variable within some function scope to have the static storage duration.
 
-If we add `static` in front of our `local_value` definition, it will have **static storage duration** again. It will get allocated when the function `Foo` is called for the first time and will get deallocated at the end of the program.
+If we add `static` in front of our `local_value` definition, it will have **static storage duration** again. Now `local_value` will get allocated when the function `Foo` is called for the first time and will get de-allocated at the end of the program.
 
 <img src="images/static_storage_function.png" align="right" width=250 style="margin: 0.5rem">
 
