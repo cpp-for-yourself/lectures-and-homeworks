@@ -583,13 +583,14 @@ I guess this sums up everything I wanted to talk about with regard to using `sta
 
 But I hope that by now you see that **there is no need to use `static` outside of classes at all in modern C++**. Here is a guideline to follow along with this:
 
-- When defining variables at namespace scope always mark them as `inline const` or, even better `constexpr`. Do **not** mark them `static`!
-- When defining variables at local scope, do not mark them `static` unless you are explicitly implementing a singleton-like design pattern (which you probably shouldn't do anyway)
+- When defining variables at namespace scope always mark them as `inline const` or, even better `inline constexpr`. Do **not** mark them `static`!
+- When defining variables at local scope, do **not** mark them `static` unless you are explicitly implementing a singleton-like design pattern (which you probably shouldn't do anyway)
 - When declaring functions at namespace scope, declare (and define) them as `inline`. Do **not** declare them as `static`!
+- When declaring data or functions in an unnamed namespace, do not mark them as `static` or `inline`. Data should still be `const` or `constexpr`
 
 This will guarantee that all data with static storage duration lives in namespace scope and has external linkage, i.e., visibility across the whole program for the duration of the whole program, while not violating the ODR.
 
 ## Final words
-Understanding the key role that linkage and ODR play here is crucial to understanding what `inline` and, previously `static` were designed to solve. Initially `static` was introduced into the C programming language and then was inherited by C++. It was in the times when `inline` meant something different and could not be used as it can be now. Thankfully, we live in better times now, which makes `static` close to obsolete when used outside of classes. Now if you want to know how to use `static` in classes you can see a video about that once it's ready and maybe also go back and refresh how `inline` plays a huge role in creating [libraries](headers_and_libraries.md) in C++.
+Understanding the key role that linkage and ODR play here is crucial to understanding what `inline` and, previously, `static` were designed to solve. Initially `static` was introduced into the C programming language and then was inherited by C++. It was in the times when C did not have `inline` and in C++ it meant something different and could not be used as it can be now. Thankfully, we live in better times now, which makes `static` close to obsolete when used outside of classes. Now if you want to know how to use `static` in classes you can see a video about that once it's ready and maybe also go back and refresh how `inline` plays a huge role in creating [libraries](headers_and_libraries.md) in C++.
 
 <!-- Video by <a href="https://pixabay.com/users/imotivation-12701738/?utm_source=link-attribution&utm_medium=referral&utm_campaign=video&utm_content=29881">imotivationita</a> from <a href="https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=video&utm_content=29881">Pixabay</a> -->
