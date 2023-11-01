@@ -33,6 +33,9 @@ export default makeScene2D(function* (view: { add: (arg0: Node) => void; }) {
   const foo_lifetime = createRef<Line>();
   const foo_text = createRef<Txt>();
 
+  const foo_lifetime_2 = createRef<Line>();
+  const foo_text_2 = createRef<Txt>();
+
   const value_name = createRef<Txt>();
   const value_lifetime = createRef<Rect>();
 
@@ -79,7 +82,7 @@ export default makeScene2D(function* (view: { add: (arg0: Node) => void; }) {
             fontSize={50}
             offset={[-1, -1]}
             y={-line_offset + text_offset}
-            x={x_offset}
+            x={main_lifetime().x}
             fill={RED}
             opacity={0.0}
             fontFamily={"Fira Code"}>main()</Txt>
@@ -96,7 +99,26 @@ export default makeScene2D(function* (view: { add: (arg0: Node) => void; }) {
             ref={foo_text}
             fontSize={50}
             y={-2 * line_offset + text_offset}
-            x={2 * x_offset}
+            x={foo_lifetime().x}
+            offset={[-1, -1]}
+            fill={BLUE}
+            opacity={0.0}
+            fontFamily={"Fira Code"}>Foo()</Txt>
+
+          <Line
+            ref={foo_lifetime_2}
+            lineWidth={7}
+            y={-2 * line_offset}
+            x={5 * x_offset}
+            stroke={BLUE}
+            points={[[0, 0], [700 - 5 * x_offset, 0]]}
+            end={0}
+            opacity={0.0} />
+          <Txt
+            ref={foo_text_2}
+            fontSize={50}
+            y={-2 * line_offset + text_offset}
+            x={foo_lifetime_2().x}
             offset={[-1, -1]}
             fill={BLUE}
             opacity={0.0}
@@ -278,6 +300,10 @@ ${constant_def}${func_code}
 
   yield* all(
     code_ref().edit(duration, false)(...simplify(code(foo_func('kValue', 'static '), edit(foo_call, foo_call_double), const_value_code))),
+    foo_lifetime().end(1.0, 0).to(0.5, duration),
+    foo_lifetime_2().end(0.0, 0).to(0.0, duration/2).to(0.6, duration / 2),
+    foo_lifetime_2().opacity(1.0),
+    foo_text_2().opacity(0.0, 0).to(1.0, duration / 2),
   );
   yield* waitFor(duration / 2);
 
