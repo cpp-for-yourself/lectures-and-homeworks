@@ -22,24 +22,19 @@ Keyword `static` outside of classes
     - [How to fix the ODR violation?](#how-to-fix-the-odr-violation)
     - [Prefer `inline` to `static`](#prefer-inline-to-static)
   - [How to understand what linkage a name has](#how-to-understand-what-linkage-a-name-has)
-    - [Anything declared at local scope has **no linkage**](#anything-declared-at-local-scope-has-no-linkage)
-    - [Anything declared in an unnamed namespace has **internal linkage**](#anything-declared-in-an-unnamed-namespace-has-internal-linkage)
-    - [Use diagrams to understand external vs internal linkage](#use-diagrams-to-understand-external-vs-internal-linkage)
-      - [Linkage of functions declared at namespace scope](#linkage-of-functions-declared-at-namespace-scope)
-      - [Linkage of data defined at namespace scope](#linkage-of-data-defined-at-namespace-scope)
 - [Conclusion and a rule of thumb](#conclusion-and-a-rule-of-thumb)
 - [Final words](#final-words)
 
 
-The keyword [`static`](https://en.cppreference.com/w/cpp/keyword/static) is a very important keyword in C++ and is used a lot. Honestly, because of a very general name, it is probably a bit _overused_. Largely speaking, it can be used outside of classes and inside classes and these two cases are slightly different. Today we focus on the former - using `static` outside of classes. If you are interested in how and when to use `static` _inside_ of classes, I will link this lecture here when it's out.
+The keyword [`static`](https://en.cppreference.com/w/cpp/keyword/static) is a very important keyword in C++ and is used a lot. Honestly, because of a very general name, it is probably a bit _overused_. Largely speaking, it can be used outside of classes and inside classes and these two cases are slightly different. Today we focus on the former - using `static` outside of classes. If you are interested in how and when to use `static` _inside_ of classes, I will link that lecture here when it's out.
 
 Anyway, as for using `static` _outside_ of classes, I have good news for you. If you follow my advices about best practices from before then the rule-of-thumb for using `static` outside of classes in modern C++ (that is at least C++17) is very simple - don't! **Don't use `static` at all!**
 
-Technically, that's all you need to know. But if you want to learn _why_ then keep watching this video and see how deep this rabbit hole goes :wink:
+Technically, that's all you need to know. But if you want to learn _why_ you shouldn't use `static` outside of classes then keep watching this video and see how deep this rabbit hole goes :wink:
 
 <!-- Intro -->
 
-In order to explain why we mostly don't want to use `static` for anything outside of classes we will need to think about why we _might_ want to use `static` in the first place. The keyword `static` really controls just two things:
+In order to explain why we mostly don't want to use `static` for anything outside of classes we will need to talk about why we _might_ want to use `static` in the first place. The keyword `static` really controls just two things:
 - The storage duration
 - The linkage
 
@@ -65,7 +60,7 @@ int main() {
   return 0;
 }
 ```
-We can then draw the execution time of the program, `main` and `Foo` functions as lines that indicate that most of the time that the program runs is spends int `main`, while most of the time in `main` is spent executing the `Foo` function.
+We can then draw the execution time of the program, `main` and `Foo` functions as lines that indicate that most of the time that the program runs is spends in `main`, while most of the time in `main` is spent executing the `Foo` function.
 
 ### Automatic storage duration an local namespace scope
 
@@ -97,7 +92,7 @@ int main() {
 ```
 The `kValue` here has what is called the **static storage duration** and lives for the whole duration of the program. Its data gets allocated at the start of the program and freed at the end of the program.
 
-:bulb: While we _can_ use `static` for an object declaration at namespace scope to indicate that it has the static storage duration **we don't have to**, as any such object has **automatic storage duration** by default. So all of these definitions are equivalent in terms of storage duration:
+:bulb: While we _can_ use `static` for an object declaration at namespace scope to indicate that it has the static storage duration **we don't have to**, as any such object has **static storage duration** by default. So all of these definitions are equivalent in terms of storage duration:
 <!--
 `CPP_SETUP_START`
 $PLACEHOLDER
@@ -475,111 +470,59 @@ So I hope that by now it is clear that it is up to us which linkage our entities
 
 The complete rules of how linkage is selected are slightly convoluted, as you can see on the cppreference pages for [linkage](https://en.cppreference.com/w/cpp/language/storage_duration) and [inline](https://en.cppreference.com/w/cpp/language/inline) but the good news is that when _we_ write the code the rules to follow the best practices are pretty simple.
 
-In the remainder of this lecture, however, I want to dive even deeper and provide you with a method to understand which linkage a name has by just looking at its declaration. This is helpful to debug code that we did not write and see issues in the code _before_ they happen.
+However, in order to read the code written by others we have to dive a bit deeper into these convoluted rules. So, to save you the trouble, I came up with a flow chart. If we follow it, we can find out the linkage of any symbol we are looking at. This is helpful to debug code that we did not write and see issues in the code _before_ they happen.
 
-#### Anything declared at local scope has **no linkage**
-Let's start with the simplest case. Any entity that is declared within some local scope has **no linkage**. Any data beyond the local scopes has either **internal** or **external** linkage. Which also means that it is relatively hard to mess things up with names that have no linkage. But we _do_ have to be careful with internal and external linkage. So let's dive into all the details for these linkages.
-
-#### Anything declared in an unnamed namespace has **internal linkage**
-First of all, in case you see an unnamed namespace you're in luck! If your declaration (**any** declaration) is within an unnamed namespace, then the linkage of this name is **internal**. Things get slightly more complex from here on.
-
-#### Use diagrams to understand external vs internal linkage
-##### Linkage of functions declared at namespace scope
-Let's once again start with a simpler case - with functions at namespace scope. By default they have external linkage. But, as we have seen in the example before, if we are not careful with such functions we might be in a world of trouble because of the ODR. So historically there have been two ways to deal with this:
-- Making the functions `static`, which gives it **internal** linkage
-- `[preferred]` Making the function `inline`, which keeps the **external** linkage but allows for multiple definitions (which are assumed to be all the same)
-
-Which leads us to a preferred way to declare global functions at namespace scope. **We should declare them `inline`**:
-<!--
-`CPP_SETUP_START`
-$PLACEHOLDER
-
-int main() {
-  Foo();
-}
-`CPP_SETUP_END`
-`CPP_COPY_SNIPPET` best_practice_foo/main.cpp
-`CPP_RUN_CMD` CWD:best_practice_foo c++ -std=c++17 -c main.cpp
--->
-```cpp
-inline void Foo() {}
-```
-
-Finally, just to make sure we can easily determine the linkage of a function we are looking at, here is a simple handy diagram:
 ```mermaid
-graph LR;
-  Type([Start])
-  Static-->Int([Internal<br>linkage])
-  Type---->Static([<code>static</code>])
+graph TB;
+  Local -->|yes| No[No linkage]
+  Local{{Is in local scope?}} -->|no| Unnamed
+  Unnamed{{Is in unnamed namespace?}} -->|yes| Internal
+  Unnamed -->|no| Static
+  Static{{<code>static</code>?}} -->|yes| Internal[Internal linkage]
+  Static -->|no| Inline{{<code>inline</code>?}}
+  Inline -->|no| Const{{<code>const? constexpr?</code>}}
+  Inline -->|yes| External[External linkage]
+  Const -->|yes| Func{{Is function?}}
+  Func -->|no| Internal
+  Func -->|yes| External
 
-  Type-->Inline[<code>inline</code>]
-  Inline-->Static
-
-  Type--->Ext([External<br>linkage])
-  Inline-->Ext
-
-  style Type fill:green;
-  style Inline fill:green;
-  style Ext fill:green;
+  style No fill:#226666,color:white;
+  style Internal fill:#763289,color:white;
+  style External fill:#3355AA,color:white;
 ```
-You can read this diagram by taking any function declaration and reading all of its keywords (skipping the ones related to the return type) in any order until you read all of them. Once we read all of these, we navigate to the only end node of the diagram that is adjacent to our current position, which will be either `External linkage` or `Internal linkage`.
 
-Green marks the recommended set of keywords (only `inline` in this case) to use when declaring a function at namespace scope to follow the best practices we have just talked about.
+Here is how to read it. This chart should work with any function or data declaration you might encounter. First, if you are looking at a function, ignore the return type along with any const qualifiers it might have. Then, follow the chart by answering the questions.
 
-> One final remark. If you declare your function `constexpr` this implies `inline` so using it is also fine.
-
-##### Linkage of data defined at namespace scope
-<!-- Animate -->
-The situation is slightly worse with the data defined at namespace scope. There are many keywords we can use here and depending on their combination, the linkage of the data being defined changes. For example, if we have mutable data at namespace scope (think, "a global variable" 😱) it has external linkage. But if it is `const` or `constexpr` it then has internal linkage again. If we additionally mark it `inline` as we can in 🔼 C++17 it changes linkage to external again. This sounds complicated, right? Don't worry, we're going to figure this out!
-
-The good news is that it is relatively easy to do the right thing when defining new data and it should be done following a simple rule: **if your data can be `constexpr` then define it as `inline constexpr`. Use `inline const` otherwise**:
+Let's see a couple of examples that follow best practices:
 <!--
 `CPP_SETUP_START`
 #include <string>
 $PLACEHOLDER
 
-int main() {}
+int main(){}
 `CPP_SETUP_END`
-`CPP_COPY_SNIPPET` best_practice_data/main.cpp
-`CPP_RUN_CMD` CWD:best_practice_data c++ -std=c++17 -c main.cpp
+`CPP_COPY_SNIPPET` flow_char/main.cpp
+`CPP_RUN_CMD` CWD:flow_char c++ -std=c++17 -c main.cpp
 -->
 ```cpp
-// Recommended way to define data
-inline constexpr int kNumber{};
-inline const std::string kString{};
+// In some hpp file
+inline constexpr int kNumber{};  // external linkage
+inline const std::string kWord{};  // external linkage
+inline void Func();  // external linkage
+
+// Lives in some cpp file
+namespace {
+constexpr int kOtherNumber{};  // internal linkage
+
+void OtherFunc() {  // internal linkage
+  int local_variable{};  // no linkage
+}
+}  // namespace
+
 ```
-
-But in case we are reading the code that we did not write and want to make sure we understand what the linkage of these particular data are, we can use this diagram:
-
-```mermaid
-graph LR;
-  Type([Start])
-  Const-->Inline
-  Const2-->Static
-  Type-->Const[<code>const<br>constexpr</code>]
-  Const-->Int([Internal])
-  Const-->Static[<code>static</code>]
-  Static-->Int([Internal<br>linkage])
-  Type---->Static
-
-  Inline-->Static
-  Type-->Inline[<code>inline</code>]
-  Inline-->Const2[<code>const<br>constexpr</code>]
-
-  Type--->Ext([External<br>linkage])
-  Inline-->Ext
-  Const2-->Ext
-
-  style Type fill:green;
-  style Const2 fill:green;
-  style Inline fill:green;
-  style Ext fill:green;
-```
-Again, to navigate it we read all of the special keywords before your data definition moving along the diagram as we do it. Once we're done we should have either "External linkage" or "Internal linkage" node just one step away.
-The green nodes mark the preferred selection of keywords that lead to "External linkage".
 
 ## Conclusion and a rule of thumb
-I guess this sums up everything I wanted to talk about with regard to using `static` outside of classes. This has led us down a couple of rabbit holes, linkage being a pretty deep one.
+I guess this pretty much sums up everything I wanted to talk about with regard to using `static` outside of classes. This has led us down a couple of rabbit holes, linkage being a pretty deep one.
 
 But I hope that by now you see that **there is no need to use `static` outside of classes at all in modern C++**. Here is a guideline to follow along with this:
 
