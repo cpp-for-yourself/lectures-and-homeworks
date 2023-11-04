@@ -440,7 +440,7 @@ Headers with classes
 <summary>Keyword <code>static</code> outside of classes</summary>
 
 ----------------------------------------------------------
-[![Video thumbnail](https://img.youtube.com/vi/mSLah6UHtkY/maxresdefault.jpg)](https://youtu.be/mSLah6UHtkY)
+[![Video thumbnail](https://img.youtube.com/vi/FiltQlbh_u8/maxresdefault.jpg)](https://youtu.be/FiltQlbh_u8)
 
 [Lecture script](lectures/static_outside_classes.md)
 - Why we should not use `static` outside of classes
