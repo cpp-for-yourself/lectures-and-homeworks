@@ -436,6 +436,21 @@ Headers with classes
 ----------------------------------------------------------
 </details>
 
+<details>
+<summary>Keyword <code>static</code> outside of classes</summary>
+
+----------------------------------------------------------
+[![Video thumbnail](https://img.youtube.com/vi/mSLah6UHtkY/maxresdefault.jpg)](https://youtu.be/mSLah6UHtkY)
+
+[Lecture script](lectures/static_outside_classes.md)
+- Why we should not use `static` outside of classes
+- Relation to storage duration
+- Relation to linkage
+- Why we should use `inline` instead
+
+----------------------------------------------------------
+</details>
+
 ---
 
 ## PS

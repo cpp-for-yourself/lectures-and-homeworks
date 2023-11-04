@@ -2,7 +2,7 @@ Keyword `static` outside of classes
 ---
 
 <p align="center">
-  <a href="https://youtu.be/blah"><img src="https://img.youtube.com/vi/blah/maxresdefault.jpg" alt="Video" align="right" width=50%></a>
+  <a href="https://youtu.be/mSLah6UHtkY"><img src="https://img.youtube.com/vi/mSLah6UHtkY/maxresdefault.jpg" alt="Video" align="right" width=50%></a>
 </p>
 
 
@@ -529,7 +529,26 @@ The issue with `static` is that it **enforces** internal linkage. This means tha
   <a href="https://youtu.be/QVHwOOrSh3w"><img src="https://img.youtube.com/vi/QVHwOOrSh3w/maxresdefault.jpg" alt="Video" align="right" width=300 style="margin: 0.5rem"></a>
 </p>
 
-This is where `inline` comes to the rescue! It implies **external** linkage but, as stated in the ODR formulation, multiple definitions _are_ allowed for `inline` functions and data (🔼 C++17). So in our case, if we replace `static` with `inline` for our `SayHello` function, we will only ever have one instance of the compiled binary code for this function that the linker will happily link everywhere. I also urge you to watch [this video](https://www.youtube.com/watch?v=QVHwOOrSh3w) by Jason Turner on his C++ Weekly chanel about this to learn the intuitive differences between `static` and `inline` in this context.
+This is where `inline` comes to the rescue! It implies **external** linkage but, as stated in the ODR formulation, multiple definitions _are_ allowed for `inline` functions and data (🔼 C++17). So in our case, if we replace `static` with `inline` for our `SayHello` function, we will only ever have one instance of the compiled binary code for this function that the linker will happily link everywhere.
+
+`our_cool_lib.hpp`:
+<!--
+`CPP_SETUP_START`
+$PLACEHOLDER
+
+int main() {
+  SayHello();
+}
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` cool_lib_inline/main.cpp
+`CPP_RUN_CMD` CWD:cool_lib_inline c++ -std=c++17 -c main.cpp
+-->
+```cpp
+#include <iostream>
+inline void SayHello() { std::cout << "Hello!" << std::endl; }
+```
+
+I also urge you to watch [this video](https://www.youtube.com/watch?v=QVHwOOrSh3w) by Jason Turner on his C++ Weekly chanel about this to learn the intuitive differences between `static` and `inline` in this context.
 <!-- Link is in the description. -->
 
 :bulb: Overall, using `inline` is the best way to declare functions and data that should be visible globally in modern C++. So, you see, there is no reason to mark functions or data as `static` anymore due to linkage reasons. We should mark them `inline` instead.

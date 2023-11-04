@@ -116,7 +116,7 @@ int main() {
   ```
 - They are sometimes also called **"anonymous" namespaces**
 - This generates a namespace with a unique name available only in this "translation unit" (aka source file)
-- Also has "[linkage](static.md#linkage)" implications
+- Also has "[linkage](static_outside_classes.md#linkage)" implications
   (stay tuned for when we talk about `static`)
 - Only use them in `.cpp`, `.cc` files, never in `.h`, `.hpp` etc.
   (stay tuned for when we talk about headers)
