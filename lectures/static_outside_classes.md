@@ -17,11 +17,10 @@ Keyword `static` outside of classes
   - [What is linkage](#what-is-linkage)
   - [Levels of linkage](#levels-of-linkage)
   - [How to understand what linkage a name has](#how-to-understand-what-linkage-a-name-has)
-  - [Why we care about linkage](#why-we-care-about-linkage)
-    - [Example with broken linkage](#example-with-broken-linkage)
-    - [What went wrong?](#what-went-wrong)
-    - [How to fix the ODR violation?](#how-to-fix-the-odr-violation)
-    - [Prefer `inline` to `static`](#prefer-inline-to-static)
+  - [Back to `static`](#back-to-static)
+    - [Don't use `static` to declare functions in header files](#dont-use-static-to-declare-functions-in-header-files)
+    - [Don't define functions and data `static` in a source file, use unnamed namespace instead](#dont-define-functions-and-data-static-in-a-source-file-use-unnamed-namespace-instead)
+    - [Don't define functions and data as `static` in header files, use `inline` instead](#dont-define-functions-and-data-as-static-in-header-files-use-inline-instead)
 - [Conclusion and a rule of thumb](#conclusion-and-a-rule-of-thumb)
 - [Final words](#final-words)
 
@@ -296,6 +295,7 @@ graph TB;
   Inline -->|no| Const{{<code>const? constexpr?</code>}}
   Inline -->|yes| External[External linkage]
   Const -->|yes| Func{{Is function?}}
+  Const -->|no| External
   Func -->|no| Internal
   Func -->|yes| External
 
@@ -334,227 +334,120 @@ void OtherFunc() {  // internal linkage
 ```
 <!-- So, looking at the kNumber here, we can follow the chart: Is in in local scope? No, it's not! Is it in unnamed namespace? Nope! Does it use the static keyword? No, it doesn't. Is it inline? Yeah it is, which brings us to it having external linkage. Feel free to do this for all other examples or any other ones that you see in any code you encounter. -->
 
+### Back to `static`
+Now that we understand more about linkage, let's return back to the topic we actually wanted to chat about: `static` and why we mostly don't want to use it for free standing functions and data. As you can see from the flow chart that we just looked at, `static` has something of a superpower to decide if some entity has internal or external linkage. Anything that we mark as `static` will definitely have internal linkage and will only be visible within the same translation unit it is defined in. Which has its consequences.
 
-### Why we care about linkage
-#### Example with broken linkage
-Now I think is a good time to dive into an [example](code/static_no_classes/odr_violation/) that should show us why linkage is so important and what can go wrong if we don't follow best practices.
-<!-- The code for the whole example is as always in the repository linked below the video -->
-
-Say we have a somewhat large project and in it we write a library that has a declaration of a function `SayHello` in a header file `our_cool_lib.hpp`:
-
-`our_cool_lib.hpp`
+#### Don't use `static` to declare functions in header files
+One of these consequences is that it makes very little sense to **declare** (and not define) a `static` function in a header file:
 <!--
 `CPP_SETUP_START`
 $PLACEHOLDER
+static void Foo() {}
+
+int main() {}
 `CPP_SETUP_END`
-`CPP_COPY_SNIPPET` linkage/our_cool_lib.hpp
+`CPP_COPY_SNIPPET` static_declaration/main.cpp
+`CPP_RUN_CMD` CWD:static_declaration c++ -std=c++17 -c main.cpp
 -->
 ```cpp
-void SayHello();  // 😱 This really should be inline
+// In some header file
+// 😱 Don't do this...
+static void Foo();
 ```
+Any such function will have to be defined in _every source file_ this header will be included in. Not only that, but such a definition will only be seen from _within_ that same source file due to internal linkage that `static` enforces. Which means that we could have just defined this function in any such source file directly. So, don't declare functions in header files as `static`. Which brings us to my next point.
 
-We further write a definition of our function, which prints "Hello!" to the terminal when we call it, in a corresponding source file `our_cool_lib.cpp`:
+#### Don't define functions and data `static` in a source file, use unnamed namespace instead
+When we _do_ define functions and data in a source file, we can still find some advice on the internet to use `static` in such definitions. I would argue that this advice is obsolete. If we go back to our chart, we can easily see that while `static` has a "superpower" to make anything have internal linkage, the unnamed namespaces have the same superpower. Without going too deep into details, it turns out that they are usually even more powerful in this regard. So, if we define some data or functions in some `.cpp` file, we should put them into an **unnamed namespace** instead of defining them as `static` (although technically, it won't be a bug):
 <!--
 `CPP_SETUP_START`
 $PLACEHOLDER
+
+int main() {}
 `CPP_SETUP_END`
-`CPP_COPY_SNIPPET` linkage/our_cool_lib.cpp
+`CPP_COPY_SNIPPET` ok_not_ok/main.cpp
+`CPP_RUN_CMD` CWD:ok_not_ok c++ -std=c++17 -c main.cpp
 -->
 ```cpp
-#include "our_cool_lib.hpp"
+// In some source (cpp) file
 
-#include <iostream>
+// ❌ Don't
+static constexpr int kStaticNumber{};
+static void StaticFoo() {}
 
-void SayHello() { std::cout << "Hello!" << std::endl; }
-```
-
-And we also add another file `main.cpp` that includes our header and calls the `SayHello` function in the `main` function:
-<!--
-`CPP_SETUP_START`
-$PLACEHOLDER
-`CPP_SETUP_END`
-`CPP_COPY_SNIPPET` linkage/main.cpp
-`CPP_RUN_CMD` CWD:linkage c++ -std=c++17 -c main.cpp
--->
-```cpp
-#include "our_cool_lib.hpp"
-
-int main() {
-  SayHello();
-  return 0;
+// ✅ Do
+namespace {
+  constexpr int kNumber{};
+  void StaticFoo() {}
 }
 ```
 
-Now, we just need to instruct the compiler and the linker on how to build and link this code and we do that using CMake. Let's further assume that we implement this as part of some large project so we also link to some `other_lib` that might itself be linked against other libraries too. We will see why this matters in a second.
-<!--
-`CPP_SKIP_SNIPPET`
--->
-```cmake
-# Omitting CMake boilerplate and creation of other_lib
+#### Don't define functions and data as `static` in header files, use `inline` instead
+One final place where I could imagine `static` being used is when **defining** functions or data **in a header file**. Now, you might wonder why would anybody want to do this and the answer is: to avoid [One Definition Rule (ODR)](https://en.cppreference.com/w/cpp/language/definition) violations. Let's dig a bit into this.
 
-add_library(our_cool_lib our_cool_lib.cpp)
-target_link_libraries(our_cool_lib PUBLIC cxx_setup)
+ODR states roughly this: that any symbol must have **exactly one** definition in the entire program, i.e., across all of its translation units. Only `inline` symbols can have more than one definition which are then all assumed to be exactly the same.
 
-add_executable(main main.cpp)
-target_link_libraries(main PRIVATE other_lib our_cool_lib)
-```
-
-So far so good. Now, we build it and run it and should get our "Hello!" printed to the terminal:
-```cmd
-λ › cmake  -S . -B build
-λ › cmake --build build -j 12
-λ › ./build/main
-What??? 🤯
-```
-
-#### What went wrong?
-Wait... What? Why did it not print "Hello!" as we expected?
-
-Well, I hid something from you before. But only because this can happen in real projects! You might have guessed that the `other_lib` is somehow involved. Somehow, somebody had a header `other_lib.hpp` that had exactly the same declaration of the `SayHello` function as we did!
-<!--
-`CPP_SETUP_START`
-$PLACEHOLDER
-`CPP_SETUP_END`
-`CPP_COPY_SNIPPET` other_lib/other_lib.hpp
--->
-```cpp
-void SayHello();  // 😱 This really should be inline
-```
-
-However, in the corresponding source file `other_lib.cpp` they had a different printout!
+If we naively define a function in a header file `foo.hpp`:
 <!--
 `CPP_SETUP_START`
 $PLACEHOLDER
 
-int main() {
-  SayHello();
-}
+int main() {}
 `CPP_SETUP_END`
-`CPP_COPY_SNIPPET` other_lib/other_lib.cpp
-`CPP_RUN_CMD` CWD:other_lib c++ -std=c++17 -c other_lib.cpp
+`CPP_COPY_SNIPPET` raw_func/main.cpp
+`CPP_RUN_CMD` CWD:raw_func c++ -std=c++17 -c main.cpp
 -->
 ```cpp
-#include "other_lib.hpp"
-
-#include <iostream>
-
-void SayHello() { std::cout << "What??? 🤯" << std::endl; }
+// 😱 Use inline instead
+void Foo() {}
 ```
+And include this file into two source files `foo_1.cpp` and `foo_2.cpp` which are then compiled into two libraries, then we already violate ODR - we have two definitions of the function `Foo` in two different translation units. Granted, in this situation, these definitions are the same but there is a awful lot of things that can go wrong from this point on. Considering that ODR violations are not required to be checked by the linker, this can quickly lead to us finding ourselves in the undefined behavior land, which is typically a very painful experience. But that warrants a separate video. Please comment if you'd like to see a separate video on various ODR violations.
 
-Ok, so we start getting the feeling that something _might_ go wrong here, but why does it?
-
-The reason for this is that the linkage of the `SayHello` function is **external** as it is a function in the namespace scope and every function at namespace scope has external linkage by default. And there are now two definitions of the `SayHello` function in two different libraries. And these definitions are different. This means that we get into trouble because of the [One Definition Rule (ODR)](https://en.cppreference.com/w/cpp/language/definition) violation. That rule states roughly this: that any symbol must have exactly one definition in the entire program, i.e., across all of its translation units. Only `inline` symbols can have more than one definition which are then all assumed to be exactly the same.
-
-So, here is a slightly simplified explanation of what happens when we compile our code. First, the compiler sees the declaration of the function in our `our_cool_lib.hpp` file, understands that the linkage of the `SayHello` symbol is external and calmly continues, knowing that the linker will take care of finding where the implementation of `SayHello` lives. Which the linker does. The issue arises because the linked sees the `SayHello` symbol from the `other_lib` first. As that symbol also has external linkage and expecting that we know about ODR, it happily links these symbols together and stops. So we end up calling a wrong function!
-
-:bulb: Note that _which_ function is called in such a situation is pure luck as the way the linker will search for the proper symbol is implementation defined. It is implicitly assumed that we follow the ODR and nobody double checks it. Which is to say, that we are firmly in the "Undefined behavior land" 🌈🦄
-
-This is why it is so important to have the right muscle memory when writing C++ code to never end up in such a situation!
-
-#### How to fix the ODR violation?
-Now that we understand _what_ went wrong, how can we fix this?
-
-And this is, I believe, where `static` historically has been used. Remember how I mentioned that `static` functions have **internal** linkage? We can make use of this.
-
-First, let's consider what would happen if we added `static` before the declaration and the definition of _our_ `SayHello` function?
-
-`our_cool_lib.hpp`
-<!--
-`CPP_SKIP_SNIPPET`
--->
-```cpp
-static void SayHello();  // 😱 This really should be inline
-```
-
-`our_cool_lib.cpp`:
-<!--
-`CPP_SKIP_SNIPPET`
--->
-```cpp
-#include "our_cool_lib.hpp"
-
-#include <iostream>
-
-static void SayHello() { std::cout << "Hello!" << std::endl; }
-```
-
-If we try to compile this, we get a couple of warnings and an error (note that I'm using clang so if you are using gcc your error might be different):
-```cmd
-λ › cmake --build build -j 12
-Consolidate compiler generated dependencies of target our_cool_lib
-[ 50%] Building CXX object CMakeFiles/our_cool_lib.dir/our_cool_lib.cpp.o
-/static_no_classes/odr_violation/our_cool_lib.cpp:5:13: warning: unused function 'SayHello' [-Wunused-function]
-static void SayHello() { std::cout << "Hello!" << std::endl; }
-            ^
-1 warning generated.
-...
-[100%] Linking CXX executable main
-ld: Undefined symbols:
-  SayHello(), referenced from:
-      _main in main.cpp.o
-clang: error: linker command failed with exit code 1 (use -v to see invocation)
-make[2]: *** [main] Error 1
-```
-
-Overall, the important things to note here are that our `main` executable sees that there is a function `SayHello` declared as `static`. Which is to say that its linkage is **internal**. So the linker tries to find the definition of this function **within the same translation unit**, aka `main.cpp`. But our definition lives in a **different** translation unit `our_cool_lib.cpp`. So in that translation unit our function is unused, thus the warning, while there is no implementation for the `static void SayHello()` function within the `main.cpp` file which makes the linker fail.
-
-To solve this we can move the implementation of the function into the header file `our_cool_lib.hpp` while marking the function `static`:
+One way that people sometimes, I would say wrongly, fix this is by marking their function `static`, so in our case we would make our `Foo` function `static` in the `foo.h` header:
 <!--
 `CPP_SETUP_START`
 $PLACEHOLDER
 
-int main() {
-  SayHello();
-}
+int main() {}
 `CPP_SETUP_END`
-`CPP_COPY_SNIPPET` cool_lib_static/main.cpp
-`CPP_RUN_CMD` CWD:cool_lib_static c++ -std=c++17 -c main.cpp
+`CPP_COPY_SNIPPET` static_raw_func/main.cpp
+`CPP_RUN_CMD` CWD:static_raw_func c++ -std=c++17 -c main.cpp
 -->
 ```cpp
-#include <iostream>
-// 😱 Should really be inline instead
-static void SayHello() { std::cout << "Hello!" << std::endl; }
+// 😱 Use inline instead
+static void Foo() {}
 ```
+The reason people do this is that it _does_ help to avoid the ODR violation. Because `static` enforces internal linkage, the two translation units related to `foo_1.cpp` and `foo_2.cpp` that include our header will have their own **different** versions of the `Foo` definition not visible beyond their respective translation unit. Which means that ODR would not be violated.
 
-If we do that, we don't need the `our_cool_lib` target in CMake anymore and just include this file into `main.cpp` directly.
+This approach has one major downside though. Now every translation unit that includes our header will have it's own implementation of `Foo` baked in. Which, depending on what functions or data we define, can have a significant impact on the binary size. This can be a problem if we develop for, say, constrained hardware.
 
-Now our code builds without issues and when we run it, we get the correct output.
+A proper way to fix this, would be to use `inline` instead of `static` here. Returning back to our flow chart, the "superpower" of `inline` is to enforce **external linkage** but one that is explicitly allowed by the ODR formulation. So, we can change the definition of our `Foo` function to `inline` inside of our `foo.hpp` file. And the same holds for any data. We should mark it as `inline constexpr` or `inline const`:
+<!--
+`CPP_SETUP_START`
+$PLACEHOLDER
 
-Seems like we've solved everything, right? Well, technically yes, but there is a minor issue with using `static` like this which might or might not be important to us depending on the application.
-
-#### Prefer `inline` to `static`
-The issue with `static` is that it **enforces** internal linkage. This means that in our example, if we include our `our_cool_lib.hpp` file into multiple translation units, we will have a **copy** of the compiled binary code of the `SayHello` function in every single translation unit. This takes space which might become problematic on constrained hardware.
+int main() {}
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` inline_func_data/main.cpp
+`CPP_RUN_CMD` CWD:inline_func_data c++ -std=c++17 -c main.cpp
+-->
+```cpp
+// At namespace scope
+inline void Foo() {}
+inline constexpr int kNumber{};
+```
 
 <p align="center">
   <a href="https://youtu.be/QVHwOOrSh3w"><img src="https://img.youtube.com/vi/QVHwOOrSh3w/maxresdefault.jpg" alt="Video" align="right" width=300 style="margin: 0.5rem"></a>
 </p>
 
-This is where `inline` comes to the rescue! It implies **external** linkage but, as stated in the ODR formulation, multiple definitions _are_ allowed for `inline` functions and data (🔼 C++17). So in our case, if we replace `static` with `inline` for our `SayHello` function, we will only ever have one instance of the compiled binary code for this function that the linker will happily link everywhere.
+This will lead the binary code for such functions and data to only exist once and to be linked everywhere they are needed, while still not violating ODR.
 
-`our_cool_lib.hpp`:
-<!--
-`CPP_SETUP_START`
-$PLACEHOLDER
+Note, though, that using `inline` is only safe **in header files**. Avoid using `inline` in source files as this can lead to its own ODR violations. But that is again probably a story for another video.
 
-int main() {
-  SayHello();
-}
-`CPP_SETUP_END`
-`CPP_COPY_SNIPPET` cool_lib_inline/main.cpp
-`CPP_RUN_CMD` CWD:cool_lib_inline c++ -std=c++17 -c main.cpp
--->
-```cpp
-#include <iostream>
-inline void SayHello() { std::cout << "Hello!" << std::endl; }
-```
-
-I also urge you to watch [this video](https://www.youtube.com/watch?v=QVHwOOrSh3w) by Jason Turner on his C++ Weekly chanel about this to learn the intuitive differences between `static` and `inline` in this context.
-<!-- Link is in the description. -->
-
-:bulb: Overall, using `inline` is the best way to declare functions and data that should be visible globally in modern C++. So, you see, there is no reason to mark functions or data as `static` anymore due to linkage reasons. We should mark them `inline` instead.
+For another intuitive explanations on this, I urge you to watch [this video](https://www.youtube.com/watch?v=QVHwOOrSh3w) by Jason Turner on his C++ Weekly chanel about the differences between `static` and `inline` in this context.
 
 ## Conclusion and a rule of thumb
-And I guess this pretty much sums up everything I wanted to talk about with regard to using `static` outside of classes. This has led us down a couple of rabbit holes, linkage being a pretty deep one.
+And I guess this pretty much sums up everything I wanted to talk about with regard to using, or rather **NOT** using `static` outside of classes. This has led us down a couple of rabbit holes, linkage being a pretty deep one.
 
 But I hope that by now you see that **there is no need to use `static` outside of classes at all in modern C++**. Here is a guideline to follow along with this:
 
@@ -565,5 +458,3 @@ But I hope that by now you see that **there is no need to use `static` outside o
 
 ## Final words
 Understanding the key role that linkage and ODR play here is crucial to understanding what `inline` and, previously, `static` were designed to solve. Initially `static` was introduced into the C programming language and then was inherited by C++. It was in the times when C did not have `inline` and in C++ it meant something different and could not be used as it can be now. Thankfully, we live in better times now, which makes `static` close to obsolete when used outside of classes. Now if you want to know how to use `static` *in classes* you can see a video about that once it's ready and maybe also go back and refresh how `inline` plays a huge role in creating [libraries](headers_and_libraries.md) in C++.
-
-<!-- Video by <a href="https://pixabay.com/users/imotivation-12701738/?utm_source=link-attribution&utm_medium=referral&utm_campaign=video&utm_content=29881">imotivationita</a> from <a href="https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=video&utm_content=29881">Pixabay</a> -->
