@@ -2,7 +2,7 @@ Keyword `static` outside of classes
 ---
 
 <p align="center">
-  <a href="https://youtu.be/m8kN3MIUEpg"><img src="https://img.youtube.com/vi/m8kN3MIUEpg/maxresdefault.jpg" alt="Video" align="right" width=50% style="margin: 0.5rem"></a>
+  <a href="https://youtu.be/7cpPQunjv4s"><img src="https://img.youtube.com/vi/7cpPQunjv4s/maxresdefault.jpg" alt="Video" align="right" width=50% style="margin: 0.5rem"></a>
 </p>
 
 
