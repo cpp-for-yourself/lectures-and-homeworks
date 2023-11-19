@@ -1,0 +1,8 @@
+#ifndef LECTURES_CODE_STATIC_IN_CLASSES_FOO_HPP
+#define LECTURES_CODE_STATIC_IN_CLASSES_FOO_HPP
+
+struct Foo {
+  const static int number = 42;
+};
+
+#endif /* LECTURES_CODE_STATIC_IN_CLASSES_FOO_HPP */

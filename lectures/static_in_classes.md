@@ -8,6 +8,8 @@ Keyword `static` inside classes
 - [Keyword `static` inside classes](#keyword-static-inside-classes)
 - [Using `static` class methods](#using-static-class-methods)
 - [Using `static` class data](#using-static-class-data)
+  - [Out-of-class definitions for `static` data](#out-of-class-definitions-for-static-data)
+- [What is `static` in classes useful for?](#what-is-static-in-classes-useful-for)
 
 
 The keyword [`static`](https://en.cppreference.com/w/cpp/keyword/static) is a very important keyword in C++ and is used a lot. Honestly, because of a very general name, it is probably a bit _overused_. Largely speaking, it can be used outside of classes and inside classes and these two cases are slightly different. Today we focus on the *latter* - using `static` inside classes. If you are interested in how and when (khm-khm... *not*) to use `static` _outside_ of classes, I'm linking that [lecture right here](static_outside_classes.md).
@@ -134,7 +136,9 @@ int main() {
   // Foo::PrivateStaticFunction();
 }
 ```
-If we try to call our `PrivateStaticFunction` from outside our class, we will get a compilation error.
+Note how we don't need to explicitly specify which class the `PrivateStaticFunction` is from if we call it from within the class it is defined in.
+
+However, if we try to call our `PrivateStaticFunction` from outside our class, we will get a compilation error.
 ```css
 <source>: In function 'int main()':
 <source>:20:29: error: 'static void Foo::PrivateStaticFunction()' is private within this context
@@ -198,11 +202,137 @@ class Foo {
 If you stick to this rule, your life is going to be much simpler.
 <!-- You can thank me by subscribing to this channel and telling your friends when you're ready :wink: -->
 
-The ones of you, who already watched the video about using `static` outside of classes might be very confused now. Just one video ago, I was talking about using `inline` _instead of_ `static` but here, I suggest to use _both_ together? What is going on here? If you haven't watched that video yet - do so to be just as confused :wink: As an answer, I need to explicitly state here that:
+The ones of you, who already watched the video about using `static` outside of classes might be very confused now. Just one video ago, I was talking about using `inline` _instead of_ `static` but here, I suggest to use _both_ together? What is going on here? If you haven't watched that video yet - do so to be just as confused :wink:. As an answer, I need to explicitly state here that:
 > 🚨 **Words `inline` and `constexpr` mean very different things inside and outside of classes, so do not confuse these cases!**
 
-
 To complicate things further, we only got the opportunity to use `inline` for `static` class data from C++17 on. Before that things were much more messy. And guess what? There is still a lot of code that is left from those times! So we'll have to dive head-first into the mess of `static` data out-of-class definition requirements!
+
+### Out-of-class definitions for `static` data
+Remember, how usually, data declaration is also its definition? Well, not so for `static` class data. The declaration of such data is **not** a definition by default. So we can **declare** a `static` variable in the class and **define** it outside of class, which is called an **out-of-class** definition:
+```cpp
+struct Foo {
+  // Declaration, not a definition!
+  static int number;
+};
+
+// Definition, does not use static
+int Foo::number = 42;
+```
+Note how we only use `static` in the declaration but not in definition.
+
+> :bulb: Until C++17 introduced `inline` for use with data, we had to have an out-of-class definition for **every** `static` class variable or constant. With its introduction we can define them directly during declaration as we just discussed before. In the remainder of this lecture we will talk about how things were **before** `inline` could be used in such a way, i.e., before C++17.
+
+This does not yet sound confusing, does it? We have seen this pattern many times before with functions. So now we also have to use it with `static` class data, no big deal, right?
+
+Here is where it gets more confusing. If we declare a `const static` class data, we _could_ also provide its definition at the same time. And the confusing part is that we _still_ need a definition in such a case. Here is how it would look like for a simple example of storing a number as a class `static` data member and printing a minimum of this number and, say 100:
+```cpp
+#include <algorithm>
+#include <iostream>
+
+struct Foo {
+  static const int number = 42;
+};
+
+// This is the out-of-class definition!
+const int Foo::number;
+
+int main() {
+  std::cout << std::min(Foo::number, 100) << std::endl;
+}
+```
+
+If we fail to provide the out-of-class definition we will get a **linker** error!
+```css
+<source>:11: undefined reference to `Foo::number'
+collect2: error: ld returned 1 exit status
+```
+
+Very annoying and a lot of people (including myself more times than I care to admit) have forgotten this in their code and took some time to figure out why the linker error pops up. The situation is made worse by only happening _sometimes_, as it only occurs if `Foo::number` is ODR-used. Now, this term ODR-used is quite complex, so we will skip the details here but you might have recognized the "ODR" part and that should indicate that it has something to do with ODR, or One Definition Rule. I went into some details about it in the previous video. Anyway, in many cases, we can use our `Foo::number` and the linker will not complain. Until it does. Long story short, always use `inline` in modern C++ and you will never have such issues.
+
+## What is `static` in classes useful for?
+Ok, I bored you enough with the details like these. Let's actually go back to how `static` can be used in classes - what does it allow us to do? I wouldn't say there is a clearly defined rule here. For `static` class data I see a couple use-cases:
+- To define class-specific constants that should be shared across all instances of a class and logically "belong" to such a class
+- To define non-constant variables that are shared across all instances of the class and are used for kind of bookkeeping, like how many objects of this class exist or alike.
+
+And as for `static` class member functions, these are mostly used for creating objects in a special way, in logging or testing libraries as well as for meta-programming, which we will probably touch upon later.
+
+Just to give you a concrete example, we can look at one of great open source libraries for linear algebra, Eigen. Matrices take a center place in that library. We've already implemented a class that was very similar to those matrices: our `Image` class from the ["Image Pixelator"](../homeworks/homework_5/homework.md#pixelatorimage-class) homework. If you haven't done that homework, I do urge you to give it a go :wink:. Anyway, there we created an image empty, and set its pixels afterwards:
+```cpp
+const auto rows{42};
+const auto cols{23};
+pixelator::Image image{rows, cols};
+image.at(4, 2) = ftxui::Color::RGB(255, 0, 0);
+```
+
+What if we wanted to set it to red color upon creation? Well, we would need to use a `static` function for that! A naive implementation of such a function could be a `static` member function `Constant` that would take the image size and the color we want to set and would create an image inside of it, filling every pixel of it with color afterwards.
+```cpp
+class Image {
+ public:
+   // other important stuff goes here
+   static Image Constant(int rows, int cols, const ftxui::Color& color) {
+    Image image{rows, cols};
+    for (auto row = 0; row < rows; ++row) {
+      for (auto col = 0; col < cols; ++col) {
+        image.at(row, col) = color;
+      }
+    }
+    return image;
+   }
+};
+```
+In fact there is a version of this function in one of the most used linear algebra libraries I am aware of: [Eigen](https://gitlab.com/libeigen/eigen/-/blob/master/Eigen/src/Core/DenseBase.h#L326). Using these functions usually provides us with convenience and allowing to write a more readable code that shows intent better. When we read how this function is called we know what happens without the need to see the implementation details:
+```cpp
+// Somewhere in the code
+auto red_image = pixelator::Image::Constant(
+  42, 23, ftxui::Color::RGB(255, 0, 0));
+```
+There is a number of situations when such `static` member functions are useful and are used quite often. Keep your eyes peeled for such situations in the code you read at work or during your studies. Oh, and by the way, did you notice something? The `ftxui::Color::RGB(255, 0, 0)` is nothing else then a call to `static` member function of the
+
+
+To illustrate this example, let's go on a short journey along with Rick Sanchez, from Rick and Morty. Let us imagine that Rick, a `MultiverseExplorer` invents a `StrangeMachine`, which, upon activation generates a copy of Rick, sampling the copy from another dimension. Now, to make sure things don't get out of hand, the original Rick has to get rid of all other Ricks. We will observe how he could design his own class to help him in this endeavor.
+
+First of all, the `MultiverseExplorer` by which Rick has modeled himself has  a `static` variable `total_rick_count` that counts all his copes in his dimension. Such a counter would be incremented on every copy, meaning that we need a custom copy constructor. As we discussed when we talked about the rule of "all or nothing" this means we have to implement the rest of the constructors and operators too:
+
+```cpp
+
+class MultiverseExplorer {
+public:
+    MultiverseExplorer(const MultiverseExplorer& other) = delete;
+    MultiverseExplorer(MultiverseExplorer&& other) = delete;
+    MultiverseExplorer& operator=(const MultiverseExplorer& other) = delete;
+    MultiverseExplorer& operator=(MultiverseExplorer&& other) = delete;
+
+    ~MultiverseExplorer() {
+      if (!id_.empty()) { total_rick_count_--; }
+    }
+
+    bool CopiesExist() const { return total_rick_count_ > 1; }
+
+private:
+    static inline std::map<std::string, int> total_rick_count_{};
+
+    std::string id_;
+};
+
+int main() {
+    MultiverseExplorer rick("C-137");
+    StrangeMachine machine{};
+    City city{};
+
+    auto rick_copies = strange_machine.DoTheThing();
+
+    MultiverseExplorer rick2("D-716");
+    MultiverseExplorer rick3("J-22");
+
+    rick1.showStatus();
+    rick2.showStatus();
+    rick3.showStatus();
+
+    std::cout << "Total Ricks Across the Multiverse: " << MultiverseExplorer::totalRicks << std::endl;
+
+    return 0;
+}
+```
 
 <!-- TODO: complicated examples -->
 
