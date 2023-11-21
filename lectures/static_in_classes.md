@@ -10,6 +10,9 @@ Keyword `static` inside classes
 - [Using `static` class data](#using-static-class-data)
   - [Out-of-class definitions for `static` data](#out-of-class-definitions-for-static-data)
 - [What is `static` in classes useful for?](#what-is-static-in-classes-useful-for)
+  - [Using `static` member functions](#using-static-member-functions)
+  - [Using `static` member data](#using-static-member-data)
+- [Conclusion](#conclusion)
 
 
 The keyword [`static`](https://en.cppreference.com/w/cpp/keyword/static) is a very important keyword in C++ and is used a lot. Honestly, because of a very general name, it is probably a bit _overused_. Largely speaking, it can be used outside of classes and inside classes and these two cases are slightly different. Today we focus on the *latter* - using `static` inside classes. If you are interested in how and when (khm-khm... *not*) to use `static` _outside_ of classes, I'm linking that [lecture right here](static_outside_classes.md).
@@ -254,9 +257,10 @@ Ok, I bored you enough with the details like these. Let's actually go back to ho
 - To define class-specific constants that should be shared across all instances of a class and logically "belong" to such a class
 - To define non-constant variables that are shared across all instances of the class and are used for kind of bookkeeping, like how many objects of this class exist or alike.
 
-And as for `static` class member functions, these are mostly used for creating objects in a special way, in logging or testing libraries as well as for meta-programming, which we will probably touch upon later.
+### Using `static` member functions
+And as for `static` class member functions, these are mostly used for manipulating `static` class data, for creating objects in a special way, in logging or testing libraries as well as for meta-programming, which we will probably touch upon later in the course.
 
-Just to give you a concrete example, we can look at one of great open source libraries for linear algebra, Eigen. Matrices take a center place in that library. We've already implemented a class that was very similar to those matrices: our `Image` class from the ["Image Pixelator"](../homeworks/homework_5/homework.md#pixelatorimage-class) homework. If you haven't done that homework, I do urge you to give it a go :wink:. Anyway, there we created an image empty, and set its pixels afterwards:
+Just to give you a concrete example, we can look at our `Image` class from the ["Image Pixelator"](../homeworks/homework_5/homework.md#pixelatorimage-class) homework. If you haven't done that homework, I do urge you to give it a go :wink:. Anyway, there we created an image empty, and set its pixels afterwards:
 ```cpp
 const auto rows{42};
 const auto cols{23};
@@ -264,11 +268,19 @@ pixelator::Image image{rows, cols};
 image.at(4, 2) = ftxui::Color::RGB(255, 0, 0);
 ```
 
-What if we wanted to set it to red color upon creation? Well, we would need to use a `static` function for that! A naive implementation of such a function could be a `static` member function `Constant` that would take the image size and the color we want to set and would create an image inside of it, filling every pixel of it with color afterwards.
+What if we wanted to set it to, say, a red color upon creation? Well, we _could_ have a specific constructor that would set the color to the whole matrix, but there is a couple of issues with such an approach.
+1. The constructor does not introduce a new name, so our intent of _how_ we want to create an object remains to be inferred from the parameters:
+   ```cpp
+   Image image{rows, cols, color};
+   ```
+   Such an interface might or might not make sense to you, but in more complex situations it quickly gets out of hands
+2. Furthermore, if we want to do something different while still providing the same parameters we simply cannot. This severely limits our capabilities
+3. Sometimes we would like to give such functions that create objects the ability to fail. We could use exceptions (stay tuned for those) for this, but in certain code bases those are forbidden
+
+These reasons nudge us to another way. We could use a `static` function to create our object instead! A naive implementation of such a function could be a `static` member function `Constant` that would take the image size and the color we want to set and would create an image inside of it, filling every pixel of it with color afterwards.
 ```cpp
 class Image {
  public:
-   // other important stuff goes here
    static Image Constant(int rows, int cols, const ftxui::Color& color) {
     Image image{rows, cols};
     for (auto row = 0; row < rows; ++row) {
@@ -278,90 +290,92 @@ class Image {
     }
     return image;
    }
+
+   // other important stuff lives here
 };
 ```
-In fact there is a version of this function in one of the most used linear algebra libraries I am aware of: [Eigen](https://gitlab.com/libeigen/eigen/-/blob/master/Eigen/src/Core/DenseBase.h#L326). Using these functions usually provides us with convenience and allowing to write a more readable code that shows intent better. When we read how this function is called we know what happens without the need to see the implementation details:
+In fact there is a version of this function in one of the most used linear algebra libraries I am aware of: [Eigen](https://gitlab.com/libeigen/eigen/-/blob/master/Eigen/src/Core/DenseBase.h#L326). Using these functions usually provides us with convenience and allowing to write more readable code that shows intent better. When we read how this function is called we know what happens without the need to see the implementation details:
 ```cpp
 // Somewhere in the code
 auto red_image = pixelator::Image::Constant(
   42, 23, ftxui::Color::RGB(255, 0, 0));
 ```
-There is a number of situations when such `static` member functions are useful and are used quite often. Keep your eyes peeled for such situations in the code you read at work or during your studies. Oh, and by the way, did you notice something? The `ftxui::Color::RGB(255, 0, 0)` is nothing else then a call to `static` member function of the
+There is a number of situations when such `static` member functions are useful and are used quite often. Keep your eyes peeled for such situations in the code you read at work or during your studies. Oh, and by the way, did you notice something? The `ftxui::Color::RGB(255, 0, 0)` is nothing else than a call to `static` member function of the `ftxui::Color` type!
 
+### Using `static` member data
+For using `static` member data we will stick with our `Image` class too.
 
-To illustrate this example, let's go on a short journey along with Rick Sanchez, from Rick and Morty. Let us imagine that Rick, a `MultiverseExplorer` invents a `StrangeMachine`, which, upon activation generates a copy of Rick, sampling the copy from another dimension. Now, to make sure things don't get out of hand, the original Rick has to get rid of all other Ricks. We will observe how he could design his own class to help him in this endeavor.
-
-First of all, the `MultiverseExplorer` by which Rick has modeled himself has  a `static` variable `total_rick_count` that counts all his copes in his dimension. Such a counter would be incremented on every copy, meaning that we need a custom copy constructor. As we discussed when we talked about the rule of "all or nothing" this means we have to implement the rest of the constructors and operators too:
-
+First, let's look at how a simple `static` constant data can be used.
+Let's say when we create an image without additional parameters provided we would want it to be set to a certain color, the "default color". While there are many ways about it, we could set a `static const` member of the class `Image` along the lines of `kDefaultColor` and use it when filling our image:
 ```cpp
-
-class MultiverseExplorer {
-public:
-    MultiverseExplorer(const MultiverseExplorer& other) = delete;
-    MultiverseExplorer(MultiverseExplorer&& other) = delete;
-    MultiverseExplorer& operator=(const MultiverseExplorer& other) = delete;
-    MultiverseExplorer& operator=(MultiverseExplorer&& other) = delete;
-
-    ~MultiverseExplorer() {
-      if (!id_.empty()) { total_rick_count_--; }
-    }
-
-    bool CopiesExist() const { return total_rick_count_ > 1; }
-
-private:
-    static inline std::map<std::string, int> total_rick_count_{};
-
-    std::string id_;
+class Image {
+ public:
+  static inline const ftxui::Color kDefaultColor{ftxui::Color::RGB(10, 10, 10)};
+  // Treat this as an idea, not the full implementation
+  Image(int rows, int cols): pixels_{rows * cols, kDefaultColor} {}
+  // other important stuff lives here
 };
-
-int main() {
-    MultiverseExplorer rick("C-137");
-    StrangeMachine machine{};
-    City city{};
-
-    auto rick_copies = strange_machine.DoTheThing();
-
-    MultiverseExplorer rick2("D-716");
-    MultiverseExplorer rick3("J-22");
-
-    rick1.showStatus();
-    rick2.showStatus();
-    rick3.showStatus();
-
-    std::cout << "Total Ricks Across the Multiverse: " << MultiverseExplorer::totalRicks << std::endl;
-
-    return 0;
-}
 ```
 
-<!-- TODO: complicated examples -->
+Pretty straightforward, isn't it? This is not that much different from having such a constant at the namespace scope, but as it is only used within the `Image` class it kinda makes sense to have it stored there.
 
+However, this is one of those cases when there is some pretty rare but powerful use for non-const data. We can have `static` non-const class data that we use to compute anything that must have visibility or that must be used by all instances of this class. This can be a pool of memory or stuff used, modified and reused by the objects of the class in question or some form of bookkeeping that involves all objects of the class.
 
-<!--
+Just as an illustration, let's see how such data can be used using our `Image` class as an example. Let's say, for the sake of example, we wanted to know how many `Image` instances are present at any time in our program. We would then extend our class with a `static` counter:
+```cpp
+class Image {
+ public:
+  static inline int instance_counter{};
+  // Rest of the methods and data
+};
+```
 
-What I want to talk about:
+Having this `static` data is cool and all but it does not count the number of objects we have. The way to achieve what we want is, of course, to tap into the way our images get constructed, destructed, copied and moved. In a simplified way, we would increment our `instance_counter` in any constructor apart from the move one and decrement in the destructor:
+```cpp
+class Image {
+ public:
+  static inline int instance_counter{};
 
-The name of any static data member and static member function must be different from the name of the containing class.
+  Image() { instance_counter++; }
+  Image(const Image&) { instance_counter++; }
+  Image(Image&&) = default;
+  Image& operator=(const Image&) = default;
+  Image& operator=(Image&&) = default;
+  ~Image() { instance_counter--; }
+};
+```
+Note, how we have to implement all of the special functions following the rule of "all or nothing" - we had to touch the copy constructor and the destructor, which means that we have to implement the rest of the copy and move constructors and operators. If you are confused about why, we had [a lecture about this before](all_or_nothing.md).
+<!-- Which you can watch by clicking over here -->
 
-- data can be const and non-const.
-  - If data is not inline - needs an out-of-class definition, even if initialized
-  - If inline - does not need anything
-  - Constexpr is implicitly inline
-- Obeys access rules
-- Methods cannot be const (think of why)
+Now, we can create an image, copy it within some scope, printing the number of instances of `Image` class along the way in various locations:
+```cpp
+#include "image.hpp"
 
-- Declaration vs definition
-  - By default static data is just declared, not defined
-  - Use constexpr or inline to define it in place
-  - Static is only used in the declaration but not in definition
+#include <iostream>
 
-The confusing parts:
-- Const declaration of some data with initializer - linker error
+int main() {
+  std::cout << "Current count: " << Image::instance_counter << std::endl;
+  Image image;
+  std::cout << "Current count: " << Image::instance_counter << std::endl;
+  {
+    Image image_copy{image};
+    std::cout << "Current count: " << Image::instance_counter << std::endl;
+  }
+  std::cout << "Current count: " << Image::instance_counter << std::endl;
+  return 0;
+}
+```
+And with any luck we should get the following output:
+```
+Current count: 0
+Current count: 1
+Current count: 2
+Current count: 1
+```
 
+I would say that this pattern is not used very often but when it is, it is doing important work. We will talk about smart pointers a bit later and the `shared_ptr` that allows sharing the ownership over some data is implemented following conceptually the exact same ideas. You will also meet these ideas beyond standard C++ library. If you venture into robotics or computer vision it is only a matter of time till you find yourself using OpenCV. One of the main classes from OpenCV is their matrix class `cv::Mat` and, you guessed it, it also uses this pattern, being a bit similar to the `shared_ptr` I just mentioned in how it manages the data stored in it.
 
-Static functions are much more alike to normal functions than they are to class methods.
+## Conclusion
+Overall, as opposed to using `static` outside of classes, using `static` _inside_ classes allows to achieve certain things that are impossible to achieve in any other way. So use it when needed without hesitation. If you need a single phrase to remember in order to understand what `static` is useful for in this situation, remember that it belongs to the class itself, not to any of its instances. That means use `static` class data and functions when they need to work with **all** objects of your class rather than any single one. That being said, the line between `static` class data and methods and the free-standing data and functions is quite thin with the differences that mostly come down to encapsulation in most cases.
 
-Static data members of a class in namespace scope have external linkage, which means that the combination of namespace::Class::kData should be unique in the whole program.
-
-An example could be a class that counts all its copies. Maybe a Rick'n'Morty reference? Like Rick that dives into multiple times/universes and needs to keep track of how many Ricks exist?
- -->
+Anyway, that's about everything I wanted to say about using `static` in classes.
