@@ -128,13 +128,14 @@ class Foo {
 ```
 <!--
 `CPP_SETUP_START`
-#include "foo.hpp"
 $PLACEHOLDER
 `CPP_SETUP_END`
 `CPP_COPY_SNIPPET` weird_calling/main.cpp
 `CPP_RUN_CMD` CWD:weird_calling c++ -std=c++17 -c main.cpp
 -->
 ```cpp
+#include "foo.hpp"
+
 int main() {
   Foo::PublicStaticFunction();
   Foo foo;
