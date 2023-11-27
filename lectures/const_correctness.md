@@ -225,7 +225,7 @@ int main() {
 ```
 
 What will happen if we try to compile this code? The compiler will complain:
-```
+```css
 main.cpp:4:3: error: 'this' argument to member function 'bar' has type 'const Foo', but function is not marked const
    foo.bar();
    ^~~
@@ -253,7 +253,8 @@ struct GoodPerson {
 
 However, this is nearly never a good idea.
 <!-- If you _do_ know of a good use-case, please write it in the comments. -->
-Think of what will happen to all the copy constructors and move constructors of our `GoodPerson` class. Granted, we probably won't want to clone or copy ourselves or move into somebody's ownership but the same would happen with any other class that has `const` data. Basically, making any data of a class `const` makes it impossible to copy or move, destroying the value semantics for this class. Essentially by having `const` data any object of such a class is doomed to live and die within a single scope with no way to be copied or moved to any different scope.
+
+Essentially by having `const` data any object of such a class is doomed to live and die within a single scope with no way to be moved to any different scope.
 
 This is rarely useful with one significant outlier - the view paradigm. As one typical example consider this: say, a certain class has its interface but we would want it to have a different interface when we work with it. One way to achieve this is to introduce a thin wrapper around the class in question that holds a `const` reference to the object of interest and introduces new interface to working with this object. Feels a bit hand-wavy, right? Let's think of a concrete example then.
 
@@ -348,7 +349,7 @@ class CityWeatherView {
 };
 ```
 
-Such a `CityWeatherView` is not copyable or movable and exists for the sole purpose of simplifying the interface to the `Weather` object. This class is then typically used locally within some scope, say the `DoStuff` method of the `MehPerson` class:
+Such a `CityWeatherView` is not movable and exists for the sole purpose of simplifying the interface to the `Weather` object. This class is then typically used locally within some scope, say the `DoStuff` method of the `MehPerson` class:
 <!--
 `CPP_SETUP_START`
 #include "view.h"
