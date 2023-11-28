@@ -2,7 +2,7 @@ Keyword `static` inside classes
 ---
 
 <p align="center">
-  <a href="https://youtu.be/blah"><img src="https://img.youtube.com/vi/blah/maxresdefault.jpg" alt="Video" align="right" width=50% style="margin: 0.5rem"></a>
+  <a href="https://youtu.be/ggNCjDPShrA"><img src="https://img.youtube.com/vi/ggNCjDPShrA/maxresdefault.jpg" alt="Video" align="right" width=50% style="margin: 0.5rem"></a>
 </p>
 
 - [Keyword `static` inside classes](#keyword-static-inside-classes)
