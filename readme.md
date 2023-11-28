@@ -437,7 +437,7 @@ Headers with classes
 </details>
 
 <details>
-<summary>Keyword <code>static</code> outside of classes</summary>
+<summary>Keyword <code>static</code> <b>outside</b> of classes</summary>
 
 ----------------------------------------------------------
 [![Video thumbnail](https://img.youtube.com/vi/7cpPQunjv4s/maxresdefault.jpg)](https://youtu.be/7cpPQunjv4s)
@@ -447,6 +447,20 @@ Headers with classes
 - Relation to storage duration
 - Relation to linkage
 - Why we should use `inline` instead
+
+----------------------------------------------------------
+</details>
+
+<details>
+<summary>Keyword <code>static</code> <b>inside</b> classes</summary>
+
+----------------------------------------------------------
+[![Video thumbnail](https://img.youtube.com/vi/ggNCjDPShrA/maxresdefault.jpg)](https://youtu.be/ggNCjDPShrA)
+
+[Lecture script](lectures/static_in_classes.md)
+- Using `static` class methods
+- Using `static` class data
+- What is `static` in classes useful for?
 
 ----------------------------------------------------------
 </details>
