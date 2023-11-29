@@ -131,7 +131,7 @@ class Foo {
 $PLACEHOLDER
 `CPP_SETUP_END`
 `CPP_COPY_SNIPPET` weird_calling/main.cpp
-`CPP_RUN_CMD` CWD:weird_calling c++ -std=c++17 -c main.cpp
+`CPP_RUN_CMD` CWD:weird_calling c++ -std=c++17 main.cpp
 -->
 ```cpp
 #include "foo.hpp"
@@ -194,7 +194,7 @@ int main() {
 }
 `CPP_SETUP_END`
 `CPP_COPY_SNIPPET` static_inline_examples/main.cpp
-`CPP_RUN_CMD` CWD:static_inline_examples c++ -std=c++17 -c main.cpp
+`CPP_RUN_CMD` CWD:static_inline_examples c++ -std=c++17 main.cpp
 -->
 ```cpp
 #include <string>
@@ -230,7 +230,7 @@ int main() {
 }
 `CPP_SETUP_END`
 `CPP_COPY_SNIPPET` foo_number/main.cpp
-`CPP_RUN_CMD` CWD:foo_number c++ -std=c++17 -c main.cpp
+`CPP_RUN_CMD` CWD:foo_number c++ -std=c++17 main.cpp
 -->
 ```cpp
 struct Foo {
@@ -296,7 +296,7 @@ int main() {
 }
 `CPP_SETUP_END`
 `CPP_COPY_SNIPPET` image_1/main.cpp
-`CPP_RUN_CMD` CWD:image_1 c++ -std=c++17 -c main.cpp
+`CPP_RUN_CMD` CWD:image_1 c++ -std=c++17 main.cpp
 -->
 ```cpp
 const auto rows{42};
@@ -365,7 +365,7 @@ int main() {
 }
 `CPP_SETUP_END`
 `CPP_COPY_SNIPPET` image_fill/main.cpp
-`CPP_RUN_CMD` CWD:image_fill c++ -std=c++17 -c main.cpp
+`CPP_RUN_CMD` CWD:image_fill c++ -std=c++17 main.cpp
 -->
 ```cpp
 // Somewhere in the code
@@ -390,7 +390,7 @@ struct Color {
 $PLACEHOLDER
 `CPP_SETUP_END`
 `CPP_COPY_SNIPPET` image_default_color/main.cpp
-`CPP_RUN_CMD` CWD:image_default_color c++ -std=c++17 -c main.cpp
+`CPP_RUN_CMD` CWD:image_default_color c++ -std=c++17 main.cpp
 -->
 ```cpp
 #include <vector>
@@ -421,7 +421,7 @@ int main() {
 }
 `CPP_SETUP_END`
 `CPP_COPY_SNIPPET` instance_counter_simple/main.cpp
-`CPP_RUN_CMD` CWD:instance_counter_simple c++ -std=c++17 -c main.cpp
+`CPP_RUN_CMD` CWD:instance_counter_simple c++ -std=c++17 main.cpp
 -->
 ```cpp
 class Image {
@@ -460,7 +460,7 @@ Now, we can create an image, copy it within some scope, printing the number of i
 $PLACEHOLDER
 `CPP_SETUP_END`
 `CPP_COPY_SNIPPET` instance_counter/main.cpp
-`CPP_RUN_CMD` CWD:instance_counter c++ -std=c++17 -c main.cpp
+`CPP_RUN_CMD` CWD:instance_counter c++ -std=c++17 main.cpp
 -->
 ```cpp
 #include "image.hpp"
