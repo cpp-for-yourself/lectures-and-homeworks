@@ -388,6 +388,10 @@ struct Color {
 }
 
 $PLACEHOLDER
+
+int main() {
+  Image image{42, 42};
+}
 `CPP_SETUP_END`
 `CPP_COPY_SNIPPET` image_default_color/main.cpp
 `CPP_RUN_CMD` CWD:image_default_color c++ -std=c++17 main.cpp
