@@ -48,7 +48,7 @@ class Foo {
   static void Bar();
 };
 
-void Bar() { std::cout << "Bar()" << std::endl; }
+void Foo::Bar() { std::cout << "Bar()" << std::endl; }
 ```
 
 To call these functions in a canonical way, we have to prefix their names with the name of the class they belong to along with the double-colon symbol. Meaning that our functions can be called as `Foo::InlineBar()` and `Foo::Bar()` respectively:
@@ -58,7 +58,7 @@ To call these functions in a canonical way, we have to prefix their names with t
 $PLACEHOLDER
 `CPP_SETUP_END`
 `CPP_COPY_SNIPPET` static_methods/main_simple.cpp
-`CPP_RUN_CMD` CWD:static_methods c++ -std=c++17 -c main_simple.cpp
+`CPP_RUN_CMD` CWD:static_methods c++ -std=c++17 main_simple.cpp
 -->
 ```cpp
 int main() {
