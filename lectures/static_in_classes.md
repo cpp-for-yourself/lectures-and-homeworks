@@ -48,7 +48,7 @@ class Foo {
   static void Bar();
 };
 
-void Bar() { std::cout << "Bar()" << std::endl; }
+void Foo::Bar() { std::cout << "Bar()" << std::endl; }
 ```
 
 To call these functions in a canonical way, we have to prefix their names with the name of the class they belong to along with the double-colon symbol. Meaning that our functions can be called as `Foo::InlineBar()` and `Foo::Bar()` respectively:
@@ -58,7 +58,7 @@ To call these functions in a canonical way, we have to prefix their names with t
 $PLACEHOLDER
 `CPP_SETUP_END`
 `CPP_COPY_SNIPPET` static_methods/main_simple.cpp
-`CPP_RUN_CMD` CWD:static_methods c++ -std=c++17 -c main_simple.cpp
+`CPP_RUN_CMD` CWD:static_methods c++ -std=c++17 main_simple.cpp
 -->
 ```cpp
 int main() {
@@ -131,7 +131,7 @@ class Foo {
 $PLACEHOLDER
 `CPP_SETUP_END`
 `CPP_COPY_SNIPPET` weird_calling/main.cpp
-`CPP_RUN_CMD` CWD:weird_calling c++ -std=c++17 -c main.cpp
+`CPP_RUN_CMD` CWD:weird_calling c++ -std=c++17 main.cpp
 -->
 ```cpp
 #include "foo.hpp"
@@ -194,7 +194,7 @@ int main() {
 }
 `CPP_SETUP_END`
 `CPP_COPY_SNIPPET` static_inline_examples/main.cpp
-`CPP_RUN_CMD` CWD:static_inline_examples c++ -std=c++17 -c main.cpp
+`CPP_RUN_CMD` CWD:static_inline_examples c++ -std=c++17 main.cpp
 -->
 ```cpp
 #include <string>
@@ -230,7 +230,7 @@ int main() {
 }
 `CPP_SETUP_END`
 `CPP_COPY_SNIPPET` foo_number/main.cpp
-`CPP_RUN_CMD` CWD:foo_number c++ -std=c++17 -c main.cpp
+`CPP_RUN_CMD` CWD:foo_number c++ -std=c++17 main.cpp
 -->
 ```cpp
 struct Foo {
@@ -296,7 +296,7 @@ int main() {
 }
 `CPP_SETUP_END`
 `CPP_COPY_SNIPPET` image_1/main.cpp
-`CPP_RUN_CMD` CWD:image_1 c++ -std=c++17 -c main.cpp
+`CPP_RUN_CMD` CWD:image_1 c++ -std=c++17 main.cpp
 -->
 ```cpp
 const auto rows{42};
@@ -365,7 +365,7 @@ int main() {
 }
 `CPP_SETUP_END`
 `CPP_COPY_SNIPPET` image_fill/main.cpp
-`CPP_RUN_CMD` CWD:image_fill c++ -std=c++17 -c main.cpp
+`CPP_RUN_CMD` CWD:image_fill c++ -std=c++17 main.cpp
 -->
 ```cpp
 // Somewhere in the code
@@ -388,9 +388,13 @@ struct Color {
 }
 
 $PLACEHOLDER
+
+int main() {
+  Image image{42, 42};
+}
 `CPP_SETUP_END`
 `CPP_COPY_SNIPPET` image_default_color/main.cpp
-`CPP_RUN_CMD` CWD:image_default_color c++ -std=c++17 -c main.cpp
+`CPP_RUN_CMD` CWD:image_default_color c++ -std=c++17 main.cpp
 -->
 ```cpp
 #include <vector>
@@ -421,7 +425,7 @@ int main() {
 }
 `CPP_SETUP_END`
 `CPP_COPY_SNIPPET` instance_counter_simple/main.cpp
-`CPP_RUN_CMD` CWD:instance_counter_simple c++ -std=c++17 -c main.cpp
+`CPP_RUN_CMD` CWD:instance_counter_simple c++ -std=c++17 main.cpp
 -->
 ```cpp
 class Image {
@@ -460,7 +464,7 @@ Now, we can create an image, copy it within some scope, printing the number of i
 $PLACEHOLDER
 `CPP_SETUP_END`
 `CPP_COPY_SNIPPET` instance_counter/main.cpp
-`CPP_RUN_CMD` CWD:instance_counter c++ -std=c++17 -c main.cpp
+`CPP_RUN_CMD` CWD:instance_counter c++ -std=c++17 main.cpp
 -->
 ```cpp
 #include "image.hpp"
