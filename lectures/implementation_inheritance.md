@@ -1,3 +1,20 @@
+<!--
+https://isocpp.org/wiki/faq/proper-inheritance - for fun proper inheritance
+
+https://isocpp.org/wiki/faq/private-inheritance - when to use private inheritance
+
+Designing an interface is hard
+
+Virtual destructors!
+
+Also info here: https://en.cppreference.com/w/cpp/language/derived_class
+
+Google style: https://google.github.io/styleguide/cppguide.html#Inheritance
+https://google.github.io/styleguide/cppguide.html#Access_Control
+
+Object slicing: https://www.learncpp.com/cpp-tutorial/object-slicing/
+ -->
+
 # Implementation inheritance
 
 Inheritance is an important concept that enables a lot of techniques that we use in C++.
