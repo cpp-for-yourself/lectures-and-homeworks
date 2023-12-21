@@ -10,6 +10,11 @@ Virtual destructors!
 Also info here: https://en.cppreference.com/w/cpp/language/derived_class
 
 Google style: https://google.github.io/styleguide/cppguide.html#Inheritance
+
+> Composition is often more appropriate than inheritance. When using inheritance, make it public.
+
+https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#c129-when-designing-a-class-hierarchy-distinguish-between-implementation-inheritance-and-interface-inheritance
+
 https://google.github.io/styleguide/cppguide.html#Access_Control
 
 Object slicing: https://www.learncpp.com/cpp-tutorial/object-slicing/
@@ -23,14 +28,15 @@ Largely speaking, there are two types of inheritance:
 - Implementation inheritance
 - Interface inheritance
 
-The difference between these? One used to inherit a full implementation and the other one has the word `virtual` involved.
+The difference between these? One used to inherit a full implementation and the other one is used to implement a provided interface and is used to enable object oriented programming (OOP) with C++.
 
-Today we only cover the basics of how inheritance works and focus on the implementation inheritance only. But don't worry, we will cover the interface inheritance in the coming lectures very soon.
+It is important to [keep these different styles of inheritance separate](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#c129-when-designing-a-class-hierarchy-distinguish-between-implementation-inheritance-and-interface-inheritance) (for more details on this, please see the C++ Core Guidelines take on this) and some, like the Google C++ Code Style suggest to go as far as to avoid implementation inheritance altogether.
 
+Today we only cover the implementation inheritance and I hope that I will be able to convince you that you probably should not use it very often.
 <!-- intro -->
 
 ## What is implementation inheritance for
-Honestly, as a design concept on its own it is not very useful and we will mostly use it as a start into understanding inheritance because the concept is quite simple. Although there are a couple of pretty advanced use cases that it enables like, for example, the [Curiously Recurring Template Pattern (aka CRTP)](https://en.wikipedia.org/wiki/Curiously_recurring_template_pattern).
+Honestly, as a design concept on its own it is not very useful and we will mostly use it as a start into understanding inheritance because the concept is quite simple. Although there are a couple of pretty advanced use cases that it enables like, for example, the [Curiously Recurring Template Pattern (aka CRTP)](https://en.wikipedia.org/wiki/Curiously_recurring_template_pattern) or [tag dispatch](https://en.cppreference.com/w/cpp/language/sfinae).
 
 Essentially the implementation inheritance technically allows us to avoid repeating ourselves and save us some typing. In reality its use cases are pretty limited which we will see at the end of this video.
 
