@@ -529,6 +529,58 @@ int main() {
 }
 ```
 
+And you know what? Even though our `Log` function is a bit silly, it is very similar to the way the `<<` operator is implemented for the `std::ostream` which allows `std::cout` to take any simple value as an input. So, with that said, I would strongly recommend you to do this small homework.
+
+<details>
+<summary>Small homework</summary>
+
+Given that the `std::ostream` `<<` operator is a function that already exists in the `<iostream>` header and looks something like this:
+<!--
+`CPP_SETUP_START`
+#include <vector>
+#include <iostream>
+
+template<class T>
+std::ostream& operator<<(std::ostream& os, const std::vector<T>& vector) {
+    for (const auto& v : vector) {
+        os << v << ' ';
+    }
+    return os;
+}
+
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` cout/cout.hpp
+-->
+```cpp
+template<class T>
+std::ostream& operator<<(std::ostream& os, const T& obj) {
+    // Write obj to stream
+    return os;
+}
+```
+Implement a full specialization of this function to print a `std::vector` to the `std::ostream`.
+
+> Hint: you can use the `os << value` operator for individual values in your `std::vector`.
+
+In the end the following code (adding needed includes) should compile:
+<!--
+`CPP_SETUP_START`
+#include "cout.hpp"
+
+int main() {
+  $PLACEHOLDER
+}
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` cout/main.cpp
+`CPP_RUN_CMD` CWD:cout c++ -std=c++17 main.cpp
+-->
+```cpp
+std::cout << std::vector{1, 2, 3} << std::endl;
+std::cout << std::vector{1.1, 2.2, 3.3} << std::endl;
+```
+
+</details>
+
 #### Partial template specialization
 
 ### Explicit template instantiation
