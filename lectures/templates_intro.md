@@ -5,6 +5,26 @@ Introduction to templates
   <a href="https://youtu.be/blah"><img src="https://img.youtube.com/vi/blah/maxresdefault.jpg" alt="Video" align="right" width=50% style="margin: 0.5rem"></a>
 </p>
 
+- [Introduction to templates](#introduction-to-templates)
+- [Why we want to use templates](#why-we-want-to-use-templates)
+  - [Generic functions](#generic-functions)
+  - [Generic classes](#generic-classes)
+  - [Generic algorithms and design patterns](#generic-algorithms-and-design-patterns)
+  - [Compile-time meta programming](#compile-time-meta-programming)
+  - [All of the above provide zero-runtime-cost abstractions](#all-of-the-above-provide-zero-runtime-cost-abstractions)
+- [How templates actually work](#how-templates-actually-work)
+- [How to use templates](#how-to-use-templates)
+  - [The basics of writing templated functions and classes](#the-basics-of-writing-templated-functions-and-classes)
+  - [Calling templated functions](#calling-templated-functions)
+  - [Creating instances of templated classes and structs](#creating-instances-of-templated-classes-and-structs)
+  - [Template specialization](#template-specialization)
+    - [Full template specialization](#full-template-specialization)
+    - [Partial template specialization](#partial-template-specialization)
+  - [Explicit template instantiation](#explicit-template-instantiation)
+  - [Splitting declaration and definition](#splitting-declaration-and-definition)
+  - [Putting declaration into a header file](#putting-declaration-into-a-header-file)
+
+
 [Templates](https://en.cppreference.com/w/cpp/language/templates) are definitely one of the features that make C++ so popular and powerful. They provide an extremely versatile mechanism to write truly generic code and allow building meaningful abstractions only paying for these benefits with some compilation time (well, at least in theory)!
 <!-- Link Chandler's talk -->
 
@@ -73,6 +93,7 @@ Let's unpack what we see. The body of the function looks just as before. The onl
 ```cpp
 template <typename NumberType>
 ```
+<!-- Talk about naming -->
 This is what makes this function **generic**, i.e., one that takes any type. The `typename NumberType` is a [template parameter](https://en.cppreference.com/w/cpp/language/template_parameters) that represents a type to be used in our function. We called this type `NumberType` but this name is just for our convenience, compiler does not care about it. It just knows that this is a definition of a function `Maximum` with two parameters of the same type `NumberType` which will be guessed by the compiler based on the types of the provided parameters. And as long as the code inside of this function compiles for any given type `NumberType` it will do what it is supposed to do. So now, when we call our `Maximum` function with parameters of `int`, `float`, or `double` it just magically works! Neat, right?
 
 We will talk about all of the details a bit later. At this point, I want to make sure that we are on the same page about templates allowing us to write the code once that will work for many different types as long as they logically fit to what we want to do.
@@ -98,7 +119,8 @@ int main() {
   Array<double, 20> double_array;
 }
 ```
-Note how we have two template parameters here instead of one. The first one is a type and the second one is a `std::size_t` number. There can be any number of such parameters, but more on that later in this lecture.
+<!-- Talk about naming -->
+Note how we have two template parameters here instead of one. The first one, `UnderlyingType` is a type and the second one, `kSize`, is a `std::size_t` number. There can be any number of such parameters, but more on that later in this lecture.
 
 ### Generic algorithms and design patterns
 Anyway, apart from these "simple" abstractions, templates can be used for so much more, like implementing abstract design ideas in a composable and separable fashion. Just to give you one concrete example, we could think about an `Image` class, just like the one that we implemented in this course before, and implement a method `Save` for this class that takes in the `SavingStrategy` instance which will take care of the actual saving logic, separating the concerns of our classes better:
@@ -113,6 +135,7 @@ $PLACEHOLDER
 ```cpp
 class Image {
   public:
+    // Note how a member function can also be a template function
     template <typename SavingStrategy>
     void Save(const SavingStrategy& strategy) const {
       strategy.Save(pixels_);
@@ -164,6 +187,7 @@ Finally, we can also do really advanced things, like compile-time meta-programmi
 Anyway, even without going into the details, I hope that it was easy to grasp why we would want to have a mechanism like this. I also hope, that looking at those functions and classes the syntax was more or less self explanatory. If you understand the above logic, then you understand why templates are so important.
 
 ## How templates actually work
+<!-- TODO -->
 
 ## How to use templates
 Now that we are on the same page as to **why** we might want to use templates, we have to talk about **how** we can use them. And there is a lot of intricacies here that often turn the C++ beginners away. But I'm going to try to present all the relevant information here, in one lecture within a meaningful structure.
@@ -191,7 +215,7 @@ $PLACEHOLDER
 ```cpp
 // For illustration purposes only,
 // Please use typename or class consistently
-template<class T1, int N1, typename T2, typename T3, std::size_t N2>
+template<class T1, int kN1, typename T2, typename T3, std::size_t kN2>
 void SomeFunc() {
   // Some function implementation.
 }
@@ -263,11 +287,252 @@ Here, the compiler cannot guess the needed type on its own (remember that the re
 
 This all gets slightly more complex when we mix the two cases - when we have some template parameters that the compiler is able to guess and some that it cannot. The complications arise because the compiler's ability to guess the types depends partially on the order of function arguments as well as on the order of the template parameters.
 
-Now, a way to think about it is that when you specify the template arguments explicitly, you are specifying them from left to right. Then, when the compiler doesn't see any more explicit template parameters, it looks at the function arguments and tries to figure out the rest. If it fails, you will notice when it spits out a loooong error message at you. We'll talk about how to read such messages towards the end of today's lecture.
+One easy way to think about it is this:
+> 🚨 When we specify the template arguments explicitly, we are specifying them **from left to right**. Then, when the compiler doesn't see any more explicit template parameters, it looks at the function arguments and tries to figure out the rest.
+```cpp
+template<class One, int kTwo, class Three, class Four, class Five>
+void SomeFunc(Three three, Four four, Five five) {
+  // Some implementation;
+}
+
+int main() {
+  // The types guessed in this call:
+  // One = float
+  // kTwo = 42
+  // Three = double
+  // Four = int
+  // Five = float
+  SomeFunc<float, 42>(42.42, 23, 23.23F);
+}
+```
+If the compiler fails to figure out the template parameters it will throw an error at us. Just for the sake of example, if we try to call our function without the last argument:
+<!--
+`CPP_SKIP_SNIPPET`
+-->
+```cpp
+SomeFunc<float>(42.42, 23, 23.23F);
+```
+we will get an error message that says something about the compiler not being able to deduce the template parameters:
+```css
+<source>: In function 'int main()':
+<source>:13:18: error: no matching function for call to 'SomeFunc<float>(double, int, float)'
+   13 |   SomeFunc<float>(42.42, 23, 23.23F);
+      |   ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~
+<source>:2:6: note: candidate: 'template<class One, int kTwo, class Three, class Four, class Five> void SomeFunc(Three, Four, Five)'
+    2 | void SomeFunc(Three three, Four four, Five five) {
+      |      ^~~~~~~~
+<source>:2:6: note:   template argument deduction/substitution failed:
+<source>:13:18: note:   couldn't deduce template parameter 'kTwo'
+   13 |   SomeFunc<float>(42.42, 23, 23.23F);
+      |   ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~
+Compiler returned: 1
+```
+
+Feel free to experiment with various error messages here to get a feeling for them but we'll also talk about how to read such messages towards the end of today's lecture.
 
 Generally speaking, template type deduction is a [very complex topic](https://en.cppreference.com/w/cpp/language/template_argument_deduction) with many details to consider, so you probably won't ever know all of these rules, but as long as you try to write simple code you should get by with what we've just discussed.
 
-### Full template specialization
-### Partial template specialization
+### Creating instances of templated classes and structs
+When we instantiate our templated classes and structs the situation is very similar to how we call functions. That is if we use C++17 and later because C++17 introduced the [**C**lass **T**emplate **A**rgument **D**eduction (CTAD)](https://en.cppreference.com/w/cpp/language/class_template_argument_deduction). Before that version you would have to specify all the types manually. Let's see how it works on a simple example.
+```cpp
+template<class FirstType, class SecondType>
+struct MyStruct {
+  // We _need_ a constructor for CTAD to work
+  // Arguments can appear in any order as long as all
+  // template arguments are covered by constructor arguments
+  MyStruct(SecondType one, FirstType two, SecondType three) {}
+};
+
+int main() {
+  // Types are deduced (needs C++17 and up):
+  //   FirstType = int
+  //   SecondType = double
+  MyStruct guessed{42.42, 23, 23.23};
+
+  // Types are provided explicitly.
+  // Must use before C++17.
+  MyStruct<int, double> provided{42.42, 23, 23.23};
+  return 0;
+}
+```
+Note that we **must** have a constructor for this to work and this constructor's arguments **must** cover all of the template arguments. That being said, the arguments in the constructor can appear in any order and the compiler will figure it out.
+
+I use it all the time, but this is a bit of a controversial topic. If you look into the Google Code Style for C++ at least as of the date of recording this video, they [suggest to steer away from using CTAD](https://google.github.io/styleguide/cppguide.html#CTAD) because it might fail to deduce the type you expect it to. We _can_ provide explicit type deduction guides (more on it [here](https://en.cppreference.com/w/cpp/language/class_template_argument_deduction) under "User-defined deduction guides
+") but we won't cover it here. I believe that once you really need to use it, you'll know enough about C++ to read about it on your own.
+
+### Template specialization
+Now, returning back to less esoteric topic, let's talk about template specialization. This is a feature of templates that is used a lot and it allows to, well, **specialize** a template to do something different for a specific set of types or conditions.
+
+This is a very important technique, used all over STL and in many other places. It is also a cornerstone of template meta-programming so it is important to learn well.
+
+Thankfully, this topic is not that complicated at all! Largely speaking, template specialization can be of two kinds:
+- Full template specialization and
+- Partial template specialization
+
+#### Full template specialization
+When talking about full template specialization, we are talking about specializing all of the template arguments. We can fully specialize pretty much everything, be it a class, a function, a member function, or data. But this probably feels slightly too abstract, so let's dive into another example.
+
+Let's assume that we have a logging function `Log` that we use to log any value to the terminal.
+<!--
+`CPP_SETUP_START`
+#pragma once
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` full_specialization/log_template.hpp
+-->
+```cpp
+#include <iostream>
+
+template <typename ValueType>
+void Log(const ValueType& value) {
+    std::cout << "Value: " << value << std::endl;
+}
+```
+<!--
+`CPP_SETUP_START`
+#include "log_template.hpp"
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` full_specialization/simple_main.cpp
+`CPP_RUN_CMD` CWD:full_specialization c++ -std=c++17 simple_main.cpp
+-->
+```cpp
+int main() {
+    Log(42);
+    Log(3.14);
+    return 0;
+}
+```
+This is not the smartest function in the world, but it does its job well. At least for simple types that it. Now, if we have some type `ComplexType` that hides its value under the `value` field, our function won't work as the `<<` operator doesn't know how to deal with this. Now, there are many ways to deal with this but we want to illustrate how full specialization works, so we can specialize our function for this.
+
+To do this, we will have to write an **specialization** for our template function. Such a specialization looks exactly as a normal templated function with just one crucial difference, we prefix it with `template<>` keyword with the empty brackets. Otherwise, we write some code into this function (which can be totally different from the general template `Log` function) and we're good to go:
+<!--
+`CPP_SETUP_START`
+#pragma once
+#include "log_template.hpp"
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` full_specialization/log_complex.hpp
+-->
+```cpp
+#include <iostream>
+
+struct ComplexType{
+    int value{};
+};
+
+template <>
+void Log(const ComplexType& value) {
+    std::cout << "Complex value: " << value.value << std::endl;
+}
+```
+<!--
+`CPP_SETUP_START`
+#include "log_complex.hpp"
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` full_specialization/complex_main.cpp
+`CPP_RUN_CMD` CWD:full_specialization c++ -std=c++17 complex_main.cpp
+-->
+```cpp
+int main() {
+    Log(42);
+    Log(3.14);
+    Log(ComplexType{42});
+    return 0;
+}
+```
+What this tells to the compiler is that whenever it encounters a call to `Log` with the argument of the `const ComplexType&` type it should call our specialization instead of the general template function `Log`. And if we run this code we see that it does.
+
+Doesn't look too complicated does it? And the basics are really as simple as this. But as always in C++, things can get a lot more advanced and complex.
+
+For example, a specialization can be a template itself. Think of what we would need to do if we wanted to call our `Log` function on a `std::vector` of values. We could use full specialization just like before but then we would need to provide an explicit type, which is not very generic:
+<!--
+`CPP_SETUP_START`
+#pragma once
+#include "log_complex.hpp"
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` full_specialization/log_vector.hpp
+-->
+```cpp
+#include <vector>
+
+// 😱 Not a great idea, what if a vector has other type?
+template <>
+void Log(const std::vector<int>& vector) {
+    std::cout << "Vector of values: [ ";
+    for (const auto& v : vector) {
+        std::cout << v << ' ';
+    }
+    std::cout << ']';
+}
+```
+<!--
+`CPP_SETUP_START`
+#include "log_vector.hpp"
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` full_specialization/vector_main.cpp
+`CPP_RUN_CMD` CWD:full_specialization c++ -std=c++17 vector_main.cpp
+-->
+```cpp
+int main() {
+    Log(42);
+    Log(3.14);
+    Log(ComplexType{42});
+    // Note how vector uses CTAD here 😉
+    Log(std::vector{1, 2, 3});
+    return 0;
+}
+```
+But this is probably not the best idea - if our vector contains anything but `int` values we would need to write another specialization, and another, and another...
+
+Well, there is a solution, where we actually add a _new_ template parameter to our specialization:
+<!--
+`CPP_SETUP_START`
+#pragma once
+#include "log_complex.hpp"
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` full_specialization/log_generic_vector.hpp
+-->
+```cpp
+#include <vector>
+
+template <typename ValueType>
+void Log(const std::vector<ValueType>& vector) {
+    std::cout << "Vector of values: [ ";
+    for (const auto& v : vector) {
+        std::cout << v << ' ';
+    }
+    std::cout << ']';
+}
+```
+This function **is a specialization** of our general `Log` function template because it **does** contain a concrete type among its parameters - the `std::vector`. But it is _also_ a template function templated on the values inside our `std::vector`. How neat is that? We can now use this function for any vectors with any types inside of them!
+<!--
+`CPP_SETUP_START`
+#include "log_generic_vector.hpp"
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` full_specialization/generic_vector_main.cpp
+`CPP_RUN_CMD` CWD:full_specialization c++ -std=c++17 generic_vector_main.cpp
+-->
+```cpp
+int main() {
+    Log(42);
+    Log(3.14);
+    Log(ComplexType{42});
+    Log(std::vector{1, 2, 3});
+    Log(std::vector{1.1, 2.2, 3.3});
+    return 0;
+}
+```
+
+#### Partial template specialization
 
 ### Explicit template instantiation
+
+### Splitting declaration and definition
+
+### Putting declaration into a header file
