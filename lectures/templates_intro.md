@@ -12,7 +12,7 @@ Introduction to templates
   - [Generic algorithms and design patterns](#generic-algorithms-and-design-patterns)
   - [Compile-time meta programming](#compile-time-meta-programming)
   - [All of the above provide zero-runtime-cost abstractions](#all-of-the-above-provide-zero-runtime-cost-abstractions)
-- [How templates actually work](#how-templates-actually-work)
+- [What do templates actually do?](#what-do-templates-actually-do)
 - [How to use templates](#how-to-use-templates)
   - [The basics of writing templated functions and classes](#the-basics-of-writing-templated-functions-and-classes)
   - [Calling templated functions](#calling-templated-functions)
@@ -186,8 +186,17 @@ Finally, we can also do really advanced things, like compile-time meta-programmi
 ### All of the above provide zero-runtime-cost abstractions
 Anyway, even without going into the details, I hope that it was easy to grasp why we would want to have a mechanism like this. I also hope, that looking at those functions and classes the syntax was more or less self explanatory. If you understand the above logic, then you understand why templates are so important.
 
-## How templates actually work
-<!-- TODO -->
+## What do templates actually do?
+<!-- TODO: explain this better -->
+Now that we've discussed the **why**, let's discuss the **what**: what do templates actually do? How do they achieve all of the above?
+
+And the simplified answer is surprisingly easy - templates generate code. Which also explains their name. A template function or a class is just that - a template for a normal function or a class. At any time the compiler encounters a call that it associates to such a template, it **instantiates** a concrete implementation of that function or class substituting all of our template arguments for the actually used types. This means that if we have a template function and use it with many types we will have many copies of that function in our binary. Oh, and this is an important bit, this code is generated in a binary form and is available in the translation unit in which it was generated and compiled.
+
+And honestly, that the whole intuition you need here! Once the code for all the template instantiations is generated it becomes indistinguishable to calling normal functions and creating normal classes in our code.
+
+The fact that all of the code is generated within a certain translation unit is important and plays a big role in how templated functions and classes can be split between header and source files, but more on that later.
+
+<!-- Create an animation for this -->
 
 ## How to use templates
 Now that we are on the same page as to **why** we might want to use templates, we have to talk about **how** we can use them. And there is a lot of intricacies here that often turn the C++ beginners away. But I'm going to try to present all the relevant information here, in one lecture within a meaningful structure.
