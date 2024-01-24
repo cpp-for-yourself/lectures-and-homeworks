@@ -67,6 +67,9 @@ int main() {
 }
 ```
 Let's unpack what we see. The body of the function looks just as before. The only difference is the part **before** the function:
+<!--
+`CPP_SKIP_SNIPPET`
+-->
 ```cpp
 template <typename NumberType>
 ```
@@ -76,6 +79,14 @@ We will talk about all of the details a bit later. At this point, I want to make
 
 ### Generic classes
 The same story holds for generic classes too. As an example, think about the  `std::array` class that we touched upon before. By the way, this class is part of STL, which stands for **S**tandard **T**emplate **L**ibrary :wink:. We want to be able to store **any** type of data in an array and we don't want to have a separate implementation for all of those situations:
+<!--
+`CPP_SETUP_START`
+#include <cstddef>
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` array/main.cpp
+`CPP_RUN_CMD` CWD:array c++ -std=c++17 main.cpp
+-->
 ```cpp
 template <typename UnderlyingType, std::size_t kSize>
 struct Array {
@@ -91,6 +102,14 @@ Note how we have two template parameters here instead of one. The first one is a
 
 ### Generic algorithms and design patterns
 Anyway, apart from these "simple" abstractions, templates can be used for so much more, like implementing abstract design ideas in a composable and separable fashion. Just to give you one concrete example, we could think about an `Image` class, just like the one that we implemented in this course before, and implement a method `Save` for this class that takes in the `SavingStrategy` instance which will take care of the actual saving logic, separating the concerns of our classes better:
+<!--
+`CPP_SETUP_START`
+#include <vector>
+using Color = int;
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` image/image.hpp
+-->
 ```cpp
 class Image {
   public:
@@ -105,6 +124,16 @@ class Image {
 };
 ```
 This way we could have two (or even more) different classes, say `JpegSavingStrategy` and `PngSavingStrategy` that would implement their own logic to save an array of pixels to disk and the reason we want this is that as long as they have their own `Save` method, we would not need to touch our `Image` class should we want to change how the images are stored to disk at some point in the future.
+<!--
+`CPP_SETUP_START`
+#include "image.hpp"
+#include <filesystem>
+#include <vector>
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` image/main.cpp
+`CPP_RUN_CMD` CWD:image c++ -std=c++17 main.cpp
+-->
 ```cpp
 class JpegSavingStrategy {
   public:
@@ -150,14 +179,33 @@ These template parameters can be of various kinds:
 
 Today we focus on the first two - the template parameters representing types and ones representing simple numbers. Technically speaking there can be any number of any of these in any order. And, just like with function parameters, they can have a default value, although in most cases I would recommend not to use such default values.
 
+<!--
+`CPP_SETUP_START`
+#include <string>
+#include <vector>
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` templates_example/main.cpp
+`CPP_RUN_CMD` CWD:templates_example c++ -std=c++17 main.cpp
+-->
 ```cpp
 // For illustration purposes only,
 // Please use typename or class consistently
 template<class T1, int N1, typename T2, typename T3, std::size_t N2>
-void SomeFunc() {}
+void SomeFunc() {
+  // Some function implementation.
+}
 
 template<class T1, typename T2, class T3>
-struct SomeStruct() {}
+struct SomeStruct {
+  // Some struct implementation.
+};
+
+int main() {
+  SomeFunc<int, 42, std::string, std::vector<int>, 23UL>();
+  SomeStruct<int, double, std::string> instance;
+  return 0;
+}
 ```
 
 ### Calling templated functions
@@ -180,6 +228,16 @@ int main() {
 }
 ```
 Here, we call it just like a normal function. There is no way to tell it is a template function at the call site. The reason for this is that we have a single template parameter that specifies the type of the input arguments, both of which have this `NumberType` type. This makes it easy for the compiler to figure out which template function instantiation to use without us giving it any hints. So when it sees two integers it knows to instantiate the function:
+<!--
+`CPP_SETUP_START`
+$PLACEHOLDER
+int main() {
+  Maximum(42, 23);
+}
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` simple_max/main.cpp
+`CPP_RUN_CMD` CWD:simple_max c++ -std=c++17 main.cpp
+-->
 ```cpp
 int Maximum(int first, int second) {
   if (first < second) { return second; }
