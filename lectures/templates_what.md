@@ -221,6 +221,9 @@ Which we can compile from the terminal in the same way we compiled examples befo
 c++ -std=c++17 -o maximum maximum.cpp
 ```
 This produces an object file `maximum.o`. This object file is just a binary file in `ELF` format on Linux, or `Mach-O` format on MacOS. But for our purposes, both will equally do. We can inspect these files with `objdump` command. At this point, we are interested in looking at the part of this file that lists all the available symbols - *a symbols table*. We can read it by providing the appropriate flags (`-t` to get a symbols table and `-C` to get better looking symbol names):
+<!--
+`CPP_SKIP_SNIPPET`
+-->
 ```cpp
 λ › objdump -tC maximum.o
 
