@@ -1,3 +1,38 @@
+<!--
+It is crucially important to understand that this all happens **at compile time** and the compiler will **always** have to compile **the whole function**, which is a cause for a typical error many beginners make illustrated by [this Stack Overflow question](https://stackoverflow.com/questions/50253286/using-stdis-same-why-my-function-still-cant-work-for-2-types) that, slightly adapted, looks like this:
+```
+#include <iostream>
+#include <string>
+#include <type_traits>
+using std::string_literals::operator""s;
+
+template <typename T>
+void PrintLength(const T& argument) {
+  if (std::is_same_v<T, std::string>) {
+    std::cout << argument.size() << std::endl;
+  } else {
+    std::cout << 1 << std::endl;
+  }
+}
+
+int main() {
+  PrintLength("some_string"s);
+  PrintLength(42);
+}
+```
+We try to print length of various arguments and if we got `std::string` we want to print its `.size()` and print `"1"` for any other type. However, if we try to compile this, we'll get an error complaining about argument being a non-class type:
+```css
+<source>: In instantiation of 'void PrintLength(const T&) [with T = int]':
+<source>:17:14:   required from here
+<source>:9:27: error: request for member 'size' in 'argument', which is of non-class type 'const int'
+    9 |     std::cout << argument.size() << std::endl;
+      |                  ~~~~~~~~~^~~~
+Compiler returned: 1
+```
+The reason for this is that the compiler does not care about the logic in our function, it still needs to compile the function as a whole even if you, as a programmer, know that you never call the code that won't work. Try removing the `PrintLength("some_string"s)` line to see this for yourself. So, when the compiler tries to compile the whole function it cannot compile it for `int`.
+
+ -->
+
 
 ## How to use templates
 Now that we are on the same page as to **why** we might want to use templates as well as **what** happens under the hood, we have to talk about **how** we can use them. And there is a lot of intricacies here that often turn the C++ beginners away. But I'm going to try to present all the relevant information here, in one lecture within a meaningful structure.
