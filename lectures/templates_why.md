@@ -2,7 +2,7 @@ Why use templates?
 ---
 
 <p align="center">
-  <a href="https://youtu.be/blah"><img src="https://img.youtube.com/vi/blah/maxresdefault.jpg" alt="Video" align="right" width=50% style="margin: 0.5rem"></a>
+  <a href="https://youtu.be/1Mrt1NM3KnI"><img src="https://img.youtube.com/vi/1Mrt1NM3KnI/maxresdefault.jpg" alt="Video" align="right" width=50% style="margin: 0.5rem"></a>
 </p>
 
 - [Why use templates?](#why-use-templates)
@@ -111,8 +111,8 @@ struct Array {
 };
 
 int main() {
-  Array<int, 20> int_array;
-  Array<double, 20> double_array;
+  Array<int, 42> int_array;
+  Array<double, 23> double_array;
 }
 ```
 <!-- Talk about naming -->
@@ -130,16 +130,16 @@ $PLACEHOLDER
 -->
 ```cpp
 class Image {
-  public:
-    // Note how a member function can also be a template function
-    template <typename SavingStrategy>
-    void Save(const SavingStrategy& strategy) const {
-      strategy.Save(pixels_);
-    }
-    // Skipping any other class details for the sake of example.
+ public:
+  // Note how a member function can also be a template function
+  template <typename SavingStrategy>
+  void Save(const SavingStrategy& strategy) const {
+    strategy.Save(pixels_);
+  }
+  // Skipping any other class details for the sake of example.
 
-  private:
-    std::vector<Color> pixels_{};
+ private:
+  std::vector<Color> pixels_{};
 };
 ```
 This way we could have two (or more) different classes, say `JpegSavingStrategy` and `PngSavingStrategy` that would implement their own logic to save an array of pixels to disk and the reason we want this is that as long as they have their own `Save` method, the `Image` class would need to have no knowledge about how such saving actually is done. Which means that we would not need to touch our `Image` class should we want to change how the images are stored to disk at some point in the future.
