@@ -465,6 +465,24 @@ Headers with classes
 ----------------------------------------------------------
 </details>
 
+<details>
+<summary>Templates: why would we want to use them?</summary>
+
+----------------------------------------------------------
+[![Video thumbnail](https://img.youtube.com/vi/1Mrt1NM3KnI/maxresdefault.jpg)](https://youtu.be/1Mrt1NM3KnI)
+
+[Lecture script](lectures/templates_why.md)
+- Templates provide abstraction and separation of concerns
+- Function templates
+- Class and struct templates
+- Generic algorithms and design patterns
+- Zero runtime cost (almost)
+- Compile-time meta-programming
+- Summary
+
+----------------------------------------------------------
+</details>
+
 ---
 
 ## PS
