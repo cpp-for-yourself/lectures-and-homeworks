@@ -21,7 +21,7 @@ However, with great power come long error messages so historically, templates we
 
 And while we will talk about concepts at some point, I would like to start with templates as an important building block in our C++ understanding. Because this is quite a big topic, I decided to split it into the **why**, **what** and **how** parts:
 - In this lecture we talk about **why** we might want to use templates in the first place
-- Next we'll talk about **what** happens under the hood when we use them
+- Next we'll talk about [**what** happens under the hood](templates_what.md) when we use them
 - And finally we'll talk about all the details in a lecture about **how** to write templated code and stay sane.
 
 <!-- Intro -->
