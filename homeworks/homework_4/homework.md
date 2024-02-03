@@ -1,7 +1,7 @@
 # Writing a string processing library
 
 <p align="center">
-  <a href="https://youtu.be/f0x2qcFgu5o"><img src="https://img.youtube.com/vi/f0x2qcFgu5o/0.jpg" alt="Video" align="right" width=40%></a>
+  <a href="https://youtu.be/f0x2qcFgu5o"><img src="https://img.youtube.com/vi/f0x2qcFgu5o/maxresdefault.jpg" alt="Video" align="right" width=50% style="margin: 0.5rem"></a>
 </p>
 
 <!-- Talking head -->
@@ -53,9 +53,9 @@ homework_4/
     │   └── trim_strings.cpp
     ├── no_strings_attached/
     │   ├── CMakeLists.txt  # Defines all libraries
-    │   ├── split_string.cpp
-    │   ├── split_string.h
-    │   ├── split_string_test.cpp
+    │   ├── string_split.cpp
+    │   ├── string_split.h
+    │   ├── string_split_test.cpp
     │   └── ... # Same for all other libraries
     ├── .clang-format
     └── readme.md  # Description of your project. Go nuts!
@@ -76,7 +76,7 @@ These libraries must all be defined in the `no_strings_attached/CMakeLists.txt` 
 
 #### Header files
 They also should have header files so that they can be included with:
-- `#include <no_strings_attached/split_string.h>`
+- `#include <no_strings_attached/string_split.h>`
 - `#include <no_strings_attached/string_trim.h>`
 
 > :bulb: Such small libraries are a bit excessive for the real world use, but we are learning how to write libraries here, so it'll do :wink:
