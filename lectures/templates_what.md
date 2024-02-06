@@ -1,8 +1,7 @@
 What templates do under the hood
 ---
-
 <p align="center">
-  <a href="https://youtu.be/blah"><img src="https://img.youtube.com/vi/blah/maxresdefault.jpg" alt="Video" align="right" width=50% style="margin: 0.5rem"></a>
+  <a href="https://youtu.be/NKvEbPVllRE"><img src="https://img.youtube.com/vi/NKvEbPVllRE/maxresdefault.jpg" alt="Video" align="right" width=50% style="margin: 0.5rem"></a>
 </p>
 
 - [What templates do under the hood](#what-templates-do-under-the-hood)
