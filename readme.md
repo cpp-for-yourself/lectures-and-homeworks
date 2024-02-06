@@ -466,7 +466,7 @@ Headers with classes
 </details>
 
 <details>
-<summary>Templates: **why** would we want to use them?</summary>
+<summary>Templates: <b>why</b> would we want to use them?</summary>
 
 ----------------------------------------------------------
 [![Video thumbnail](https://img.youtube.com/vi/1Mrt1NM3KnI/maxresdefault.jpg)](https://youtu.be/1Mrt1NM3KnI)
@@ -484,7 +484,7 @@ Headers with classes
 </details>
 
 <details>
-<summary>Templates: **what** do they do under the hood?</summary>
+<summary>Templates: <b>what</b> do they do under the hood?</summary>
 
 ----------------------------------------------------------
 [![Video thumbnail](https://img.youtube.com/vi/NKvEbPVllRE/maxresdefault.jpg)](https://youtu.be/NKvEbPVllRE)
