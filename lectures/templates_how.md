@@ -1,47 +1,33 @@
-<!--
-It is crucially important to understand that this all happens **at compile time** and the compiler will **always** have to compile **the whole function**, which is a cause for a typical error many beginners make illustrated by [this Stack Overflow question](https://stackoverflow.com/questions/50253286/using-stdis-same-why-my-function-still-cant-work-for-2-types) that, slightly adapted, looks like this:
-```
-#include <iostream>
-#include <string>
-#include <type_traits>
-using std::string_literals::operator""s;
+How to use templates
+--
 
-template <typename T>
-void PrintLength(const T& argument) {
-  if (std::is_same_v<T, std::string>) {
-    std::cout << argument.size() << std::endl;
-  } else {
-    std::cout << 1 << std::endl;
-  }
-}
+<p align="center">
+  <a href="https://youtu.be/blah"><img src="https://img.youtube.com/vi/blah/maxresdefault.jpg" alt="Video" align="right" width=50% style="margin: 0.5rem"></a>
+</p>
 
-int main() {
-  PrintLength("some_string"s);
-  PrintLength(42);
-}
-```
-We try to print length of various arguments and if we got `std::string` we want to print its `.size()` and print `"1"` for any other type. However, if we try to compile this, we'll get an error complaining about argument being a non-class type:
-```css
-<source>: In instantiation of 'void PrintLength(const T&) [with T = int]':
-<source>:17:14:   required from here
-<source>:9:27: error: request for member 'size' in 'argument', which is of non-class type 'const int'
-    9 |     std::cout << argument.size() << std::endl;
-      |                  ~~~~~~~~~^~~~
-Compiler returned: 1
-```
-The reason for this is that the compiler does not care about the logic in our function, it still needs to compile the function as a whole even if you, as a programmer, know that you never call the code that won't work. Try removing the `PrintLength("some_string"s)` line to see this for yourself. So, when the compiler tries to compile the whole function it cannot compile it for `int`.
+- [What templates do under the hood](#what-templates-do-under-the-hood)
+- [Compilation process recap](#compilation-process-recap)
+- [Compiler uses templates to generate code](#compiler-uses-templates-to-generate-code)
+- [Hands-on example](#hands-on-example)
+- [Try it out!](#try-it-out)
+- [Compiler is lazy](#compiler-is-lazy)
+- [Summary](#summary)
 
- -->
+Now that we are on the same page as to **why** we might want to use templates as well as **what** happens under the hood when we use them, we have to talk about **how** to use them. And there is a lot of intricacies here that often turn the C++ beginners away. But I'm going to try to present all (well, ok, most) of the relevant information here, in one lecture within a meaningful structure. My ambition is to make this your one-stop lecture for everything related to how you can use templates.
 
-
-## How to use templates
-Now that we are on the same page as to **why** we might want to use templates as well as **what** happens under the hood, we have to talk about **how** we can use them. And there is a lot of intricacies here that often turn the C++ beginners away. But I'm going to try to present all the relevant information here, in one lecture within a meaningful structure.
+This involves talking about:
+- Function and class template parameters and how to pass them
+- Template type aliases
+- Declaration and definition of templates
+- Full and partial template specialization
+- Typical error messages when using templates and how to read them
+- Using template functions on template arguments
 
 ### The basics of writing templated functions and classes
-Whenever we want to create a templated class or function, we prefix the declaration (and definition) of such a class or a function with the keyword `template` followed by a list of [**template parameters**](https://en.cppreference.com/w/cpp/language/template_parameters).
+Whenever we want to create a class or function template, we prefix their declaration (and definition) with the keyword `template` followed by a list of [**template parameters**](https://en.cppreference.com/w/cpp/language/template_parameters).
 
 These template parameters can be of various kinds:
-1. Parameters representing types, just like in our `Maximum` function we had `typename NumberType`. These can be specified using either the keyword `typename` or the word `class` and generally there is no difference between the two ways but there are people with very strong opinion on the matter out there :wink: <!-- Please tell me which one you prefer :wink: -->
+1. Parameters representing types, just like in our `Maximum` function we had `typename NumberType`. These can be specified using either the keyword `typename` or the word `class` and in most cases there is no difference between the two ways but there are people with very strong opinion on the matter out there :wink: <!-- Please tell me which one you prefer :wink: -->
 2. Parameters representing values, like `std::size_t kSize` in our `Array` class example. In most cases these parameters are of integer and enum types but as of C++20 can also be floating point type and more. Oh, and such values can be computed as a compile-time expression, see [`std::is_integral`](https://en.cppreference.com/w/cpp/types/is_integral) for an example.
 3. Parameters representing a list of either of the above, the so-called **variadic templates**, more on these some other time.
 4. Parameters representing types that have `template` parameters of their own, the so-called `template template` parameters, but these are not used that often in my experience so we will probably touch upon those some other time.
@@ -59,7 +45,7 @@ $PLACEHOLDER
 -->
 ```cpp
 // For illustration purposes only,
-// Please use typename or class consistently
+// Please use either typename or class (just one) consistently
 template<class T1, int kN1, typename T2, typename T3, std::size_t kN2>
 void SomeFunc() {
   // Some function implementation.
@@ -431,3 +417,37 @@ If you have any questions just write them in the comments and I'll try to help o
 #### Partial template specialization
 
 ### Templates with header files and explicit template instantiation
+<!--
+It is crucially important to understand that this all happens **at compile time** and the compiler will **always** have to compile **the whole function**, which is a cause for a typical error many beginners make illustrated by [this Stack Overflow question](https://stackoverflow.com/questions/50253286/using-stdis-same-why-my-function-still-cant-work-for-2-types) that, slightly adapted, looks like this:
+```
+#include <iostream>
+#include <string>
+#include <type_traits>
+using std::string_literals::operator""s;
+
+template <typename T>
+void PrintLength(const T& argument) {
+  if (std::is_same_v<T, std::string>) {
+    std::cout << argument.size() << std::endl;
+  } else {
+    std::cout << 1 << std::endl;
+  }
+}
+
+int main() {
+  PrintLength("some_string"s);
+  PrintLength(42);
+}
+```
+We try to print length of various arguments and if we got `std::string` we want to print its `.size()` and print `"1"` for any other type. However, if we try to compile this, we'll get an error complaining about argument being a non-class type:
+```css
+<source>: In instantiation of 'void PrintLength(const T&) [with T = int]':
+<source>:17:14:   required from here
+<source>:9:27: error: request for member 'size' in 'argument', which is of non-class type 'const int'
+    9 |     std::cout << argument.size() << std::endl;
+      |                  ~~~~~~~~~^~~~
+Compiler returned: 1
+```
+The reason for this is that the compiler does not care about the logic in our function, it still needs to compile the function as a whole even if you, as a programmer, know that you never call the code that won't work. Try removing the `PrintLength("some_string"s)` line to see this for yourself. So, when the compiler tries to compile the whole function it cannot compile it for `int`.
+
+ -->
