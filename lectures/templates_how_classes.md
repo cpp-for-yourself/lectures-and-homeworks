@@ -1,74 +1,241 @@
-How to use templates
+<!-- Talk about static_assert -->
+
+How to use templates in C++
 --
 
 <p align="center">
   <a href="https://youtu.be/blah"><img src="https://img.youtube.com/vi/blah/maxresdefault.jpg" alt="Video" align="right" width=50% style="margin: 0.5rem"></a>
 </p>
 
-- [What templates do under the hood](#what-templates-do-under-the-hood)
-- [Compilation process recap](#compilation-process-recap)
-- [Compiler uses templates to generate code](#compiler-uses-templates-to-generate-code)
-- [Hands-on example](#hands-on-example)
-- [Try it out!](#try-it-out)
-- [Compiler is lazy](#compiler-is-lazy)
-- [Summary](#summary)
+- [How to use templates in C++](#how-to-use-templates-in-c)
+- [Function templates and their template parameters](#function-templates-and-their-template-parameters)
+  - [Template parameters that represent types](#template-parameters-that-represent-types)
+  - [Parameters representing non-type values](#parameters-representing-non-type-values)
+  - [Same situation with class methods](#same-situation-with-class-methods)
+- [Passing the template parameters](#passing-the-template-parameters)
+  - [Template parameters appear as function argument types](#template-parameters-appear-as-function-argument-types)
+  - [Template parameters DO NOT appear as function argument types](#template-parameters-do-not-appear-as-function-argument-types)
+  - [Mixing both cases](#mixing-both-cases)
+- [Full function template specialization and why function overloading is better](#full-function-template-specialization-and-why-function-overloading-is-better)
+  - [Creating instances of templated classes and structs](#creating-instances-of-templated-classes-and-structs)
+  - [Template specialization](#template-specialization)
+    - [Full template specialization](#full-template-specialization)
+    - [Partial template specialization](#partial-template-specialization)
+  - [Templates with header files and explicit template instantiation](#templates-with-header-files-and-explicit-template-instantiation)
 
-Now that we are on the same page as to **why** we might want to use templates as well as **what** happens under the hood when we use them, we have to talk about **how** to use them. And there is a lot of intricacies here that often turn the C++ beginners away. But I'm going to try to present all (well, ok, most) of the relevant information here, in one lecture within a meaningful structure. My ambition is to make this your one-stop lecture for everything related to how you can use templates.
 
-This involves talking about:
-- Function and class template parameters and how to pass them
-- Template type aliases
-- Declaration and definition of templates
-- Full and partial template specialization
+This video is the third video about templates. In the first video we talked about **why** we might want to use templates. Second video focused on **what** happens under the hood when we use them and today we can finally talk about **how** to use them.
+
+While there is a lot of intricacies related to templates that often turn the C++ beginners away, I'm going to try to present all (well, ok, most) of the relevant information here, in one lecture. My ambition is to make this your one-stop shop for all the basics you need to know about using templates for any kind of generic programming. That being said, I strongly urge you to go and look at the [**why**](templates_why.md) and the [**what**](templates_what.md) lectures before if you haven't already. I believe it will make this lecture much easier to digest.
+
+After you're done with those, you should be ready to hear about all the stuff we will cover today, namely:
+- Function templates and their template parameters
+- How to pass template parameters
+- Full function template specialization and why function overloading is better
+- Separating definition from declaration of function and class templates
 - Typical error messages when using templates and how to read them
+
+- Class templates and their template parameters
+- Partial template specialization
+- Combining class and function templates
+- Template type aliases
+
 - Using template functions on template arguments
 
-### The basics of writing templated functions and classes
-Whenever we want to create a class or function template, we prefix their declaration (and definition) with the keyword `template` followed by a list of [**template parameters**](https://en.cppreference.com/w/cpp/language/template_parameters).
+## Function templates and their template parameters
+Whenever we want to declare a function template, we prefix its declaration with the keyword `template` followed by a list of [**template parameters**](https://en.cppreference.com/w/cpp/language/template_parameters). Let's see an [example](https://godbolt.org/z/fof843d4j):
 
-These template parameters can be of various kinds:
-1. Parameters representing types, just like in our `Maximum` function we had `typename NumberType`. These can be specified using either the keyword `typename` or the word `class` and in most cases there is no difference between the two ways but there are people with very strong opinion on the matter out there :wink: <!-- Please tell me which one you prefer :wink: -->
-2. Parameters representing values, like `std::size_t kSize` in our `Array` class example. In most cases these parameters are of integer and enum types but as of C++20 can also be floating point type and more. Oh, and such values can be computed as a compile-time expression, see [`std::is_integral`](https://en.cppreference.com/w/cpp/types/is_integral) for an example.
-3. Parameters representing a list of either of the above, the so-called **variadic templates**, more on these some other time.
-4. Parameters representing types that have `template` parameters of their own, the so-called `template template` parameters, but these are not used that often in my experience so we will probably touch upon those some other time.
-
-Today we focus on the first two - the template parameters representing types and ones representing simple numbers. Technically speaking there can be any number of any of these in any order. And, just like with function parameters, they can have a default value, although in most cases I would recommend not to use such default values.
-
-<!--
-`CPP_SETUP_START`
-#include <string>
-#include <vector>
-$PLACEHOLDER
-`CPP_SETUP_END`
-`CPP_COPY_SNIPPET` templates_example/main.cpp
-`CPP_RUN_CMD` CWD:templates_example c++ -std=c++17 main.cpp
--->
 ```cpp
-// For illustration purposes only,
-// Please use either typename or class (just one) consistently
-template<class T1, int kN1, typename T2, typename T3, std::size_t kN2>
-void SomeFunc() {
-  // Some function implementation.
+#include <iostream>
+#include <typeinfo>
+
+template <typename T>
+void Foo() {
+    std::cout << "Got one template parameter: " << typeid(T).name()
+              << std::endl;
 }
 
-template<class T1, typename T2, class T3>
-struct SomeStruct {
-  // Some struct implementation.
-};
+template <int kNumber>
+void Foo() {
+    std::cout << "Got one template parameter: " << typeid(kNumber).name()
+              << " with value " << kNumber << std::endl;
+}
+
+template <typename T>
+void Foo(const T& p) {
+    std::cout << "Got one parameter: " << typeid(p).name() << " with value "
+              << p << std::endl;
+}
+
+template <typename T1, class T2>
+void Foo(const T1& p1, T2 p2) {
+    std::cout << "Got two parameters: " << typeid(p1).name() << " with value "
+              << p1 << ", " << typeid(p2).name() << " with value " << p2
+              << std::endl;
+}
 
 int main() {
-  SomeFunc<int, 42, std::string, std::vector<int>, 23UL>();
-  SomeStruct<int, double, std::string> instance;
+    Foo<int>();
+    Foo<42>();
+    Foo(42.42);
+    Foo(42, 42.42);
+    Foo(42.42, 42.42F);
+    return 0;
+}
+```
+Running this example gives us the following output:
+```
+Got one template parameter: i
+Got one template parameter: i with value 42
+Got one parameter: d with value 42.42
+Got two parameters: i with value 42, d with value 42.42
+Got two parameters: d with value 42.42, f with value 42.42
+```
+
+The template parameters can be of various kinds. In this example, they either represent **types**, like the `typename T`, and are prefixed by the `typename` or `class` keyword, or **non-types**, like the `int kNumber`. There are more options of what can be passed as template parameters but let us start with just these.
+
+### Template parameters that represent types
+First on our list are parameters representing types, shown as `typename T`, `typename T1`, `class T2` in our example above:
+<!--
+`CPP_SETUP_START`
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` foo_declarations/main.cpp
+`CPP_RUN_CMD` CWD:foo_declarations c++ -std=c++17 -c main.cpp
+-->
+```cpp
+template <typename T>
+void Foo();
+
+template <typename T>
+void Foo(const T& p);
+
+template <typename T1, class T2>
+void Foo(const T1& p1, T2 p2);
+```
+Such template parameters can be specified using either the keyword `typename` or the keyword `class` and in most cases these. I prefer the `typename` because it indicates that it can stand for any **type**, while `class` seems to suggest that it must be, well, a `class`, or a user-defined type. But there are people with very strong opinion on the matter in either way out there :wink: <!-- Please tell me which one you prefer :wink: -->
+
+Anyway, regardless what keyword we use our template parameters `T`, `T1`, and `T2`, when their corresponding function is called, take up a certain type. There are two cases how the compiler knows which type to set to our template parameter.
+
+We can provide this type explicitly:
+<!--
+`CPP_SETUP_START`
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` foo_explicit/main.cpp
+`CPP_RUN_CMD` CWD:foo_explicit c++ -std=c++17 -c main.cpp
+-->
+```cpp
+template <typename T>
+void Foo();
+
+int main() {
+  // We explicitly set type T to be int.
+  Foo<int>();
+  return 0;
+}
+```
+Or the compiler can figure it out from the function arguments:
+<!--
+`CPP_SETUP_START`
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` foo_implicit/main.cpp
+`CPP_RUN_CMD` CWD:foo_implicit c++ -std=c++17 -c main.cpp
+-->
+```cpp
+template <typename T>
+void Foo(const T& p);
+
+int main() {
+  // Compiler figures out that T is double from argument 42.42.
+  Foo(42.42);
   return 0;
 }
 ```
 
-### Calling templated functions
-Being able to define templated functions is great, but we want to know how to use them too. And the good news is that the basics are very simple. Largely speaking we can and probably should:
+Also, as you might have noticed, we can work with these types just like with any other built-in or user-defined types we've seen before. Which means that we can pass the arguments of these types by copy or by reference or in any other way we've seen before:
+<!--
+`CPP_SETUP_START`
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` foo_two_types/main.cpp
+`CPP_RUN_CMD` CWD:foo_two_types c++ -std=c++17 -c main.cpp
+-->
+```cpp
+template <typename T1, class T2>
+void Foo(const T1& p1, T2 p2);
+```
+
+<!-- TODO: talk about which types the compiler actually figures out here -->
+
+### Parameters representing non-type values
+Another type of template parameters we can provide represents non-type values, like `int kNumber` in our example above.
+<!--
+`CPP_SETUP_START`
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` explicit_number/number.hpp
+-->
+```cpp
+template <int kNumber>
+void Foo();
+```
+In C++17 these parameters must be of integer and enum types but as of C++20 can also be floating point type and more. Oh, and such values actually enable what is called **template meta-programming** as they can be computed as a compile-time expression, see [`std::is_integral`](https://en.cppreference.com/w/cpp/types/is_integral) for an example, but more on that later.
+
+There is no way for a compiler to figure out which numbers we mean without us explicitly passing a number to our function, so that's what we see in the example:
+<!--
+`CPP_SETUP_START`
+#include "number.hpp"
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` explicit_number/main.cpp
+`CPP_RUN_CMD` CWD:explicit_number c++ -std=c++17 -c main.cpp
+-->
+```cpp
+int main() {
+  Foo<42>();
+  return 0;
+}
+```
+
+### Same situation with class methods
+All of the stuff that we just discussed works in _exactly_ the same way for class methods. They can be templated just like any other function and there is really no difference on that front.
+```cpp
+// Using struct here, but could be a class.
+// Also showing declarations only, no definitions.
+struct Foo {
+  template <typename T>
+  static StaticFunc();
+
+  // We can use any modifier we would normally use.
+  template <typename T>
+  void Func() const;
+
+  template <typename T>
+  void FuncWithParameter(const T& param);
+};
+
+int main() {
+  Foo::StaticFunc<int>();       // T = int
+  Foo foo{};
+  foo.Func<float>();            // T = float
+  foo.FuncWithParameter(42.42); // T = double
+  foo.FuncWithParameter(42);    // T = int
+  return 0;
+}
+```
+Note here that we only talk about class method templates here, not the class templates. That we will talk about soon enough too.
+
+## Passing the template parameters
+Actually, we should talk some more about calling our function templates and how we can and should specify template arguments when doing so. The good news is that the basics are very simple. Largely speaking we probably should:
 - Let the compiler figure out the template parameters it can figure out
 - Specify the rest of the template parameters explicitly
 
-The bad news is that the order in which we introduce our template parameters and the function arguments matters. But let's not get ahead of ourselves and start small. Remember our `Maximum` function?
+The bad news is that the order in which we introduce our template parameters and the function arguments matters and it is one of the things that has historically been quite confusing to the beginners.
+
+### Template parameters appear as function argument types
+But let's not get ahead of ourselves and start small. Remember our `Maximum` function?
 ```cpp
 template <typename NumberType>
 NumberType Maximum(NumberType first, NumberType second) {
@@ -82,7 +249,7 @@ int main() {
   Maximum(3.14, 42.42);     // double
 }
 ```
-Here, we call it just like a normal function. There is no way to tell it is a template function at the call site. The reason for this is that we have a single template parameter that specifies the type of the input arguments, both of which have this `NumberType` type. This makes it easy for the compiler to figure out which template function instantiation to use without us giving it any hints. So when it sees two integers it knows to instantiate the function:
+Here, we call it just like a normal function. There is no way to tell it is a template function at the call site. The reason for this is that we have a single template parameter `NumberType` that specifies the type of the input arguments, both of which have this `NumberType` type. This makes it easy for the compiler to figure out which template function instantiation to use without us giving it any hints. So when it sees two integers it knows to instantiate the function:
 <!--
 `CPP_SETUP_START`
 $PLACEHOLDER
@@ -101,6 +268,7 @@ int Maximum(int first, int second) {
 ```
 And uses that function.
 
+### Template parameters DO NOT appear as function argument types
 So far so good. Now, if we have a template parameter that does not appear in the arguments of the function, we will have to tell the compiler which type we want to see there. As an example, let's consider a function that simply returns a default value.
 ```cpp
 template<class T>
@@ -109,14 +277,15 @@ T GetDefaultValue() {
 }
 
 int main() {
-  auto default_int = GetDefaultValue<int>();
-  auto default_double = GetDefaultValue<double>();
+  int default_int = GetDefaultValue<int>();
+  double default_double = GetDefaultValue<double>();
   return 0;
 }
 ```
 Here, the compiler cannot guess the needed type on its own (remember that the return type is not part of the function signature, so cannot be used to guess the template parameter). So we provide help by calling a function with the explicit type we want `GetDefaultValue<int>`.
 
-This all gets slightly more complex when we mix the two cases - when we have some template parameters that the compiler is able to guess and some that it cannot. The complications arise because the compiler's ability to guess the types depends partially on the order of function arguments as well as on the order of the template parameters.
+### Mixing both cases
+This all gets slightly more complex when we mix both cases - when we have some template parameters that the compiler is able to guess from arguments and some that it cannot. The complications arise because the compiler's ability to guess the types depends partially on the order of function arguments as well as on the order of the template parameters.
 
 One easy way to think about it is this:
 > 🚨 When we specify the template arguments explicitly, we are specifying them **from left to right**. Then, when the compiler doesn't see any more explicit template parameters, it looks at the function arguments and tries to figure out the rest.
@@ -161,7 +330,72 @@ Compiler returned: 1
 
 Feel free to experiment with various error messages here to get a feeling for them but we'll also talk about how to read such messages towards the end of today's lecture.
 
+<!-- TODO: don't like this phrase -->
 Generally speaking, template type deduction is a [very complex topic](https://en.cppreference.com/w/cpp/language/template_argument_deduction) with many details to consider, so you probably won't ever know all of these rules, but as long as you try to write simple code you should get by with what we've just discussed.
+
+## Full function template specialization and why function overloading is better
+There is one very important thing that we can do with any template - we can specialize it for certain types. There are two kinds of specialization: **full** and **partial**. In today's lecture we will look at both in-depth but we will start with the full specialization now.
+
+> 🚨 Functions only allow for full specialization and even that is probably [not what we want to actually do](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#t144-dont-specialize-function-templates).
+
+Let's unpack this statement. First of all, let's try to understand what does full template specialization mean.
+
+If we have a function template `Foo` with, say a template parameter `typename T`, we can **specialize** this function for a certain type, say `T=float` to have a separate implementation. The syntax for this is to repeat the function definition, changing the prefix to `template <>` and then using the concrete types in the rest of the function.
+```cpp
+// Showing declarations only, no implementation.
+template<typename T>
+void Foo(T param);
+
+// 😱 Probably not what we would want to do.
+template<>
+void Foo(double param);
+
+int main() {
+    Foo(42); // Calls generic Foo.
+    Foo(42.42);  // Calls the specialization.
+}
+```
+The compiler sees the calls to the `Foo` functions and prefers the specialization if it matches the types, like in the case when we pass a `double` number `42.42` into it.
+
+While it seems to be working just fine, there is a subtle issue with this code. The issue is that functions have another powerful mechanism that we talked about: [**overloading**](functions.md#function-overloading---writing-functions-with-the-same-names). And template specializations **do not participate in overload resolution**. In human speak it means that if there is a function overload that fits better than a template specialization it is always going to be preferred like in [this example](https://godbolt.org/z/YTzrzM5s9):
+```cpp
+// Showing declarations only, no implementation.
+template<typename T>
+void Foo(T param);
+
+// 😱 Probably not what we would want to do.
+template<>
+void Foo(double param);
+
+// ✅ Function overload, probably what we actually want.
+void Foo(double param);
+
+int main() {
+    Foo(42); // Calls generic Foo.
+    Foo(42.42);  // Calls the double function overload.
+}
+```
+So in most cases when we have a function template and we want a different behavior for certain argument types, we should prefer overloading our functions rather than specializing the template. Which is also what is suggested in the [C++ Core Guidelines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#t144-dont-specialize-function-templates).
+
+On some rare occasion it might be useful to specialize a function template that has no function arguments but we mostly want to specialize a class template instead, which we will discuss very soon.
+
+Anyway, one example that comes to mind would be having a function that should get a certain `enum` value depending on the provided type:
+```cpp
+enum class Type {
+  kNone, kFloat, kInt
+};
+
+template <typename T>
+Type Convert() { return kNone; }
+
+template <>
+Type Convert<float>() { return kFloat; }
+
+template <>
+Type Convert<int>() { return kInt; }
+```
+But even here it is much more conceivable that we will actually get a value as a function argument which would bring us to the previous situation and to function overloading being a better solution.
+
 
 ### Creating instances of templated classes and structs
 When we instantiate our templated classes and structs the situation is very similar to how we call functions. That is if we use C++17 and later because C++17 introduced the [**C**lass **T**emplate **A**rgument **D**eduction (CTAD)](https://en.cppreference.com/w/cpp/language/class_template_argument_deduction). Before that version you would have to specify all the types manually. Let's see how it works on a simple example.
