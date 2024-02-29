@@ -105,6 +105,9 @@ int main() {
 In this example, `kNumber` is a non-type template parameter. Such template parameters are just compile-time constants of their respective types and when we run the code it will print the values we pass to our template parameters. Before C++20 they could only be integer-like numbers but from C++20 on they can also be floating point numbers or even strings. Oh, and they can also be `auto` but I wouldn't use `auto` like this here.
 
 Please note, that the value we provide as our template arguments should be available **at compile time**, meaning that it either has to be a compile-time constant or a result of a constant expression, so we cannot use a normal non-const variable when instantiating such a function template:
+<!--
+`CPP_SKIP_SNIPPET`
+-->
 ```cpp
 // Somewhere in some function
 PrintValue<42>();  // Ok
@@ -142,17 +145,43 @@ The first call assigns `T1=int, kNumber=42, T2=float, kCondition=true, T3=int, T
 This is more or less everything we have to know about function templates if they don't have any function parameters. If they _do_ have such parameters, that use the template parameters for their types, then the compiler is able to reason about the template parameters based on the types of these provided function arguments. Which is really handy but complicates the things a little. So let's see what it gives us as well as what pitfalls we should be aware of.
 
 We'll start again with a tiny example. With a normal function `Print` that has a single `int` parameter:
+<!--
+`CPP_SETUP_START`
+#include <iostream>
+$PLACEHOLDER
+int main() {
+  Print(42);
+}
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` tiny/main.cpp
+`CPP_RUN_CMD` CWD:tiny c++ -std=c++17 main.cpp
+-->
 ```cpp
 void Print(int p) { std::cout << p << "\n"; }
 ```
 Nothing magical about this function. We've seen tons of these by now. However, just as before, we want it to be a function template instead because we might want it to work for more than just `int` arguments.
 
 We can achieve this in exactly the same way as what we've just discussed, by introducing the `template` keyword before the function as well as specifying all the necessary template parameters using `typename` or `class` keywords (of which we will just as before use just `typename`). We will also again just print the argument of our function ([demo](https://godbolt.org/z/18hEGTM51)):
+<!--
+`CPP_SETUP_START`
+#include <iostream>
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` tiny_template/print.hpp
+-->
 ```cpp
 template <typename T>
 void Print(T p) { std::cout << p << std::endl; }
 ```
 We can call this function with any type we want:
+<!--
+`CPP_SETUP_START`
+#include "print.hpp"
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` tiny_template/main.cpp
+`CPP_RUN_CMD` CWD:tiny_template c++ -std=c++17 main.cpp
+-->
 ```cpp
 int main() {
   Print(42);     // T = int
@@ -166,6 +195,14 @@ And it will work just as we expect and print the output with the correct types `
 42.42
 ```
 What is important to note here is that the compiler is able to figure out the template parameter to be `int` or `double` purely depending on the function arguments that we provide, without us providing the types explicitly as opposed to what we did before. That being said, we _can_ explicitly provide the type we want. Which makes the following calls equivalent:
+<!--
+`CPP_SETUP_START`
+#include "print.hpp"
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` tiny_template/main_explicit.cpp
+`CPP_RUN_CMD` CWD:tiny_template c++ -std=c++17 main_explicit.cpp
+-->
 ```cpp
 int main() {
     Print(42);          // T = int
@@ -181,6 +218,8 @@ Now, one small remark here, think about what happens if you change `Print<double
 ### We can use const references, pointers etc.
 Now that we are talking about passing arguments to the function, we are still able to do what we learned before and use a constant reference for the input arguments:
 ```cpp
+#include <iostream>
+
 template <typename T>
 void Print(const T& p) { std::cout << p << std::endl; }
 
@@ -194,7 +233,15 @@ Which prints exactly the same things as before. However, there is a caveat here 
 
 ### Multiple template parameters
 We can further extend this example by adding more template parameters into the mix. Just as before, we just extend the template parameter list to more types ([demo](https://godbolt.org/z/hzrrWaj6d)):
+<!--
+`CPP_SETUP_START`
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` print_two_params/print.hpp
+-->
 ```cpp
+#include <iostream>
+
 template <typename T1, typename T2>
 void Print(const T1& p1, T2 p2, T1 p3) {
     std::cout << p1 << ", "  //
@@ -203,6 +250,14 @@ void Print(const T1& p1, T2 p2, T1 p3) {
 }
 ```
 So here, we have two template parameters `T1` and `T2` that we use to specify the types of our function parameters. And, of course, we can run it by either letting the compiler figure out the template parameters on its own or providing them explicitly:
+<!--
+`CPP_SETUP_START`
+#include "print.hpp"
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` print_two_params/main.cpp
+`CPP_RUN_CMD` CWD:print_two_params c++ -std=c++17 main.cpp
+-->
 ```cpp
 int main() {
     Print(42, 42.42, 23);               // T1=int, T2=double
@@ -220,6 +275,9 @@ Which results in printing the expected argument values:
 Actually there is one more thing in this example that we haven't seen before. We have 3 function parameters but only two template parameters. This is to show that there is no need for a 1-to-1 correspondence between their number. This totally makes sense too. Just as we can have a function that accepts 3 integers, we can have a function that accepts 3 different arguments on any **same** type. In our case, we want the first and the last argument of our function to have the same type (albeit first being a `const` reference) and only the second argument to be of the different type.
 
 Now, if we fail to match the types of the first and the last argument by, say, providing a `double` as the last argument as opposed to the expected `int`:
+<!--
+`CPP_SKIP_SNIPPET`
+-->
 ```cpp
 Print(42, 42.42, 23.23);  // ❌ Won't compile
 ```
@@ -273,6 +331,7 @@ If we try to call our function without the last argument:
 `CPP_SKIP_SNIPPET`
 -->
 ```cpp
+// ❌ Won't compile.
 SomeFunction<float, 42>(42.42, 23, 23.23F);
 ```
 We will get an error along the lines of "candidate expects 4 arguments, 3 provided":
@@ -289,7 +348,11 @@ Compiler returned: 1
 ```
 
 If we provide a wrong type in the last argument:
+<!--
+`CPP_SKIP_SNIPPET`
+-->
 ```cpp
+// ❌ Won't compile.
 SomeFunction<float, 42>(42.42, 23, 23.23F, 42);
 ```
 We will instead get an error about a "conflicting type for a parameter" as the compiler will see that our type `Three` must be both `double` **and** `int` at the same time to match our template:
@@ -601,6 +664,9 @@ Write your answers in the comments to the video including the reasoning for what
 One final thing for today is that everything related to templates happens at compile time. Which has its consequences. One of the errors that I see beginners do (and did it myself some many years ago) is to assume that the compiler cares about the logic inside of the function when it compiles it. The reasoning goes along the way that if we logically guarantee that a code path will never be taken then it's ok for this path to not compile and the compiler should still be fine with this. Unfortunately, this is not the case.
 
 Let us illustrate this with an example. Let's say we have a function `GetLength` that should return lengths of various objects. And it has a couple of template parameters, the non-type enum value representing which type we expect and then the type template parameter that actually represents the type of the function parameter. We then try to write the code that logically seems quite sane:
+<!--
+`CPP_SKIP_SNIPPET`
+-->
 ```cpp
 #include <string>
 
