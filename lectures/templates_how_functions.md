@@ -33,7 +33,7 @@ After you're done with those, you should be ready to hear about all the stuff we
   - [First example of why function specialization is confusing](#first-example-of-why-function-specialization-is-confusing)
   - [Second example of why function specialization is confusing](#second-example-of-why-function-specialization-is-confusing)
 - [Everything happens at compile-time!](#everything-happens-at-compile-time)
-- [Conclusion](#conclusion)
+- [Summary](#summary)
 
 <!-- Intro -->
 
@@ -726,7 +726,7 @@ int main() {
 ```
 With this change the code compiles and runs as expected. If we're feeling adventurous we could even say that with this example we dipped our feet into compile-time meta programming. 🤘 In reality we don't really need an explicit `enum` for purposes similar to the one in the example and we have more tools for conditional compilation as well as tools for estimating traits about our types but more on that in the future.
 
-## Conclusion
+## Summary
 If you've made it this far, you are a hero! You're clearly interested in templates and determined enough to listen to me ramble about them for a long time.
 <!-- So why not subscribe to this channel to not miss what's coming? -->
 
