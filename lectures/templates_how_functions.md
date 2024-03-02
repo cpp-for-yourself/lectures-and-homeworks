@@ -510,7 +510,7 @@ Here, we provide such a specialization for our `Print` function and this will do
 ### First example of why function specialization is confusing
 So if all seems to be working then what't the issue? Why is it that it is suggested to not specialize function templates?
 
-This topic is quite confusing because of the complicated rules of [template argument deduction](https://en.cppreference.com/w/cpp/language/template_argument_deduction). The best thing I can do is give a couple of examples that look a little counterintuitive to me (and to [many other people](https://stackoverflow.com/questions/25353976) for that matter).
+This topic is quite confusing because of the complicated rules of [template argument deduction](https://en.cppreference.com/w/cpp/language/template_argument_deduction). The best thing I can do is give a couple of examples that look a little counterintuitive to me (and to [many other people](http://stackoverflow.com/questions/25353976) for that matter).
 
 Let us start with an example related to passing objects by `const` references. Assuming we have some relatively large object `Object` we would have the code that does something with it using a function template `Process`. Now we want some special processing for our `Object` so we have a bright idea to specialize the function template `Process` and we use a `const Object&` as an input type because we don't want to copy our object ([demo](https://godbolt.org/z/ejdY7ezzz)):
 ```cpp
