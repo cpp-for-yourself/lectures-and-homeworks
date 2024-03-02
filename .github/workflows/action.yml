@@ -7,16 +7,16 @@ jobs:
     name: All Markdown links are valid
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@master
-    - uses: gaurav-nelson/github-action-markdown-link-check@1.0.15
+    - uses: actions/checkout@v4
+    - uses: gaurav-nelson/github-action-markdown-link-check@v1
+      with:
+        config-file: '.github/mcl_config.json'
 
   check-snippet-compilation:
     name: All code snippets compile
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v2
-
+    - uses: actions/checkout@v4
     - name: Check that all snippets compile
       run: |
         pip install pipenv
