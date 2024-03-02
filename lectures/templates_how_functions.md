@@ -519,6 +519,7 @@ Let us start with an example related to passing objects by `const` references. A
 struct Object {
     Object() = default;
     Object(const Object& other) { std::cout << "copy\n"; }
+    // 😱 Omitting the rule of all or nothing for shortness.
 };
 
 template <typename T>
@@ -559,6 +560,7 @@ With this modification, the correct specialization is called and the object is n
 struct Object {
     Object() = default;
     Object(const Object& other) { std::cout << "copy\n"; }
+    // 😱 Omitting the rule of all or nothing for shortness.
 };
 
 template <typename T>
