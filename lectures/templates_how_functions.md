@@ -487,6 +487,9 @@ Now, try to answer yourself, what if we add our `Print(int)` function back into 
 Just as we could overload on a pointer type just now, we technically can overload on reference types. The problem is that while a pointer has its own semantics and the compiler is happy to distinguish it from a normal variable, this is not the case for the references.
 
 This results in us not being able to have both the version that accepts `T` and the version that accepts a reference type, say `const T&` ([demo](https://godbolt.org/z/57adWKzYz)):
+<!--
+`CPP_SKIP_SNIPPET`
+-->
 ```cpp
 template <typename T>
 void Function(T parameter);
