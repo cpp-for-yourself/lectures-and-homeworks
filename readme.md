@@ -498,6 +498,23 @@ Headers with classes
 ----------------------------------------------------------
 </details>
 
+<details>
+<summary>How to write function templates</summary>
+
+----------------------------------------------------------
+[![Video thumbnail](https://img.youtube.com/vi/BZ626ZWPspc/maxresdefault.jpg)](https://youtu.be/BZ626ZWPspc)
+
+[Lecture script](lectures/templates_how_functions.md)
+- The basics of writing a function template
+- Explicit template parameters
+- Implicit template parameters
+- Using both explicit and implicit template parameters at the same time
+- Function overloading and templates
+- Full function template specialization and why function overloading is better
+
+----------------------------------------------------------
+</details>
+
 
 ## PS
 

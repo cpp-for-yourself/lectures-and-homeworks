@@ -3,7 +3,7 @@
 ----
 
 <p align="center">
-  <a href="https://youtu.be/blah"><img src="https://img.youtube.com/vi/blah/maxresdefault.jpg" alt="Video" align="right" width=50% style="margin: 0.5rem"></a>
+  <a href="https://youtu.be/BZ626ZWPspc"><img src="https://img.youtube.com/vi/BZ626ZWPspc/maxresdefault.jpg" alt="Video" align="right" width=50% style="margin: 0.5rem"></a>
 </p>
 
 By now we talked about **why** we might want to use templates, **what** happens under the hood when we use them and today we can finally start talking about **how** to use them.
@@ -22,6 +22,7 @@ After you're done with those, you should be ready to hear about all the stuff we
   - [Multiple different template parameters](#multiple-different-template-parameters)
 - [Implicit template parameters](#implicit-template-parameters)
   - [We can use const references, pointers etc.](#we-can-use-const-references-pointers-etc)
+  - [Forwarding references](#forwarding-references)
   - [Multiple template parameters](#multiple-template-parameters)
   - [Multiple arguments of the same template type](#multiple-arguments-of-the-same-template-type)
 - [Using both explicit and implicit template parameters at the same time](#using-both-explicit-and-implicit-template-parameters-at-the-same-time)
@@ -29,6 +30,7 @@ After you're done with those, you should be ready to hear about all the stuff we
 - [Function overloading and templates](#function-overloading-and-templates)
   - [Function overloading with concrete types](#function-overloading-with-concrete-types)
   - [Function template overloading](#function-template-overloading)
+  - [Be careful overloading on reference types](#be-careful-overloading-on-reference-types)
 - [Full function template specialization and why function overloading is better](#full-function-template-specialization-and-why-function-overloading-is-better)
   - [First example of why function specialization is confusing](#first-example-of-why-function-specialization-is-confusing)
   - [Second example of why function specialization is confusing](#second-example-of-why-function-specialization-is-confusing)
@@ -205,10 +207,10 @@ $PLACEHOLDER
 -->
 ```cpp
 int main() {
-    Print(42);          // T = int
-    Print<int>(42);     // T = int
-    Print(42.42);       // T = double
-    Print<double>(42);  // T = double
+    Print(42);             // T = int
+    Print<int>(42);        // T = int
+    Print(42.42);          // T = double
+    Print<double>(42.42);  // T = double
     return 0;
 }
 ```
@@ -229,10 +231,25 @@ int main() {
   return 0;
 }
 ```
-Which prints exactly the same things as before. However, there is a caveat here that might seem quite confusing at first. We cannot have both the version that accepts `T` and the version that accepts `const T&`. The reason for this is that there is no way for the compiler to figure out at the call site which version we mean so we can't have both. There are ways to mitigate this but they are more involved and we will talk about them later. For now you should be good with a constant reference as input in most cases.
+Which prints exactly the same things as before.
+
+### Forwarding references
+After we used a const reference with no issue for our template parameter we might become brave and remember stuff that we discussed when we talked about move semantics. So we might want to use a rref `&&` and an input parameter to our function template.
+
+However, the naïve logic fails us here as when we use a type template parameter with `&&` we are **not** getting an rref, we are getting a **forwarding reference** (also sometimes called a **universal reference**):
+<!--
+`CPP_SKIP_SNIPPET`
+-->
+```cpp
+// 🚨 This is a FORWARDING reference, not an rref!
+template <typename T>
+void Print(T&& p);
+```
+
+These behave slightly differently from normal rrefs and allow to use a single function to handle both normal references and rrefs making use of the [`std::forward`](https://en.cppreference.com/w/cpp/utility/forward) function. We will not go deeper into this here and will talk about it separately.
 
 ### Multiple template parameters
-We can further extend this example by adding more template parameters into the mix. Just as before, we just extend the template parameter list to more types ([demo](https://godbolt.org/z/hzrrWaj6d)):
+We can, however, further extend our printing example in a different way, by adding more template parameters into the mix. Just as before, we just extend the template parameter list to more types ([demo](https://godbolt.org/z/M68qohaPh)):
 <!--
 `CPP_SETUP_START`
 $PLACEHOLDER
@@ -246,7 +263,7 @@ template <typename T1, typename T2>
 void Print(const T1& p1, T2 p2, T1 p3) {
     std::cout << p1 << ", "  //
               << p2 << ", "  //
-              << p2 << std::endl;
+              << p3 << std::endl;
 }
 ```
 So here, we have two template parameters `T1` and `T2` that we use to specify the types of our function parameters. And, of course, we can run it by either letting the compiler figure out the template parameters on its own or providing them explicitly:
@@ -267,8 +284,8 @@ int main() {
 ```
 Which results in printing the expected argument values:
 ```
-42, 42.42, 42.42
-42, 42.42, 42.42
+42, 42.42, 23
+42, 42.42, 23
 ```
 
 ### Multiple arguments of the same template type
@@ -402,9 +419,13 @@ The good news is that if we add a function template into the mix, function overl
 #include <iostream>
 
 template <typename T>
-void Print(T number) { std::cout << "T: " << number << "\n"; }
+void Print(T number) {
+  std::cout << "T: " << number << "\n";
+}
 
-void Print(int number) { std::cout << "int: " << number << "\n"; }
+void Print(int number) {
+  std::cout << "int: " << number << "\n";
+}
 
 int main() {
   Print(42);     // Still chooses int
@@ -461,6 +482,37 @@ vector: 1 2 3
 The intuition behind it (which can actually go quite a long way) is that the compiler will pick that overload which is more specific to the input. So when we pass a vector it actually fits to two of our `Print` functions, as it also fits into the basic implementation. However, the vector overload is much more specific - it only accepts vectors, while the basic function accepts vectors and all other sorts of types. So the compiler considers the vector overload to be more specific and picks it. The same story holds for the pointer.
 
 Now, try to answer yourself, what if we add our `Print(int)` function back into the mix? What will change?
+
+### Be careful overloading on reference types
+Just as we could overload on a pointer type just now, we technically can overload on reference types. The problem is that while a pointer has its own semantics and the compiler is happy to distinguish it from a normal variable, this is not the case for the references.
+
+This results in us not being able to have both the version that accepts `T` and the version that accepts a reference type, say `const T&` ([demo](https://godbolt.org/z/57adWKzYz)):
+```cpp
+template <typename T>
+void Function(T parameter);
+
+template <typename T>
+void Function(const T& parameter);
+
+int main() {
+  Function(42);  // ❌ Won't compile
+}
+```
+If we try to compile the above we're going to get a compilation error along the lines of the call being ambiguous:
+```css
+<source>: In function 'int main()':
+<source>:8:11: error: call of overloaded 'Function(int)' is ambiguous
+    8 |   Function(42);  // ❌ Won't compile
+      |   ~~~~~~~~^~~~
+<source>:2:6: note: candidate: 'void Function(T) [with T = int]'
+    2 | void Function(T parameter);
+      |      ^~~~~~~~
+<source>:5:6: note: candidate: 'void Function(const T&) [with T = int]'
+    5 | void Function(const T& parameter);
+      |      ^~~~~~~~
+Compiler returned: 1
+```
+The reason for this is that there is no way for the compiler to figure out at the call site which version we mean. So we can't use both overloads at the same time. However, in most cases we should be good with using constant references by default. If we need to squeeze more performance by copying small types we will have to go towards partial specialization with classes instead. And for those cases when we need to forward ownership of an object through a function we have the _forwarding reference_ that I mentioned before.
 
 ## Full function template specialization and why function overloading is better
 Now one last thing to talk about today is template specialization. Generally speaking it can be of two kinds: **full** and **partial**. However, function templates can only be **fully** specialized so we will only talk about that kind today.
