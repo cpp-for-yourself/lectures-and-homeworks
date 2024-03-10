@@ -2,6 +2,7 @@
 marp: true
 math: katex
 theme: custom-theme
+paginate: true
 footer: ![width:80px](images/C++ForYourselfIcon.png)
 ---
 
@@ -11,7 +12,7 @@ footer: ![width:80px](images/C++ForYourselfIcon.png)
 - `if` statements and ternary operator
 - Loops: `for` and `while`
 
-### 📺 Watch the related [YouTube video](https://youtu.be/jzgTxosgGIA)! 
+### 📺 Watch the related [YouTube video](https://youtu.be/jzgTxosgGIA)!
 
 ---
 # Special symbols used in slides
@@ -55,9 +56,9 @@ if (STATEMENT) {
 - 💡 Curly brackets can be omitted for single-line statements
   <!--
   `CPP_SETUP_START`
-  
+
   inline void DoThis(){}
-  
+
   int main() {
     bool STATEMENT{};
     $PLACEHOLDER
@@ -91,7 +92,7 @@ if (STATEMENT) {
   ```cpp
   bool condition = GetRandomTrueOrFalse();
   condition ? CallIfTrue() : CallIfFalse();
-  ``` 
+  ```
 - This is **equivalent** to the following `if` statement:
   <!--
   `CPP_SETUP_START`
@@ -276,7 +277,7 @@ for (int i = 0; i < kIterationCount; ++i) {
 
 ---
 # 🔼1️⃣1️⃣ Range for loop
-- ✅ Iterate over a standard containers with simpler syntax: 
+- ✅ Iterate over a standard containers with simpler syntax:
   `std::array`, `std::vector`, or even `std::map`, *etc*.
 - Allows us to avoid mistakes with indices and shows intent
   <!--
@@ -351,7 +352,7 @@ for (int i = 0; i < kIterationCount; ++i) {
     // Do this forever
   }
   ```
-  
+
 
 ---
 # Exit loops and iterations

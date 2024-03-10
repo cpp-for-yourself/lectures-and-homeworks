@@ -2,7 +2,7 @@
 marp: true
 math: katex
 theme: custom-theme
-# paginate: true
+paginate: true
 footer: ![width:80px](images/C++ForYourselfIcon.png)
 ---
 

@@ -1,10 +1,22 @@
-# [Introduction to testing with googletest](https://youtu.be/pxJoVRfpRPE)
+**Introduction to testing with googletest**
 
 <p align="center">
-  <a href="https://youtu.be/pxJoVRfpRPE"><img src="https://img.youtube.com/vi/pxJoVRfpRPE/0.jpg" alt="Video" align="right" width=50%></a>
+  <a href="https://youtu.be/pxJoVRfpRPE"><img src="https://img.youtube.com/vi/pxJoVRfpRPE/maxresdefault.jpg" alt="Video" align="right" width=50%></a>
 </p>
 
-## Why you should care about testing
+- [What does "testing" even mean](#what-does-testing-even-mean)
+- [The usual automated testing frameworks](#the-usual-automated-testing-frameworks)
+  - [How to get the googletest code](#how-to-get-the-googletest-code)
+  - [How to include googletest in our CMake project](#how-to-include-googletest-in-our-cmake-project)
+  - [How to use the googletest framework](#how-to-use-the-googletest-framework)
+  - [How to write your first test](#how-to-write-your-first-test)
+  - [How to run a Google test?](#how-to-run-a-google-test)
+  - [Testing our own libraries](#testing-our-own-libraries)
+- [How to keep googletest in our project codebase correctly?](#how-to-keep-googletest-in-our-project-codebase-correctly)
+  - [Update the submodules automagically](#update-the-submodules-automagically)
+- [Conclusion](#conclusion)
+
+
 
 <!-- Talking head -->
 You already know how to write some C++ code. Furthermore, you also know that the code should be structured into bite-sized chunks and that you can write functions that you can put into libraries.

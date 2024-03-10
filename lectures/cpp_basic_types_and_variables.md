@@ -3,7 +3,7 @@ marp: true
 math: katex
 theme: custom-theme
 footer: ![width:80px](images/C++ForYourselfIcon.png)
-
+paginate: true
 ---
 
 # Basics of C++
@@ -14,7 +14,7 @@ footer: ![width:80px](images/C++ForYourselfIcon.png)
 - `const`, `constexpr`
 - References
 
-#### 📺 Watch the related [YouTube video](https://youtu.be/0z0gvv_Tb_U)! 
+#### 📺 Watch the related [YouTube video](https://youtu.be/0z0gvv_Tb_U)!
 
 ---
 # Prerequisites:
@@ -128,7 +128,7 @@ unsigned long explicit_copy = number; // This works too!
 # Difference between integer types
 - The difference is in the range of representable values
 - We will talk about this later in the course
-- We can get the range for any type `T`: 
+- We can get the range for any type `T`:
   - `std::numeric_limits<T>::min()` - minimum value
   - `std::numeric_limits<T>::max()` - maximum value
   - they live in the `<limits>` header
@@ -140,7 +140,7 @@ unsigned long explicit_copy = number; // This works too!
 int main() {
   std::printf("Min: %d, max: %d\n",
          std::numeric_limits<int>::min(),
-         std::numeric_limits<int>::max());                   
+         std::numeric_limits<int>::max());
   return 0;
 }
 ```
@@ -251,47 +251,47 @@ Here is a rule of thumb to tell them apart :+1:
 - Can be used for constants created at **run time**
 - Can be initialized with **any** provided value
 - _Sometimes_ will be available at compile time
-<!--
-`CPP_SETUP_START`
-int main() {
-  $PLACEHOLDER
-  return 0;
-}
-`CPP_SETUP_END`
--->
-```cpp
-int a = 42;
-const int b = a;    // ✅
-const int c = 23;   // ✅
-const int d = c;    // ✅
-const auto e = c;   // ✅
-```
+  <!--
+  `CPP_SETUP_START`
+  int main() {
+    $PLACEHOLDER
+    return 0;
+  }
+  `CPP_SETUP_END`
+  -->
+  ```cpp
+  int a = 42;
+  const int b = a;    // ✅
+  const int c = 23;   // ✅
+  const int d = c;    // ✅
+  const auto e = c;   // ✅
+  ```
 
 </div>
 
 <div>
 
 ### `constexpr`
-- Can only be used for constants created at 
+- Can only be used for constants created at
   **compile time**
 - Can only be initialized from a `constexpr` value
+  <!--
+  `CPP_SKIP_SNIPPET`
+  -->
+  ```cpp
+  int a = 42;
+  const int a_const = 42;
+  constexpr int b = a;        // ❌
+  constexpr int c = a_const;  // ❌
+  constexpr int d = 23;       // ✅
+  constexpr int e = d;        // ✅
+  constexpr auto f = d;       // ✅
+  ```
+
+</div>
+</div>
+
 <!--
-`CPP_SKIP_SNIPPET`
--->
-```cpp
-int a = 42;
-const int a_const = 42;
-constexpr int b = a;        // ❌
-constexpr int c = a_const;  // ❌
-constexpr int d = 23;       // ✅
-constexpr int e = d;        // ✅
-constexpr auto f = d;       // ✅
-```
-
-</div>
-</div>
-
-<!-- 
 - Run time means whatever happens since we started the program
 - Compile time means whatever happens while the program is compiling
 - Computation happens at compile time and the result is stored to a variable
@@ -346,7 +346,7 @@ There are some exemptions from this rule, but it mostly works
 #include <cstdio>
 
 int main() {
-  int number = 42;  
+  int number = 42;
   int& ref = number; // Name has to fit on the slides ¯\_(ツ)_/¯
   const int& const_ref = number;
   std::printf("ref: %d, const_ref: %d\n", ref, const_ref);
@@ -385,30 +385,30 @@ int main() {  // Start of main scope
 
 # Naming of constants
 - 🎨 Name constants in the **global scope** in `CamelCase` starting with a small letter `k`:
-<!--
-`CPP_SETUP_START`
-int main() {
-  $PLACEHOLDER
-  return 0;
-}
-`CPP_SETUP_END`
--->
-```cpp
-constexpr float kImportantFloat = 42.42f;
-const int kHello{42};
-```
+  <!--
+  `CPP_SETUP_START`
+  int main() {
+    $PLACEHOLDER
+    return 0;
+  }
+  `CPP_SETUP_END`
+  -->
+  ```cpp
+  constexpr float kImportantFloat = 42.42f;
+  const int kHello{42};
+  ```
 - 🎨 Name constants in any **local scope** in `snake_case`
-<!--
-`CPP_SETUP_START`
-int main() {
-  $PLACEHOLDER
-  return 0;
-}
-`CPP_SETUP_END`
--->
-```cpp
-const auto local_scope_constant{42UL};
-```
+  <!--
+  `CPP_SETUP_START`
+  int main() {
+    $PLACEHOLDER
+    return 0;
+  }
+  `CPP_SETUP_END`
+  -->
+  ```cpp
+  const auto local_scope_constant{42UL};
+  ```
 - Keyword `const` is part of the variable's type:
   variable `kHello` above has type `const int`
 

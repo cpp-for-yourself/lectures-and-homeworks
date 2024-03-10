@@ -2,7 +2,7 @@
 marp: true
 math: katex
 theme: custom-theme
-footer: ![width:80px](images/C++ForYourselfIcon.png)
+paginate: true
 ---
 
 # Associative containers
@@ -13,7 +13,7 @@ footer: ![width:80px](images/C++ForYourselfIcon.png)
 - `std::set`
 - `std::unordered_set`
 
-### 📺 Watch the related [YouTube video](https://youtu.be/TCu76SYmVCg)! 
+### 📺 Watch the related [YouTube video](https://youtu.be/TCu76SYmVCg)!
 
 ---
 # Special symbols used in slides
@@ -36,7 +36,7 @@ Style (🎨) and software design (🎓) recommendations mostly come from [Google
 - Implemented _usually_ as a **Red-Black tree** (not guaranteed)
 - Key can be any type with operator `<` defined
 - By default takes two template parameters:
-  <!-- 
+  <!--
   `CPP_SETUP_START`
   #include <map>
   int main() {
@@ -49,7 +49,7 @@ Style (🎨) and software design (🎓) recommendations mostly come from [Google
   std::map<char, double> map_default{};
   ```
 - We can also use `>` operator by creating the map like this:
-  <!-- 
+  <!--
   `CPP_SETUP_START`
   #include <map>
   int main() {
@@ -62,11 +62,11 @@ Style (🎨) and software design (🎓) recommendations mostly come from [Google
   std::map<int, float, std::greater<int>> map_greater{};
   ```
 - Access, add, remove data in $\mathcal{O}(\log{}n)$
-  
+
 ---
 # Add data to `std::map`
 - We can create a map from data:
-  <!-- 
+  <!--
   `CPP_SETUP_START`
   #include <map>
   int main() {
@@ -79,7 +79,7 @@ Style (🎨) and software design (🎓) recommendations mostly come from [Google
   const std::map<int, double> map_explicit = {{42, 42.42}};
   ```
 - 🔼1️⃣7️⃣
-  <!-- 
+  <!--
   `CPP_SETUP_START`
   #include <map>
   int main() {
@@ -102,8 +102,8 @@ Style (🎨) and software design (🎓) recommendations mostly come from [Google
 - Erase key: `my_map.erase(key);`
 
 ---
-
 # Example using `std::map`
+<!-- _class: center_code -->
 ```cpp
 #include <iostream>
 #include <map>
@@ -146,8 +146,7 @@ int main() {
   - Elements of `map2` not in `map1` are added to `map1`
   - Elements of `map2` with keys already in `map1` are ignored
 - Works for both: `std::map` and `std::unordered_map`:
-- 
-  <!-- 
+  <!--
   `CPP_SETUP_START`
   #include <string>
   #include <map>
@@ -164,7 +163,7 @@ int main() {
       {"A", 4}, {"B", 2}, {"D", 4}};
   map1.merge(map2);
   ```
-  <!-- 
+  <!--
   `CPP_SETUP_START`
   #include <string>
   #include <unordered_map>

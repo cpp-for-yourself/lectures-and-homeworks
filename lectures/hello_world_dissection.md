@@ -35,10 +35,10 @@ Hello World!
 - [Functions](hello_world_dissection.md#functions-elevator-pitch) like `puts` and `main`
 
 ## Let's dig into all of these!
-## 📺 Watch the related [YouTube video](https://youtu.be/t2h1geGSww4)! 
+## 📺 Watch the related [YouTube video](https://youtu.be/t2h1geGSww4)!
 
 ---
-# Some words and symbols are more special than other 🦄
+# Some words and symbols are more special🦄 than other
 - In the code above, some words and symbols are highlighted
 - This is done by **parsing** the language into meaningful parts
 - Whitespaces and symbols **separate** these parts
@@ -92,7 +92,7 @@ return 0;}
 
 ```C++
 #include <stdio.h>
-int main() 
+int main()
 {puts(
              "Hello 🌍!"
     );
@@ -120,7 +120,7 @@ return
 
 # Use clang-format tool to deal with this madness!
 
-- 🤬 People tend to argue (a lot!) about how to style their code 
+- 🤬 People tend to argue (a lot!) about how to style their code
 - 💡 Avoid long discussions by using a tool `clang-format`!
 
 #### To style the `hello.cpp` do the following:
@@ -138,7 +138,7 @@ Just put a `.clang-format` file into a directory up the tree from your source fi
 
 # A "good" clang-format config
 
-- 🤔 Different people will have different opinions here 
+- 🤔 Different people will have different opinions here
 - ✅ This is the `.clang-format` file I use for my projects:
 ```yaml
 ---
@@ -154,7 +154,7 @@ BinPackParameters: false
 ...
 ```
 
-- 🤝 The most important thing is to have **a** format file in the project, regardless of which style it enforces 
+- 🤝 The most important thing is to have **a** format file in the project, regardless of which style it enforces
 
 ---
 
@@ -186,14 +186,14 @@ BinPackParameters: false
 - We'll talk about the other steps later
 
 
---- 
+---
 # An example is worth a 1000 words
 
 - An `#include` is just a _text_ substitution
 - Let's compile `hello.cpp` with a flag `--save-temps`:
     ```cmd
-    λ › c++ -std=c++17 -o hello --save-temps hello.cpp  
-    ``` 
+    λ › c++ -std=c++17 -o hello --save-temps hello.cpp
+    ```
 - This keeps a bunch of files, we care about `hello.ii`:
     ```cmd
     λ › tail -n 4 hello.ii
@@ -204,7 +204,7 @@ BinPackParameters: false
     ```
 - This file _ends_ with our program
 - Above our code there is the contents of the `stdio.h` file
---- 
+---
 
 # Let's get #inclusive
 
@@ -259,9 +259,9 @@ BinPackParameters: false
 - We can (and will!) write lots of our own functions
 - Let's write one right now!
 
---- 
+---
 # The `PrintSmth` function
-- This is **not** the most useful function in the world! 
+- This is **not** the most useful function in the world!
 - We also won't talk about a strict definition of what is a function here, we will cover it later
 - We aim at building intuition here!
 

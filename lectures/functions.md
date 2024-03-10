@@ -15,7 +15,7 @@ paginate: true
 - Overloading
 - Using default arguments
 
-### 📺 Watch the related [YouTube video](https://youtu.be/RaSw0g2aPig)! 
+### 📺 Watch the related [YouTube video](https://youtu.be/RaSw0g2aPig)!
 
 ---
 # Special symbols used in slides
@@ -100,16 +100,16 @@ Style (🎨) and software design (🎓) recommendations mostly come from [Google
 # ✅ Use `[[nodiscard]]` attribute
 - 🔼1️⃣7️⃣ You can use it like this:
   ```cpp
-  [[nodiscard]] double SquareNumber(double input) { 
-    return input * input; 
+  [[nodiscard]] double SquareNumber(double input) {
+    return input * input;
   }
   int main() { SquareNumber(42.0); }  // ❌ generates warning
   ```
 - Forces the output of the function to actually be used
 - When we compile the above we get:
   ```css
-  λ › c++ -std=c++17 -O3 -o test test.cpp  
-  test.cpp:3:14: warning: ignoring return value of function 
+  λ › c++ -std=c++17 -O3 -o test test.cpp
+  test.cpp:3:14: warning: ignoring return value of function
   declared with 'nodiscard' attribute [-Wunused-result]
   int main() { SquareNumber(2.0); }
               ^~~~~~ ~~~
@@ -118,8 +118,8 @@ Style (🎨) and software design (🎓) recommendations mostly come from [Google
 - No warning if result is actually used:
   <!--
   `CPP_SETUP_START`
-  [[nodiscard]] double SquareNumber(double input) { 
-    return input * input; 
+  [[nodiscard]] double SquareNumber(double input) {
+    return input * input;
   }
   int main() {
     $PLACEHOLDER
@@ -138,7 +138,7 @@ Style (🎨) and software design (🎓) recommendations mostly come from [Google
 #include <vector>
 using std::vector;
 
-[[nodiscard]] vector<int> 
+[[nodiscard]] vector<int>
 CreateFibonacciSequence(std::size_t length) {
   // Vector of size `length`, filled with 1s.
   vector<int> result(length, 1);
@@ -208,7 +208,7 @@ int main() {
     cout << "Did you expect anything useful from it?";
   }
   ```
-- The name, the argument types (including `&`, `const` etc.) 
+- The name, the argument types (including `&`, `const` etc.)
   and the return type have to be **exactly** the same
 
 ---
@@ -244,7 +244,7 @@ int main() {
 ### Pass by reference:
 - `void Fill(Cup &cup);`
 - The object that `cup` references is full afterwards
-  
+
 </div>
 
 <div>
@@ -253,7 +253,7 @@ int main() {
 - `void Fill(Cup cup);`
 - A **copy** `cup` of the original object is full
 - The original is still empty
-  
+
 </div>
 </div>
 
@@ -297,7 +297,7 @@ void DoSmthWithRef(hello) {
   hello.clear();
 }
 ```
-  
+
 </div>
 </div>
 
@@ -325,7 +325,7 @@ void DoSmthWithRef(hello) {
 - 🔼1️⃣1️⃣ Returning an object from function is **mostly** fast
 - 🔼1️⃣7️⃣ Returning an object from function is **always** fast
 - 🎓🎨 Avoid using non-`const` references, see [Google style](https://google.github.io/styleguide/cppguide.html#Inputs_and_Outputs)
-- 💡 Sometimes passing by non-const reference is still faster than returning an object from a function 
+- 💡 Sometimes passing by non-const reference is still faster than returning an object from a function
   **Measure before doing this!**
 
 ---

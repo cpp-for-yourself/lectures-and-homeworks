@@ -15,7 +15,7 @@ footer: ![width:80px](images/C++ForYourselfIcon.png)
 - When to use the keyword `inline`
 - Some common best practices
 
-### 📺 Watch the related [YouTube video](https://youtu.be/Lxo8ftglwXE)! 
+### 📺 Watch the related [YouTube video](https://youtu.be/Lxo8ftglwXE)!
 
 ---
 # Special symbols used in slides
@@ -41,7 +41,7 @@ Let's say we implement a new machine learning framework :wink:
 #include <vector>
 #include <iostream>
 
-[[nodiscard]] int 
+[[nodiscard]] int
 PredictNumber(const std::vector<int>& numbers) {
   // Arbitrarily complex code goes here.
   if (numbers.empty()) { return 0; }
@@ -123,13 +123,13 @@ $PLACEHOLDER
 `CPP_RUN_CMD` CWD:ml c++ -std=c++17 -I . main_houses.cpp
 -->
 ```cpp
-#include <ml.h>  
+#include <ml.h>
 #include <iostream>
 int main() {
-  const auto prices = 
+  const auto prices =
     MagicallyGetHousePrices();
-  std::cout 
-    << "Upcoming price: " 
+  std::cout
+    << "Upcoming price: "
     << PredictNumber(prices);
   return 0;
 }
@@ -151,13 +151,13 @@ $PLACEHOLDER
 `CPP_RUN_CMD` CWD:ml c++ -std=c++17 -I . main_bitcoin.cpp
 -->
 ```cpp
-#include <ml.h>  
+#include <ml.h>
 #include <iostream>
 int main() {
-  const auto prices = 
+  const auto prices =
     MagicallyGetBitcoinPrices();
-  std::cout 
-    << "Upcoming price: " 
+  std::cout
+    << "Upcoming price: "
     << PredictNumber(prices);
   return 0;
 }
@@ -165,7 +165,7 @@ int main() {
 
 </div>
 </div>
-  
+
 ---
 # Yay! A header-only library! :tada:
 - All functions are implemented in header files (`.h`, `.hpp`)
@@ -188,7 +188,7 @@ int main() {
 # What's `#pragma once`?
 - A **preprocessor directive** that ensures the header in which it is written is only included once
 - There are compilers that don't support it, but most do
-- Alternative --- **include guards** 
+- Alternative --- **include guards**
   For file `file.h` in `folder/` they can be:<br>
   <!--
   `CPP_SKIP_SNIPPET`
@@ -221,7 +221,7 @@ int main() {
 ```cpp
 #pragma once
 #include <vector>
-[[nodiscard]] int 
+[[nodiscard]] int
 PredictNumber(const std::vector<int>& numbers);
 ```
 
@@ -236,7 +236,7 @@ $PLACEHOLDER
 ```cpp
 #include <ml.h>
 #include <vector>
-[[nodiscard]] int 
+[[nodiscard]] int
 PredictNumber(const std::vector<int>& numbers) {
   // Compute next number (skipped to fit on the slide)
   return next_number;
@@ -277,7 +277,7 @@ c++ -std=c++17 predict_prices.cpp -I . -o predict_prices
 ```css
 Undefined symbols for architecture arm64:
   "PredictNumber(
-    std::__1::vector<int, std::__1::allocator<int> > const&)", 
+    std::__1::vector<int, std::__1::allocator<int> > const&)",
     referenced from: _main in predict_prices-066946.o
 ld: symbol(s) not found for architecture arm64
 clang: error: linker command failed with exit code 1
@@ -305,9 +305,9 @@ c++ -std=c++17 -I . ml.cpp predict_prices.cpp
   c++ -std=c++17 -c ml.cpp -I includes -o ml_static.o
   ```
   ```cmd
-  c++ -std=c++17 -c -fPIC ml.cpp -I includes -o ml_dynamic.o 
+  c++ -std=c++17 -c -fPIC ml.cpp -I includes -o ml_dynamic.o
   ```
-  <br>Assuming that all includes live in the `includes` folder,
+  Assuming that all includes live in the `includes` folder,
   results in `*.o` binary files that an OS can read and interpret
 - Pack objects into **libraries:**
   - **Static** libraries (`*.a`) are just archives of object files
@@ -441,7 +441,7 @@ void Bar() {
 </div>
 
 ---
-# But.. why?
+# But... why?
 - Linker failed because we violated **ODR** --- [**O**ne **D**efinition **R**ule](https://en.cppreference.com/w/cpp/language/definition)
 - It states that there must be **exactly one** definition of every symbol in the program, i.e., your **functions** and **variables**
 - We have two libraries `libfoo.a` and `libbar.a` with source files that both include the `print.h` and therefore have a **definition** of the `Print(...)` function
@@ -457,7 +457,7 @@ void Bar() {
   -->
   ```cpp
   #include <iostream>
-  inline void 
+  inline void
   Print(const std::string& str) { std::cout << str << "\n"; }
   ```
 - 🚨 `inline` can only be used in function **definition**
@@ -522,7 +522,7 @@ int main() {
 <div>
 
 #### Output of `./main`?
-  
+
 <div data-marpit-fragment>
 
 ```
@@ -565,7 +565,7 @@ c++ -std=c++17 main.cpp -L . -I . -lfoo -lbar -o main
 # How to avoid errors?
 - Don't use `inline` in source files
 - ✅ Always use `inline` if you **define** functions in headers
-- ✅ Do the same for constants 🔼1️⃣7️⃣ 
+- ✅ Do the same for constants 🔼1️⃣7️⃣
   ```c++
   inline constexpr auto kConst = 42;
   ```
@@ -625,7 +625,7 @@ void Bar() { Print(); }
 
 ![bg](https://fakeimg.pl/1280x1024/226699/fff/?text=Good%20luck!&font=bebas)
 
-<!-- 
+<!--
 Great article: https://jm4r.github.io/Inline/
 
 ELF: https://stackoverflow.com/questions/41879433/file-format-differences-between-a-static-library-a-and-a-shared-library-so -->
