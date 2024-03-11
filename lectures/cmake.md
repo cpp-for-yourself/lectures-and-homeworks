@@ -3,7 +3,7 @@ marp: true
 math: katex
 theme: custom-theme
 paginate: true
-# footer: ![width:80px](images/C++ForYourselfIcon.png)
+footer: ![width:80px](images/C++ForYourselfIcon.png)
 ---
 
 # CMake introduction
@@ -296,6 +296,7 @@ make -j8      # Run make with 8 threads
   - (generally any command that starts with `target_`)
 
 ---
+<!-- _backgroundColor: #0000 -->
 ![bg width:100%](images/follow_deer.jpg)
 
 ---
@@ -362,9 +363,8 @@ Stay tuned for the `*_test.cpp` files in a later video :wink:
   ```
 
 ---
-<!-- _paginate: false -->
 # The main `CMakeLists.txt` file
-`our_project/CMakeLists.txt`<br>
+`our_project/CMakeLists.txt`
 <!--
 `CPP_COPY_SNIPPET` our_project/CMakeLists.txt
 -->

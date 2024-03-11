@@ -1,3 +1,9 @@
 {
-  "aliveStatusCodes": [200, 206, 403]
+  "aliveStatusCodes": [200, 206, 403],
+  "ignorePatterns": [
+    {
+      "bazel": "^https://bazel.build",
+      "make": "^https://makefiletutorial.com"
+    }
+  ]
 }

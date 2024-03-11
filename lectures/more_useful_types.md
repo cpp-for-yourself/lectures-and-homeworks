@@ -2,6 +2,7 @@
 marp: true
 math: katex
 theme: custom-theme
+paginate: true
 footer: ![width:80px](images/C++ForYourselfIcon.png)
 ---
 
@@ -14,11 +15,11 @@ We're gonna talk about it a lot!
 #### Today:
 - `std::pair`
 - `std::array`
-- `std::vector` 
+- `std::vector`
 - `std::string`
 - Aggregate initialization
 
-### 📺 Watch the related [YouTube video](https://youtu.be/dwkSVkGsvFk)! 
+### 📺 Watch the related [YouTube video](https://youtu.be/dwkSVkGsvFk)!
 
 ---
 # Prerequisites:
@@ -29,7 +30,7 @@ We're gonna talk about it a lot!
 ---
 
 # Disclaimer
-- This lecture is beginner friendly 
+- This lecture is beginner friendly
 - There are some best practices that would use different types, but those require more in-depth understanding and will be covered later
 - What you see on this slide is the best practice **until this point** in the course 😉
 
@@ -90,7 +91,7 @@ int main() {
 ```
 
 ---
-
+<!-- _paginate: false -->
 ![bg](https://fakeimg.pl/1280x1024/226699/fff/?text=STL%0ASequence%0Acontainers&font=bebas)
 
 ---
@@ -98,12 +99,12 @@ int main() {
 # Use `std::array` for fixed size collections of items of same type
 - 🔼1️⃣1️⃣ `#include <array>` to use [`std::array`](https://en.cppreference.com/w/cpp/container/array)
 - 🚨 The size must be known at compile time
-- Create from data: 
-  🔼1️⃣7️⃣ `std::array arr = {1, 2, 3};` 
-  🔼1️⃣7️⃣ `std::array arr{1, 2, 3};` 
-  🔼1️⃣4️⃣ `std::array<int, 3UL> arr{1, 2, 3};` 
-  🔼1️⃣1️⃣ `std::array<int, 3UL> arr = {1, 2, 3};` 
-  1️⃣1️⃣ `std::array<int, 3UL> arr{{1, 2, 3}};` 
+- Create from data:
+  🔼1️⃣7️⃣ `std::array arr = {1, 2, 3};`
+  🔼1️⃣7️⃣ `std::array arr{1, 2, 3};`
+  🔼1️⃣4️⃣ `std::array<int, 3UL> arr{1, 2, 3};`
+  🔼1️⃣1️⃣ `std::array<int, 3UL> arr = {1, 2, 3};`
+  1️⃣1️⃣ `std::array<int, 3UL> arr{{1, 2, 3}};`
   - In the newer standards, compiler guesses type and size
   - 🚨 Beware of double brackets in `C++11`!
 
@@ -134,10 +135,10 @@ int main() {
 - `#include <vector>` to use [`std::vector`](https://en.cppreference.com/w/cpp/container/vector)
 - Vector is implemented as a [**dynamic table**](https://en.wikipedia.org/wiki/Dynamic_array)
 - Create similarly to the `std::array`:
-  - 🔼1️⃣7️⃣ `std::vector vec{1, 2, 3};` 
-  - 🔼1️⃣7️⃣ `std::vector vec = {1, 2, 3};` 
-  - 🔼1️⃣1️⃣ `std::vector<int> vec{1, 2, 3};` 
-  - 🔼1️⃣1️⃣ `std::vector<int> vec = {1, 2, 3};` 
+  - 🔼1️⃣7️⃣ `std::vector vec{1, 2, 3};`
+  - 🔼1️⃣7️⃣ `std::vector vec = {1, 2, 3};`
+  - 🔼1️⃣1️⃣ `std::vector<int> vec{1, 2, 3};`
+  - 🔼1️⃣1️⃣ `std::vector<int> vec = {1, 2, 3};`
 - Access stored elements just like in `std::array`
   **But** we can also change the accessed values!
 - ✅ Use `std::vector` a lot! It is **fast and flexible**!
@@ -243,10 +244,10 @@ int main() {
 
 - Use [`std::to_string`](https://en.cppreference.com/w/cpp/string/basic_string/to_string) to convert variables of fundamental types to `std::string`
 - Use `std::sto[i|d|f|ul]` etc. to convert from strings:
-  - [`std::stoi`](https://en.cppreference.com/w/cpp/string/basic_string/stol) --- `std::string` $\rightarrow$ `int`
-  - [`std::stof`](https://en.cppreference.com/w/cpp/string/basic_string/stof) --- `std::string` $\rightarrow$ `float`
-  - [`std::stod`](https://en.cppreference.com/w/cpp/string/basic_string/stof) --- `std::string` $\rightarrow$ `double`
-  - [`std::stoul`](https://en.cppreference.com/w/cpp/string/basic_string/stoul) --- `std::string` $\rightarrow$ `unsigned long`
+  - [`std::stoi`](https://en.cppreference.com/w/cpp/string/basic_string/stol): `std::string` $\rightarrow$ `int`
+  - [`std::stof`](https://en.cppreference.com/w/cpp/string/basic_string/stof): `std::string` $\rightarrow$ `float`
+  - [`std::stod`](https://en.cppreference.com/w/cpp/string/basic_string/stof): `std::string` $\rightarrow$ `double`
+  - [`std::stoul`](https://en.cppreference.com/w/cpp/string/basic_string/stoul): `std::string` $\rightarrow$ `unsigned long`
   - There are more flavors (click the links :wink:)
 <!--
 `CPP_SETUP_START`
@@ -293,14 +294,14 @@ int another_number{std::stoi("42 is the number")};
   const std::vector vec_full_of_42(size, content);
 
   // 🚨 Using curly brackets creates vector with elements {10, 42}
-  const std::vector vec_10_and_42{size, content}; 
+  const std::vector vec_10_and_42{size, content};
   ```
 - ❌ `std::vector<bool>` is **weird**!
   **Reason:** it does _not_ behave like a `vector`, which is confusing
   Use only if you know that you're doing (probably don't)
 
 ---
-# 🔼1️⃣7️⃣ Aggregate initialization 
+# 🔼1️⃣7️⃣ Aggregate initialization
 - Used to initialize multiple variables at the same time
 - 🚨 We **must** use `auto`
 - Also supports `const` and references (`&`)
@@ -348,4 +349,8 @@ int another_number{std::stoi("42 is the number")};
 
 ---
 
+<!--
+_footer: ""
+_paginate: false
+-->
 ![bg](https://fakeimg.pl/1280x1024/226699/fff/?text=Good%20luck!&font=bebas)
