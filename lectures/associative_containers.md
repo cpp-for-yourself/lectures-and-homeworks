@@ -24,8 +24,8 @@ paginate: true
 - ❌ - Whatever is marked with this is wrong
 - 🚨 - Alert! Important information!
 - 💡 - Hint or a useful exercise
-- 🔼1️⃣7️⃣ - Holds for this version of C++(here, `17`) and **above**
-- 🔽1️⃣1️⃣ - Holds for versions **until** this one C++(here, `11`)
+- 🔼1️⃣7️⃣ - Holds for this version of C++ (here, `17`) and **above**
+- 🔽1️⃣1️⃣ - Holds for versions **until** this one C++ (here, `11`)
 
 Style (🎨) and software design (🎓) recommendations mostly come from [Google Style Sheet](https://google.github.io/styleguide/cppguide.html) and the [CppCoreGuidelines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines)
 
