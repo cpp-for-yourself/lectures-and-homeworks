@@ -218,10 +218,12 @@ Now with these tests defined and our CMake configured to discover them, we can e
 
 <!-- B-roll building and executing -->
 We now just need to build the project again and run `ctest`:
-```cmd
+```bash
 cmake -S . -B build
 cmake --build build -j 12
 GTEST_COLOR=1 ctest --test-dir build --output-on-failure -j12
+# Or if you have an older CMake version (<3.20)
+cd build && GTEST_COLOR=1 ctest --output-on-failure -j12
 ```
 
 <!-- Talking head with error overlay -->
@@ -234,7 +236,7 @@ We can easily fix this error by changing the code in our test.
 -ASSERT_EQ(GetMeaningOfLife(), 0) << "Oh no, a mistake!";
 +ASSERT_EQ(GetMeaningOfLife(), 42) << "Oh no, a mistake!";
 ```
-We now execute this again and see that all the tests have passed! Hooray! **(cheerful video)**
+We now execute this again and see that all the tests have passed! Hooray!
 
 ### Testing our own libraries
 <!-- Talking head -->
