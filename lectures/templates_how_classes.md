@@ -260,10 +260,10 @@ $PLACEHOLDER
 -->
 ```cpp
 int main() {
-    // The compiler is able to figure out the types
-    Coordinate coordinate{42, 23};
+    // In C++17 the compiler is able to figure out the types
+    const Coordinate coordinate{42, 23};
     coordinate.Print();
-    Coordinate other_coordinate{42.42F, 23.23F};
+    const Coordinate other_coordinate{42.42F, 23.23F};
     other_coordinate.Print();
     return 0;
 }
@@ -379,10 +379,12 @@ class Coordinate<float> {
 };
 
 int main() {
-    // The compiler is able to figure out the types
-    Coordinate coordinate{42, 23};
+    // Creates a new implicit instantiation of Coordinate<int>
+    const Coordinate coordinate{42, 23};
     coordinate.Print();
-    Coordinate other_coordinate{42.42F, 23.23F};
+    // Uses the explicit instantiation of Coordinate<float>
+    const Coordinate other_coordinate{42.42F, 23.23F};
+    // ❌ Won't compile! No Print() function in explicit specialization
     other_coordinate.Print();
     return 0;
 }
@@ -414,8 +416,11 @@ Compiler returned: 1
 > -->
 > ```cpp
 > // ❌ Does not compile!
-> std::vector<bool> vector{/* some data */};
-> for (auto& value : vector) { /* do something */ };
+> #include <vector>
+> int main() {
+>   std::vector<bool> vector{/* some data */};
+>   for (auto& value : vector) { /* do something */ };
+> }
 > ```
 > In addition to that, returning a temporary wrapper might actually be quite a bit slower, so there is a trade-off between storage and speed and forcing people to pack booleans together forces their hand.
 > As you might imagine, not everybody was a fan of this idea!
@@ -453,7 +458,7 @@ void Coordinate<float>::Print() const {
 }
 
 int main() {
-    // The compiler is able to figure out the types
+    // In C++17 the compiler is able to figure out the types
     const Coordinate coordinate{42, 23};
     coordinate.Print();
     const Coordinate other_coordinate{42.42F, 23.23F};
@@ -505,7 +510,7 @@ Coordinate<int> Coordinate<int>::CastTo<int>() const {
 }
 
 int main() {
-    // The compiler is able to figure out the types
+    // In C++17 the compiler is able to figure out the types
     const Coordinate coordinate{42.42F, 23.23F};
     coordinate.Print();
     const auto int_coordinate = coordinate.CastTo<int>();
@@ -714,6 +719,7 @@ This is a powerful technique but it is now slowly getting outdated as in C++20 w
 `CPP_SKIP_SNIPPET`
 -->
 ```cpp
+// Requires C++20!
 template <CoordinateLike CoordinateT>
 [[nodiscard]] bool ValidateCoordinates(const std::vector<CoordinateT>& coordinates) {
   for (const auto& coordinate : coordinates) {
