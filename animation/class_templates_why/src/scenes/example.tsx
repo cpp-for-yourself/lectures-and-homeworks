@@ -769,13 +769,13 @@ export default makeScene2D(function* (view) {
   yield* waitFor(duration);
   yield* codeRef().selection(DEFAULT, duration / 2);
   yield* waitFor(duration);
-  yield* codeRef().selection(codeRef().findLastRange(/<Coordinate<T>>/g), duration / 2);
+  yield* codeRef().selection(codeRef().findLastRange(/<Coordinate<T>/g), duration / 2);
   yield* waitFor(duration);
   yield* codeRef().selection(codeRef().findLastRange(/IsCoordinate<Coordinate<T>>/g), duration / 2);
   yield* waitFor(duration);
   yield* codeRef().selection(DEFAULT, duration / 2);
   yield* waitFor(duration);
-  yield* codeRef().selection(codeRef().findLastRange(/typename T>/g), duration / 2);
+  yield* codeRef().selection(codeRef().findLastRange(/typename T/g), duration / 2);
   yield* waitFor(duration);
   yield* codeRef().selection(codeRef().findLastRange(/Coordinate<T>/g), duration / 2);
   yield* waitFor(duration);

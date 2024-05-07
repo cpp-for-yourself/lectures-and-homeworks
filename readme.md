@@ -515,6 +515,35 @@ Headers with classes
 ----------------------------------------------------------
 </details>
 
+<details>
+<summary>How to write class templates</summary>
+
+----------------------------------------------------------
+[![Video thumbnail](https://img.youtube.com/vi/IQ62tA51Vag/maxresdefault.jpg)](https://youtu.be/IQ62tA51Vag)
+
+- [How to use templates with classes in C++](lectures/templates_how_classes.md#how-to-use-templates-with-classes-in-c)
+- [Class method templates](lectures/templates_how_classes.md#class-method-templates)
+  - [Prefer overloading to specialization of class method templates](lectures/templates_how_classes.md#prefer-overloading-to-specialization-of-class-method-templates)
+  - [Sometimes overloading is not possible --- specialize in this case](lectures/templates_how_classes.md#sometimes-overloading-is-not-possible-----specialize-in-this-case)
+- [Class templates](lectures/templates_how_classes.md#class-templates)
+- [Class template argument deduction (min. C++17)](lectures/templates_how_classes.md#class-template-argument-deduction-min-c17)
+  - [Class template specialization: implicit and explicit](lectures/templates_how_classes.md#class-template-specialization-implicit-and-explicit)
+  - [Full explicit template specialization](lectures/templates_how_classes.md#full-explicit-template-specialization)
+    - [How to fully specialize class templates](lectures/templates_how_classes.md#how-to-fully-specialize-class-templates)
+    - [Make sure a specialization follows the expected interface](lectures/templates_how_classes.md#make-sure-a-specialization-follows-the-expected-interface)
+    - [Historical reference for `std::vector<bool>`](lectures/templates_how_classes.md#historical-reference-for-stdvectorbool)
+    - [Specialize just one method of a class](lectures/templates_how_classes.md#specialize-just-one-method-of-a-class)
+    - [Specialize method templates of class templates](lectures/templates_how_classes.md#specialize-method-templates-of-class-templates)
+    - [Type traits and how to implement them using template specialization](lectures/templates_how_classes.md#type-traits-and-how-to-implement-them-using-template-specialization)
+    - [More generic traits using partial specialization](lectures/templates_how_classes.md#more-generic-traits-using-partial-specialization)
+  - [Difference between partial and full specializations](lectures/templates_how_classes.md#difference-between-partial-and-full-specializations)
+    - [How to tell partial template specialization apart from a new template class definition?](lectures/templates_how_classes.md#how-to-tell-partial-template-specialization-apart-from-a-new-template-class-definition)
+    - [How to tell a partial template specialization apart from a full class template specialization?](lectures/templates_how_classes.md#how-to-tell-a-partial-template-specialization-apart-from-a-full-class-template-specialization)
+  - [Partial template specialization with more types](lectures/templates_how_classes.md#partial-template-specialization-with-more-types)
+- [Summary](lectures/templates_how_classes.md#summary)
+
+----------------------------------------------------------
+</details>
 
 ## PS
 

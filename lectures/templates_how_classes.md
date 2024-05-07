@@ -2,7 +2,7 @@ How to use templates with classes in C++
 --
 
 <p align="center">
-  <a href="https://youtu.be/blah"><img src="https://img.youtube.com/vi/blah/maxresdefault.jpg" alt="Video" align="right" width=50% style="margin: 0.5rem"></a>
+  <a href="https://youtu.be/IQ62tA51Vag"><img src="https://img.youtube.com/vi/IQ62tA51Vag/maxresdefault.jpg" alt="Video" align="right" width=50% style="margin: 0.5rem"></a>
 </p>
 
 - [How to use templates with classes in C++](#how-to-use-templates-with-classes-in-c)
