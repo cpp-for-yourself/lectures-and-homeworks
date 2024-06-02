@@ -6,6 +6,20 @@
   <a href="https://youtu.be/blah"><img src="https://img.youtube.com/vi/blah/maxresdefault.jpg" alt="Video" align="right" width=50% style="margin: 0.5rem"></a>
 </p>
 
+- [The forwarding reference](#the-forwarding-reference)
+- [Why use forwarding references](#why-use-forwarding-references)
+  - [Example setup](#example-setup)
+  - [How forwarding references simplify things](#how-forwarding-references-simplify-things)
+  - [When to prefer forwarding references](#when-to-prefer-forwarding-references)
+- [How forwarding references work](#how-forwarding-references-work)
+  - [Reference collapsing](#reference-collapsing)
+  - [Remove reference using `std::remove_reference_t`](#remove-reference-using-stdremove_reference_t)
+  - [How `std::forward` works](#how-stdforward-works)
+    - [Passing an lvalue](#passing-an-lvalue)
+    - [Passing by rvalue](#passing-by-rvalue)
+- [Summary](#summary)
+
+
 By now we already know what move semantics is. We have even essentially [reinvented](move_semantics.md) it from scratch in one of the previous lectures. So we should be quite comfortable seeing functions (be it part of a class or not) that look like this:
 <!--
 `CPP_SETUP_START`
@@ -25,11 +39,10 @@ Well, now that we also talked about templates, there is one more thing we need t
 🚨 You see if we add a template into the mix, `value` is **not really an rvalue reference** anymore:
 <!--
 `CPP_SETUP_START`
-struct SomeType{};
 $PLACEHOLDER
 `CPP_SETUP_END`
-`CPP_COPY_SNIPPET` forwarding_refs_do_smth/rvalue_do_smth.cpp
-`CPP_RUN_CMD` CWD:forwarding_refs_do_smth c++ -std=c++17 -c rvalue_do_smth.cpp
+`CPP_COPY_SNIPPET` forwarding_refs_do_smth/forward_do_smth_def.cpp
+`CPP_RUN_CMD` CWD:forwarding_refs_do_smth c++ -std=c++17 -c forward_do_smth_def.cpp
 -->
 ```cpp
 template <class SomeType>
