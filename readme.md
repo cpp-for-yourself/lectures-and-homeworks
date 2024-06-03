@@ -551,7 +551,7 @@ Headers with classes
 <summary>Forwarding references</summary>
 
 ----------------------------------------------------------
-[![Video thumbnail](https://img.youtube.com/vi/blah/maxresdefault.jpg)](https://youtu.be/blah)
+[![Video thumbnail](https://img.youtube.com/vi/RW9KnqszYj4/maxresdefault.jpg)](https://youtu.be/RW9KnqszYj4)
 
 - [The forwarding reference](lectures/forwarding_references.md#the-forwarding-reference)
 - [Why use forwarding references](lectures/forwarding_references.md#why-use-forwarding-references)
