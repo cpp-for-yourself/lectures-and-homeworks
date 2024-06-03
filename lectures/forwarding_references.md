@@ -539,11 +539,45 @@ int main() {
 1. The compiler needs to make sure that `SomeType&&` matches the input type `int&&`
 2. So it trivially deduces `SomeType` to be `int`
 3. Which leaves `value` to have type `int&&`.
-4. This leads to calling `forward<int>(int&&)` overload, making the compiler deduce `T` as `int` in the `forward` function, picking the second `forward` function overload as it matches the `int&&` input type.
-5. We then return a value of type `T&&` from the `forward`, which in our case turns out to be and rvalue reference `int&&`.
-6. Finally, this leads us to picking the `Print(int&&)` overload and printing `rvalue` to the terminal.
+4. Now, when we call `forward<int>(value)`, the `T` type in our `forward` function will be `int`, the `remove_reference_t<int>` in the `forward` function will collapse to a simple `int` type and, considering that `value` has type `int&&`, we might expect that a *second* overload would be called. But in reality, the **first overload will be picked!** We have to remember that `value` here **has a name and an address in memory** which makes it an **lvalue** that stores an rvalue reference! So it binds to the first `forward` overload. If this is confusing, which I admit it _is_ a little bit, please have another look at the [lecture where we reinvent move semantics](move_semantics.md) to learn why it was designed the way it was designed.
+5. Despite getting an lvalue reference as a parameter to our `forward` function we return this value as the `T&&` type, or `int&&` in our case. So in the end, we still convert our value to an rvalue reference and return it as such!
+6. This, in turn, leads us to picking the `Print(int&&)` overload and printing `rvalue` to the terminal.
 
-And this is really all there is to how forwarding references work in conjunction with `std::forward`!
+It might be a bit too quick to follow, so as usual, you can play with these examples yourself at your own pace by following the link to [cppinsights.io](https://cppinsights.io/s/e48f0dba)
+<!-- that you can find in the description to this video. -->
+
+But I'm afraid there is still one more thing to discuss, though. You might be still wondering: when is that second overload called? And really, the only case I can think of is when we directly call the `forward` function with a real rvalue - either providing a temporary object or an lvalue that we explicitly mark as an xvalue with `std::move`:
+<!--
+`CPP_SETUP_START`
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` forward_overload/main.cpp
+`CPP_RUN_CMD` CWD:forward_overload c++ -std=c++17 main.cpp
+-->
+```cpp
+#include <type_traits>
+#include <utility>
+
+template <class T>
+T&& forward(std::remove_reference_t<T>& t) {
+  return static_cast<T&&>(t);
+}
+
+template <class T>
+T&& forward(std::remove_reference_t<T>&& t) {
+  return static_cast<T&&>(t);
+}
+
+int main() {
+  // We can also use std::forward here of course.
+  forward<int>(42);
+  int number{};
+  forward<int>(std::move(number));
+}
+```
+I'll leave it up to you to figure out exactly why the second overload is called in both cases here but if something is not clear, please ask questions!
+
+And now I guess we've covered pretty much all there is to how forwarding references work in conjunction with `std::forward`! I know it was quite a lot, but if we are comfortable with this, it is a good indicator that we are comfortable with a lot of key mechanisms used in C++.
 
 ## Summary
 With this we should be well equipped to detect when we see a forwarding reference used in the code.

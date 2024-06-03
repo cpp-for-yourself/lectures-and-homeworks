@@ -48,13 +48,13 @@ export default makeScene2D(function* (view) {
   );
 
   const forwarding_code = `\
-class Container {
-   public:
-    void Put(const Data& data) { data_ = data; }
+  class Container {
+     public:
+      void Put(const Data& data) { data_ = data; }
 
-   private:
-    Data data_{};
-};`
+     private:
+      Data data_{};
+  };`
 
   yield* all(
     codeRef().code(forwarding_code, 0).wait(duration),
@@ -268,13 +268,13 @@ class Container {
   #include <utility>
 
   class Container {
-    public:
-     void Put(const Data& data) { data_ = data; }
+     public:
+      void Put(const Data& data) { data_ = data; }
 
-     void Put(Data&& data) { data_ = std::move(data); }
+      void Put(Data&& data) { data_ = std::move(data); }
 
-    private:
-     Data data_{};
+     private:
+      Data data_{};
   };`
 
   yield* all(
@@ -418,12 +418,13 @@ class Container {
 
   int main() {
       Container container{};
-      container.Put(42);
+      container.Put(42);  // ❌ Won't compile.
   }`
 
   yield* all(
     codeRef().fontSize(55, duration),
     codeRef().selection(lines(25, 28), duration),
+    codeRef().x(-700, duration),
     codeRef().code(container_forward_code_with_main_42, duration).wait(duration)
   );
   yield* waitFor(duration);
@@ -1010,18 +1011,49 @@ class Container {
 
 
   yield* all(
-    codeRef().selection([
-      lines(9, 12),
-      ...codeRef().findAllRanges(/forward<int>\(value\)/g)], duration).wait(duration),
     codeRef().code(forward_explained_code_forward_explicit_no_refs_rvalue, duration).wait(duration),
   );
 
   yield* all(
     codeRef().selection([
-      lines(9, 12),
+      lines(4, 8),
+      ...codeRef().findAllRanges(/forward<int>\(value\)/g)], duration).wait(duration),
+  );
+
+  yield* all(
+    codeRef().selection([
+      lines(4, 8),
       lines(16, 17),
       ...codeRef().findAllRanges(/Print\(forward<int>\(value\)\);/g)
     ], duration).wait(duration),
+  );
+
+  const forward_second_overload = `\
+  #include <type_traits>
+  #include <utility>
+
+  template <class T>
+  T&& forward(std::remove_reference_t<T>& t) {
+    return static_cast<T&&>(t);
+  }
+
+  template <class T>
+  T&& forward(std::remove_reference_t<T>&& t) {
+    return static_cast<T&&>(t);
+  }
+
+  int main() {
+    // We can also use std::forward here of course.
+    forward<int>(42);
+    int number{};
+    forward<int>(std::move(number));
+  }`
+
+  yield* all(
+    codeRef().fontSize(42, duration),
+    codeRef().y(0, duration),
+    codeRef().selection(DEFAULT, duration).wait(duration),
+    codeRef().code(forward_second_overload, duration).wait(duration),
   );
 
 
