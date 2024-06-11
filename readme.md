@@ -545,6 +545,30 @@ Headers with classes
 ----------------------------------------------------------
 </details>
 
+</details>
+
+<details>
+<summary>Forwarding references</summary>
+
+----------------------------------------------------------
+[![Video thumbnail](https://img.youtube.com/vi/RW9KnqszYj4/maxresdefault.jpg)](https://youtu.be/RW9KnqszYj4)
+
+- [The forwarding reference](lectures/forwarding_references.md#the-forwarding-reference)
+- [Why use forwarding references](lectures/forwarding_references.md#why-use-forwarding-references)
+  - [Example setup](lectures/forwarding_references.md#example-setup)
+  - [How forwarding references simplify things](lectures/forwarding_references.md#how-forwarding-references-simplify-things)
+  - [When to prefer forwarding references](lectures/forwarding_references.md#when-to-prefer-forwarding-references)
+- [How forwarding references work](lectures/forwarding_references.md#how-forwarding-references-work)
+  - [Reference collapsing](lectures/forwarding_references.md#reference-collapsing)
+  - [Remove reference using `std::remove_reference_t`](lectures/forwarding_references.md#remove-reference-using-stdremove_reference_t)
+  - [How `std::forward` works](lectures/forwarding_references.md#how-stdforward-works)
+    - [Passing an lvalue](lectures/forwarding_references.md#passing-an-lvalue)
+    - [Passing by rvalue](lectures/forwarding_references.md#passing-by-rvalue)
+- [Summary](lectures/forwarding_references.md#summary)
+
+----------------------------------------------------------
+</details>
+
 ## PS
 
 ### Most of the code snippets are validated automatically
