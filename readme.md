@@ -569,6 +569,22 @@ Headers with classes
 ----------------------------------------------------------
 </details>
 
+<details>
+<summary>Header and source files for templated code</summary>
+
+----------------------------------------------------------
+[![Video thumbnail](https://img.youtube.com/vi/blah/maxresdefault.jpg)](https://youtu.be/blah)
+
+- [Why linker fails](lectures/templates_and_headers.md#why-linker-fails)
+  - [Compilation process for single `main.cpp` file](lectures/templates_and_headers.md#compilation-process-for-single-maincpp-file)
+  - [Compilation process for multiple files](lectures/templates_and_headers.md#compilation-process-for-multiple-files)
+- [How to fix the linker error](lectures/templates_and_headers.md#how-to-fix-the-linker-error)
+- [More complex explicit instantiations](lectures/templates_and_headers.md#more-complex-explicit-instantiations)
+- [Summary](lectures/templates_and_headers.md#summary)
+
+----------------------------------------------------------
+</details>
+
 ## PS
 
 ### Most of the code snippets are validated automatically
