@@ -3,7 +3,7 @@
 ----
 
 <p align="center">
-  <a href="https://youtu.be/blah"><img src="https://img.youtube.com/vi/blah/maxresdefault.jpg" alt="Video" align="right" width=50% style="margin: 0.5rem"></a>
+  <a href="https://youtu.be/vjsr18XXMMQ"><img src="https://img.youtube.com/vi/vjsr18XXMMQ/maxresdefault.jpg" alt="Video" align="right" width=50% style="margin: 0.5rem"></a>
 </p>
 
 - [Why linker fails](#why-linker-fails)
