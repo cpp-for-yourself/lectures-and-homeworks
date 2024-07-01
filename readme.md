@@ -573,7 +573,7 @@ Headers with classes
 <summary>Header and source files for templated code</summary>
 
 ----------------------------------------------------------
-[![Video thumbnail](https://img.youtube.com/vi/blah/maxresdefault.jpg)](https://youtu.be/blah)
+[![Video thumbnail](https://img.youtube.com/vi/vjsr18XXMMQ/maxresdefault.jpg)](https://youtu.be/vjsr18XXMMQ)
 
 - [Why linker fails](lectures/templates_and_headers.md#why-linker-fails)
   - [Compilation process for single `main.cpp` file](lectures/templates_and_headers.md#compilation-process-for-single-maincpp-file)
