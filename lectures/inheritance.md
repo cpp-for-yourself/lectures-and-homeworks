@@ -6,14 +6,14 @@ Inheritance and the idea of OOP
 </p>
 
 - [Inheritance and the idea of OOP](#inheritance-and-the-idea-of-oop)
-- [Interface inheritance enables dependency inversion](#interface-inheritance-enables-dependency-inversion)
+- [Inheritance enables dependency inversion](#inheritance-enables-dependency-inversion)
+  - [The idea behind dependency inversion](#the-idea-behind-dependency-inversion)
   - [Concrete example of dependency inversion](#concrete-example-of-dependency-inversion)
 - [How inheritance looks in C++](#how-inheritance-looks-in-c)
   - [Implementation inheritance](#implementation-inheritance)
-    - [Real-world example of implementation inheritance](#real-world-example-of-implementation-inheritance)
-- [Access control and inheritance](#access-control-and-inheritance)
+    - [Access control with inheritance](#access-control-with-inheritance)
     - [Implicit upcasting](#implicit-upcasting)
-    - [Downcasting using the `dynamic_cast`](#downcasting-using-the-dynamic_cast)
+    - [Real-world example of implementation inheritance](#real-world-example-of-implementation-inheritance)
   - [Interface inheritance](#interface-inheritance)
     - [Limitations of implementation inheritance](#limitations-of-implementation-inheritance)
     - [Using `virtual` for interface inheritance and proper polymorphism](#using-virtual-for-interface-inheritance-and-proper-polymorphism)
@@ -21,6 +21,7 @@ Inheritance and the idea of OOP
     - [Things to know about classes with `virtual` methods](#things-to-know-about-classes-with-virtual-methods)
       - [A `virtual` destructor](#a-virtual-destructor)
       - [Delete other special methods for polymorphic classes](#delete-other-special-methods-for-polymorphic-classes)
+    - [Downcasting using the `dynamic_cast`](#downcasting-using-the-dynamic_cast)
 - [Don't mix implementation and interface inheritance](#dont-mix-implementation-and-interface-inheritance)
   - [Implement pure interfaces](#implement-pure-interfaces)
   - [Keyword `final`](#keyword-final)
@@ -29,9 +30,9 @@ Inheritance and the idea of OOP
 - [Back to our example](#back-to-our-example)
 
 
-Inheritance is an important concept that enables a lot of techniques that we use in C++. It is also **the** mechanism for **dynamic polymorphism** that is one of the staples that allows us to think about design of our systems in very abstract and elegant ways. It also enables what is known as Object Oriented Programming or OOP when applied to C++.
+Inheritance is an important concept that enables a lot of techniques that we use in C++. It is also **the** mechanism for **dynamic polymorphism**. Along with the static polymorphism mostly enabled through templates that we talked about before, dynamic polymorphism is one of the staples that allows us to think about design of our systems in very abstract and elegant ways within the C++ domain, enabling Object Oriented Programming or OOP.
 
-Largely speaking, we distinguish between two types of inheritance, which are not very much different syntax-wise but are _very_ different in what they allow us to achieve:
+Largely speaking, we distinguish between two types of inheritance, which are not too different syntax-wise but are _very_ different in what they allow us to achieve:
 - Implementation inheritance
 - Interface inheritance
 
@@ -39,7 +40,7 @@ So let's talk about these: what interface inheritance allows us to achieve and w
 
 <!-- Intro -->
 
-## Interface inheritance enables dependency inversion
+## Inheritance enables dependency inversion
 Essentially, we mostly care about inheritance because it, just like using templates, allows us to **invert dependencies** between our components. You might have heard people talking about this as, well, the **dependency inversion principle**.
 
 Now this term sounds a bit scary but the concept under the hood actually makes a lot of sense!
@@ -50,16 +51,18 @@ Let's assume that we have some class `Thing` that depends on some other class `A
 graph LR
   A[<code>Thing</code>] --> B[<code>Algorithm</code>]
 ```
-This reads as "`Thing` depends on the `Algorithm`" and really just means that changes to the public API of our `Algorithm` require changes in the `Thing` class.
+This reads as "`Thing` depends on the `Algorithm`" and such dependency, if you ask me, is best understood in terms of how changes to various components propagate to other components. It really just means that changes to the public API of our `Algorithm` require changes in the `Thing` class and not vice versa.
 
-Such a dependency in itself might not be a huge problem if there are no changes expected from a system that we are designing. We probably will talk about this in one of the upcoming lectures on the software design guiding principles so I won't cover this in-depth here.
-<!-- Leave a comment below this video if you are interested in that! What would you like me to cover? And maybe subscribe if you haven't already while you're at it! -->
+Such a dependency in itself might be completely OK if there are no changes expected from a system that we are designing.
 
-However, requiring that there would be no changes in the whole future lifetime of a system is a _very strong requirement_. And, as such, it is also the one that rarely holds. It happens often that systems actually need to change and even for the most experienced folks these changes are hard to anticipate. Add on top of this the fact that different components of complex systems are often developed by different people or even teams and we start getting the feeling that we usually want to avoid this type of strong inter-dependency between the components.
+However, requiring that there would be no changes in the whole future lifetime of a system is a _very strong requirement_. And, as such, it is also the one that rarely holds. It happens often that systems actually _need_ to change and even for the most experienced folks these changes are hard to anticipate. We are just not that good at predicting the future. :shrug:
 
-Furthermore, we might want to be able to change the algorithm used in the `Thing` class at runtime, allowing the user of our system to pick the one that they want. Currently, we would have to rewrite the `Thing` class itself, which makes our design quite rigid and brittle at the same time.
+Add on top of this the fact that different components of complex systems are often developed by different people or even teams, which makes propagating changes even harder, and we start getting the feeling that we often want to avoid this type of strong inter-dependency between the components.
 
-Dependency inversion allows to avoid both of these pitfalls. Instead of requiring `Thing` to rely on `Algorithm` directly, we can make both of these classes rely on an agreed upon **interface**, thus inverting the dependencies - there is no line that points from `Thing` to `Algorithm` anymore!
+Furthermore, we might want to be able to change the algorithm used in the `Thing` class at runtime, allowing the user of our system to pick the one that they want in any particular situation. Currently, we would have to rewrite the `Thing` class itself and maybe make it depend on even more components, which makes our design quite rigid and brittle at the same time.
+
+### The idea behind dependency inversion
+Dependency inversion allows us to avoid both of these pitfalls. Instead of requiring the `Thing` to rely on the `Algorithm` directly, we can make both of these classes rely on an agreed upon **interface**, say `AlgorithmInterface`, thus inverting the dependencies - there is no line that points from `Thing` to `Algorithm` anymore!
 ```mermaid
 graph BT
   A[<code>Thing</code>] --> I[<code>AlgorithmInterface</code>]
@@ -67,7 +70,7 @@ graph BT
 ```
 Here, our `Thing` class calls the public methods of the `AlgorithmInterface`, while the `Algorithm` **implements** this interface.
 
-Now, as long as we designed a good interface (which to me is arguably the hardest part of software design), we can make changes to the `Algorithm` and `Thing` class independently from each other. Not only that but we can easily add more algorithms should we need to, say a `NewAlgorithm` class that implements the same interface, and the `Thing` doesn't need to know that anything changed under the hood.
+Now, as long as we designed a good interface (which to me is arguably the hardest part of designing software), we can make changes to the `Algorithm` and `Thing` class independently from each other. Not only that but we can easily add more algorithms should we need to, say a `NewAlgorithm` class that implements the same interface, and the `Thing` doesn't need to know that anything changed under the hood.
 ```mermaid
 graph BT
   A[<code>Thing</code>] --> I[<code>AlgorithmInterface</code>]
@@ -75,14 +78,14 @@ graph BT
   C[<code>NewAlgorithm</code>] -.-> I[<code>AlgorithmInterface</code>]
 ```
 
-🚨 So we really care about interface inheritance because it **enables this form of abstract software design**, which is also known as **O**bject **O**riented **P**rogramming, or **OOP**! And in the remainder of today's lecture we'll see **how** inheritance enables this design through **dynamic polymorphism**.
+🚨 So we really care about inheritance because it **enables this form of abstract software design**, which is also known as **O**bject **O**riented **P**rogramming, or **OOP**! And in the remainder of today's lecture we'll see **how** inheritance enables this design through **dynamic polymorphism**.
 
-Now, those of you who were careful to follow the [lectures on templates in this course](templates_why.md) might get a feeling that something similar should be possible to achieve using templates too. After all, we did look at how we could replace an algorithm using a template strategy. And you _are_ right! We _can_ do it with templates **at compiler time** but **not at runtime**. Depending on our goals this might be more or less suitable for our needs.
+Now, those of you who were careful to follow the [lectures on templates in this course](templates_why.md) might get a feeling that something similar should be possible to achieve using templates too. After all, we did look at how we could replace an algorithm using a template strategy. And you _are_ right! We _can_ do it with templates **at compile time** but **not at runtime**. Depending on our goals this might be more or less suitable for our needs.
 
 So now with the gist of what we need inheritance for out of the way, let's see a more concrete example and dive into more details!
 
 ### Concrete example of dependency inversion
-Imagine that our `Thing` class is actually a `GrayscaleImage` that represents its pixel values a [`std::vector`](more_useful_types.md) of `std::uint8` intensities. For the sake of this example, it also has a constructor and a `Save` method that both make use of some other class `JpegIo`, in place of the `Algorithm` class we used before, that allows us to read and write data in JPEG format. This `GrayscaleImage` class is not very useful but it will be enough for us to showcase the dependency inversion principle all the same.
+Imagine that our `Thing` class is actually a `GrayscaleImage` that represents its pixel values as a [`std::vector`](more_useful_types.md) of `std::uint8` intensities. For the sake of this example, it also has a constructor and a `Save` method that both make use of another class `JpegIo`, in place of the `Algorithm` class we used before, that allows us to read and write image-like data in JPEG image format. This `GrayscaleImage` class is not very useful and we'll leave out most of the details but it will be enough for us to showcase the dependency inversion principle all the same.
 <!--
 `CPP_SETUP_START`
 #include <vector>
@@ -120,16 +123,17 @@ class GrayscaleImage {
 int main() {
     const GrayscaleImage image{"path.jpeg", JpegIo{}};
     image.Save("other_path.jpeg", JpegIo{});
+    return 0;
 }
 ```
-
-Now, clearly, `GrayscaleImage` depends on `JpegIo`. We can see this by thinking about their public interfaces, i.e., their functions. If a `Read` or `Write` function of the `JpegIo` class changes, we _will have to change_ the implementation of the `GrayscaleImage`, but if just the public interface of the `GrayscaleImage` changes, no changes are required on the `JpegIo` side.
+Now, clearly, `GrayscaleImage` depends on `JpegIo` because `GrayscaleImage` uses the functionality of the `JpegIo` class in its implementation. We can think of this in terms of their public interfaces, i.e., their functions. If a `Read` or `Write` function of the `JpegIo` class changes, we _will have to change_ the implementation of the `GrayscaleImage`, but if just the public interface of the `GrayscaleImage` changes, no changes are required on the `JpegIo` side.
 ```mermaid
 graph LR
   A[<code>GrayscaleImage</code>] --> B[<code>JpegIo</code>]
 ```
 
-Working with JPEG files is nice, but this is not the only common image format, so it is very likely that we actually want to not only work with JPEG files, but also with PNG and maybe other formats. The naïve way is, of course, to just write a `PngIo` class similar to  the `JpegIo` class and compile the `GrayscaleImage` class with whichever io class we need. Supporting both of these io strategies would then require adding more functions to our image class. But this requires recompilation and lots of code changes! Not only that it also changes the public interface of our image class! We can do better!
+Working with JPEG files is nice, but this is not the only common image format, so it is very likely that we actually want to not only work with JPEG files, but also with PNG and maybe other formats. The naïve way is, of course, to just write a `PngIo` class similar to the `JpegIo` class and compile the `GrayscaleImage` class with whichever io class we need. Supporting both of these io strategies would then require adding more functions to our image class. But this requires recompilation and lots of code changes! Not only that, but it also changes the public interface of our image class! We can clearly do better!
+<!-- Animate switching between the PngIo and JpegIo classes. -->
 
 This is where the dependency inversion principle really comes into play: it allows us to introduce an **interface**, say `IoInterface`, with a common public interface that `GrayscaleImage`, `JpegIo` and any other similar classes will depend on!
 ```mermaid
@@ -140,7 +144,7 @@ graph BT
 ```
 Note how there is no arrow pointing from `GrayscaleImage` to `JpegIo` or `PngIo`, just one pointing to the `IoInterface`.
 
-In our example, the code changes to rely on a reference (or a pointer) to an `IoInterface` rather than on a concrete implementation:
+Coming back to the code, our `GrayscaleImage` now receives a reference (or a pointer) to an `IoInterface` rather than on a concrete implementation:
 <!--
 `CPP_SETUP_START`
 
@@ -215,20 +219,18 @@ int main() {
     image.Save("other_path.png", PngIo{});
 }
 ```
-Look how easy it is now to change the behavior of our `GrayscaleImage` without changing its code! We just pass a new **strategy** (i.e., one of the classes that implement our `IoInterface`) into it and it magically works!
+Once we design the `PngIo` and `JpegIo` classes to implement the `IoInterface` we are able to pass them interchangeably in place of the `IoInterface` reference! Look how easy it is now to change the behavior of our `GrayscaleImage` without changing its code! We just pass a new **strategy** (i.e., one of the classes that implement our `IoInterface`) into it and it magically works! And if we would want to work with some other image type we could just add another class that implements `IoInterface` and pass it instead! Neat, right?
 
-Now, to achieve this, we need inheritance in C++!
-
-As you have undoubtedly noticed, I have not provided any implementation of our io strategy classes just yet. We will of course fill them in towards the end of this lecture but for now we have to take a step back and see how inheritance works in modern C++.
+As you have undoubtedly noticed, I have not provided any implementation of our io strategy classes just yet. We will of course fill them in, which we'll do towards the end of this lecture but for now I'd like to take a step back and see how inheritance works in modern C++, because to achieve the behavior we've just seen in C++, **we need inheritance!**
 
 ## How inheritance looks in C++
 ### Implementation inheritance
 In its simplest form, the so-called **implementation inheritance** is designed to simply extend one class, say `Base` with another, say `Derived`. We say that a `Derived` class inherits from a `Base` class which implies that any object of the `Derived` class contains a full copy of the `Base` class, including all of its methods and appending the data of the `Derived` class to the data stored in the `Base` object.
 <!-- TODO: add image -->
 
-Let's show it on a simple example as we always do. We have two structs: `Base` and `Derived` that inherits from `Base`. We show the inheritance by a `:` symbol after the name of the derived class followed by the name of its parent class, along with some access modifiers, here `public`, more on that later.
+Let's show it on a simple example as we always do. Let's say we have two structs: `Base` and `Derived` that inherits from `Base`. We show the inheritance by a `:` symbol after the name of the derived class followed by the name of its parent class, along with some access modifiers, here `public`, more on that later.
 
-These classes have their corresponding methods `BaseMethod` and `DerivedMethod` and some data, which we keep `public` here for illustration purposes. They also have a function with the same name `DoSmth`. We then create an object of the `Derived` class and call both `Base`-specific and `Derived`-specific methods on it as well as print the address of the data it contains.
+These classes have their corresponding methods `BaseMethod` and `DerivedMethod` and some data, which we keep `public` here for illustration purposes. They also each have a function `DoSmth` with the same signature. We then create an object of the `Derived` class and call both `Base`-specific and `Derived`-specific methods on it as well as print the address of the data it contains.
 ```cpp
 #include <iostream>
 
@@ -257,7 +259,7 @@ int main() {
   std::cout << "&object.derived_data: " << &object.derived_data << std::endl;
 }
 ```
-This produces the following output:
+Looking at the output this code produces, we see that we can call both the `Base`-specific and the `Derived`-specific methods on an object of `Derived` type.
 ```output
 BaseMethod
 DerivedMethod
@@ -265,62 +267,10 @@ Derived DoSmth
 &object.base_data:    0x7ffe8fff82d8
 &object.derived_data: 0x7ffe8fff82dc
 ```
-Looking at this output, we see that we can call both the `Base`-specific and the `Derived`-specific methods on an object of `Derived` type. Furthermore, because we work with an object of the `Derived` type, the `DoSmth` function shadows its counterpart from the `Base` class. As for the data, looking at their address, we see that the `Derived`-defined data follow right after the `Base`-defined ones.
+Furthermore, because we work with an object of the `Derived` type, the `DoSmth` function shadows its counterpart from the `Base` class. As for the data, looking at their address, we see that the `Derived`-defined data follow right after the `Base`-defined ones.
 
-#### Real-world example of implementation inheritance
-The use of implementation inheritance is quite limited in modern C++. The only real-world examples that come to mind are the implementation of various type traits and maybe the [Curiously Recurring Template Pattern](https://en.wikipedia.org/wiki/Curiously_recurring_template_pattern), or CRTP. I will not focus on CRTP here <!--, feel free to read up on it following the link in the description to this video, --> but the usage of implementation inheritance in type traits is quite common and I'd like to briefly look at it here. So I would like to return to a small piece of code we wrote when we talked about [type traits](templates_how_classes.md#type-traits-and-how-to-implement-them-using-template-specialization) before.
-
-This code shows our custom implementation of the [`std::is_integral`](https://en.cppreference.com/w/cpp/types/is_integral) type trait that checks if a type provided to it represents integer numbers.
-<!--
-`CPP_SETUP_START`
-$PLACEHOLDER
-`CPP_SETUP_END`
-`CPP_COPY_SNIPPET` inheritance_simple_trait/is_integral.cpp
-`CPP_RUN_CMD` CWD:inheritance_simple_trait c++ -std=c++17 -c is_integral.cpp
--->
-```cpp
-template <typename T>
-struct is_integral {
-  static constexpr inline bool value{};
-};
-```
-This primary pattern implementation is perfectly fine but if we look at the standard library implementation it is actually implemented differently - through inheritance!
-
-You see, there is another trait [`std::integral_constant`](https://en.cppreference.com/w/cpp/types/integral_constant), which furthermore has `std::true_type` and `std::false_type` specializations. The `std::integral_constant` trait already has a `static` member `value` defined with all the current best practices in mind, so why not reuse it?
-
-And we _can_ reuse these already defined type traits by using implementation inheritance:
-<!--
-`CPP_SETUP_START`
-$PLACEHOLDER
-static_assert(is_integral<int>::value);
-static_assert(is_integral<float>::value == false);
-`CPP_SETUP_END`
-`CPP_COPY_SNIPPET` inheritance_traits/main.cpp
-`CPP_RUN_CMD` CWD:inheritance_traits c++ -std=c++17 -c main.cpp
--->
-```cpp
-template<class T, T v>
-struct integral_constant {
-    static constexpr inline T value = v;
-};
-
-using true_type = integral_constant<bool, true>;
-using false_type = integral_constant<bool, false>;
-
-template <typename T>
-struct is_integral : public false_type {};
-
-// Specializations for any types we deem integral.
-template <>
-struct is_integral<int> : public true_type {};
-```
-Here, we inherit our `struct` `is_integral` from the `false_type` **base** class. This has the effect that our `is_integral` struct gains the `value` that holds `false`. And, likewise, we can now specialize our struct for any type we want to be marked as integral type using another typedef `true_type`.
-
-This is really the only use case in which implementation inheritance is routinely used in modern C++.
-<!-- But if you know of other common examples, please tell me what they are in the comments! -->
-
-## Access control and inheritance
-Now is a good time for a short interlude about access control in classes when inheritance is at play. First of all, there is another class access modifier that we did not talk about. Before, we talked about `private` and `public` access to class methods and data. There is one more access modifier to think of - `protected`. It works just like private for anybody trying to access data from the outside of class hierarchy, while within the class hierarchy the data is accessible.
+#### Access control with inheritance
+Now is probably a good time for a relatively short interlude about access control in classes when inheritance is at play. First of all, there is another class access modifier that we did not talk about. Before, we talked about `private` and `public` access to class methods and data. There is one more access modifier to think of - `protected`. It works just like private for anybody trying to access data from the outside of class hierarchy, while within the class hierarchy the data is accessible.
 ```cpp
 #include <iostream>
 
@@ -352,20 +302,18 @@ int main() {
     return 0;
 }
 ```
+That all being said, the Core Guidelines recommend to [avoid using `protected` data](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#c133-avoid-protected-data), so please be mindful of this.
 
 You might have also noticed that we used the word `public` after the `:` symbol when using inheritance. But we could also technically use `protected` or `private` there. The difference is the following:
 - ✅ `[most common]` Using `public` maintains the access levels of all data and methods of the base class, **mimics an "is a" relationship** between classes
 - Using `protected` makes all the `public` attributes of the base class `protected` and leaves its `protected` and `private` members as is
-- Using `private` makes all the members of the base class `private`
+- Using `private` makes all the accessible members of the base class `private`, i.e., invisible to anybody including its own descendants.
 
-These are a bit hard to grasp. For example, using `private` inheritance means that we don't have direct access to any member of the base class at all! So in reality, when using inheritance we mostly use `public` inheritance.
-
-If you feel that there is a need to use `private` inheritance, in such cases it is better to use composition as opposed to inheritance, i.e., just store an object of the base class as a member of the previously derived class. This relationship is usually called **"implement in terms of"**. It makes sense, if we think about it - storing an object of another class achieves the same as inheriting privately from another object - we can only access the public methods of that other class while not exposing any of it to the outside!
+All in all, we mostly use `public` inheritance and the reason is that composition usually is more readable and less error prone while achieves the same things as `private` and, to some degree, `protected` inheritance. It makes sense, if we think about it - storing an object of another class achieves nearly the same as inheriting privately from such an object. In both cases we can access that other class while not exposing any of its data or methods to the outside! The main difference is that with composition we only can access the stored object's public interface, while inheritance also gives us access the protected part of the class we inherit from.
 
 <!-- TODO: need an example -->
 
-For example, if we want to implement a class `Zombie`, it would be wrong to inherit from `Human` as a zombie is not a human. But we could implement a zombie in terms of a human, meaning that we would still use the internal state of a human but only expose part of the interface to the outside.
-
+For example, if we want to implement a class `Zombie`, it would be wrong to inherit from `Human` as a zombie is not a human. But we could implement a zombie "in terms of" a human, meaning that we would still use the internal state of a human but only expose part of the interface to the outside.
 
 #### Implicit upcasting
 Now one of the defining features of how inheritance was designed in C++ is that a pointer or a reference to any derived class can be **implicitly converted** to a pointer or a reference of the base class. This is commonly called **upcasting**, "up" referring to the dependency diagrams usually shown in such a way that an arrow points from `Derived` below to `Base` above.
@@ -415,35 +363,57 @@ While this is neat, it does not really bring us much closer to our goal of being
 
 :bulb: To actually be able to define and implement an interface like the one we talked about before, we will need to use **`virtual` functions**.
 
-#### Downcasting using the `dynamic_cast`
-Just like we can upcast our type along the hierarchy of classes we can downcast these classes too. This _is_ considered an antipattern though and breaks the so-called Liskov substitution principle stating that an object may be replaced by a sub-object without breaking the program.
+#### Real-world example of implementation inheritance
+But before we do implement such an interface, I want to briefly mentions some legitimate uses of implementation inheritance that I've encountered. It is true that implementation inheritance is quite limited in modern C++ and so the only real-world examples that come to mind are the implementation of various [type traits](templates_how_classes.md#type-traits-and-how-to-implement-them-using-template-specialization) and maybe the [Curiously Recurring Template Pattern](https://en.wikipedia.org/wiki/Curiously_recurring_template_pattern), or CRTP. I will not focus on CRTP here <!--, feel free to read up on it following the link in the description to this video, --> but the usage of implementation inheritance in type traits is quite common and I'd like to briefly look at it here. So I would like to return to a small piece of code we wrote when we talked about [type traits](templates_how_classes.md#type-traits-and-how-to-implement-them-using-template-specialization) before.
 
-So while usually when we see `dynamic_cast` in the code it is a code smell that indicates that design improvements are probably in order, it is still important to understand how it works should you encounter it in some program.
-
-The `dynamic_cast` allows us to convert a pointer or a reference to a polymorphic `Base` class to a pointer or reference of the `Derived` class, derived from `Base`. We won't go too much into detail, but it is important to note that this conversion might fail! If this conversion fails while converting a pointer, a `nullptr` will be returned, while if the failure occurs while converting a reference, a `std::bad_cast` exception will be thrown.
+This code shows our custom implementation of the [`std::is_integral`](https://en.cppreference.com/w/cpp/types/is_integral) type trait that checks if a type provided to it represents integer numbers.
+<!--
+`CPP_SETUP_START`
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` inheritance_simple_trait/is_integral.cpp
+`CPP_RUN_CMD` CWD:inheritance_simple_trait c++ -std=c++17 -c is_integral.cpp
+-->
 ```cpp
-#include <iostream>
-
-struct Base {
-    virtual ~Base() {}
+template <typename T>
+struct is_integral {
+  static constexpr inline bool value{};
 };
-
-struct OtherBase {
-    virtual ~OtherBase() {}
-};
-
-struct Derived : public Base {};
-
-int main() {
-    const Derived object{};
-    const Base& base_ref{object};
-    const OtherBase other_base{};
-    const OtherBase& other_base_ref{other_base};
-    const Derived& derived_ref = dynamic_cast<const Derived&>(base_ref);
-    // other_derived_ptr will be nullptr because it is not derived from OtherBase.
-    const Derived* other_derived_ptr = dynamic_cast<const Derived*>(&other_base_ref);
-}
 ```
+This primary pattern implementation is perfectly fine but if we look at the standard library implementation it is actually implemented differently - through inheritance!
+
+You see, there is another trait [`std::integral_constant`](https://en.cppreference.com/w/cpp/types/integral_constant), which furthermore has `std::true_type` and `std::false_type` specializations. The `std::integral_constant` trait already has a `static` member `value` defined with all the current best practices in mind, so why not reuse it?
+
+And we _can_ reuse these already defined type traits by using implementation inheritance:
+<!--
+`CPP_SETUP_START`
+$PLACEHOLDER
+static_assert(is_integral<int>::value);
+static_assert(is_integral<float>::value == false);
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` inheritance_traits/main.cpp
+`CPP_RUN_CMD` CWD:inheritance_traits c++ -std=c++17 -c main.cpp
+-->
+```cpp
+template<class T, T v>
+struct integral_constant {
+    static constexpr inline T value = v;
+};
+
+using true_type = integral_constant<bool, true>;
+using false_type = integral_constant<bool, false>;
+
+template <typename T>
+struct is_integral : public false_type {};
+
+// Specializations for any types we deem integral.
+template <>
+struct is_integral<int> : public true_type {};
+```
+Here, we inherit our `struct` `is_integral` from the `false_type` **base** class. This has the effect that our `is_integral` struct gains the `value` that holds `false`. And, likewise, we can now specialize our struct for any type we want to be marked as integral type using another typedef `true_type`.
+
+This is really the only use case in which implementation inheritance is routinely used in modern C++.
+<!-- But if you know of other common examples, please tell me what they are in the comments! -->
 
 ### Interface inheritance
 #### Limitations of implementation inheritance
@@ -598,12 +568,44 @@ struct Derived : public Base {
 };
 ```
 
+#### Downcasting using the `dynamic_cast`
+It is also important to mention that for [polymorphic classes](https://en.cppreference.com/w/cpp/language/object#Polymorphic_objects), i.e., those that have a vtable pointer, just like we can upcast our type along the hierarchy of classes we can downcast too. This _is_ considered an anti-pattern though and breaks the so-called [Liskov Substitution Principle](https://en.wikipedia.org/wiki/Liskov_substitution_principle) that, applied to C++, states that when we work with a pointer or a reference to base type we should have no need to know which descendant type is being actually used. If this principle is broken the programs usually become more brittle, meaning that making changes to them without breaking things requires more work.
+
+So while usually when we see a `dynamic_cast` it is a code smell that indicates that design improvements are probably in order, it is still important to understand how it works should you encounter it in some program.
+
+The `dynamic_cast` allows us to convert a pointer or a reference to a polymorphic `Base` class into a pointer or reference of the `Derived` class, derived from `Base`. We won't go too much into detail, but it is important to note that this conversion might fail! If this conversion fails while converting a pointer, a `nullptr` will be returned, while if the failure occurs while converting a reference, a `std::bad_cast` exception will be thrown.
+```cpp
+#include <iostream>
+
+struct Base {
+    virtual ~Base() {}
+};
+
+struct OtherBase {
+    virtual ~OtherBase() {}
+};
+
+struct Derived : public Base {};
+
+int main() {
+    const Derived object{};
+    const Base& base_ref{object};
+    const OtherBase other_base{};
+    const OtherBase& other_base_ref{other_base};
+    const Derived& derived_ref = dynamic_cast<const Derived&>(base_ref);
+    // other_derived_ptr will be nullptr because it is not derived from OtherBase.
+    const Derived* other_derived_ptr = dynamic_cast<const Derived*>(&other_base_ref);
+    // ❌ The following will throw a std::bad_cast.
+    // const Derived& other_derived_ref = dynamic_cast<const Derived&>(other_base_ref);
+}
+```
+
 ## Don't mix implementation and interface inheritance
-We are almost ready to return to our original `GrayscaleImage` example and finish its implementation with all the best practices in mind. There is just one more thing to cover for that.
+We are almost ready to return to our original `GrayscaleImage` example and finish its implementation with all the best practices in mind. There is just one more thing to cover before that.
 
-In my experience, having virtual functions that have a base implementation and some overridden implementation in a derived class becomes confusing quite quickly. It becomes hard to find where in the hierarchy of the classes the actual implementation actually happens, and it seems that the experts who know much more about software design than I do agree with me on this.
+In my experience, having virtual functions that have a base implementation and some overridden implementation in a derived class becomes confusing quite quickly. It becomes hard to find where in the class hierarchy the actual implementation lives and I've spent hours and hours on this in code bases that had deep polymorphic object hierarchies. And it seems that the experts who know much more about software design than I do agree with me on this.
 
-C++ Core Guidelines suggests to keep implementation inheritance [separate from the interface inheritance](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#c129-when-designing-a-class-hierarchy-distinguish-between-implementation-inheritance-and-interface-inheritance) and the Google C++ Code Style suggest to [not overuse implementation inheritance](https://google.github.io/styleguide/cppguide.html#Inheritance) and prefer composition instead, while some go as far as to call [implementation inheritance evil](http://whats-in-a-game.com/implementation-inheritance-is-evil/) altogether.
+C++ Core Guidelines suggest to distinguish [between implementation inheritance and the interface inheritance](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#c129-when-designing-a-class-hierarchy-distinguish-between-implementation-inheritance-and-interface-inheritance) and the Google C++ Code Style suggest to [not overuse implementation inheritance](https://google.github.io/styleguide/cppguide.html#Inheritance) and prefer composition instead, while some go as far as to call [implementation inheritance evil](http://whats-in-a-game.com/implementation-inheritance-is-evil/) altogether.
 
 ### Implement pure interfaces
 So what is the solution to this problem? The solution is to separate interface inheritance and implementation inheritance alltogether. You see, there is one more trick up our sleeves with `virtual` - the **pure `virtual` functions**.
@@ -659,7 +661,7 @@ Here, we change `Base` to be an interface, add one more implementation class `An
 ## Multiple inheritance
 C++ also allows to use multiple inheritance. But do note that it is [heavily discouraged](https://google.github.io/styleguide/cppguide.html#Inheritance) in case of implementation inheritance. It is easy to show the reason. Imagine we have a class that inherits from a number of classes and we want to find the implementation of a certain functionality. How do we know where it is implemented? In bigger projects this becomes really cumbersome.
 
-That being said, it is ok sometimes to use multiple inheritance when a class needs to implement multiple interfaces. It is easy to imagine that a game object can be both `Drawable` and, say `Moveable`.
+That being said, it is ok sometimes to use multiple inheritance when a class needs to [implement multiple interfaces](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#c135-use-multiple-inheritance-to-represent-multiple-distinct-interfaces). It is easy to imagine that a game object can be both `Drawable` and, say `Moveable`.
 <!--
 `CPP_SETUP_START`
 
@@ -683,10 +685,26 @@ class Box: public Drawable, public Moveable {
   void Move(float distance) override {}
   // Rest of the implementation.
 };
+
+void Move(Moveable* moveable, float distance) {
+  moveable.Move(distance);
+}
+
+void Draw(Drawable* drawable) {
+  drawable.Draw();
+}
+
+int main() {
+  Box box{};
+  Move(&box, 42.42F);
+  Draw(&box);
+  return 0;
+}
 ```
+This allows us to separate the concerns in our design. The standalone functions `Move` and `Draw` need to know nothing about the objects being passed into them as long as those correspond to the required interface and our `Box` satisfies both.
 
 ## Back to our example
-Now we know everything there is to know about inheritance in modern C++. We know how simple (and a bit limited) implementation inheritance is, we know that the interface inheritance enabled dynamic polymorphism, we understand how it works under the hood and we know the best practices related to creating and using interfaces. So it is time to put it all to a small test and get back to our original example with the `GrayscaleImage`. We can now properly implement the missing parts.
+Now we really know everything there is to know about inheritance in modern C++. We know how simple (and a bit limited) implementation inheritance is, we know that the interface inheritance enables dynamic polymorphism, we understand how it works under the hood and we know the best practices related to creating and using interfaces. So it is time to put it all to a small test and get back to our original example with the `GrayscaleImage`. We can now properly implement the missing parts.
 
 ```cpp
 #include <filesystem>
@@ -753,7 +771,7 @@ int main() {
     image.Save("other_path.png", PngIo{});
 }
 ```
-We reuse our `Noncopyable` base class to declare the `IoInterface` with our `Write` and `Read` functions, along with a `virtual` destructor. Note that our functions are both `const`-qualified as well as pure `virtual`. Then, our `JpegIo` and `PngIo` implement the interface by overriding the `Write` and `Read` functions. The actual implementation is not important right so they just print something to the terminal here. Finally, just as before, we use the reference to our interface in our `GrayscaleImage` class to refer to any implementation that we pass into it in our `main` function.
+We reuse our `Noncopyable` base class to declare the `IoInterface` with our `Write` and `Read` functions, along with a `virtual` destructor. Note that our functions are both `const`-qualified as well as pure `virtual`. Then, our `JpegIo` and `PngIo` implement the interface by overriding the `Write` and `Read` functions. The actual implementation is not important to understand inheritance so they just print something to the terminal here. Finally, just as before, we use the reference to our interface in our `GrayscaleImage` class to refer to any implementation that we pass into it in our `main` function.
 
 This, I believe, follows most of the current best practices when it comes to implementing an OOP-style system that relies on dynamic polymorphism.
 
