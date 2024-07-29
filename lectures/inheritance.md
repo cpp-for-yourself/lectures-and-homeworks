@@ -83,7 +83,25 @@ So now with the gist of what we need inheritance for out of the way, let's see a
 
 ### Concrete example of dependency inversion
 Imagine that our `Thing` class is actually a `GrayscaleImage` that represents its pixel values a [`std::vector`](more_useful_types.md) of `std::uint8` intensities. For the sake of this example, it also has a constructor and a `Save` method that both make use of some other class `JpegIo`, in place of the `Algorithm` class we used before, that allows us to read and write data in JPEG format. This `GrayscaleImage` class is not very useful but it will be enough for us to showcase the dependency inversion principle all the same.
+<!--
+`CPP_SETUP_START`
+#include <vector>
+#include <filesystem>
+
+struct JpegIo {
+  void Write(const std::filesystem::path&, const std::vector<std::uint8_t>&) const {}
+  std::vector<std::uint8_t> Read(const std::filesystem::path&) const {}
+};
+
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` inheritance/main.cpp
+`CPP_RUN_CMD` CWD:inheritance c++ -std=c++17 main.cpp
+-->
 ```cpp
+#include <vector>
+#include <filesystem>
+
 class GrayscaleImage {
    public:
     GrayscaleImage(const std::filesystem::path& path,
@@ -123,6 +141,59 @@ graph BT
 Note how there is no arrow pointing from `GrayscaleImage` to `JpegIo` or `PngIo`, just one pointing to the `IoInterface`.
 
 In our example, the code changes to rely on a reference (or a pointer) to an `IoInterface` rather than on a concrete implementation:
+<!--
+`CPP_SETUP_START`
+
+#include <filesystem>
+#include <iostream>
+#include <vector>
+
+struct Noncopyable {
+    Noncopyable() = default;
+    Noncopyable(const Noncopyable&) = delete;
+    Noncopyable(Noncopyable&&) = delete;
+    Noncopyable& operator=(const Noncopyable&) = delete;
+    Noncopyable& operator=(Noncopyable&&) = delete;
+    ~Noncopyable() = default;
+};
+
+struct IoInterface : public Noncopyable {
+    virtual std::vector<std::uint8_t> Read(
+        const std::filesystem::path& path) const = 0;
+    virtual void Write(const std::filesystem::path& path,
+                       const std::vector<std::uint8_t>& data) const = 0;
+    virtual ~IoInterface() = default;
+};
+
+struct JpegIo final : public IoInterface {
+    std::vector<std::uint8_t> Read(
+        const std::filesystem::path& path) const override {
+        std::cout << "Reading JPEG from path: " << path << std::endl;
+        return {};
+    }
+    virtual void Write(const std::filesystem::path& path,
+                       const std::vector<std::uint8_t>& data) const override {
+        std::cout << "Writing JPEG to path: " << path << std::endl;
+    }
+};
+
+struct PngIo final : public IoInterface {
+    std::vector<std::uint8_t> Read(
+        const std::filesystem::path& path) const override {
+        std::cout << "Reading PNG from path: " << path << std::endl;
+        return {};
+    }
+    virtual void Write(const std::filesystem::path& path,
+                       const std::vector<std::uint8_t>& data) const override {
+        std::cout << "Writing PNG to path: " << path << std::endl;
+    }
+};
+
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` inheritance_polymorphic/main.cpp
+`CPP_RUN_CMD` CWD:inheritance_polymorphic c++ -std=c++17 main.cpp
+-->
 ```cpp
 class GrayscaleImage {
    public:
@@ -204,8 +275,8 @@ This code shows our custom implementation of the [`std::is_integral`](https://en
 `CPP_SETUP_START`
 $PLACEHOLDER
 `CPP_SETUP_END`
-`CPP_COPY_SNIPPET` simple_trait_example/is_integral.cpp
-`CPP_RUN_CMD` CWD:simple_trait_example c++ -std=c++17 -c is_integral.cpp
+`CPP_COPY_SNIPPET` inheritance_simple_trait/is_integral.cpp
+`CPP_RUN_CMD` CWD:inheritance_simple_trait c++ -std=c++17 -c is_integral.cpp
 -->
 ```cpp
 template <typename T>
@@ -218,6 +289,15 @@ This primary pattern implementation is perfectly fine but if we look at the stan
 You see, there is another trait [`std::integral_constant`](https://en.cppreference.com/w/cpp/types/integral_constant), which furthermore has `std::true_type` and `std::false_type` specializations. The `std::integral_constant` trait already has a `static` member `value` defined with all the current best practices in mind, so why not reuse it?
 
 And we _can_ reuse these already defined type traits by using implementation inheritance:
+<!--
+`CPP_SETUP_START`
+$PLACEHOLDER
+static_assert(is_integral<int>::value);
+static_assert(is_integral<float>::value == false);
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` inheritance_traits/main.cpp
+`CPP_RUN_CMD` CWD:inheritance_traits c++ -std=c++17 -c main.cpp
+-->
 ```cpp
 template<class T, T v>
 struct integral_constant {
@@ -296,6 +376,31 @@ graph BT
 ```
 
 To show how this works, we can change our main function by adding a `Base` reference that will point to a `Derived` object:
+<!--
+`CPP_SETUP_START`
+#include <iostream>
+
+// Using struct here but the same holds for classes
+struct Base {
+  void DoSmth() const { std::cout << "Base DoSmth" << std::endl; }
+  void BaseMethod() const { std::cout << "BaseMethod" << std::endl; }
+  // Doesn't have to be int
+  int base_data{};
+};
+
+// Using struct here but the same holds for classes
+struct Derived : public Base {
+  void DoSmth() const { std::cout << "Derived DoSmth" << std::endl; }
+  void DerivedMethod() const { std::cout << "DerivedMethod" << std::endl; }
+  // Also can be any other type
+  float derived_data{};
+};
+
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` inheritance_using_base_ref/main.cpp
+`CPP_RUN_CMD` CWD:inheritance_using_base_ref c++ -std=c++17 main.cpp
+-->
 ```cpp
 int main() {
   const Derived derived{};
@@ -464,7 +569,16 @@ int main() {
 This allows us to get rid of the annoying disclaimer comment.
 
 There is also a quicker way to do this by inheriting from a simple `Noncopyable` class which can be reused for any class that is not supposed to be copyable or movable. Then we just need a `virtual` destructor because all the rest of the special functions are already taken care of.
+<!--
+`CPP_SETUP_START`
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` inheritance_noncopyable/main.cpp
+`CPP_RUN_CMD` CWD:inheritance_noncopyable c++ -std=c++17 -c main.cpp
+-->
 ```cpp
+#include <iostream>
+
 struct Noncopyable {
   Noncopyable() = default;
   Noncopyable(const Noncopyable&) = delete;
@@ -546,13 +660,29 @@ Here, we change `Base` to be an interface, add one more implementation class `An
 C++ also allows to use multiple inheritance. But do note that it is [heavily discouraged](https://google.github.io/styleguide/cppguide.html#Inheritance) in case of implementation inheritance. It is easy to show the reason. Imagine we have a class that inherits from a number of classes and we want to find the implementation of a certain functionality. How do we know where it is implemented? In bigger projects this becomes really cumbersome.
 
 That being said, it is ok sometimes to use multiple inheritance when a class needs to implement multiple interfaces. It is easy to imagine that a game object can be both `Drawable` and, say `Moveable`.
+<!--
+`CPP_SETUP_START`
+
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` inheritance_multiple/main.cpp
+`CPP_RUN_CMD` CWD:inheritance_multiple c++ -std=c++17 -c main.cpp
+-->
 ```cpp
+struct Drawable {
+  virtual void Draw() = 0;
+};
+
+struct Moveable {
+  virtual void Move(float distance) = 0;
+};
+
 class Box: public Drawable, public Moveable {
  public:
   void Draw() override {}
   void Move(float distance) override {}
   // Rest of the implementation.
-}
+};
 ```
 
 ## Back to our example
@@ -577,7 +707,7 @@ struct IoInterface : public Noncopyable {
         const std::filesystem::path& path) const = 0;
     virtual void Write(const std::filesystem::path& path,
                        const std::vector<std::uint8_t>& data) const = 0;
-    virtual IoInterface() = default;
+    virtual ~IoInterface() = default;
 };
 
 struct JpegIo final : public IoInterface {
