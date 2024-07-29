@@ -687,11 +687,11 @@ class Box: public Drawable, public Moveable {
 };
 
 void Move(Moveable* moveable, float distance) {
-  moveable.Move(distance);
+  moveable->Move(distance);
 }
 
 void Draw(Drawable* drawable) {
-  drawable.Draw();
+  drawable->Draw();
 }
 
 int main() {
