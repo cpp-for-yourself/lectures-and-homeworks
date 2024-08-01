@@ -61,28 +61,27 @@ $PLACEHOLDER
 `CPP_RUN_CMD` CWD:inheritance c++ -std=c++17 main.cpp
 -->
 ```cpp
-#include <vector>
 #include <filesystem>
+#include <vector>
 
 class Image {
-   public:
-    Image(const std::filesystem::path& path,
-                   const JpegIo& io) {
-        intensities_ = io.Read(path);
-    }
+ public:
+  Image(const std::filesystem::path& path, const JpegIo& io) {
+    pixels_ = io.Read(path);
+  }
 
-    void Save(const std::filesystem::path& path, const JpegIo& io) const {
-        io.Write(path, intensities_);
-    }
+  void Save(const std::filesystem::path& path, const JpegIo& io) const {
+    io.Write(path, pixels_);
+  }
 
-   private:
-    std::vector<Color> intensities_{};
+ private:
+  std::vector<Color> pixels_{};
 };
 
 int main() {
-    const Image image{"path.jpeg", JpegIo{}};
-    image.Save("other_path.jpeg", JpegIo{});
-    return 0;
+  const Image image{"path.jpeg", JpegIo{}};
+  image.Save("other_path.jpeg", JpegIo{});
+  return 0;
 }
 ```
 Now, we can say that the `Image` class **depends on** `JpegIo` class because `Image` uses the functionality of the `JpegIo` in its implementation. We can also think of this in terms of their public interfaces, i.e., their functions and how changes to these would propagate through our architecture. If a `Read` or `Write` function of the `JpegIo` class changes, we _will have to change_ the implementation of the `Image`, but if just the public interface of the `Image` changes, no changes are required on the `JpegIo` side.
@@ -117,28 +116,27 @@ $PLACEHOLDER
 `CPP_RUN_CMD` CWD:inheritance c++ -std=c++17 main.cpp
 -->
 ```cpp
-#include <vector>
 #include <filesystem>
+#include <vector>
 
 class Image {
-   public:
-    Image(const std::filesystem::path& path,
-                   const PngIo& io) {
-        intensities_ = io.Read(path);
-    }
+ public:
+  Image(const std::filesystem::path& path, const PngIo& io) {
+    pixels_ = io.Read(path);
+  }
 
-    void Save(const std::filesystem::path& path, const PngIo& io) const {
-        io.Write(path, intensities_);
-    }
+  void Save(const std::filesystem::path& path, const PngIo& io) const {
+    io.Write(path, pixels_);
+  }
 
-   private:
-    std::vector<Color> intensities_{};
+ private:
+  std::vector<Color> pixels_{};
 };
 
 int main() {
-    const Image image{"path.png", PngIo{}};
-    image.Save("other_path.png", PngIo{});
-    return 0;
+  const Image image{"path.png", PngIo{}};
+  image.Save("other_path.png", PngIo{});
+  return 0;
 }
 ```
 Furthermore, we might need to be able to change the io strategy used in the `Image` class at runtime, allowing to pick the one that we want in any particular situation based, say, on user actions at runtime. Currently, to allow for this, we would have to rewrite the `Image` class and even change its public interface to depend on more io components, which would make our design quite rigid and brittle at the same time.
@@ -156,9 +154,9 @@ Add on top of this the fact that different components of complex systems are oft
 Dependency inversion allows us to avoid all of these pitfalls. Instead of requiring the `Image` to rely on the `PngIo` or `JpegIo` directly, we can make all of these classes rely on an agreed upon **interface**, say `IoInterface`, thus inverting the dependencies - there is no path along the lines in our diagram from `Image` to `JpegIo` or to `PngIo` anymore!
 ```mermaid
 graph BT
-  A[<code>Image</code>] --> I[<code>IoInterface</code>]
-  B[<code>JpegIo</code>] -.-> I[<code>IoInterface</code>]
-  C[<code>PngIo</code>] -.-> I[<code>IoInterface</code>]
+  A[<code>Image</code>] -->|depends on| I[<code>IoInterface</code>]
+  B[<code>JpegIo</code>] -.->|implements| I[<code>IoInterface</code>]
+  C[<code>PngIo</code>] -.->|implements| I[<code>IoInterface</code>]
 ```
 Here, the `Image` class **calls** the public methods of the `IoInterface`, while the `JpegIo` and `PngIo` classes **implement** this interface.
 
@@ -220,35 +218,78 @@ $PLACEHOLDER
 -->
 ```cpp
 class Image {
-   public:
-    Image(const std::filesystem::path& path,
-                   const IoInterface& io) {
-        intensities_ = io.Read(path);
-    }
+ public:
+  Image(const std::filesystem::path& path, const IoInterface& io) {
+    pixels_ = io.Read(path);
+  }
 
-    void Save(const std::filesystem::path& path, const IoInterface& io) const {
-        io.Write(path, intensities_);
-    }
+  void Save(const std::filesystem::path& path, const IoInterface& io) const {
+    io.Write(path, pixels_);
+  }
 
-   private:
-    std::vector<Color> intensities_{};
+ private:
+  std::vector<Color> pixels_{};
 };
 
 int main() {
-    const Image image{"path.jpeg", JpegIo{}};
-    image.Save("other_path.png", PngIo{});
+  const Image image{"path.jpeg", JpegIo{}};
+  image.Save("other_path.png", PngIo{});
 }
 ```
 Once we design the `PngIo` and `JpegIo` classes to implement the `IoInterface` we are able to pass them interchangeably in place of the `IoInterface` reference! Look how easy it is now to change the behavior of our `Image` without changing its code! We just pass a new **strategy** (i.e., one of the classes that implement our `IoInterface`) into it and it magically works! And if we would want to work with some other image type we could just add another class that implements `IoInterface` and pass it instead! We could even condition the choice of the io strategy on a user action now! Neat, right?
 
 In addition to all of this, as long as we designed a good interface (which to me is arguably the hardest part of designing software), we can make changes to the `JpegIo`, `PngIo` and `Image` classes independently from each other as long as they communicate exclusively through the `IoInterface`.
 
-🚨 So we really care about inheritance because it is necessary for **this form of dynamic polymorphism**, which, along with encapsulation enables the **O**bject **O**riented **P**rogramming, or **OOP**! And just to make sure we're on the same page, polymorphism stands for "having multiple forms". In our case, the reference to an `IoInterface` can take many "shapes": `JpegIo`, `PngIo` or any other implementation of this interface.
+🚨 So we really care about inheritance because it is necessary for **this form of dynamic polymorphism**, which, along with encapsulation enables the **O**bject **O**riented **P**rogramming, or **OOP**! And just to make sure we're on the same page, polymorphism stands for "having multiple forms". In our case, the reference to an `IoInterface` can take many "forms": `JpegIo`, `PngIo` or any other implementation of this interface.
 
 As you have undoubtedly noticed, I have not provided any implementation for our io strategy classes just yet as we only cared about the "why" here, not the "how". We will of course fill all the details in towards the end of this lecture and for that we'll need to take a step back and see how inheritance works in modern C++, because to achieve the behavior we've just seen in C++, **we need inheritance!**
 
 ## Similarity to static polymorphism with templates
-Now, those of you who were careful to follow the [lectures on templates in this course](templates_why.md) might get a feeling that, design-wise, something similar should be possible to achieve using templates too. After all, we did look at how we could replace an algorithm using a template strategy before. And you _are_ right! We _can_ do it with templates **at compile time** but **not at runtime**. Depending on our goals this might be more or less suitable for our needs. So, to cover the "runtime" path today we focus on dynamic polymorphism and how inheritance enables it.
+Now, those of you who were careful to follow the [lectures on templates in this course](templates_why.md) might get a feeling that, design-wise, something similar should be possible to achieve using templates too. After all, we did look at how we could replace an algorithm using a template strategy before. And you _are_ right! We _can_ do it with templates **at compile time** but **not at runtime**.
+<!--
+`CPP_SETUP_START`
+#include <vector>
+#include <filesystem>
+using Color = int;
+
+class JpegSavingStrategy {
+  public:
+    JpegSavingStrategy(const std::filesystem::path& path) : path_{path} {}
+
+    void Save(const std::vector<Color>& pixels) const {
+      // Logic to save pixels to path_ as jpeg data.
+    }
+
+  private:
+    std::filesystem::path path_{};
+};
+
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` inheritance_template/main.cpp
+`CPP_RUN_CMD` CWD:inheritance_template c++ -std=c++17 main.cpp
+-->
+```cpp
+// Assuming the JpegSavingStrategy is implemented.
+
+class Image {
+ public:
+  template <typename SavingStrategy>
+  void Save(const SavingStrategy& strategy) const {
+    strategy.Save(pixels_);
+  }
+
+ private:
+  std::vector<Color> pixels_{};
+};
+
+int main() {
+  Image image{}; // Somehow create an image.
+  image.Save(JpegSavingStrategy{"image.jpg"});
+  return 0;
+}
+```
+Depending on our goals this might be more or less suitable for our needs. So, to cover the "runtime" path today we focus on dynamic polymorphism and how inheritance enables it.
 
 ## How inheritance looks in C++
 ### Implementation inheritance
@@ -303,30 +344,30 @@ Now is probably a good time for a relatively short interlude about access contro
 
 // Using struct here but the same holds for classes
 class Base {
-   public:
-    int public_base_data{};
-   protected:
-    int protected_base_data{};
-   private:
-    int private_base_data{};
+ public:
+  int public_base_data{};
+ protected:
+  int protected_base_data{};
+ private:
+  int private_base_data{};
 };
 
 // Using struct here but the same holds for classes
 struct Derived : public Base {
-    void PrintData() const {
-        std::cout << "public_base_data: " << public_base_data
-                  << " protected_base_data: " << protected_base_data
-                  << std::endl;
-        // ❌ Cannot access private_base_data from here!
-    }
+  void PrintData() const {
+    std::cout << "public_base_data: " << public_base_data
+              << " protected_base_data: " << protected_base_data << std::endl;
+    // ❌ Cannot access private_base_data from here!
+  }
 };
 
 int main() {
-    const Derived object{};
-    std::cout << "object.public_base_data: " << object.public_base_data << std::endl;
-    // ❌ Cannot access object.protected_base_data from here!
-    // ❌ Cannot access object.private_base_data from here!
-    return 0;
+  const Derived object{};
+  std::cout << "object.public_base_data: " << object.public_base_data
+            << std::endl;
+  // ❌ Cannot access object.protected_base_data from here!
+  // ❌ Cannot access object.private_base_data from here!
+  return 0;
 }
 ```
 That all being said, the Core Guidelines recommend to [avoid using `protected` data](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#c133-avoid-protected-data), so please be mindful of this.
@@ -343,21 +384,21 @@ As a small example, if we wanted to implement a class that would store just inte
 #include <vector>
 
 class IntVectorInheritance : private std::vector<int> {
-   public:
-    using std::vector<int>::push_back;
+ public:
+  using std::vector<int>::push_back;
 };
 
 class IntVectorComposition {
-   public:
-    void push_back(int number) { data_.push_back(number); }
+ public:
+  void push_back(int number) { data_.push_back(number); }
 
-   private:
-    std::vector<int> data_{};
+ private:
+  std::vector<int> data_{};
 };
 
 int main() {
-    IntVectorInheritance vector{};
-    vector.push_back(42);
+  IntVectorInheritance vector{};
+  vector.push_back(42);
 }
 ```
 I believe that people are split on this issue. Some argue that `private` inheritance is superior here as it allows us to avoid boilerplate code of reimplementing existing functions that are already implemented better than most of us can implement them, while the other argue that composition is superior instead as it gives us more control and keeps things a bit more explicit. I, for one, lean closer to the second group.
@@ -519,7 +560,7 @@ And I'm sure that you got it right! If the _base destructor_ is not `virtual` th
 #include <iostream>
 
 struct Base {
-  // 😱 Careful! No virtual destructor! Other method missing!
+  // 😱 Careful! No virtual destructor! Other methods missing!
   ~Base() { std::cout << "Base cleanup" << std::endl; }
 };
 
@@ -547,7 +588,7 @@ struct Derived : public Base {
 };
 
 int main() {
-  // 😱 Please don't use new!
+  // 😱 This will work but please don't use new!
   Base* ptr = new Derived;
   delete ptr;
 }
@@ -597,7 +638,7 @@ There is also a quicker way to do this by inheriting from a simple `Noncopyable`
 $PLACEHOLDER
 `CPP_SETUP_END`
 `CPP_COPY_SNIPPET` inheritance_noncopyable/main.cpp
-`CPP_RUN_CMD` CWD:inheritance_noncopyable c++ -std=c++17 -c main.cpp
+`CPP_RUN_CMD` CWD:inheritance_noncopyable c++ -std=c++17 main.cpp
 -->
 ```cpp
 #include <iostream>
@@ -619,6 +660,15 @@ struct Base : public Noncopyable {
 struct Derived : public Base {
   void DoSmth() const override { std::cout << "Derived DoSmth" << std::endl; }
 };
+
+int main() {
+  Derived derived{};
+  Base base{};
+  Base& base_ref = derived;
+  base.DoSmth();      // Calls Base implementation.
+  derived.DoSmth();   // Calls Derived implementation.
+  base_ref.DoSmth();  // Calls Derived implementation.
+}
 ```
 
 ### Downcasting using the `dynamic_cast`
@@ -627,29 +677,47 @@ It is also important to mention that for [polymorphic classes](https://en.cppref
 This _is_ considered an anti-pattern though and breaks the so-called [Liskov Substitution Principle](https://en.wikipedia.org/wiki/Liskov_substitution_principle) that, applied to C++, states that when we work with a pointer or a reference to base type we should have no need to know which derived type is actually being used. If this principle is broken the programs usually become more brittle, meaning that making changes to them without breaking things requires more work. That being said, it is probably still important to understand how `dynamic_cast` works.
 
 `dynamic_cast` allows us to downcast a pointer or a reference of a polymorphic `Base` class into a pointer or reference of the `Derived` class, derived from `Base`. We won't go too much into detail, but it is important to note that this conversion might fail! If this conversion fails while converting a pointer, a `nullptr` will be returned, while if the failure occurs while converting a reference, a `std::bad_cast` exception will be thrown.
+<!--
+`CPP_SETUP_START`
+struct Noncopyable {
+  Noncopyable() = default;
+  Noncopyable(const Noncopyable&) = delete;
+  Noncopyable(Noncopyable&&) = delete;
+  Noncopyable& operator=(const Noncopyable&) = delete;
+  Noncopyable& operator=(Noncopyable&&) = delete;
+  ~Noncopyable() = default;
+};
+
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` inheritance_dynamic_cast/main.cpp
+`CPP_RUN_CMD` CWD:inheritance_dynamic_cast c++ -std=c++17 main.cpp
+-->
 ```cpp
 #include <iostream>
 
-struct Base {
-    virtual ~Base() {}
+struct Base : public Noncopyable {
+  virtual ~Base() {}
 };
 
-struct OtherBase {
-    virtual ~OtherBase() {}
+struct OtherBase : public Noncopyable {
+  virtual ~OtherBase() {}
 };
 
 struct Derived : public Base {};
 
 int main() {
-    const Derived object{};
-    const Base& base_ref{object};
-    const OtherBase other_base{};
-    const OtherBase& other_base_ref{other_base};
-    const Derived& derived_ref = dynamic_cast<const Derived&>(base_ref);
-    // other_derived_ptr will be nullptr because it is not derived from OtherBase.
-    const Derived* other_derived_ptr = dynamic_cast<const Derived*>(&other_base_ref);
-    // ❌ The following will throw a std::bad_cast.
-    // const Derived& other_derived_ref = dynamic_cast<const Derived&>(other_base_ref);
+  const Derived object{};
+  const Base& base_ref{object};
+  const OtherBase other_base{};
+  const OtherBase& other_base_ref{other_base};
+  const Derived& derived_ref = dynamic_cast<const Derived&>(base_ref);
+  // other_derived_ptr will be nullptr because it is not derived from OtherBase.
+  const Derived* other_derived_ptr =
+      dynamic_cast<const Derived*>(&other_base_ref);
+  // ❌ The following will throw a std::bad_cast.
+  // const Derived& other_derived_ref = dynamic_cast<const
+  // Derived&>(other_base_ref);
 }
 ```
 
@@ -772,63 +840,60 @@ $PLACEHOLDER
 #include <vector>
 
 struct Noncopyable {
-    Noncopyable() = default;
-    Noncopyable(const Noncopyable&) = delete;
-    Noncopyable(Noncopyable&&) = delete;
-    Noncopyable& operator=(const Noncopyable&) = delete;
-    Noncopyable& operator=(Noncopyable&&) = delete;
-    ~Noncopyable() = default;
+  Noncopyable() = default;
+  Noncopyable(const Noncopyable&) = delete;
+  Noncopyable(Noncopyable&&) = delete;
+  Noncopyable& operator=(const Noncopyable&) = delete;
+  Noncopyable& operator=(Noncopyable&&) = delete;
+  ~Noncopyable() = default;
 };
 
 struct IoInterface : public Noncopyable {
-    virtual std::vector<Color> Read(
-        const std::filesystem::path& path) const = 0;
-    virtual void Write(const std::filesystem::path& path,
-                       const std::vector<Color>& data) const = 0;
-    virtual ~IoInterface() = default;
+  virtual std::vector<Color> Read(const std::filesystem::path& path) const = 0;
+  virtual void Write(const std::filesystem::path& path,
+                     const std::vector<Color>& data) const = 0;
+  virtual ~IoInterface() = default;
 };
 
 struct JpegIo final : public IoInterface {
-    std::vector<Color> Read(
-        const std::filesystem::path& path) const override {
-        std::cout << "Reading JPEG from path: " << path << std::endl;
-        return {};
-    }
-    virtual void Write(const std::filesystem::path& path,
-                       const std::vector<Color>& data) const override {
-        std::cout << "Writing JPEG to path: " << path << std::endl;
-    }
+  std::vector<Color> Read(const std::filesystem::path& path) const override {
+    std::cout << "Reading JPEG from path: " << path << std::endl;
+    return {};
+  }
+  virtual void Write(const std::filesystem::path& path,
+                     const std::vector<Color>& data) const override {
+    std::cout << "Writing JPEG to path: " << path << std::endl;
+  }
 };
 
 struct PngIo final : public IoInterface {
-    std::vector<Color> Read(
-        const std::filesystem::path& path) const override {
-        std::cout << "Reading PNG from path: " << path << std::endl;
-        return {};
-    }
-    virtual void Write(const std::filesystem::path& path,
-                       const std::vector<Color>& data) const override {
-        std::cout << "Writing PNG to path: " << path << std::endl;
-    }
+  std::vector<Color> Read(const std::filesystem::path& path) const override {
+    std::cout << "Reading PNG from path: " << path << std::endl;
+    return {};
+  }
+  virtual void Write(const std::filesystem::path& path,
+                     const std::vector<Color>& data) const override {
+    std::cout << "Writing PNG to path: " << path << std::endl;
+  }
 };
 
 class Image {
-   public:
-    Image(const std::filesystem::path& path, const IoInterface& io) {
-        intensities_ = io.Read(path);
-    }
+ public:
+  Image(const std::filesystem::path& path, const IoInterface& io) {
+    pixels_ = io.Read(path);
+  }
 
-    void Save(const std::filesystem::path& path, const IoInterface& io) const {
-        io.Write(path, intensities_);
-    }
+  void Save(const std::filesystem::path& path, const IoInterface& io) const {
+    io.Write(path, pixels_);
+  }
 
-   private:
-    std::vector<Color> intensities_{};
+ private:
+  std::vector<Color> pixels_{};
 };
 
 int main() {
-    const Image image{"path.jpeg", JpegIo{}};
-    image.Save("other_path.png", PngIo{});
+  const Image image{"path.jpeg", JpegIo{}};
+  image.Save("other_path.png", PngIo{});
 }
 ```
 We make use of the `Noncopyable` base class to declare the `IoInterface` with the `Write` and `Read` functions, along with a `virtual` destructor. Note that our functions are both `const`-qualified as well as pure `virtual`. Then, our `JpegIo` and `PngIo` implement the interface by overriding the `Write` and `Read` functions. The actual implementation is not important to understand inheritance so they just print something to the terminal here. Finally, just as before, we use the reference to our interface in our `Image` class to refer to any implementation that we pass into it in our `main` function.
