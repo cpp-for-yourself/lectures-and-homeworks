@@ -30,15 +30,15 @@ export default makeScene2D(function* (view) {
 class Image {
  public:
   Image(const std::filesystem::path& path, const JpegIo& io) {
-    intensities_ = io.Read(path);
+    colors_ = io.Read(path);
   }
 
   void Save(const std::filesystem::path& path, const JpegIo& io) const {
-    io.Write(path, intensities_);
+    io.Write(path, colors_);
   }
 
  private:
-  std::vector<Color> intensities_{};
+  std::vector<Color> colors_{};
 };
 
 int main() {
@@ -60,15 +60,15 @@ int main() {
 class Image {
  public:
   Image(const std::filesystem::path& path, const PngIo& io) {
-    intensities_ = io.Read(path);
+    colors_ = io.Read(path);
   }
 
   void Save(const std::filesystem::path& path, const PngIo& io) const {
-    io.Write(path, intensities_);
+    io.Write(path, colors_);
   }
 
  private:
-  std::vector<Color> intensities_{};
+  std::vector<Color> colors_{};
 };
 
 int main() {
@@ -88,23 +88,23 @@ int main() {
 class Image {
  public:
   Image(const std::filesystem::path& path, const PngIo& io) {
-    intensities_ = io.Read(path);
+    colors_ = io.Read(path);
   }
 
   void Save(const std::filesystem::path& path, const PngIo& io) const {
-    io.Write(path, intensities_);
+    io.Write(path, colors_);
   }
 
   Image(const std::filesystem::path& path, const JpegIo& io) {
-    intensities_ = io.Read(path);
+    colors_ = io.Read(path);
   }
 
   void Save(const std::filesystem::path& path, const JpegIo& io) const {
-    io.Write(path, intensities_);
+    io.Write(path, colors_);
   }
 
  private:
-  std::vector<Color> intensities_{};
+  std::vector<Color> colors_{};
 };
 
 int main() {
@@ -129,15 +129,15 @@ int main() {
 class Image {
  public:
   Image(const std::filesystem::path& path, const IoInterface& io) {
-    intensities_ = io.Read(path);
+    colors_ = io.Read(path);
   }
 
   void Save(const std::filesystem::path& path, const IoInterface& io) const {
-    io.Write(path, intensities_);
+    io.Write(path, colors_);
   }
 
  private:
-  std::vector<Color> intensities_{};
+  std::vector<Color> colors_{};
 };
 
 int main() {
@@ -160,15 +160,15 @@ int main() {
 class Image {
  public:
   Image(const std::filesystem::path& path, const IoInterface& io) {
-    intensities_ = io.Read(path);
+    colors_ = io.Read(path);
   }
 
   void Save(const std::filesystem::path& path, const IoInterface& io) const {
-    io.Write(path, intensities_);
+    io.Write(path, colors_);
   }
 
  private:
-  std::vector<Color> intensities_{};
+  std::vector<Color> colors_{};
 };
 
 int main() {
@@ -190,15 +190,15 @@ int main() {
 class Image {
  public:
   Image(const std::filesystem::path& path, const IoInterface& io) {
-    intensities_ = io.Read(path);
+    colors_ = io.Read(path);
   }
 
   void Save(const std::filesystem::path& path, const IoInterface& io) const {
-    io.Write(path, intensities_);
+    io.Write(path, colors_);
   }
 
  private:
-  std::vector<Color> intensities_{};
+  std::vector<Color> colors_{};
 };
 
 int main() {
@@ -475,24 +475,26 @@ int main() {
   const code_virtual_better = `\
 #include <iostream>
 
-// 😱 We do not follow best practices for simplicity here.
-// This struct misses lots of special functions.
-// Some of them must be virtual, some deleted. Stay tuned.
 struct Base {
-  virtual void DoSmth() const { std::cout << "Base DoSmth" << std::endl; }
+  virtual void DoSmth() { std::cout << "Base DoSmth" << std::endl; }
+
+  Base() = default;
+
+  Base(const Base&) = delete;
+  Base(Base&&) = delete;
+  Base& operator=(const Base&) = delete;
+  Base& operator=(Base&&) = delete;
+  virtual ~Base() = default;
 };
 
-// 😱 We do not follow best practices for simplicity here.
-// This struct misses lots of special functions.
-// Some of them must be virtual, some deleted. Stay tuned.
 struct Derived : public Base {
-  void DoSmth() const override { std::cout << "Derived DoSmth" << std::endl; }
+  void DoSmth() override { std::cout << "Derived DoSmth" << std::endl; }
 };
 
 int main() {
-  const Derived derived{};
-  const Base base{};
-  const Base& base_ref = derived;
+  Derived derived{};
+  Base base{};
+  Base& base_ref = derived;
   base.DoSmth();      // Calls Base implementation.
   derived.DoSmth();   // Calls Derived implementation.
   base_ref.DoSmth();  // Calls Derived implementation.
@@ -643,15 +645,15 @@ struct Noncopyable {
 class Image {
  public:
   Image(const std::filesystem::path& path, const IoInterface& io) {
-    intensities_ = io.Read(path);
+    colors_ = io.Read(path);
   }
 
   void Save(const std::filesystem::path& path, const IoInterface& io) const {
-    io.Write(path, intensities_);
+    io.Write(path, colors_);
   }
 
  private:
-  std::vector<Color> intensities_{};
+  std::vector<Color> colors_{};
 };
 
 int main() {
@@ -690,15 +692,15 @@ struct IoInterface : public Noncopyable {
 class Image {
  public:
   Image(const std::filesystem::path& path, const IoInterface& io) {
-    intensities_ = io.Read(path);
+    colors_ = io.Read(path);
   }
 
   void Save(const std::filesystem::path& path, const IoInterface& io) const {
-    io.Write(path, intensities_);
+    io.Write(path, colors_);
   }
 
  private:
-  std::vector<Color> intensities_{};
+  std::vector<Color> colors_{};
 };
 
 int main() {
@@ -713,7 +715,7 @@ int main() {
   );
   yield* waitFor(duration);
 
-const code_image_interface_and_strategies = `\
+  const code_image_interface_and_strategies = `\
 #include <filesystem>
 #include <iostream>
 #include <vector>
@@ -741,7 +743,7 @@ struct JpegIo final : public IoInterface {
     std::cout << "Reading JPEG from path: " << path << std::endl;
     return {};
   }
-  virtual void Write(const std::filesystem::path& path,
+  void Write(const std::filesystem::path& path,
                      const std::vector<Color>& data) const override {
     std::cout << "Writing JPEG to path: " << path << std::endl;
   }
@@ -752,7 +754,7 @@ struct PngIo final : public IoInterface {
     std::cout << "Reading PNG from path: " << path << std::endl;
     return {};
   }
-  virtual void Write(const std::filesystem::path& path,
+  void Write(const std::filesystem::path& path,
                      const std::vector<Color>& data) const override {
     std::cout << "Writing PNG to path: " << path << std::endl;
   }
@@ -761,15 +763,15 @@ struct PngIo final : public IoInterface {
 class Image {
  public:
   Image(const std::filesystem::path& path, const IoInterface& io) {
-    intensities_ = io.Read(path);
+    colors_ = io.Read(path);
   }
 
   void Save(const std::filesystem::path& path, const IoInterface& io) const {
-    io.Write(path, intensities_);
+    io.Write(path, colors_);
   }
 
  private:
-  std::vector<Color> intensities_{};
+  std::vector<Color> colors_{};
 };
 
 int main() {
@@ -791,6 +793,95 @@ int main() {
 
   yield* all(
     codeRef().fontSize(12, duration),
+    codeRef().y(0, duration)
+  );
+  yield* waitFor(duration);
+
+
+  const code_virtual_explanation_1 = `\
+#include <iostream>
+
+// 😱 This struct misses some special functions. Stay tuned.
+struct Base {
+  virtual void DoSmth() const {}
+  virtual void DoSmthElse() const {}
+};
+
+// 😱 This struct misses some special functions. Stay tuned.
+struct Derived : public Base {
+  void DoSmth() const override {}
+};
+
+int main() {
+  const Derived derived{};
+  const Base& base_ref = derived;
+  base_ref.DoSmth();  // Calls Derived implementation.
+  base_ref.DoSmthElse();  // Calls Base implementation as Derived has no override.
+}`
+
+  yield* all(
+    codeRef().code(code_virtual_explanation_1, 0),
+    codeRef().fontSize(25, 0),
+    codeRef().x(-800, 0)
+  );
+  yield* waitFor(duration);
+
+  const code_virtual_explanation_2 = `\
+#include <iostream>
+
+// 😱 This struct misses some special functions. Stay tuned.
+struct Base {
+  virtual void DoSmth() const {}
+  virtual void DoSmthElse() const {}
+
+  vTable* v_ptr;  // Added by the compiler.
+};
+
+// 😱 This struct misses some special functions. Stay tuned.
+struct Derived : public Base {
+  void DoSmth() const override {}
+};
+
+int main() {
+  const Derived derived{};
+  const Base& base_ref = derived;
+  base_ref.DoSmth();  // Calls Derived implementation.
+  base_ref.DoSmthElse();  // Calls Base implementation as Derived has no override.
+}`
+
+  yield* all(
+    codeRef().code(code_virtual_explanation_2, duration),
+    codeRef().fontSize(25, duration),
+    codeRef().y(0, duration)
+  );
+  yield* waitFor(duration);
+
+  const code_virtual_explanation_base_ref = `\
+#include <iostream>
+
+// 😱 This struct misses some special functions. Stay tuned.
+struct Base {
+  virtual void DoSmth() const {}
+  virtual void DoSmthElse() const {}
+
+  vTable* v_ptr;  // Added by the compiler.
+};
+
+// 😱 This struct misses some special functions. Stay tuned.
+struct Derived : public Base {
+  void DoSmth() const override {}
+};
+
+int main() {
+  const Base base{};
+  const Base& base_ref = base;
+  base_ref.DoSmth();  // What is called here?
+  base_ref.DoSmthElse();  // What is called here?
+}`
+
+  yield* all(
+    codeRef().code(code_virtual_explanation_base_ref, duration),
+    codeRef().fontSize(25, duration),
     codeRef().y(0, duration)
   );
   yield* waitFor(duration);

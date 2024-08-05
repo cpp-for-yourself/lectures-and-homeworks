@@ -2,7 +2,7 @@ Inheritance and the idea of OOP
 --
 
 <p align="center">
-  <a href="https://youtu.be/blah"><img src="https://img.youtube.com/vi/blah/maxresdefault.jpg" alt="Video" align="right" width=50% style="margin: 0.5rem"></a>
+  <a href="https://youtu.be/oUALDqvCbWs"><img src="https://img.youtube.com/vi/oUALDqvCbWs/maxresdefault.jpg" alt="Video" align="right" width=50% style="margin: 0.5rem"></a>
 </p>
 
 - [Inheritance and the idea of OOP](#inheritance-and-the-idea-of-oop)
@@ -16,6 +16,7 @@ Inheritance and the idea of OOP
     - [Real-world example of implementation inheritance](#real-world-example-of-implementation-inheritance)
   - [Using `virtual` for interface inheritance and proper polymorphism](#using-virtual-for-interface-inheritance-and-proper-polymorphism)
   - [How interface inheritance works](#how-interface-inheritance-works)
+  - [Runtime and memory overhead of using virtual](#runtime-and-memory-overhead-of-using-virtual)
   - [Things to know about classes with `virtual` methods](#things-to-know-about-classes-with-virtual-methods)
     - [A `virtual` destructor](#a-virtual-destructor)
     - [Delete other special methods for polymorphic classes](#delete-other-special-methods-for-polymorphic-classes)
@@ -397,8 +398,11 @@ class IntVectorComposition {
 };
 
 int main() {
-  IntVectorInheritance vector{};
-  vector.push_back(42);
+  IntVectorInheritance vector_inheritance{};
+  vector_inheritance.push_back(42);
+
+  IntVectorComposition vector_composition{};
+  vector_composition.push_back(42);
 }
 ```
 I believe that people are split on this issue. Some argue that `private` inheritance is superior here as it allows us to avoid boilerplate code of reimplementing existing functions that are already implemented better than most of us can implement them, while the other argue that composition is superior instead as it gives us more control and keeps things a bit more explicit. I, for one, lean closer to the second group.
@@ -540,22 +544,52 @@ This works like magic! Now the `Base` reference "remembers" that it was created 
 ### How interface inheritance works
 Now that we know that it works, let us dig a bit into **how** it is implemented under the hood. How does our reference "remember" that it was created from a derived object?
 
-And the answer is that it knows this "by looking up the correct function to call in a [**virtual method table**](https://en.wikipedia.org/wiki/Virtual_method_table), or a **vtable**".
+And the answer is that it knows this "by looking up the correct function to call in a [**virtual method table**](https://en.wikipedia.org/wiki/Virtual_method_table), or a **vTable**".
 
-The vtable is not magic - it is just a table of pointers to functions. Whenever a compiler compiles a class that has any `virtual` functions, it creates a vtable for that class and adds a hidden pointer member that points to this vtable. Now, when we create a `Derived` object its vtable entry for `DoSmth` function points to its own implementation. Now when we set our derived object to a base reference, we **keep its hidden pointer to its vtable** intact. This way, when we call a `DoSmth` on the `base_ref`, we look up the correct function to call in the vtable, find the one that the `Derived` object put there and call the `Derived::DoSmth` function.
+The vTable is not magic - it is just a table of pointers to functions that can be queried by a function name. Let's extend our example a little to see what happens under the hood when we declare and call `virtual` functions.
 
-<!-- TODO: add picture -->
+
+![](images/vtable.png)
+
+Whenever a compiler compiles a class that has any `virtual` functions, it creates a vTable for that class and adds a hidden pointer member to the base of the corresponding class hierarchy, which makes sure that all the classes in the hierarchy have this vTable pointer.
+
+Now, if we create a `Derived` object, its vTable pointer points to the vTable that corresponds to the `Derived` class. The trick here is that even if we refer to this `Derived` object by a `Base` reference, this `Base` reference still has the access to the vTable pointer as it actually _is_ defined in the `Base` class! So if we call the `DoSmth` function through the `Base` reference (or a pointer for that matter), the compiler knows that because it is a `virtual` function, we have to follow the vTable pointer to find the correct `DoSmth` function in the vTable, in this case the `Derived::DoSmth`, and call it.
+
+As a tiny exercise, think what will happen if we set the `base_ref` to point to an object of `Base` class instead.
+<!-- Comment below this video with your answer! -->
+
+### Runtime and memory overhead of using virtual
+This implementation is very neat but there is no free lunch! We pay for this flexibility both with memory and a runtime overhead.
+
+As we've just discussed, every object of a class that has at least one `virtual` function must store a pointer to its vTable. That pointer occupies memory, usually 8 bytes.
+```cpp
+#include <iostream>
+
+struct WithoutVirtual {
+  void Foo() {}
+};
+
+struct WithVirtual {
+  virtual void Foo() {}
+};
+
+int main() {
+  std::cout << "Size of WithoutVirtual: " << sizeof(WithoutVirtual) << std::endl;
+  std::cout << "Size of WithVirtual: " << sizeof(WithVirtual) << std::endl;
+}
+```
+While it doesn't seem like much it might become an issue if we need a lot of such objects. So much so that it might become a serious limitation.
+
+And speaking of limitations, as we've just mentioned, the selection of which function to call happens at runtime, that means that the compiler generally doesn't know which `virtual` function will be called and so this limits its optimization capabilities.
 
 ### Things to know about classes with `virtual` methods
-Now, adding `virtual` functions to classes introduces some constraints on how we should use these classes and creates a couple of pitfalls that we should be aware of. In the previous examples we omitted quite some details and it is time we cover those details now.
+In addition to that, adding `virtual` functions to classes introduces some constraints on how we should use these classes and creates a couple of pitfalls that we should be aware of. In the previous examples we omitted quite some details and it is time we cover those details now.
 
 #### A `virtual` destructor
-Generally speaking, every class that has a `virtual` function **must have a `virtual` destructor**. This becomes obvious once we move on from using references with our base and derived classes towards using pointers, especially owning ones.
+Generally speaking, every class that has a `virtual` function **must have a [`virtual` destructor](https://en.cppreference.com/w/cpp/language/virtual#Virtual_destructor)**. Even though destructors are not inherited, if a base class declares its destructor `virtual`, the derived destructor always overrides it. The reason why this is important becomes easier to grasp once we move on from using references with our `Base` and `Derived` classes towards using pointers, especially owning ones.
 
-To properly understand why the destructor must be virtual we have to answer the question: if we create a derived object and store it by a base pointer, which destructor will be called? Take a moment to think about it.
-<!-- Pause a video here, look at the examples we just covered and really think about it! -->
-
-And I'm sure that you got it right! If the _base destructor_ is not `virtual` then _this base destructor will be called_. But this destructor knows nothing about derived data! So those data will be leaked!
+To properly understand why the destructor must be virtual we have to answer the question: if we create a derived object and store it by a base pointer, which destructor will be called once we delete our object through this base pointer? Take a moment to think about it.
+<!-- Pause a video here, look at the examples we just covered and, remembering that a destructor is just another kind of a function, really think about it! -->
 ```cpp
 #include <iostream>
 
@@ -571,10 +605,13 @@ struct Derived : public Base {
 int main() {
   // 😱 Code for illustrating a memory leak only! Avoid using new!
   Base* ptr = new Derived;
-  delete ptr;  // Important cleanup is never printed!
+  delete ptr;  // "Important cleanup" is never printed!
 }
 ```
-Now if the destructor is virtual, a call to it will go through a vtable and so the correct derived destructor will be called.
+
+And I'm sure that you got it right! If the _base destructor_ is not `virtual` then _this base destructor will be called_. But this destructor knows nothing about the derived class! Which leads us, generally speaking, to an **undefined behavior** and if the derived class had additional data, their memory is not freed, which is a **memory leak**!
+
+Now if the destructor is `virtual`, a call to it will go through a vTable and so the correct derived destructor will be called.
 ```cpp
 #include <iostream>
 
@@ -716,8 +753,8 @@ int main() {
   const Derived* other_derived_ptr =
       dynamic_cast<const Derived*>(&other_base_ref);
   // ❌ The following will throw a std::bad_cast.
-  // const Derived& other_derived_ref = dynamic_cast<const
-  // Derived&>(other_base_ref);
+  // const Derived& other_derived_ref =
+  //    dynamic_cast<const Derived&>(other_base_ref);
 }
 ```
 
@@ -731,7 +768,35 @@ C++ Core Guidelines suggest to distinguish [between implementation inheritance a
 ### Implement pure interfaces
 So what is the solution to this problem? The solution is to separate interface inheritance and implementation inheritance alltogether. You see, there is one more trick up our sleeves with `virtual` - the **pure `virtual` functions**.
 
-They allows us to define a `virtual` function that does not have any implementation by design and **must** be implemented by the descendants of the class it belongs to.
+They allow us to define a `virtual` function that does not have any implementation by design and **must** be implemented by the descendants of the class it belongs to.
+<!--
+`CPP_SETUP_START`
+struct Noncopyable {
+  Noncopyable() = default;
+  Noncopyable(const Noncopyable&) = delete;
+  Noncopyable(Noncopyable&&) = delete;
+  Noncopyable& operator=(const Noncopyable&) = delete;
+  Noncopyable& operator=(Noncopyable&&) = delete;
+  ~Noncopyable() = default;
+};
+
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` pure_virtual/main.cpp
+`CPP_RUN_CMD` CWD:pure_virtual c++ -std=c++17 -c main.cpp
+-->
+```cpp
+struct Base : public Noncopyable {
+  virtual void PureVirtualFunction() = 0;
+  virtual ~Base() = default;
+};
+
+struct Derived : public Base {
+  void PureVirtualFunction() override {
+    // Must be overridden!
+  }
+};
+```
 
 This is perfect for creating interfaces. We generally call a class that has at least one pure virtual function an **abstract class** and a class that has **all** of its function as pure virtual an **interface**.
 
@@ -739,7 +804,20 @@ In my experience, I prefer to make sure that if my class is abstract - it is an 
 <!-- But do tell me your experience with all of this! What is your preference if you have any? -->
 
 ### Keyword `final`
-Speaking of keeping a shallow hierarchy, let's also briefly talk about the word `final`. We can use it to forbid any future extensions of a particular class. It _is_ helpful when implementing a shallow hierarchy of classes that all implement pure interfaces but I would suggest to be careful with the use of it as it is very hard to know the future and this is equivalent to a statement, "I'm 100% sure that nobody ever will need to extend this class". Which is a hard statement to make confidently.
+Speaking of keeping a shallow hierarchy, let's also briefly talk about the word `final`. We can use it to forbid any future extensions of a particular class.
+<!--
+`CPP_SKIP_SNIPPET`
+-->
+```cpp
+struct CannotBeDerivedFrom final {
+  // Some implementation here.
+};
+
+// ❌ Won't compile
+struct Oops : public CannotBeDerivedFrom {};
+```
+
+It _is_ helpful when implementing a shallow hierarchy of classes that all implement pure interfaces but I would suggest to be careful with the use of it as it is very hard to know the future and this is equivalent to a statement, "I'm 100% sure that nobody ever will need to extend this class". Which is a hard statement to make confidently.
 
 ## Simple polymorphic class example following best practices
 For completeness, let's see how our polymorphic classes example changes if we follow all of the practices we've just talked about:

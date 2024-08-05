@@ -585,6 +585,38 @@ Headers with classes
 ----------------------------------------------------------
 </details>
 
+<details>
+<summary>Almost everything about inheritance</summary>
+
+----------------------------------------------------------
+[![Video thumbnail](https://img.youtube.com/vi/oUALDqvCbWs/maxresdefault.jpg)](https://youtu.be/oUALDqvCbWs)
+
+- [Inheritance enables dependency inversion](lectures/inheritance.md#inheritance-enables-dependency-inversion)
+- [The idea behind dependency inversion](lectures/inheritance.md#the-idea-behind-dependency-inversion)
+- [Similarity to static polymorphism with templates](lectures/inheritance.md#similarity-to-static-polymorphism-with-templates)
+- [How inheritance looks in C++](lectures/inheritance.md#how-inheritance-looks-in-c)
+  - [Implementation inheritance](lectures/inheritance.md#implementation-inheritance)
+    - [Access control with inheritance](lectures/inheritance.md#access-control-with-inheritance)
+    - [Implicit upcasting](lectures/inheritance.md#implicit-upcasting)
+    - [Real-world example of implementation inheritance](lectures/inheritance.md#real-world-example-of-implementation-inheritance)
+  - [Using `virtual` for interface inheritance and proper polymorphism](lectures/inheritance.md#using-virtual-for-interface-inheritance-and-proper-polymorphism)
+  - [How interface inheritance works](lectures/inheritance.md#how-interface-inheritance-works)
+  - [Runtime and memory overhead of using virtual](lectures/inheritance.md#runtime-and-memory-overhead-of-using-virtual)
+  - [Things to know about classes with `virtual` methods](lectures/inheritance.md#things-to-know-about-classes-with-virtual-methods)
+    - [A `virtual` destructor](lectures/inheritance.md#a-virtual-destructor)
+    - [Delete other special methods for polymorphic classes](lectures/inheritance.md#delete-other-special-methods-for-polymorphic-classes)
+  - [Downcasting using the `dynamic_cast`](lectures/inheritance.md#downcasting-using-the-dynamic_cast)
+  - [Don't mix implementation and interface inheritance](lectures/inheritance.md#dont-mix-implementation-and-interface-inheritance)
+  - [Implement pure interfaces](lectures/inheritance.md#implement-pure-interfaces)
+  - [Keyword `final`](lectures/inheritance.md#keyword-final)
+- [Simple polymorphic class example following best practices](lectures/inheritance.md#simple-polymorphic-class-example-following-best-practices)
+- [Multiple inheritance](lectures/inheritance.md#multiple-inheritance)
+- [Detailed `Image` example following best practices](lectures/inheritance.md#detailed-image-example-following-best-practices)
+
+
+----------------------------------------------------------
+</details>
+
 ## PS
 
 ### Most of the code snippets are validated automatically
