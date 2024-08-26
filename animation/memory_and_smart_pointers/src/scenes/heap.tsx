@@ -1,4 +1,4 @@
-import { Node, lines, makeScene2D, Code, Txt, Rect, Grid, Line, Layout } from '@motion-canvas/2d';
+import { Node, lines, word, makeScene2D, Code, Txt, Rect, Grid, Line, Layout } from '@motion-canvas/2d';
 import { all, sequence, waitFor } from '@motion-canvas/core/lib/flow';
 import { Vector2 } from '@motion-canvas/core/lib/types';
 import { createRef } from '@motion-canvas/core/lib/utils';
@@ -12,12 +12,55 @@ const WHITE = '#FFFFFF';
 
 export default makeScene2D(function* (view) {
 
+  const grid_ref = createRef<Grid>();
+  const address_ref = createRef<Txt>();
+  const data_rect_ref_1 = createRef<Rect>();
+  const data_rect_ref_2 = createRef<Rect>();
+
   const table_layout =
     <Layout
       direction={'column'}
       alignItems={'end'}
       x={-1300}
       layout />
+  table_layout.add(
+    <Txt
+      text={"heap memory"}
+      fontFamily={"Fira Mono"}
+      alignSelf={'start'}
+      fill={WHITE}
+      padding={10}
+    />)
+  table_layout.add(
+    <Rect
+      width={550}
+      height={80}
+      clip={true}
+    >
+      <Grid
+        ref={grid_ref}
+        spacing={50}
+        stroke={'#444'}
+        lineWidth={4}
+        start={0.3}
+        end={0.3}
+        width={550}
+        height={130}
+        cache
+      />
+    </Rect>)
+  table_layout.add(
+    <Txt
+      ref={address_ref}
+      text={""}
+      fontFamily={"Fira Mono"}
+      alignSelf={'start'}
+      fill={'#666'}
+      fontSize={32}
+      marginBottom={20}
+      paddingLeft={70}
+      padding={10}
+    />)
   table_layout.add(
     <Txt
       text={"stack"}
@@ -30,7 +73,7 @@ export default makeScene2D(function* (view) {
   var stack_refs = []
   var line_refs = []
 
-  for (let i = 6; i >= 0; i--) {
+  for (let i = 4; i >= 0; i--) {
     const text_ref = createRef<Txt>();
     const line_ref = createRef<Line>();
     stack_refs.push(text_ref);
@@ -38,7 +81,7 @@ export default makeScene2D(function* (view) {
     table_layout.add(
       <Rect layout direction={'row'}>
         <Txt
-          text={i == 6 ? '...' : String(i)}
+          text={i == 4 ? '...' : String(i)}
           fontFamily={"Fira Mono"}
           fontSize={35}
           fill={'gray'}
@@ -89,15 +132,36 @@ export default makeScene2D(function* (view) {
     </Rect>)
 
   view.add(table_layout)
+  view.add(<Rect
+    x={-700}
+    y={-345}
+    ref={data_rect_ref_1}
+    stroke={BLUE}
+    lineWidth={4}
+    width={190}
+    height={40}
+    opacity={0.0}
+  />)
+  view.add(<Rect
+    x={-500}
+    y={-345}
+    ref={data_rect_ref_2}
+    stroke={BLUE}
+    lineWidth={4}
+    width={190}
+    height={40}
+    opacity={0.0}
+  />)
 
-  const code_stack = `\
+  const code_heap = `\
 #include <iostream>
 
 int main() {
   int size = 2;
   int* ptr = nullptr;
   {
-    int array[size];  // 😱 Don't use C-style arrays!
+    // 😱 Don't use unprotected new and new[]!
+    int* array = new int[size];
     array[0] = 42;
     array[1] = 23;
     ptr = array;
@@ -106,11 +170,11 @@ int main() {
       std::cout << ptr[i] << std::endl;
     }
   }
-  // 😱 Code below leads to undefined behavior!
   std::cout << "After stack cleanup.\\n";
   for (int i = 0; i < size; ++i) {
     std::cout << ptr[i] << std::endl;
   }
+  delete[] ptr;  // 😱 What points to our data?
   return 0;
 }`
   const code_ref = createRef<Code>()
@@ -129,12 +193,14 @@ int main() {
 
   // Frame
   yield* all(
-    code_ref().code(code_stack, duration),
+    code_ref().code(code_heap, duration),
     waitFor(duration)
   );
 
   yield* all(
     table_layout.x(-600, duration),
+    grid_ref().end(1, 2 * duration),
+    grid_ref().start(0, 2 * duration),
     waitFor(3 * duration)
   );
 
@@ -156,56 +222,74 @@ int main() {
 
   // Frame
   yield* all(
+    command_txt_ref().text('', duration / 3).to('malloc(8)', duration / 3),
+    code_ref().selection(word(7, 16, 15), duration),
     sequence(0.1,
-      stack_refs[2]().code(`array[0] = ⁉️`, duration),
-      stack_refs[3]().code(`array[1] = ⁉️`, duration)),
-    command_txt_ref().text('', duration / 3).to('2 x push(int)', duration / 3),
-    code_ref().selection(lines(6), duration),
+      address_ref().text('0x8eceb0', duration / 2),
+      data_rect_ref_1().opacity(0.8, duration),
+      data_rect_ref_2().opacity(0.8, duration),
+    ),
     waitFor(3 * duration)
   );
 
   // Frame
   yield* all(
-    stack_refs[2]().code(`array[0] = 42`, duration),
+    stack_refs[2]().code(`array = 0x8eceb0`, duration),
+    command_txt_ref().text('', duration / 3).to('push(int*)', duration / 3),
     code_ref().selection(lines(7), duration),
+    waitFor(3 * duration)
+  );
+
+  // Frame
+  yield* all(
     command_txt_ref().text('', duration / 3),
-    waitFor(3 * duration)
-  );
-
-  // Frame
-  yield* all(
-    stack_refs[3]().code(`array[1] = 23`, duration),
     code_ref().selection(lines(8), duration),
+    data_rect_ref_1().fill(BLUE, duration),
     waitFor(3 * duration)
   );
 
   // Frame
   yield* all(
-    stack_refs[1]().code(`ptr = &stack[2]`, duration),
     code_ref().selection(lines(9), duration),
+    data_rect_ref_2().fill(BLUE, duration),
     waitFor(3 * duration)
   );
 
   // Frame
   yield* all(
-    code_ref().selection(lines(10, 13), duration),
+    stack_refs[1]().code(`ptr = 0x8eceb0`, duration),
+    code_ref().selection(lines(10), duration),
+    waitFor(3 * duration)
+  );
+
+  // Frame
+  yield* all(
+    code_ref().selection(lines(11, 14), duration),
     waitFor(3 * duration)
   );
 
   // Frame
   yield* all(
     sequence(0.1,
-      stack_refs[3]().code('⁉️', duration),
       stack_refs[2]().code('⁉️', duration)),
-    code_ref().selection(lines(14), duration),
-    command_txt_ref().text('', duration / 3).to('2 x pop()', duration / 3),
+    code_ref().selection(lines(15), duration),
+    command_txt_ref().text('', duration / 3).to('pop()', duration / 3),
     waitFor(3 * duration)
   );
 
   // Frame
   yield* all(
-    code_ref().selection(lines(15, 19), duration),
+    code_ref().selection(lines(16, 19), duration),
     command_txt_ref().text('', duration / 3),
+    waitFor(3 * duration)
+  );
+
+  // Frame
+  yield* all(
+    sequence(0.1,
+      data_rect_ref_1().opacity(0, duration),
+      data_rect_ref_2().opacity(0, duration)),
+    code_ref().selection(lines(20), duration),
     waitFor(3 * duration)
   );
 
@@ -214,10 +298,12 @@ int main() {
     sequence(0.1,
       stack_refs[1]().code('⁉️', duration),
       stack_refs[0]().code('⁉️', duration)),
-    code_ref().selection(lines(21), duration),
-    command_txt_ref().text('', duration / 3).to('2 x pop()', duration / 3),
+    code_ref().selection(lines(22), duration),
+    command_txt_ref().text('', duration / 3),
     waitFor(3 * duration)
   );
+
+
 
   // Frame
   yield* all(

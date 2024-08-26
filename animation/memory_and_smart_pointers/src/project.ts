@@ -32,7 +32,8 @@ import example from './scenes/example?scene';
 import memory from './scenes/memory?scene';
 import stealing from './scenes/stealing?scene';
 import stack from './scenes/stack?scene';
+import heap from './scenes/heap?scene';
 
 export default makeProject({
-  scenes: [stack, memory, stealing, example],
+  scenes: [stack, heap, memory, stealing, example],
 });
