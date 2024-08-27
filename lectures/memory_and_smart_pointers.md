@@ -1,65 +1,84 @@
-Memory and smart pointers
+Memory management and smart pointers
 --
 
 <p align="center">
-  <a href="https://youtu.be/blah"><img src="https://img.youtube.com/vi/blah/maxresdefault.jpg" alt="Video" align="right" width=50% style="margin: 0.5rem"></a>
+  <a href="xxx_https://youtu.be/blah"><img src="xxx_https://img.youtube.com/vi/blah/maxresdefault.jpg" alt="Video" align="right" width=50% style="margin: 0.5rem"></a>
 </p>
 
-- [Memory and smart pointers](#memory-and-smart-pointers)
+- [Memory management and smart pointers](#memory-management-and-smart-pointers)
 - [Memory management in C++](#memory-management-in-c)
+  - [Automatic memory management in other programming languages](#automatic-memory-management-in-other-programming-languages)
+  - [The C++ way](#the-c-way)
 - [Memory allocation under the hood](#memory-allocation-under-the-hood)
   - [The stack](#the-stack)
   - [Why not keep persistent data on the stack](#why-not-keep-persistent-data-on-the-stack)
   - [The heap](#the-heap)
+    - [Operators `new` and `delete`](#operators-new-and-delete)
   - [Typical pitfalls with data allocated on the heap](#typical-pitfalls-with-data-allocated-on-the-heap)
     - [Forgetting to call `delete`](#forgetting-to-call-delete)
     - [Performing shallow copy by mistake](#performing-shallow-copy-by-mistake)
+    - [Performing shallow assignment by mistake](#performing-shallow-assignment-by-mistake)
     - [Calling a wrong `delete`](#calling-a-wrong-delete)
     - [Returning owning pointers from functions](#returning-owning-pointers-from-functions)
   - [Best practices for memory safety](#best-practices-for-memory-safety)
-- [Smart pointers to ease our life](#smart-pointers-to-ease-our-life)
+- [Smart pointers to the rescue!](#smart-pointers-to-the-rescue)
   - [`std::unique_ptr`](#stdunique_ptr)
   - [`std::shared_ptr`](#stdshared_ptr)
   - [Smart pointers are polymorphic](#smart-pointers-are-polymorphic)
 - [Summary](#summary)
 
 
-Alongside with understanding move semantics that we've [already looked at](move_semantics.md), it is also important to understand how memory is allocated and how to use smart pointers to keep that memory allocation safe.
-
-So this is exactly what we'll focus on today: how memory is allocated and freed when we create and destroy variables in various ways, why manually dealing with memory can quickly become a mess, and how smart pointers help to avoid this mess.
+Alongside with understanding move semantics that we've [already looked at](move_semantics.md), it is also important to understand how memory is allocated and freed when we create and destroy variables in various ways, why manually dealing with memory can quickly become a mess, and how smart pointers help us avoid this mess. So let's dive in!
 
 <!-- Intro -->
 
 ## Memory management in C++
-We'll start by talking about memory a bit more in-depth than we did until now. When we create variables in our code they have to be allocated somewhere. Which essentially means that they need to find a big-enough free slot in memory to fit into. Once we don't use these variables, we want them to free the memory that they occupied so that it could be reused, otherwise we might run out of free memory and be unable to create any new variables.
+When we declare variables they have to be allocated somewhere. Which essentially means that they need to find a big-enough free slot in memory to fit into. Once we stop using these variables, we want them to free the memory that they occupied so that it could be reused, otherwise we might run out of free memory and be unable to create any new variables, which we'd really like to avoid!
 
 This act of allocating and freeing memory is usually called **"memory management"**.
 
-If you have experience with Python, Go, Java, or other similar languages, you are used to leave memory management to professionals, i.e., to the built-in automatic **"garbage collection"** system. This system runs in the background and searches for the variables that are not used anymore and frees their memory. While this is convenient in terms of not needing to think about memory on our side, this is also slower as such a scan has to run repeatedly at runtime. Furthermore it is hard to predict when these scans will happen and how long they will take so garbage collected languages are not well-suited for safety-critical applications.
+### Automatic memory management in other programming languages
+Some languages like Python, Go, Java, or C#, just to name a few, deal with memory management in an automatic fashion, by using the so-called **"garbage collection"** system. This system runs at intervals in the background and searches for the variables that are not in use anymore and frees their memory. We can observe this by looking at the amount of memory used by programs written in such languages while they are running: the amount of allocated memory will grow for a while, followed by sharp drops once the garbage collection is triggered.
 
-What makes C++ suited exactly for such safety-critical applications is that it stays away from any form of automatic memory management altogether. It just gives tools to manage memory on our own. And while it might not sounds like a benefit to you, the fact that we can decide how and when to manage our memory is really what makes C++ so loved. The beauty of C++ is that the way it is designed, alongside with its Standard Template Library (STL), allows us to write extremely efficient code while making sure that the memory is allocated and freed correctly.
+<img src="images/gc.png" alt="Garbage collection" align="right" width=70% style="margin: 0.5rem">
+
+We won't focus too much on garbage collection here though, but if you'd like a more in-depth look into this, please feel free to follow a link to a post about various [options for garbage collection in Java](https://dzone.com/articles/choosing-the-right-gc).
+<!-- that is linked below this video. -->
+
+While such a garbage collection system is convenient in terms of not needing to think about memory on our side, using it takes away from the performance of our program. These systems must perform a scan for unused memory repeatedly at runtime which costs time. Furthermore it is hard to predict when these scans will happen and how long they will take, so garbage collected languages are not well-suited for safety-critical applications where we need to know exactly when each operation takes place and that they all fall within a certain time budget.
+
+### The C++ way
+What makes C++ suited for such safety-critical applications is that it stays away from garbage collection based memory management altogether. Instead it takes a two-tier approach: it manages memory for local variables with limited lifetime very efficiently without any unpredictable actions and provides us with the tools to manage the more complex cases of memory allocation on our own. And while it might not sounds like a benefit to you, the combination of these two systems and especially the fact that we can decide how and when to allocate and free our memory is really what makes C++ so loved. The beauty of C++ is that the way it is designed, alongside with its Standard Template Library (STL), allows us to write extremely efficient code while making sure that the memory is allocated and freed correctly.
 
 ## Memory allocation under the hood
-Before we talk about the tools we have at our disposal to manage memory in modern C++, let's briefly focus on what happens under the hood when we want to create or destroy a variable. And while common, this task is anything but trivial.
+So let us talk about these systems in-depth!
 
-The variables we allocate can be of vastly different sizes, lifetime durations, and frequency of allocation. Furthermore, we usually want to avoid "fragmentation" of our memory, i.e., we don't want to have many small "holes" between allocated variables. If we have those, it might be that we have a lot of free memory in the absolute sense, but are unable to find a continuous chunk of memory to allocate some larger variable. This means that ideally we want to find for each variable being allocated the smallest free memory slot it fits into.
+And before we talk about the tools we have at our disposal to manage memory in modern C++, let's briefly focus on what happens under the hood when we want to create or destroy a variable. And, while common, this task is anything but trivial.
 
-Solving this problem in general is very hard! Think about it, we can't scan **all** the memory at our disposal exhaustively every time we want to allocate a variable, that would take too long! But we do have some more information about how we allocate our data and it helps us immensely!
+<!-- Add an animation for the below -->
+Remember, we want to find a perfect place in memory for every variable we want to use. These variables can have vastly different sizes and lifetime durations which influences their optimal placement in memory. Furthermore, we usually want to avoid "fragmentation" of our memory, i.e., we don't want to have many small "holes" between allocated variables. If we have those, it might be that we have a lot of free memory in the absolute sense, but we are still unable to find a continuous chunk of memory to allocate some larger variable. This means that ideally we want to find for each variable being allocated the smallest free memory slot it fits into.
 
-For example, we might notice that we allocate data with **automatic storage duration**, i.e., variables that live within scopes, much more often than data that persist throughout the whole program lifetime. Furthermore, such data get deallocated very soon after they were allocated. And we can even observe that such variables are mostly on the smaller size in terms of how much memory they require.
+<!-- Add an animation for the below -->
+Solving this problem in general is very hard! Think about it, we can't scan **all** the memory at our disposal exhaustively every time we want to allocate a variable, that would take too long! But we _can_ find effective algorithms for finding *not perfect*, but _good-enough_ spots, granted that we have some more information about our data.
+
+For example, we might notice that we allocate data with **automatic storage duration**, i.e., variables that live within scopes, much more often than data that persist throughout the whole program lifetime. Furthermore, the memory for such data gets freed very soon after these variables were allocated. And we can even observe that such variables are mostly on the smaller size in terms of how much memory they require.
 
 This simplifies our task immensely! So let's focus on these variables first and deal with those that must persist for a longer time later.
 
-Because the number of our variables within any scope is relatively small and the variables are small in size we argue that for any program all of these scoped variables would fit in a relatively small continuous chunk of memory.
-
 ### The stack
-So we designate a small part of our memory, typically 8MB, at least on Linux and MacOS, to managing such local variables. Furthermore, because the variables get de-allocated at the end of the scope, we use a stack-like data structure for managing where to allocate such variables. Just like a stack of coins allows putting and removing coins on and from the top of this stack, such data structure supports **putting** and **popping** variables at the **end** of the currently occupied stack space.
+Because the number of our variables within any scope is relatively small and the variables are themselves also small in size we argue that for any program all of these scoped variables would fit in a relatively small continuous chunk of memory.
 
-🚨 This mechanism is used under the hood for all the local variables we create and destroy in our C++ programs.
+So we designate a small part of our memory, typically 8MB on Linux and MacOS, to managing such local variables. Furthermore, because the variables get de-allocated at the end of the scope, we use a stack-like data structure for managing where to allocate them.
 
-And just to get some more intuition let's look at it a bit more precisely. We'll look at example that does not follow any of the best practices we followed throughout this course, furthermore it leads to an undefined behavior, so please don't copy this example to any real projects. But it does serve us well to build the intuition of how stack works.
+<img src="images/stack-coins.png" alt="Garbage collection" align="right" width=20% style="margin: 0.5rem">
 
-In this example, we allocate an `int` with a value of `2` on a stack, followed by a variable of type `int*` that points to a `nullptr`. Then a new scope starts and we allocate two integers in a static array without initializing them. This is just for illustration purposes, so please don't use such arrays in real life. We set the values in that array in the next two lines. In C++, standard C-style arrays are equivalent to pointers and we can set `ptr` to point to the start of our `array` data. This is not a great idea in modern C++, but is a good indicator of where things are on a stack for us. If we now print these values we'll get the expected output of `42` followed by `23`. However, everything changes once we leave the inner scope as once we leave that scope all of the variables allocated while in it get popped off the stack. Which means that now `ptr` points to some data that we do not control. This leads to undefined behavior and if we run this program it might print anything that it finds under that address.
+Just like a stack of coins allows putting and removing coins from the top of this stack, such data structure supports **putting** and **popping** variables at the **end** of the currently occupied stack space.
+
+🚨 This mechanism is used under the hood for all the local variables we create and destroy in our C++ programs. 🚨
+
+And just to get some more intuition let's look at it a bit more precisely. We'll use an example, as we always do. This example **does not follow any of the best practices** we followed throughout this course, furthermore it leads to an undefined behavior, so please don't copy this example to any real projects. But it does serve us well to build the intuition of how stack works.
+
+In this example, we allocate an `int` with a value of `2` on a stack, followed by a variable of type `int*` that points to nothing, or a `nullptr`. Then a new scope starts and we allocate two integers in a static C-style array without initializing them. Please don't use such C-style arrays in real life, but I do need them for illustration purposes here to make this example simpler. We set the values in that array in the next two lines. In C++, standard C-style arrays are equivalent to pointers and we can set `ptr` to point to the start of our `array` data. This is not a great idea in modern C++, but is a good indicator of where things are on a stack for us. If we now print these values we'll get the expected output of `42` followed by `23`. However, everything changes once we leave the inner scope. Once we leave that scope all of the variables allocated while in it get popped off the stack. Which means that now `ptr` points to some data that we do not control. This leads to **undefined behavior** and if we run this program it might print anything that it finds under that address.
 ```cpp
 #include <iostream>
 
@@ -84,30 +103,44 @@ int main() {
   return 0;
 }
 ```
+This way of dealing with allocating and freeing variables is amazing for local data. As long as the data does not need to persist beyond the end of the scope, this data structure is very efficient! We always know exactly where to allocate new memory and which memory to free **at constant time**, no additional runtime operations needed!
 
-This way of dealing with allocating and freeing variables is amazing for local data. As long as the data does not need to persist beyond the end of the scope, this data structure is very efficient! We always know exactly where to allocate new memory and which memory to free at constant time, no additional operations needed!
-
-<!-- Add the stack example -->
+<!-- Add the stack example video -->
 
 ### Why not keep persistent data on the stack
 Many things change the moment we want our data to persist beyond the end of the scope. Pause for a moment and think if we can keep such data on the stack too! ⏱️
 
-And if we think long enough about it we will come up with a couple of issues! Let's for a moment assume that we could keep a variable in our stack for a longer time. And let's also assume that we allocated it in the middle of some scope, with some normal stack variables allocated before and after it. By the end of the scope we must free all memory of those variables. Which essentially means that we would need to pop all the variables above our persistent variable, then copy our variable somewhere, pop the rest of the normal variables and copy our persistent variable back. Not only this is not elegant but we also had to copy a potentially large chunk of memory around, which is slow. And we don't like slow!
+<!-- Animate! -->
+And if we think long enough about it we will come up with a couple of issues! Let's for a moment assume that we could keep a variable in our stack for a longer time. And let's also assume that we allocated it in the middle of some scope, with some normal stack variables allocated before and after it. By the end of the scope we must free all memory of those variables. Which essentially means that we would need to pop all the variables above our persistent variable, then copy our variable somewhere, pop the rest of the normal variables and copy our persistent variable back. Not only this is not elegant but we also had to copy a potentially large chunk of memory around, which is slow.
+
+The situation is similarly bad if we would want to free the memory of our persistent variable at some manually chosen point. This would mean that we would need to copy everything that we put on top of it in the stack, remove the persistent data we want, then copy everything back on top of the stack. Also slow!
+
+And we don't like slow!
 
 As you can imagine, the situation would be even worse if there would be more of these persistent variables we wanted to keep track of, which is actually typically the case.
 
-So clearly we want to keep our stack quite small and used exclusively for any local variables we are using and find another way to find a place to allocate potentially large persistent data.
+So clearly we want to keep our stack quite small and used exclusively for local variables. Therefore, we must find another way to find a place to allocate potentially large persistent data.
 
 ### The heap
-Such a place needs to be able to find free chunks of memory of any size, from small to very large. Also, allocations should depend as little as possible on the amount of data allocated before or after. Finally, such allocations should generally be made explicitly by the programmer as only they know if the particular data should persist and for how long.
+Such a place needs to be able to accommodate variables of any size, from small to very large. Also, allocations should depend as little as possible on the amount of data allocated before or after. Finally, such allocations should generally be made explicitly by the programmer as only they know if the particular data should persist and for how long.
 
-When we speak about allocating these data, we usually call these data being allocated **"on the heap"**. For those of you who know data structures you might think that this is related to the "heap" data structure - a binary tree with the parent having a larger or smaller key value than its children but that seems to be not the case, although the evidence is murky on this one. If we trust Donald Knuth (one of the gods of algorithm design), this name is just coincidental. But I could not find any definitive proof for either side, so if you have it, please leave it in the comments.
+When we speak about allocating these data, we usually call these data being allocated **"on the heap"**. Those of you who know data structures might think that this is related to the "heap" data structure - a binary tree with the parent having a larger or smaller key value than its children. And indeed I could imagine how the free chunks of memory could be organized as such a heap data structure by size to optimize the search for a free chunk of a given size. But that seems to be **not the case**, although the evidence is murky on this one. If we trust Donald Knuth (one of the gods of algorithm design), this name is just coincidental. But I could not find any definitive proof for either side of the argument, so if you have it, please send it my way.
 
-Anyway, the easiest way to think about the heap is an intuitive one - imagine a heap of stuff, like coins. Every coin represents a place where we can store our variable that we want to allocate, and let's say that its denomination indicates the amount of free space available. So we look through our heap to find a coin that represents space big enough for our variable and store it there. This obviously takes some time but once such a place is found the memory can stay there until we don't need it anymore. This is a very inaccurate analogy as there is much more stuff happening under the hood but it gives a decent intuition nevertheless and that is all I'm aiming for here.
+<!-- And while you're at it, please subscribe to this channel, it really shows me if I'm moving in the right direction with these videos! -->
 
-To allocate memory on the heap in C++ we use `new` and `new[]` operators. First one to allocate a single variable, second one to allocate an array of those. In order to free this memory we need to then call `delete` or `delete[]` respectively on these variables.
+Anyway, the easiest way to think about the heap is an intuitive one - imagine a heap of stuff, like coins. Every coin represents a place where we can store our variable that we want to allocate, and let's say that its denomination indicates the amount of free space available.
 
-To have a bit more hands-on experience, let us see how our previous example changes if we use `new[]` instead of allocating a C-style array directly on the stack. We start by pushing the `size` and the `ptr` to the stack and then enter the inner scope just as before. What is not as before is that we now use the `new[]` operator to allocate our array on the heap. Just as before, by default, it stores garbage data. However, the pointer to these data, that we here still call `array`, is still stored on the stack! Now we update the values in our array and set the `ptr` to point to the same address as the `array` which allows us to print the values using the `ptr` variable. When we leave the scope, only the `array` variable is cleaned-up from the stack, but the `ptr` variable still points to our data, which still lives on the heap. So we still can print all the values we stored without any undefined behavior. Finally, we can explicitly free the memory using `delete[]` operator on our `ptr` variable and at the end of the program the stack empties itself.
+<img src="images/heap-coins.png" alt="Garbage collection" align="right" width=30% style="margin: 0.5rem">
+
+So when we need to create a new variable on the heap, we look through our heap to find a coin that represents space big enough for our variable and store it there. This obviously takes some time at runtime but once such a place is found the variable can stay in that memory until we don't need it anymore. So, allocating on the heap is definitely less efficient than allocating on the stack but it has a benefit of being able to allocate or de-allocate these data at any time with less consideration on how packed the rest of the memory is.
+
+Please note that this is a **very inaccurate analogy** as there is much more stuff happening under the hood and the actual implementations of the heap allocators are well-optimized and, as a result, quite complex, but thinking about a heap of coins gives a decent enough intuition. And that is all I'm aiming for here.
+
+#### Operators `new` and `delete`
+We allocate memory on the heap manually in C++. For that we use `new` and `new[]` operators that take a type and derive the amount of space that we want to allocate from that type. The `new` operator allocates a single variable, while `new[]` allocates an array of those. In order to free the memory we need to call `delete` or `delete[]` respectively on the pointer that points to the memory allocated on the heap.
+
+<!-- Animate a change from the stack example -->
+To have a bit more hands-on experience, let us see how our previous example changes if we use `new[]` instead of allocating a C-style array directly on the stack.
 ```cpp
 #include <iostream>
 
@@ -133,43 +166,69 @@ int main() {
   return 0;
 }
 ```
+We start by pushing the `size` and the `ptr` to the stack and enter the inner scope just as before. What is not as before is that we now use the `new[]` operator to allocate our array on the heap. We only allocate memory for it, without initializing the stored values, so initially it stores garbage data. Note that the **pointer to these data**, that we here still call `array`, is **still stored on the stack**! Now we update the values stored in our array and set the `ptr` to point to the same address as the `array` which allows us to print the values using the `ptr` variable. Different from the example before, when we leave the scope, only the `array` variable is cleaned-up from the stack, but the `ptr` variable still points to our data, which still happily lives on the heap. So we can still print all the values we stored in our array using the `ptr` pointer without any undefined behavior. Finally, we can explicitly free the memory using the `delete[]` operator on our `ptr` variable and at the end of the program the stack empties itself.
 
 ### Typical pitfalls with data allocated on the heap
-There is a number of common pitfalls when using heap-allocated data. If you followed my lectures for a while, you know that I am not a fan of taking care of things manually, I don't really trust myself on that :wink:. If we use `new` and `delete` operators like in the example before, we have to be very careful with them!
+There is a number of common pitfalls when using heap-allocated data. And you could probably have already guessed this from the amount of screaming smileys in my code snippets. If you followed my lectures for a while, you know that I am not a fan of taking care of things manually, I don't really trust myself on that :wink:. If we use `new` and `delete` operators manually like in the example before, we have to be very careful with them!
 
 #### Forgetting to call `delete`
-If we forget to call `delete` on the data that we allocated with `new`, we get a memory leak as the memory we allocated will never be freed!
+If we forget to call `delete` on the data that we allocated with `new`, we get a memory leak as the memory we allocated is never be freed!
 <center>
 <video src="images/destructor.mp4" width=50% style="margin: 0.5rem" autoplay muted/>
 </center>
 
 #### Performing shallow copy by mistake
-If we allocate two chunks of data on the heap, each will have a pointer pointing to it. We need these pointers to free these data. One common mistake when wanting to copy the data is to assign one pointer to another.
+Another common mistake when working with raw pointers is to try to copy the data by assigning one pointer to another.
 ```cpp
 int main() {
   int* object = new int{42};
-  int* other_object = new int{23};
+  int* other_object = object;
   object = other_object;
-  // 😱 How to free the memory?
+  // 😱 Which pointer to use to free memory?
   return 0;
 }
 ```
-
-But this **does not copy the data**, this only copies the pointer! We have two issues here!
-- We now have two pointers that point the the same data! If we `delete` both of them we will get a runtime error `double free or corruption` that hints that we tried to free the memory twice.
-- At the same time, we lost access to part of our data altogether and cannot remove it at all, which is another memory leak!
+But this **does not copy the data**, this only copies the pointer! So instead we now have two pointers that point to the same data! If we `delete` both of them we will get a runtime error `double free or corruption` that hints that we tried to free the memory twice.
 <center>
 <video src="images/dangling_pointer.mp4" width=50% style="margin: 0.5rem" autoplay muted/>
 </center>
 
+
+#### Performing shallow assignment by mistake
+If we initially allocate two objects the situation becomes even worse!
+```cpp
+int main() {
+  int* ptr_1 = new int{42};
+  int* ptr_2 = new int{23};
+  ptr_1 = ptr_2;
+  // 😱 Lost access to some data!
+  return 0;
+}
+```
+Not only we have the same error as before by freeing the memory twice but we also introduce a memory leak as we now do not have any pointer that points to the data originally stored under the second pointer!
+<center>
+<video src="images/shallow_assignment.mp4" width=50% style="margin: 0.5rem" autoplay muted/>
+</center>
+
 #### Calling a wrong `delete`
 Even if we _do_ call a `delete` we can still mess things up. If we allocate an array using the `new[]` operator and free it with a normal `delete` we will only free the memory under the first element of our array, so, memory leak again!
+```cpp
+int main() {
+  int* array = new int[23];
+  delete array;
+  // 😱 Only freed a single int!
+  return 0;
+}
+```
+Although in this case, at least on a modern `clang` compiler, there is a compilation warning about this situation, so please make sure you have warnings enabled and there are no warnings left unhandled when you compile you code!
 
 #### Returning owning pointers from functions
-But it gets worse! If we don't follow best practices, we might have **no** way of knowing if and how we should free the data under a given pointer! :scream:
+But we're not always as lucky! It gets worse! Much worse! If we don't follow best practices, we might **have no way** of knowing if and how we should free the data under a given pointer! :scream:
 
+<!-- Animate this as code -->
 Imagine we have a bunch of functions that all return exactly the same type, `int*`. It is impossible to know if we need to free the memory that the returned value points to by just looking at that pointer alone! And yes, we might get lucky and these functions might all have descriptive names, of course. In this case, if we trust the names, we know which pointers we must free and which `delete` operator to use.
 ```cpp
+// 😱 Manual allocation is bad, especially in functions!
 namespace {
 
 struct Pool {
@@ -200,10 +259,11 @@ int main() {
   return 0;
 }
 ```
-This way we know that we should use `delete` to free the memory of a single allocated variable under `ptr_1`, `delete[]` to free memory allocated to store an array pointer to by `ptr_2` and that we should not touch the memory under `ptr_3` as that memory will be freed by the `Pool` struct.
+Our functions clearly state that they allocate memory and also what they allocate, so we know that we should use `delete` to free the memory of a single allocated variable under `ptr_1`, `delete[]` to free memory allocated to store an array pointer to by `ptr_2` and that we should not touch the memory under `ptr_3` as that memory will be freed by the `Pool` struct.
 
-However, life is rarely as accommodating in the real world. Functions might change their implementation with time without updating their names to adequately reflect these changes! Or they might not have readable names in the first place! This way we _must_ look into the implementation of these function to make out what to do!
+However, let's be honest, life is rarely as accommodating in the real world. Functions might change their implementation with time without updating their names to adequately reflect these changes! Or they might not have readable names in the first place! This way we _must look into the implementation of these functions_ to make out what they do!
 ```cpp
+// 😱 Manual allocation is bad, especially in functions!
 namespace {
 
 struct Pool {
@@ -212,7 +272,7 @@ struct Pool {
 };
 
 int* Foo() {
-  return new int;
+  return Pool::GetPtr();
 }
 
 int* Bar(int size) {
@@ -220,7 +280,7 @@ int* Bar(int size) {
 }
 
 int* Buzz() {
-  return Pool::GetPtr();
+  return new int;
 }
 
 }  // namespace
@@ -229,21 +289,36 @@ int main() {
   auto* ptr_1 = Foo();
   auto* ptr_2 = Bar(20);
   auto* ptr_3 = Buzz();
-  delete ptr_1;
+  delete ptr_3;
   delete[] ptr_2;
   return 0;
 }
 ```
-This is already quite annoying, but we still technically **can** find out if we should free the memory and with which operator in each of these cases.
+This is already quite annoying, but we still technically **can** find out if we should free the memory and with which operator in each of these cases. But note hard hard it is to track the correct `delete` operators even on such a small example. Imagine having a huge codebase riddles with code like this! :scream:
 
-Now, if you remember the lectures about [libraries](headers_and_libraries.md) you know that the actual implementation can be hidden from us in a compiled library in such a way that the only thing we see is the declaration of the function. Now there is no way for us to know what we should do with the pointers we get!
+But we're not done yet, oh no! There is more! If you remember the lectures about [libraries](headers_and_libraries.md) you know that the actual implementation can be hidden from us in a compiled library in such a way that the only thing we see is the declaration of the function. **Now there is no way for us to know what we should do with the pointers we get! :scream:**
+
 `lib.hpp`
+<!--
+`CPP_SETUP_START`
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` memory_and_pointers/lib.hpp
+-->
 ```cpp
 int* Foo();
 int* Bar(int number);
 int* Buzz();
 ```
+
 `main.cpp`
+<!--
+`CPP_SETUP_START`
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` memory_and_pointers/main.cpp
+`CPP_RUN_CMD` CWD:memory_and_pointers c++ -std=c++17 -c main.cpp
+-->
 ```cpp
 #include "lib.hpp"
 
@@ -257,22 +332,24 @@ int main() {
 ```
 
 Let's quickly outline all the errors that are possible here:
-1. **We don't free the memory.** This causes a memory leak in data under `ptr_1` and `ptr_2` - they never release their memory!
+1. **We don't free the memory.** This causes a memory leak in data under `ptr_3` and `ptr_2` - they never release their memory!
 2. **We free memory with wrong `delete`.** Should we free memory under `ptr_2` with `delete` rather than with `delete[]` we will only release the memory directly under the pointer, not for the whole allocated array. So, a memory leak again.
-3. **We free memory twice.** If we use `delete` on `ptr_3` we will get various errors, either `double free or corruption` or `free(): invalid pointer` depending if the `Pool` allocates data on the heap or not. Regardless, we are getting a runtime error because of this.
+3. **We free memory twice.** If we use `delete` on `ptr_1` we will get various errors, either `double free or corruption` or `free(): invalid pointer` depending if the `Pool` allocates data on the heap or not. Regardless, we are getting a runtime error because of this.
 
 ### Best practices for memory safety
-But don't despair. There is a solution to all of these problems. In the lecture about [object lifecycle](object_lifecycle.md) we already touched upon the RAII principle that stands for Resource Allocation Is Initialization. This principle is crucial for writing safe C++ code. Essentially, we need to make sure that all memory allocation happens at the time of object creation and that memory is released on object destruction. Combining this with properly implemented value semantics, such that these objects can be copied and [moved](move_semantics.md) safely, and we can pretty much guarantee the overall memory safety.
+I hope I scared you enough and you never want to allocate and free memory manually ever in your life! And this is a great attitude, trust me!
 
-## Smart pointers to ease our life
+There **is** a solution to all of these problems. In the lecture about [object lifecycle](object_lifecycle.md) we already touched upon the RAII principle that stands for **R**esource **A**llocation **I**s **I**nitialization. This principle is crucial for writing safe C++ code. Essentially, we need to make sure that all memory allocation happens at the time of object creation, ideally in a constructor, and that memory is released on object destruction, in the destructor. Combining this with properly implemented value semantics, such that these objects can be copied and [moved](move_semantics.md) safely, and we can pretty much guarantee the overall memory safety.
+
+## Smart pointers to the rescue!
 And now is eventually a good time to talk about smart pointers! They are RAII containers with proper value semantics out of the box so that we don't have to implement such value semantics from scratch. Furthermore there are different flavors of smart pointers to model different types of ownership.
 
 Nowadays, we mostly use `std::unique_ptr` and `std::shared_ptr`, so let's talk about these a bit more in-depth.
 
-These are classes implemented in the STL under the `#include <memory>` header. They are designed to be an almost drop-in replacement for raw owning pointers while providing guarantees for memory safety.
+These are classes implemented in the **S**tandard **T**emplate **L**ibrary, or STL under the `#include <memory>` header. They are designed to be an almost drop-in replacement for raw owning pointers while providing guarantees for memory safety.
 
 ### `std::unique_ptr`
-The `std::unique_ptr` is our main workhorse when we need to use owning pointers. The idea is extremely simple: the `std::unique_ptr` enforces unique ownership of a raw pointer given to it. That means that this unique pointer is the only responsible entity to free the memory under its pointer.
+The [`std::unique_ptr`](https://en.cppreference.com/w/cpp/memory/unique_ptr) is our main workhorse when we need to create data on the heap. The idea is extremely simple: the `std::unique_ptr` enforces unique ownership of a raw pointer given to it. That means that this unique pointer is the only entity responsible to free the memory under its pointer.
 
 The way this is achieved technically is by making sure that the copy constructor and assignment operators of the `std::unique_ptr` class are **deleted**. This way, a unique pointer **can only be moved, not copied**! This way, there are never two raw pointers that point to the same memory owned by this unique pointer.
 
@@ -298,18 +375,19 @@ int main() {
 ```
 Once created, we can access the values under our pointers by dereferencing them with the `*` operator or, in case of classes, we can call their members with `->` operator just like we did with [raw pointers](raw_pointers.md) before.
 
-We cannot assign `ptr_2` to `ptr_1` as the copy assignment operators is deleted for `std::unique_ptr` but we _can_ move-assign one into another. This way, the memory initially held by `ptr_1` is freed and `ptr_1` takes ownership of the memory previously owned by `ptr_2`. When `ptr_1` dies it frees the memory it owns, so no need to call any `delete` on our side.
+We cannot assign `ptr_2` to `ptr_1` as the copy assignment operators is deleted for `std::unique_ptr`, which protects us from performing a shallow copy by mistake, but we _can_ move-assign one into another. This way, the memory initially held by `ptr_1` is freed and `ptr_1` takes ownership of the memory previously owned by `ptr_2`. When `ptr_1` dies it frees the memory it owns, so no need to call any `delete` on our side.
 
 In addition to this typical pointer-like interface, we also have access to functions like `.get()` which gets the underlying raw pointer and `.reset(T*)` that allows to reset the smart pointer to own a different raw pointer.
 
-All in all, `std::unique_ptr` is an extremely useful tool! Use it all the time when you need to allocate some persistent data on the heap! It mimics raw pointer very closely without any of its downsides and costing us ([nearly](https://youtu.be/rHIkrotSwcc?si=G1yWs9zJ59od6aMj)) nothing at runtime.
-<!-- If you are interested in why "nearly", watch this CppCon talk by Chandler Carruth, it is an amazing talk about what we call a "zero-cost abstraction" and why they probably don't really exist. -->
+All in all, `std::unique_ptr` is an extremely useful tool! Use it all the time when you need to allocate some persistent data on the heap! It mimics raw pointers very closely without any of their downsides and costing us ([nearly](https://youtu.be/rHIkrotSwcc?si=G1yWs9zJ59od6aMj)) nothing at runtime.
+<!-- If you are interested in why I said "nearly", watch this CppCon talk by Chandler Carruth, it is an amazing talk about what we call a "zero-cost abstraction" and why they probably don't really exist. Thanks me later! -->
 
 ### `std::shared_ptr`
-Another smart pointer that is extremely popular is the `std::shared_ptr`. As the name suggest, just as `std::unique_ptr` models unique ownership over some data, `std::shared_ptr` models, well, shared ownership.
+Another smart pointer that is extremely popular is the [`std::shared_ptr`](https://en.cppreference.com/w/cpp/memory/shared_ptr). As the name suggest, just as `std::unique_ptr` models unique ownership over some data, `std::shared_ptr` models, well, **shared ownership**.
 
-Under the hood, it is also a RAII container but, unlike the unique pointer, it does not delete its copy constructor and assignment operators. Rather, `std::shared_ptr` implements the so-called "reference counting" under the hood. Essentially, it has a `static` entry (and we talked about using [`static` with classes](static_in_classes.md) before) that keeps track of how many instances of this `shared_ptr` point to any particular underlying data. If a new copy is created, this counter is incremented and if some instance is destroyed it gets decremented. Only once all of them are destroyed the data is freed.
+Under the hood, it is also a RAII container but, unlike the unique pointer, it does not delete its copy constructor and assignment operators. Rather, `std::shared_ptr` implements the so-called "reference counting" under the hood. Essentially, it has a `static` entry (and we talked about using [`static` with classes](static_in_classes.md) before) that keeps track of how many instances of this `shared_ptr` point to any particular underlying data. If a new copy is created, this counter is incremented and if some instance is destroyed it gets decremented. Only once all of them are destroyed, i.e., no one points to the data, the data is freed.
 
+We create a `std::shared_ptr` in a very similar way to `std::unique_ptr`, by either using its constructor that also takes a raw pointer or using the `std::make_shared` helper function that allocates the needed object under the hood.
 ```cpp
 #include <iostream>
 #include <memory>
@@ -331,8 +409,12 @@ int main() {
   return 0;
 }
 ```
+Note how, as opposed to the unique pointer, we can copy a shared pointer to another shared pointer.
+
+In addition to the interface that a unique pointer provides, we can also see the number of pointers that point to our particular place in memory by calling the `use_count()` function, which in this example will show us that it is incremented in the inner scope and goes back to the old value when we leave that scope.
+
 ### Smart pointers are polymorphic
-And, as a bonus, these pointers, being pointers are also polymorphic, so we can create a `std::unique_ptr<Base>` from an instance of `std::unique_ptr<Derived>` just like what we discussed when talking about [inheritance](inheritance.md).
+Finally, as a bonus, smart pointers, being, well, pointers are **polymorphic**, so we can create a `std::unique_ptr<Base>` from an instance of `std::unique_ptr<Derived>` just like what we discussed when talking about [inheritance](inheritance.md).
 ```cpp
 #include <iostream>
 #include <memory>
@@ -354,8 +436,16 @@ int main() {
   return 0;
 }
 ```
+In this example, `ptr_1->SayHello()` will call the base implementation while the `ptr_2->SayHello()` will call the overriden `Derived` implementation just as we expect. I'll leave it up to you to check if this also works if we use a shared pointer instead.
 
 ## Summary
-This is about everything one needs to know about memory allocation and smart pointers. At least this is about 99% of the knowledge, with the rest available at cppreference.com :wink:
+Now this is about everything one needs to know about memory allocation and smart pointers. At least this is about 99% of the knowledge, with the rest available at cppreference.com :wink: Was it too much? Tell me what you think!
 
-All in all, we should _almost never_ allocate memory manually. A good rule of thumb is to never write a manual `delete`, which leads us to also never writing a naked `new` (use `std::make_unique` and `std::make_shared` instead) and we should never have to deal with a memory leak or a dangling pointer.
+All in all, we should _almost never_ allocate memory manually. A good rule of thumb is to never write a manual `delete`, which leads us to also (almost) never writing a naked `new` (use `std::make_unique` and `std::make_shared` instead) and we should never have to deal with a memory leak or a dangling pointer in our life! :heart:
+
+<!-- On that, I'd like to, as always, thank you for your time! Please consider telling your C++ inclined friends if you found this useful and you think they might like it too, it would really mean a lot to me!
+
+And if you would like to look deeper in how you might use pointers in a polymorphic way in C++, then please give this video a watch, while if you'd rather dig deeper into how move semantics works, then give this video a go instead.
+
+Thanks again and bye!
+-->
