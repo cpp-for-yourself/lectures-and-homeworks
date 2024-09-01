@@ -1,7 +1,7 @@
 Memory management and smart pointers
 --
 <p align="center">
-  <a href="xxx_https://youtu.be/eHcdTytDZrI"><img src="xxx_https://img.youtube.com/vi/eHcdTytDZrI/maxresdefault.jpg" alt="Video" align="right" width=50% style="margin: 0.5rem"></a>
+  <a href="https://youtu.be/eHcdTytDZrI"><img src="https://img.youtube.com/vi/eHcdTytDZrI/maxresdefault.jpg" alt="Video" align="right" width=50% style="margin: 0.5rem"></a>
 </p>
 
 - [Memory management and smart pointers](#memory-management-and-smart-pointers)
