@@ -169,13 +169,13 @@ int main() {
     stack_refs[2]().code(`array[0] = 42`, duration),
     code_ref().selection(lines(7), duration),
     command_txt_ref().text('', duration / 3),
-    waitFor(3 * duration)
+    waitFor(duration)
   );
 
   // Frame
   yield* all(
     stack_refs[3]().code(`array[1] = 23`, duration),
-    code_ref().selection(lines(8), duration),
+    code_ref().selection(lines(7, 8), duration),
     waitFor(3 * duration)
   );
 

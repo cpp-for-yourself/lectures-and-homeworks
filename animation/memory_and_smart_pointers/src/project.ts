@@ -28,12 +28,14 @@ Code.defaultHighlighter = new LezerHighlighter(parser, MyStyle);
 
 import './global.css';
 
-import example from './scenes/example?scene';
 import memory from './scenes/memory?scene';
-import stealing from './scenes/stealing?scene';
 import stack from './scenes/stack?scene';
+import stack_persistent from './scenes/stack_persistent?scene';
 import heap from './scenes/heap?scene';
+import code from './scenes/code?scene';
+import memory_show from './scenes/memory_show?scene';
 
 export default makeProject({
-  scenes: [stack, heap, memory, stealing, example],
+  scenes: [
+    code],
 });

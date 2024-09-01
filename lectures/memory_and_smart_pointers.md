@@ -90,13 +90,13 @@ int main() {
     array[0] = 42;
     array[1] = 23;
     ptr = array;
-    std::cout << "Before stack cleanup.\\n";
+    std::cout << "Before stack cleanup.\n";
     for (int i = 0; i < size; ++i) {
       std::cout << ptr[i] << std::endl;
     }
   }
   // 😱 Code below leads to undefined behavior!
-  std::cout << "After stack cleanup.\\n";
+  std::cout << "After stack cleanup.\n";
   for (int i = 0; i < size; ++i) {
     std::cout << ptr[i] << std::endl;
   }
@@ -110,7 +110,6 @@ This way of dealing with allocating and freeing variables is amazing for local d
 ### Why not keep persistent data on the stack
 Many things change the moment we want our data to persist beyond the end of the scope. Pause for a moment and think if we can keep such data on the stack too! ⏱️
 
-<!-- Animate! -->
 And if we think long enough about it we will come up with a couple of issues! Let's for a moment assume that we could keep a variable in our stack for a longer time. And let's also assume that we allocated it in the middle of some scope, with some normal stack variables allocated before and after it. By the end of the scope we must free all memory of those variables. Which essentially means that we would need to pop all the variables above our persistent variable, then copy our variable somewhere, pop the rest of the normal variables and copy our persistent variable back. Not only this is not elegant but we also had to copy a potentially large chunk of memory around, which is slow.
 
 The situation is similarly bad if we would want to free the memory of our persistent variable at some manually chosen point. This would mean that we would need to copy everything that we put on top of it in the stack, remove the persistent data we want, then copy everything back on top of the stack. Also slow!
@@ -138,6 +137,15 @@ Please note that this is a **very inaccurate analogy** as there is much more stu
 
 #### Operators `new` and `delete`
 We allocate memory on the heap manually in C++. For that we use `new` and `new[]` operators that take a type and derive the amount of space that we want to allocate from that type. The `new` operator allocates a single variable, while `new[]` allocates an array of those. In order to free the memory we need to call `delete` or `delete[]` respectively on the pointer that points to the memory allocated on the heap.
+```cpp
+int main() {
+  int* ptr_1 = new int{42};  // Allocate single variable.
+  int* ptr_2 = new int[23];  // Allocate array.
+  delete ptr_1;
+  delete[] ptr_2;
+  return 0;
+}
+```
 
 <!-- Animate a change from the stack example -->
 To have a bit more hands-on experience, let us see how our previous example changes if we use `new[]` instead of allocating a C-style array directly on the stack.
@@ -181,10 +189,11 @@ If we forget to call `delete` on the data that we allocated with `new`, we get a
 Another common mistake when working with raw pointers is to try to copy the data by assigning one pointer to another.
 ```cpp
 int main() {
-  int* object = new int{42};
-  int* other_object = object;
-  object = other_object;
-  // 😱 Which pointer to use to free memory?
+  int* ptr_1 = new int{42};
+  int* ptr_2 = ptr_1;
+  delete ptr_2;
+  ptr_2 = nullptr;
+  // 😱 ptr_1 points to garbage!
   return 0;
 }
 ```
@@ -200,7 +209,9 @@ If we initially allocate two objects the situation becomes even worse!
 int main() {
   int* ptr_1 = new int{42};
   int* ptr_2 = new int{23};
-  ptr_1 = ptr_2;
+  ptr_2 = ptr_1;
+  delete ptr_2;
+  ptr_2 = nullptr;
   // 😱 Lost access to some data!
   return 0;
 }
@@ -340,6 +351,43 @@ Let's quickly outline all the errors that are possible here:
 I hope I scared you enough and you never want to allocate and free memory manually ever in your life! And this is a great attitude, trust me!
 
 There **is** a solution to all of these problems. In the lecture about [object lifecycle](object_lifecycle.md) we already touched upon the RAII principle that stands for **R**esource **A**llocation **I**s **I**nitialization. This principle is crucial for writing safe C++ code. Essentially, we need to make sure that all memory allocation happens at the time of object creation, ideally in a constructor, and that memory is released on object destruction, in the destructor. Combining this with properly implemented value semantics, such that these objects can be copied and [moved](move_semantics.md) safely, and we can pretty much guarantee the overall memory safety.
+
+<!--
+`CPP_SETUP_START`
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` memory_smart_ptrs_object/main.cpp
+`CPP_RUN_CMD` CWD:memory_smart_ptrs_object c++ -std=c++17 -c main.cpp
+-->
+```cpp
+class Object {
+ public:
+  explicit Object(int number) : data_{new int{number}} {}
+
+  ~Object() { delete data_; }
+
+  Object(const Object& other)
+      : data_{other.data_ ? new int{*other.data_} : nullptr} {}
+
+  Object(Object&& other) : data_{other.data_} { other.data_ = nullptr; }
+
+  Object& operator=(const Object& other) {
+    if (other.data_) {
+      data_ = new int{*other.data_};
+    }
+    return *this;
+  }
+
+  Object& operator=(Object&& other) {
+    data_ = other.data_;
+    other.data_ = nullptr;
+    return *this;
+  }
+
+ private:
+  int* data_{};
+};
+```
 
 ## Smart pointers to the rescue!
 And now is eventually a good time to talk about smart pointers! They are RAII containers with proper value semantics out of the box so that we don't have to implement such value semantics from scratch. Furthermore there are different flavors of smart pointers to model different types of ownership.

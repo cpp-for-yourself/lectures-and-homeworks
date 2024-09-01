@@ -152,6 +152,29 @@ export default makeScene2D(function* (view) {
     height={40}
     opacity={0.0}
   />)
+  const code_stack = `\
+#include <iostream>
+
+int main() {
+  int size = 2;
+  int* ptr = nullptr;
+  {
+    int array[size];  // 😱 Don't use C-style arrays!
+    array[0] = 42;
+    array[1] = 23;
+    ptr = array;
+    std::cout << "Before stack cleanup.\\n";
+    for (int i = 0; i < size; ++i) {
+      std::cout << ptr[i] << std::endl;
+    }
+  }
+  // 😱 Code below leads to undefined behavior!
+  std::cout << "After stack cleanup.\\n";
+  for (int i = 0; i < size; ++i) {
+    std::cout << ptr[i] << std::endl;
+  }
+  return 0;
+}`
 
   const code_heap = `\
 #include <iostream>
@@ -193,8 +216,14 @@ int main() {
 
   // Frame
   yield* all(
+    code_ref().code(code_stack, duration),
+    waitFor(3 * duration)
+  );
+
+  // Frame
+  yield* all(
     code_ref().code(code_heap, duration),
-    waitFor(duration)
+    waitFor(3 * duration)
   );
 
   yield* all(
@@ -245,12 +274,12 @@ int main() {
     command_txt_ref().text('', duration / 3),
     code_ref().selection(lines(8), duration),
     data_rect_ref_1().fill(BLUE, duration),
-    waitFor(3 * duration)
+    waitFor(duration)
   );
 
   // Frame
   yield* all(
-    code_ref().selection(lines(9), duration),
+    code_ref().selection(lines(8, 9), duration),
     data_rect_ref_2().fill(BLUE, duration),
     waitFor(3 * duration)
   );
