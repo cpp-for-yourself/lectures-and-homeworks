@@ -617,6 +617,40 @@ Headers with classes
 ----------------------------------------------------------
 </details>
 
+<details>
+<summary>Memory management and smart pointers</summary>
+
+----------------------------------------------------------
+[![Video thumbnail](https://img.youtube.com/vi/eHcdTytDZrI/maxresdefault.jpg)](https://youtu.be/eHcdTytDZrI)
+
+- [Memory management and smart pointers](lectures/memory_and_smart_pointers.md#memory-management-and-smart-pointers)
+- [Memory management in C++](lectures/memory_and_smart_pointers.md#memory-management-in-c)
+  - [Automatic memory management in other programming languages](lectures/memory_and_smart_pointers.md#automatic-memory-management-in-other-programming-languages)
+  - [The C++ way](lectures/memory_and_smart_pointers.md#the-c-way)
+- [Memory allocation under the hood](lectures/memory_and_smart_pointers.md#memory-allocation-under-the-hood)
+  - [The stack](lectures/memory_and_smart_pointers.md#the-stack)
+  - [Why not keep persistent data on the stack](lectures/memory_and_smart_pointers.md#why-not-keep-persistent-data-on-the-stack)
+  - [The heap](lectures/memory_and_smart_pointers.md#the-heap)
+    - [Operators `new` and `delete`](lectures/memory_and_smart_pointers.md#operators-new-and-delete)
+- [Typical pitfalls with data allocated on the heap](lectures/memory_and_smart_pointers.md#typical-pitfalls-with-data-allocated-on-the-heap)
+    - [Forgetting to call `delete`](lectures/memory_and_smart_pointers.md#forgetting-to-call-delete)
+    - [Performing shallow copy by mistake](lectures/memory_and_smart_pointers.md#performing-shallow-copy-by-mistake)
+  - [Performing shallow assignment by mistake](lectures/memory_and_smart_pointers.md#performing-shallow-assignment-by-mistake)
+  - [Calling a wrong `delete`](lectures/memory_and_smart_pointers.md#calling-a-wrong-delete)
+  - [Returning owning pointers from functions](lectures/memory_and_smart_pointers.md#returning-owning-pointers-from-functions)
+- [RAII for memory safety](lectures/memory_and_smart_pointers.md#raii-for-memory-safety)
+  - [STL classes use RAII](lectures/memory_and_smart_pointers.md#stl-classes-use-raii)
+  - [Smart pointers to the rescue!](lectures/memory_and_smart_pointers.md#smart-pointers-to-the-rescue)
+    - [`std::unique_ptr`](lectures/memory_and_smart_pointers.md#stdunique_ptr)
+    - [`std::shared_ptr`](lectures/memory_and_smart_pointers.md#stdshared_ptr)
+      - [Prefer `std::unique_ptr`](lectures/memory_and_smart_pointers.md#prefer-stdunique_ptr)
+  - [Smart pointers are polymorphic](lectures/memory_and_smart_pointers.md#smart-pointers-are-polymorphic)
+- [Summary](lectures/memory_and_smart_pointers.md#summary)
+
+
+----------------------------------------------------------
+</details>
+
 ## PS
 
 ### Most of the code snippets are validated automatically
