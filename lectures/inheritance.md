@@ -917,6 +917,9 @@ $PLACEHOLDER
 #include <iostream>
 #include <vector>
 
+// Can be any custom type
+using Color = int;
+
 struct Noncopyable {
   Noncopyable() = default;
   Noncopyable(const Noncopyable&) = delete;
@@ -938,8 +941,8 @@ struct JpegIo final : public IoInterface {
     std::cout << "Reading JPEG from path: " << path << std::endl;
     return {};
   }
-  virtual void Write(const std::filesystem::path& path,
-                     const std::vector<Color>& data) const override {
+  void Write(const std::filesystem::path& path,
+             const std::vector<Color>& data) const override {
     std::cout << "Writing JPEG to path: " << path << std::endl;
   }
 };
@@ -949,8 +952,8 @@ struct PngIo final : public IoInterface {
     std::cout << "Reading PNG from path: " << path << std::endl;
     return {};
   }
-  virtual void Write(const std::filesystem::path& path,
-                     const std::vector<Color>& data) const override {
+  void Write(const std::filesystem::path& path,
+             const std::vector<Color>& data) const override {
     std::cout << "Writing PNG to path: " << path << std::endl;
   }
 };
