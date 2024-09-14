@@ -109,18 +109,19 @@ This way of dealing with allocating and freeing variables is amazing for local d
 ### Why not keep persistent data on the stack
 Many things change the moment we want to allocate bigger chunk of data at once or for our data to persist beyond the end of the scope. Pause for a moment and think if we can keep such data on the stack too! ⏱️
 
-In the case of bigger chunk of data the answer is obvious: once the data stops fitting into the stack, we can't allocate it. If we try to allocate progressively more data in a loop, the program will terminate with `SIGSEGV`, which means that we tried accessing memory that is not allowed for us to access when trying to allocate beyond 8MB of data:
+In the case of bigger chunk of data the answer is obvious: once the data stops fitting into the stack, we can't allocate it. If we try to allocate progressively more data, the program will terminate with `SIGSEGV`, which means that we tried accessing memory that is not allowed for us to access when trying to allocate beyond 8MB of data:
 ```cpp
 #include <iostream>
+#include <array>
+#include <cstddef>
+
+namespace {
+constexpr inline std::size_t kMegabyte{1'000'000};
+};
 
 int main() {
-  const int megabyte{1'000'000};
-  int i{};
-  while(true) {
-    // 😱 Don't use C-style arrays in real code!
-    std::byte numbers[i++ * megabyte];
-    std::cerr << "Allocating " << i << " * MB\n";
-  }
+  // ❌ Will terminate with a segfault.
+  std::array<std::byte, 9 * kMegabyte> array{};
   return 0;
 }
 ```
@@ -510,8 +511,8 @@ struct Derived : public Base {
 };
 
 int main() {
-  auto ptr_1 = std::unique_ptr<Base>(new Base{});
-  auto ptr_2 = std::unique_ptr<Base>(new Derived{});
+  const std::unique_ptr<Base> ptr_1 = std::make_unique<Base>();
+  const std::unique_ptr<Base> ptr_2 = std::make_unique<Derived>();
   ptr_1->SayHello();
   ptr_2->SayHello();
   return 0;
