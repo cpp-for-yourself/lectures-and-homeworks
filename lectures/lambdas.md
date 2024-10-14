@@ -17,7 +17,7 @@ Lambdas
 - [Summary](#summary)
 
 
-We've already covered so many topics in this course but there is one more thing that firmly belongs to modern C++ that we did not really touch upon - **lambdas**.
+We've already covered so many topics in this course but there is one more thing that firmly belongs to modern C++ that we did not really touch upon - [**lambdas**](https://en.cppreference.com/w/cpp/language/lambda).
 
 Here's one example for which they are useful. Imagine we have a list of people, represented as a struct `Person`, and we would like to sort them by age. We can try using the standard [`std::sort`](https://en.cppreference.com/w/cpp/algorithm/sort) function for that:
 <!--
@@ -268,6 +268,7 @@ Note that we can also drop the `&` in the `std::sort` call and the code will do 
 <!--
 `CPP_SETUP_START`
 #include <vector>
+#include <algorithm>
 bool less(int a, int b) { return a < b;}
 int main() {
   std::vector<int> people{1, 2, 3};
