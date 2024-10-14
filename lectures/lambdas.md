@@ -611,16 +611,100 @@ And, on that note, now that we've discussed most of the syntax we use for lambda
 
 
 ## When to use lambdas
-All in all, lambdas are neat and efficient. If we need a callable object to pass to some function and we don't think we'll ever want to reuse it, like in our example with sorting, lambdas should be out go-to tool.
+All in all, lambdas are neat and efficient. If we need a callable object to pass to some function and we don't think we'll ever want to reuse it, like in our example with sorting, lambdas should be our go-to tool.
 
-Alternatively, if we are implementing some functionality in a header file and find ourselves writing a bit of a longer function, lambdas are a useful way to split such function into meaningful chunks without introducing public-facing functions and not relying on comments that can easily go out of sync with the code functionality. So use them without fear in most situations.
-<!-- Add a meme with a guy not approving and then approving -->
+Another typical use-case for lambdas is in situations when we find ourselves writing a long function and we end up outlining each logical step we take by a comment. Just to illustrate this, let's have a look at a small example code for, say, creating a sandwich. This process takes a bunch of steps, we need to prepare the bread, prepare the ingredients, and finally assemble the sandwich:
+<!--
+`CPP_SETUP_START`
+#include <string>
+using Sandwich = std::string;
+$PLACEHOLDER
+int main() {
+  const auto sandwich = MakeGourmetSandwich();
+}
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` sandwich_no_lambdas/main.cpp
+`CPP_RUN_CMD` CWD:sandwich_no_lambdas c++ -std=c++17 main.cpp
+-->
+```cpp
+#include <iostream>
+#include <string>
 
-One thing to be weary of though, is capturing all variables by default. While it might be tempting to always capture all the observed variables by reference by providing the ampersand in the capture list `[&]`, in my experience it sometimes makes it harder to understand what the lambda really does when reading the code. So in most of my code, I prefer to capture only the variables I _really_ need as opposed to blanket-capturing them.
+// 😱 Comments tend to drift out of sync with code.
+Sandwich MakeGourmetSandwich() {
+    Sandwich sandwich{};
+
+    // Step 1: Prepare the bread
+    sandwich += "Choosing the finest sourdough...\n";
+    sandwich += "Lightly toasting it to perfection...\n";
+    sandwich += "Spreading a generous amount of garlic aioli...\n";
+
+    // Step 2: Prepare the ingredients
+    sandwich += "Grilling marinated chicken...\n";
+    sandwich += "Adding fresh arugula and juicy tomatoes...\n";
+    sandwich += "Topping it off with caramelized onions...\n";
+
+    // Step 3: Assemble the masterpiece
+    sandwich += "Assembling the sandwich with care...\n";
+    sandwich += "Adding a drizzle of truffle oil...\n";
+    sandwich += "Plating it elegantly...\n";
+
+    return sandwich;
+}
+```
+The main issue with comments is that if we change the implementation it is really easy to forget to update the corresponding comments! So comments tend to drift out of sync with the code. I much prefer putting each step into a separate lambda function instead:
+<!--
+`CPP_SETUP_START`
+#include <string>
+using Sandwich = std::string;
+$PLACEHOLDER
+int main() {
+  const auto sandwich = MakeGourmetSandwich();
+}
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` sandwich_with_lambdas/main.cpp
+`CPP_RUN_CMD` CWD:sandwich_with_lambdas c++ -std=c++17 main.cpp
+-->
+```cpp
+#include <iostream>
+#include <string>
+
+// ✅ Every step is encapsulated in a lambda.
+Sandwich MakeGourmetSandwich() {
+    Sandwich sandwich{};
+
+    const auto PrepareBread = [&sandwich]() {
+        sandwich += "Choosing the finest sourdough...\n";
+        sandwich += "Lightly toasting it to perfection...\n";
+        sandwich += "Spreading a generous amount of garlic aioli...\n";
+    };
+
+    const auto PrepareIngredients = [&sandwich]() {
+        sandwich += "Grilling marinated chicken...\n";
+        sandwich += "Adding fresh arugula and juicy tomatoes...\n";
+        sandwich += "Topping it off with caramelized onions...\n";
+    };
+
+    const auto PlateSandwich = [&sandwich]() {
+        sandwich += "Assembling the sandwich with care...\n";
+        sandwich += "Adding a drizzle of truffle oil...\n";
+        sandwich += "Plating it elegantly...\n";
+    };
+
+    PrepareBread();
+    PrepareIngredients();
+    PlateSandwich();
+
+    return sandwich;
+}
+```
+Now it is a bit harder to make a mistake and in my experience the situation in which the function name does not correspond to what is happening inside of it is much more often caught during code review then a comment that went out of sync. This trick is sometimes useful for header-only libraries as we cannot use functions in [unnamed namespaces](namespaces_using.md#use-unnamed-namespaces) there.
+
+One thing to be weary of though, is to try not to get used to capture *all* variables by default. While it might be tempting to always capture all the observed variables by reference using the ampersand in the capture list `[&]`, in my experience it sometimes makes it harder to understand what the lambda really does when reading the code. So in most of my code, I prefer to capture only the variables I _really_ need as opposed to blanket-capturing them.
 <!-- But I'm interested in what you guys think about it, so please comment below the video with your experience with this. -->
 
 ## Summary
-And this is pretty much most of the things we need to know about lambdas. But if you ever need more details on anything here, please refer to their [cppreference.com](https://en.cppreference.com/w/cpp/language/lambda) page, as always.
+And this is pretty much most of the things we need to know about lambdas. But if you ever need more details on anything here, please refer to their [cppreference.com](https://en.cppreference.com/w/cpp/language/lambda) page, as always. And, as always, please play around with the examples I provided here or write your own. I firmly believe that the best way to learn is to make our own mistakes!
 
 All in all, lambdas are a useful tool in our toolbox and we'll find that we want to use them quite often when writing modern C++ code. I hope that I could build parallels with what we have already learnt until now so that you can get all the use out of lambdas while not being scared of what they do under the hood.
 
