@@ -165,14 +165,14 @@ Compiler returned: 1
 </details>
 </br>
 
-This error message might be quite scary, but if we scroll all the way up, we will see that this error comes down to this line:
+This error message might be quite scary, but if we scroll all the way up, we will see that this error comes down to this line that states that there is no "less than" operator defined for the two `Person` objects:
 ```css
 error: no match for 'operator<' (operand types are 'Person' and 'Person')
 ```
 
-Indeed, by default `std::sort` will apply the operator `<` to the provided arguments and, unless we define such operator for our `Person` class, this operator does not exist.
+You see, by default `std::sort` will apply the operator `<` to the provided arguments and, unless we define such operator for our `Person` class, this operator does not exist.
 
-However, there is an overload of `std::sort` function that we can use! We can provide a **lambda expression** that compares two `Person` objects.
+However, there is another overload of `std::sort` function that we can use! We can provide a **lambda expression** that compares two `Person` objects.
 ```cpp
 #include <algorithm>
 #include <iostream>
@@ -201,7 +201,7 @@ int main() {
   Print(people, "> Sorted by age ascending:");
 }
 ```
-And now `std::sort` sorts our entries by age in ascending order.
+And now `std::sort` sorts our Tolkien characters by age in ascending order.
 ```
 > Before sorting:
 Gendalf 55000
@@ -226,12 +226,12 @@ int main() {
 <!-- Intro -->
 
 ## Overview
-My aim for today is to walk us through what lambdas are and the reasons they exist as well as roughly how they work under the hood. As this topic comes relatively late in our modern C++ course, we have the advantage of being able to understand how lambdas operate using a bunch of things we already know about, like functions, classes, and a bit of templates.
+My aim for today is to walk us through what lambdas are and the reasons they exist as well as roughly talk about how they work under the hood. As this topic comes relatively late in our modern C++ course, we have the advantage of being able to understand how lambdas operate using a bunch of things we already know about, like functions, classes, and a bit of templates.
 
 ## What is a "callable"
 As a first step, though, I'd like to briefly talk about what `std::sort` does to whatever third argument we pass into it. It, well, calls it with two `Person` objects as the input arguments. But what do we really mean, when we say that something gets "called"?
 
-Clearly, we can "call" a function, more or less by definition. By extension, we can claim that anything that we can call through an `operator()` with the expected number of arguments is also "callable". Which opens a whole new perspective on how to create these "callable" things.
+Clearly, we can "call" a function, more or less by definition. By extension, we can claim that anything that we can call through an `operator()` is also "callable". Which opens a whole new perspective on how to create these "callable" things.
 
 ## A function pointer is sometimes enough
 In most cases, simple is good enough. As we've just mentioned, the simplest "callable" is a function. In our example from before, we don't _really_ need to use a lambda. If we write a function `less` that takes two `Person` objects and pass its pointer to `std::sort` it will do the trick and the objects will get sorted:
@@ -281,15 +281,15 @@ int main() {
 ```cpp
 std::sort(people.begin(), people.end(), less);
 ```
-The reason for this is that [functions can be implicitly converted to function pointers](https://en.cppreference.com/w/cpp/language/implicit_conversion#Function-to-pointer_conversion), they are special in this way.
+The reason for this, if you are interested, is that [functions can be implicitly converted to function pointers](https://en.cppreference.com/w/cpp/language/implicit_conversion#Function-to-pointer_conversion), they are special in this way.
 <!-- You can always read more on this at cppreference.com following the link in the description to this video -->
 
 ## Before lambdas we had function objects (or functors)
-But what if we need to have a certain state stored in our "callable"? For example, we wouldn't want to sort our `Person` objects by their absolute age, but by the difference of their age with respect to some number, say `4242`.
+But what if we need to have a certain *state* stored in our "callable"? For example, what if we wouldn't want to sort our `Person` objects by their absolute age, but by the difference of their age with respect to some number, say `4242`?
 
-Behold [**function objects**](https://en.cppreference.com/w/cpp/utility/functional), or **functors**. These are objects for which the function call operator is defined, or, in other words, that define an `operator()`. So they are also "callable".
+Behold [**function objects**](https://en.cppreference.com/w/cpp/utility/functional), or sometimes also **functors**, although we should prefer the former name to avoid confusion. These are objects for which the function call operator is defined, or, in other words, that define an `operator()`. As they define this operator, they can be "called" and so they are also "callable".
 
-Which means that if we want to sort our array by the age difference to some number, we can create a class `ComparisonToQueryAge` that has a member `query_age_` and an `operator(const Person&, const Person&)` that compares the age differences of the two provided `Person` objects instead of directly their ages:
+Which means that if we want to sort our array by an age difference to some number, we can create a class `ComparisonToQueryAge` that has a member `query_age_` and an `operator(const Person&, const Person&)` that compares the age differences of the two provided `Person` objects instead of comparing their ages between each other:
 ```cpp
 #include <algorithm>
 #include <iostream>
@@ -328,16 +328,18 @@ int main() {
   Print(people, "> Sorted by age difference to 4242, ascending:");
 }
 ```
-Once we pass an object of this class as the callable into the `std::sort`, we can see that our Tolkien characters are sorted by their age difference to the number `4242`.
+Once we pass an object of this class as the callable into the `std::sort`, we can see that our Tolkien characters are now sorted by their age difference to the number `4242`.
 
 ## How to implement generic algorithms like `std::sort`
 So far so good. We already know a lot about classes so I hope that what we've just covered seems quite self-explanatory.
 
 Now I think it makes sense to look a bit deeper into how `std::sort` is implemented. How does it magically take anything that looks like a "callable" and just rolls with it?
 
-Please pause here for a moment and think how would **you** implement this! I promise you that if you followed the previous lectures, you should have all the tools at your disposal by now.
+Please pause here for a moment and think how would **you** implement this! I promise you that if you followed the previous lectures, especially those on templates, you should have all the tools at your disposal by now.
 
-The key is to think back to the lectures in which we covered [templates](templates_why.md)! We can hopefully all imagine that using templates would allow us to implement a function similar to `std::sort`:
+<!-- I'll go edit this video in the meantime :) -->
+
+The key is to think back to the lectures in which we covered [templates](templates_why.md)! We can hopefully all imagine that using templates would allow us to implement a function similar to `std::sort`, where the begin and end iterators as well as the comparator callable all have some template type that is guessed by the compiler at compile time:
 ```cpp
 #include <iostream>
 #include <string>
@@ -394,15 +396,15 @@ int main() {
   Print(people, "> Sorted by age ascending:");
 }
 ```
-Note though that our interest here is _not_ to implement a better sorting algorithm (so feel free to ignore the actual implementation) but to gain intuition about how we _could_ implement a generic algorithm that takes any comparator object that is "callable" with two `Person` objects. We don't have to write much code to achieve this too! And if we run this, we get the expected output.
+Note though that our interest here is _not_ to implement a better sorting algorithm (so feel free to ignore the actual implementation) but to gain intuition about how we _could_ implement a generic algorithm that takes any comparator object that is "callable" with two `Person` objects, be it a function pointer or a function object. We don't have to write much code to achieve this too! And if we run this, we get the expected output.
 
 Note also that from C++20 on this code would become more readable and safe as we could use concepts instead of raw templates.
 <!-- Please tell me in the comments if you would be interested in hearing more about that! -->
 
-Oh, one more thing, the story of course doesn't end with `std::sort`! There is a number of functions that take similar function objects. For some example, see [`std::find_if`](https://en.cppreference.com/w/cpp/algorithm/find#Version_3), [`std::for_each`](https://en.cppreference.com/w/cpp/algorithm/for_each), [`std::transform`](https://en.cppreference.com/w/cpp/algorithm/transform), and many more.
+Oh, one more thing, the story of course doesn't end with `std::sort`! There is a number of functions that take similar function objects. For some examples, see [`std::find_if`](https://en.cppreference.com/w/cpp/algorithm/find#Version_3), [`std::for_each`](https://en.cppreference.com/w/cpp/algorithm/for_each), [`std::transform`](https://en.cppreference.com/w/cpp/algorithm/transform), and many more.
 
 ## Enter lambdas
-However, it might not be convenient to always define a new struct, class, or even function for every single use case. Sometimes we want to use such a function object only locally, once, and don't want to deal with any additional boilerplate code.
+However, it might not be convenient to always define a new struct, class, or even a function for every single use case. Sometimes we want to use such a function object only locally, once, and don't want to expose it to the outside world, nor to deal with any additional boilerplate code.
 
 The strive to enable such convenience is what brought us the [**lambda expressions**](https://en.cppreference.com/w/cpp/language/lambda), or, colloquially, **lambdas**. They are really just syntactic sugar for defining our own function objects, just like the `ComparisonToQueryAge` class we talked about before.
 
@@ -456,7 +458,7 @@ They all have some **arguments** (that can be omitted should they not be needed)
 
 If we assign our lambda to a variable, we can store our lambda object and reuse it multiple times as we do for the `Print` lambda. And if you were wondering, the type of this lambda will be some unique unnamed type that the compiler will make up on its own.
 
-Now it is time we talk about the **capture list**. It is a new thing to us and is the syntax that we can easily recognize lambdas by.
+Now it is time we talk about the stuff inside the square brackets in each lambda definition - the **capture list**. It is a new thing to us and is the syntax that we can easily recognize lambdas by.
 
 The first two lambdas we use have an empty capture list, but the third one captures the `query_age` variable in it:
 <!--
@@ -526,7 +528,6 @@ const auto Lambda = [&one, two, &three] {
 ```
 Here, `one` and `three` will be captured by reference, while `two` is captured by copy.
 
-
 Alternatively, we can capture all variables visible at the moment of lambda definition. There are three distinct cases that are worth talking about here.
 
 If we want to capture all variables by copy, we can use `=` as the first capture. And if we want some variables to be captured by reference we can specify such variables further in the capture list.
@@ -556,7 +557,7 @@ const auto Lambda2 = [=, &two] {
 };
 ```
 
-Should we want to capture all variables by reference instead, we can pass a single ampersand `&` symbol instead. Alike to the previous setup, if we want _some_ variables to still be captured by copy, we can simply append them to the capture list.
+Should we want to capture all variables by reference instead, we can pass a single ampersand `&` symbol instead. Almost opposite to the previous setup, if we want _some_ variables to still be captured by copy, we can simply append them to the capture list.
 <!--
 `CPP_SETUP_START`
 #include <iostream>
@@ -607,13 +608,13 @@ int main() {
 ```
 Note, that just to show that this is possible, we call the lambda in-place right after declaring it.
 
-And, on that note, now that we've discussed most of the syntax we use for lambdas, we can see that `[](){}()` from the thumbnail of the video is just a definition of a lambda that has an empty capture list, no arguments, empty body, which is called in-place right after creation (doing nothing of course). This lambda is totally useless, apart from the entertainment it provides :wink:
+And, on that note, now that we've discussed most of the syntax we use for lambdas, we can see that `[](){}()` from the start of this video is just a definition of a lambda that has an empty capture list, no arguments, empty body, which is called in-place right after creation (doing nothing of course). This lambda is totally useless, apart from the entertainment it provides :wink:
 
 
 ## When to use lambdas
 All in all, lambdas are neat and efficient. If we need a callable object to pass to some function and we don't think we'll ever want to reuse it, like in our example with sorting, lambdas should be our go-to tool.
 
-Another typical use-case for lambdas is in situations when we find ourselves writing a long function and we end up outlining each logical step we take by a comment. Just to illustrate this, let's have a look at a small example code for, say, creating a sandwich. This process takes a bunch of steps, we need to prepare the bread, prepare the ingredients, and finally assemble the sandwich:
+Another typical use-case for lambdas is in situations when we find ourselves writing a long function and we end up outlining each logical step we take by a comment. I'm sure we've all seen code like this, but just to illustrate this, let's have a look at a small example code for, say, creating a sandwich. This process takes a bunch of steps, we need to prepare the bread, prepare the ingredients, and finally assemble the sandwich. Here we outline each step with a comment that corresponds to our actions.
 <!--
 `CPP_SETUP_START`
 #include <string>
@@ -652,7 +653,7 @@ Sandwich MakeGourmetSandwich() {
     return sandwich;
 }
 ```
-The main issue with comments is that if we change the implementation it is really easy to forget to update the corresponding comments! So comments tend to drift out of sync with the code. I much prefer putting each step into a separate lambda function instead:
+The main issue with comments is that if we change the implementation it is really easy to forget to update the corresponding comments! So comments tend to drift out of sync with the code. I much prefer putting each step into a separate lambda instead:
 <!--
 `CPP_SETUP_START`
 #include <string>
@@ -698,9 +699,9 @@ Sandwich MakeGourmetSandwich() {
     return sandwich;
 }
 ```
-Now it is a bit harder to make a mistake and in my experience the situation in which the function name does not correspond to what is happening inside of it is much more often caught during code review then a comment that went out of sync. This trick is sometimes useful for header-only libraries as we cannot use functions in [unnamed namespaces](namespaces_using.md#use-unnamed-namespaces) there.
+Now it is a bit harder to make a mistake and in my experience the situation in which the function name, lambda or not, does not correspond to what is happening inside of it is much more often caught during code review than a comment that went out of sync. This trick is sometimes useful for [header-only libraries](headers_and_libraries.md) as we cannot use functions in [unnamed namespaces](namespaces_using.md#use-unnamed-namespaces) there.
 
-One thing to be weary of though, is to try not to get used to capture *all* variables by default. While it might be tempting to always capture all the observed variables by reference using the ampersand in the capture list `[&]`, in my experience it sometimes makes it harder to understand what the lambda really does when reading the code. So in most of my code, I prefer to capture only the variables I _really_ need as opposed to blanket-capturing them.
+One thing to be weary of though, is to try not to get used to capturing *all* variables by default. While it might be tempting to always capture all the observed variables by reference using the ampersand in the capture list `[&]`, in my experience it sometimes makes it harder to understand what the lambda really does when reading the code. So in most of *my* code, I prefer to capture only the variables I _really_ need, as opposed to blanket-capturing all the visible ones.
 <!-- But I'm interested in what you guys think about it, so please comment below the video with your experience with this. -->
 
 ## Summary
@@ -708,4 +709,7 @@ And this is pretty much most of the things we need to know about lambdas. But if
 
 All in all, lambdas are a useful tool in our toolbox and we'll find that we want to use them quite often when writing modern C++ code. I hope that I could build parallels with what we have already learnt until now so that you can get all the use out of lambdas while not being scared of what they do under the hood.
 
-<!-- So thanks a lot for watching and I'll catch you in the next video, bye! -->
+<!--
+And if you'd like to refresh why we need templates, please click the video over here or maybe have another look at what kinds of libraries we can have here instead.
+
+Thanks a lot for watching and I'll catch you in the next video, bye! -->
