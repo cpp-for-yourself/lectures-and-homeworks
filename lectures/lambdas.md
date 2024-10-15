@@ -35,7 +35,7 @@ struct Person {
 
 int main() {
   std::vector<Person> people{
-      {"Gendalf", 55'000}, {"Frodo", 33}, {"Legolas", 2'931}, {"Gimli", 139}};
+      {"Gandalf", 55'000}, {"Frodo", 33}, {"Legolas", 2'931}, {"Gimli", 139}};
   // ❌ Won't compile, cannot compare Person objects.
   std::sort(people.begin(), people.end());
 }
@@ -193,7 +193,7 @@ void Print(const std::vector<Person>& persons, const std::string& tag) {
 
 int main() {
   std::vector<Person> people{
-      {"Gendalf", 55'000}, {"Frodo", 33}, {"Legolas", 2'931}, {"Gimli", 139}};
+      {"Gandalf", 55'000}, {"Frodo", 33}, {"Legolas", 2'931}, {"Gimli", 139}};
   Print(people, "> Before sorting:");
   std::sort(
       people.begin(), people.end(),
@@ -204,7 +204,7 @@ int main() {
 And now `std::sort` sorts our Tolkien characters by age in ascending order.
 ```
 > Before sorting:
-Gendalf 55000
+Gandalf 55000
 Frodo 33
 Legolas 2931
 Gimli 139
@@ -212,7 +212,7 @@ Gimli 139
 Frodo 33
 Gimli 139
 Legolas 2931
-Gendalf 55000
+Gandalf 55000
 ```
 
 So let's talk about what lambdas are, how to write them in such a way that they operate safely and efficiently and, yes, how they make **this** a valid piece of C++ code :wink:
@@ -257,7 +257,7 @@ bool less(const Person& p1, const Person& p2) { return p1.age < p2.age; }
 
 int main() {
   std::vector<Person> people{
-      {"Gendalf", 55'000}, {"Frodo", 33}, {"Legolas", 2'931}, {"Gimli", 139}};
+      {"Gandalf", 55'000}, {"Frodo", 33}, {"Legolas", 2'931}, {"Gimli", 139}};
   Print(people, "> Before sorting:");
   // 💡 We can also pass "less" without "&" here. Try it!
   std::sort(people.begin(), people.end(), &less);
@@ -322,7 +322,7 @@ class ComparisonToQueryAge {
 
 int main() {
   std::vector<Person> people{
-      {"Gendalf", 55'000}, {"Frodo", 33}, {"Legolas", 2'931}, {"Gimli", 139}};
+      {"Gandalf", 55'000}, {"Frodo", 33}, {"Legolas", 2'931}, {"Gimli", 139}};
   Print(people, "> Before sorting:");
   std::sort(people.begin(), people.end(), ComparisonToQueryAge{4242});
   Print(people, "> Sorted by age difference to 4242, ascending:");
@@ -386,7 +386,7 @@ void MySort(Iterator begin, Iterator end, Comparator comparator) {
 
 int main() {
   std::vector<Person> people{
-      {"Gendalf", 55'000}, {"Frodo", 33}, {"Legolas", 2'931}, {"Gimli", 139}};
+      {"Gandalf", 55'000}, {"Frodo", 33}, {"Legolas", 2'931}, {"Gimli", 139}};
   Print(people, "> Before sorting:");
   MySort(people.begin(), people.end(), less);
   Print(people, "> Sorted by age ascending:");
@@ -430,7 +430,7 @@ int main() {
   };
 
   std::vector<Person> people{
-      {"Gendalf", 55'000}, {"Frodo", 33}, {"Legolas", 2'931}, {"Gimli", 139}};
+      {"Gandalf", 55'000}, {"Frodo", 33}, {"Legolas", 2'931}, {"Gimli", 139}};
   Print(people, "> Before sorting:");
 
   std::sort(people.begin(), people.end(),
