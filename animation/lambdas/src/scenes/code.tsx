@@ -862,6 +862,15 @@ Sandwich MakeGourmetSandwich() {
   );
   yield* waitFor(duration);
 
+  const funny_lambda = `\
+[](){}();`
+  yield* all(
+    codeRef().code(funny_lambda, 0),
+    codeRef().fontSize(85, 0),
+    codeRef().x(-200, 0),
+  );
+  yield* waitFor(duration);
+
   yield* waitFor(duration);
 
 });
