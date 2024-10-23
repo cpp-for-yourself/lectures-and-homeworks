@@ -651,6 +651,26 @@ Headers with classes
 ----------------------------------------------------------
 </details>
 
+<details>
+<summary>Lambdas in modern C++</summary>
+
+----------------------------------------------------------
+[![Video thumbnail](https://img.youtube.com/vi/l0BgadhkUL8/maxresdefault.jpg)](https://youtu.be/l0BgadhkUL8)
+
+- [Lambdas](lectures/lambdas.md#lambdas)
+- [Overview](lectures/lambdas.md#overview)
+- [What is a "callable"](lectures/lambdas.md#what-is-a-callable)
+- [A function pointer is sometimes enough](lectures/lambdas.md#a-function-pointer-is-sometimes-enough)
+- [Before lambdas we had function objects (or functors)](lectures/lambdas.md#before-lambdas-we-had-function-objects-or-functors)
+- [How to implement generic algorithms like `std::sort`](lectures/lambdas.md#how-to-implement-generic-algorithms-like-stdsort)
+- [Enter lambdas](lectures/lambdas.md#enter-lambdas)
+- [Lambda syntax](lectures/lambdas.md#lambda-syntax)
+- [When to use lambdas](lectures/lambdas.md#when-to-use-lambdas)
+- [Summary](lectures/lambdas.md#summary)
+
+----------------------------------------------------------
+</details>
+
 ## PS
 
 ### Most of the code snippets are validated automatically
