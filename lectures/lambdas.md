@@ -2,7 +2,7 @@ Lambdas
 --
 
 <p align="center">
-  <a href="https://youtu.be/blah"><img src="https://img.youtube.com/vi/blah/maxresdefault.jpg" alt="Video" align="right" width=50% style="margin: 0.5rem"></a>
+  <a href="https://youtu.be/l0BgadhkUL8"><img src="https://img.youtube.com/vi/l0BgadhkUL8/maxresdefault.jpg" alt="Video" align="right" width=50% style="margin: 0.5rem"></a>
 </p>
 
 - [Lambdas](#lambdas)
