@@ -151,7 +151,7 @@ struct ImageLoaderInterface: public NonCopyableNonMoveable {
   virtual ~ImageLoaderInterface() = default;
 };
 
-struct PngImageLoader : public ImageLoaderInterface {
+struct PngImageLoader final: public ImageLoaderInterface {
   std::optional<Image> LoadImage(const std::filesystem::path& path) const override {
     std::cout << "Loading PNG image." << std::endl;
     // Irrelevant here logic for actually loading the image.
@@ -159,7 +159,7 @@ struct PngImageLoader : public ImageLoaderInterface {
   }
 };
 
-struct JpegImageLoader : public ImageLoaderInterface {
+struct JpegImageLoader final: public ImageLoaderInterface {
   std::optional<Image> LoadImage(const std::filesystem::path& path) const override {
     std::cout << "Loading JPEG image." << std::endl;
     // Irrelevant here logic for actually loading the image.
@@ -286,6 +286,8 @@ int main() {
   if (!image_blah) { fmt::println("Failed to load a BLAH image"); }
 }
 ```
+
+<!-- https://godbolt.org/z/M83dxK4aE -->
 
 ## We can use templates to achieve the same
 The method above uses dynamic polymorphism to achieve what it does. That means that the type conversion and selection of the run path is happening at runtime. One alternative way to address the same problem is to use static polymorphism instead by using templates.
