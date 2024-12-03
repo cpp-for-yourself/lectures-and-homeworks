@@ -6,75 +6,77 @@
   <a href="https://youtu.be/dummy_link"><img src="https://img.youtube.com/vi/dummy_link/maxresdefault.jpg" alt="Video Thumbnail" align="right" width=50% style="margin: 0.5rem"></a>
 </p>
 
-## **Introduction**
+When working with modern C++ (C++17 and beyond), we often need tools to handle optional values or represent data that can take one of several types. That’s where `std::optional` and `std::variant` come into play. Today, we’ll explore what these features are, why they’re useful, and how to use properly them.
 
-When working with modern C++ (C++17 and beyond), we often need tools to handle optional values or represent data that can take one of several types. That’s where `std::optional` and `std::variant` come into play. Today, we’ll explore what these features are, why they’re useful, and how you can leverage them in your projects.
+<!-- Intro -->
 
+## Why use `std::optional`?
+To understand why we need `std::optional` I believe its best to start with an example.
 
-## **What is `std::optional`?**
+Let's say we have a function `GetAnswerFromLlm` that, getting a question, is supposed to answer all of our questions using some large language model.
+```cpp
+#include <string>
 
-### Why use `std::optional`?
+std::string GetAnswerFromLlm(const std::string& question);
+```
 
-Imagine a function that searches for an item in a container. If the item is found, the function should return it. But what if it isn’t? Before C++17, you might have returned a special value (like `-1` for integers) or used a pointer, potentially introducing ambiguity or risking undefined behavior.
+In a normal case, this is a good-enough interface, we ask it things and get some answers. But what happens if something goes wrong within this function? What if it _cannot_ answer our question? What should it return so that we know that an error has occurred.
 
-`std::optional` solves this by explicitly representing the absence of a value. It's a type-safe mechanism that avoids the pitfalls of ad-hoc solutions.
+Largely speaking there are two school of thought here:
+- It can throw an **exceptions** to indicate that some error has happened
+- Or it can return a special value to indicate a failure
 
-### Examples of `std::optional` in action
+I will not talk too much about exceptions today, I will just mention that in many codebases, especially those that contain safety-critical code, exceptions are banned altogether due to the fact that there is, strictly speaking, no way to guarantee their runtime performance because of their dynamic implementation.
 
-#### A simple search function
+This prompted people to think our of the box to avoid using exceptions but still to know that something went wrong during the execution of their function.
 
-````cpp
+In the olden days (before C++17), people would return a special value from the function. For example, we could just return some pre-defined string, for example an empty one, should something have gone wrong. But what if we ask our LLM to actually return an empty string and it would fail to do so? What should it return then?
+
+This is where `std::optional` comes to the rescue. We can now return a `std::optional<std::string>` instead of just returning a `std::string`:
+```cpp
 #include <optional>
-#include <iostream>
-#include <vector>
+#include <string>
 
-std::optional<int> Find(const std::vector<int>& data, int value) {
-    for (int element : data) {
-        if (element == value) {
-            return element;  // Return the value if found
-        }
-    }
-    return std::nullopt;  // Explicitly indicate "no value"
-}
+std::optional<std::string> GetAnswerFromLlm(const std::string& question);
+```
+Now it is super clear when reading this function that it might fail because it only optionally returns a string.
 
-int main() {
-    std::vector<int> numbers = {1, 2, 3, 4, 5};
-    auto result = Find(numbers, 3);
+`llm.hpp`
+```cpp
+#include <optional>
+#include <string>
 
-    if (result) {  // Check if a value exists
-        std::cout << "Found: " << *result << '\n';
-    } else {
-        std::cout << "Not found.\n";
-    }
-}
-````
-In this example, `std::optional<int>` clearly communicates that the function may or may not return a value.
+std::optional<std::string> GetAnswerFromLlm(const std::string& question);
+```
 
-#### A factory function
+So let's see how we could work with such a function! For this we'll call it a couple of times with various prompts and process the results that we're getting:
 
-````cpp
-std::optional<std::string> CreateString(bool should_create) {
-    if (should_create) {
-        return "Hello, World!";
-    }
-    return std::nullopt;
-}
+`main.cpp`
+```cpp
+#include "llm.hpp"
 
 int main() {
-    auto maybe_string = CreateString(true);
-
-    if (maybe_string) {
-        std::cout << *maybe_string << '\n';
-    } else {
-        std::cout << "No string created.\n";
-    }
+  const auto suggestion = GetAnswerFromLlm(
+    "In one word, what should I do with my life?");
+  if (!suggestion) return 1;
+  const auto further_suggestion = GetAnswerFromLlm(
+    std::string{"In one word, what should I do after doing this: "} + suggestion.value());
+  if (!further_suggestion.has_value()) return 1;
+  std::cout <<
+    "The LLM told me to " << *suggestion <<
+    ", and then to " << *further_suggestion << std::endl;
+  return 0;
 }
-````
----
+```
+In general, `std::optional` provides an interface in which we are able to:
+- Check if it holds a value by calling its `has_value()` method or implicitly converting it to `bool`
+- Get the stored value by calling `value()` or using a dereferencing operator `*`. Beware, though that getting a value of an optional that holds no value is undefined behavior, so _always check_ that there is actually a value stored in an optional.
 
-## **What is `std::variant`?**
+There are many use-cases for `optional` in situations where we want to be able to handle a case where a value might exist but also might be missing under certain circumstances.
 
-### Why use `std::variant`?
+<!-- TODO: talk about how it is implemented through variant and maybe std expected, also get_value_or -->
+
+## Why use `std::variant`?
 
 `std::variant` is a type-safe union introduced in C++17. It allows a variable to hold one value out of a defined set of types. Think of it as a more flexible alternative to `enum` or `std::any`, but with static type checking.
 
