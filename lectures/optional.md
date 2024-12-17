@@ -1,20 +1,29 @@
 
-**`std::optional` and `std::expected` in Modern C++**
+**`std::optional` and `std::expected`**
 --
 
 <p align="center">
   <a href="https://youtu.be/dummy_link"><img src="https://img.youtube.com/vi/dummy_link/maxresdefault.jpg" alt="Video Thumbnail" align="right" width=50% style="margin: 0.5rem"></a>
 </p>
 
-When working with modern C++, we often need tools to handle optional values. These are useful in many situations, like when returning from a function that might fail during execution. Since C++17 we have a class `std::optional` that can be used in such situations. And since C++23 we're also getting `std::expected`. So let's chat about what these types are, when to use them and what to remember when using them.
+- [**`std::optional` and `std::expected`**](#stdoptional-and-stdexpected)
+- [Use `std::optional` to represent optional class fields](#use-stdoptional-to-represent-optional-class-fields)
+- [Use `std::optional` to return from functions that might fail](#use-stdoptional-to-return-from-functions-that-might-fail)
+  - [Why not throw an exception](#why-not-throw-an-exception)
+  - [Avoid the hidden error path](#avoid-the-hidden-error-path)
+- [How to work with `std::optional`](#how-to-work-with-stdoptional)
+- [Use `std::expected` to tell why a function failed](#use-stdexpected-to-tell-why-a-function-failed)
+- [How are they implemented and their performance implications](#how-are-they-implemented-and-their-performance-implications)
+- [Summary](#summary)
+
+
+When working with modern C++, we often need tools to handle optional values. These are useful in many situations, like when returning from a function that might fail during execution. Since C++17 we have a class `std::optional` that can be used in such situations. And since C++23 we're also getting `std::expected`. So let's chat about what these types are, when to use them and what to remember when using them to make sure we're not sacrificing any performance.
 
 <!-- Intro -->
 
-
 ## Use `std::optional` to represent optional class fields
-For example, imagine that we want to implement a game character and we have some items that they can hold in either hand.
+As a a first tiny example, imagine that we want to implement a game character and we have some items that they can hold in either hand (we'll for now assume that the items are of the same pre-defined type for simplicity but could of course extend this example with a class template):
 ```cpp
-template<class Item>
 struct Character {
   Item left_hand_item;
   Item right_hand_item;
@@ -23,10 +32,21 @@ struct Character {
 
 The character, however, might hold nothing in their hands too, so how do we model this?
 
+As a naïve solution, we could of course just add two additional boolean values `has_item_in_left_hand` and `has_item_in_right_hand` respectively:
+```cpp
+struct Character {
+  Item left_hand_item;
+  Item right_hand_item;
+  // 😱 Not a great solution, we need to keep these in sync!
+  bool has_item_in_left_hand;
+  bool has_item_in_right_hand;
+};
+```
+This is not a great solution as we would then need to keep these variables in sync and I, for one, do not trust myself with such an important task, especially if I can avoid it. So, speaking of avoiding this, can we somehow bake this information into the stored item types directly?
+
 We _could_ just replace the items with pointers and if there is a `nullptr` stored in either of those it would mean that the character holds no item in the corresponding hand. But this has certain drawbacks as it changes the semantics of these variables.
 ```cpp
 // 😱 Who owns the items?
-template<class Item>
 struct Character {
   Item* left_hand_item;
   Item* right_hand_item;
@@ -39,7 +59,6 @@ This is not great. The simple decision of allowing the character to have no obje
 
 One way to avoid this issue is to store a `std::optional<Item>` in each hand of the character instead:
 ```cpp
-template<class Item>
 struct Character {
   std::optional<Item> left_hand_item;
   std::optional<Item> right_hand_item;
@@ -230,13 +249,13 @@ As you might have already guessed, both `std::optional` and `std::variant` are c
 
 That being said, they might not be completely for free which leads us to our second performance consideration: **if we have a very tight loop that does not use `optional` or `expected` values, we must measure the runtime of your code if we introduce those and make sure that performance is still satisfied**.
 
-Finally, there are some quirks of the compilers and how they work around optimizing the return values from the functions. If we create objects that we aim to return in a wrong way, the compiler might generate unnecessary moves or copies of the objects. Here is how to return our objects:
+Finally, there are some quirks around how the compilers are able to optimize the code when a function returns `optional` or `expected` values. If we create objects that we aim to return in a wrong way, the compiler might generate unnecessary moves or copies of the objects. Here is how to return our objects to avoid this:
 <!-- TODO: example from Jason's video -->
 For more please see a [short and clear video by Jason Turner](https://www.youtube.com/watch?v=0yJk5yfdih0) that covers this topic.
 
 ## Summary
-Overall, classes like `std::optional` and `std::expected` are extremely useful to represent values that optionally hold a value. Sometimes it is enough for us to know that the value simply might not exist, that's where `std::optional` shines but sometimes we would also like to know **why** the value does not exist and that's why `std::expected` has been added.
+Overall, classes like `std::optional` and `std::expected` are extremely useful to represent values that optionally hold a value. Sometimes it is enough for us to know that the value simply might not be there, without caring for a reason behind this, that's where `std::optional` shines. But sometimes, especially when returning from functions, we would also like to know **why** the value does not exist and that's what `std::expected` has been added for in C++23. Oh, and if you'd like to use something like `std::expected` before C++23, take a peek at `tl::expected`, I've gotten some good mileage out of it over the years.
 
-These classes are super useful - they make the code readable, maintain value semantics which is used quite often when coding in modern C++ and keep the code very performant.
+These classes are very useful - they make the intent behind our code crystal-clear. They also allow us to keep the code readable and performant.
 
-<!-- I hope that this video was a useful overview on why and how to use std::optional and std::expected and next time we're about to have a look at `std::variant` to also have a look at how these can be implemented. -->
+<!-- I hope that this video was a useful overview on why and how to use std::optional and std::expected and next time we're about to have a look at `std::variant` - a class that is implemented in a very similar way but is even more powerful and unlocks runtime-like polymorphism in a typically static polymorphism context. -->
