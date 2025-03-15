@@ -1,10 +1,11 @@
-# Lectures and homeworks
+# Lectures and projects for the [C++ for yourself](https://youtube.com/playlist?list=PLwhKb0RIaIS1sJkejUmWj-0lk7v_xgCuT) course
 
 ![GitHub Sponsors](https://img.shields.io/github/sponsors/niosus?style=for-the-badge)
 ![Build status](https://img.shields.io/github/actions/workflow/status/cpp-for-yourself/supplementary-materials/action.yml?branch=main&label=Link%20and%20code%20validation&style=for-the-badge)
+[![YouTube Channel Views](https://img.shields.io/youtube/channel/views/UCRm39hwBxsX-8yj2xs3OJjQ?style=for-the-badge&label=YouTube%20views)](https://www.youtube.com/code-for-yourself)
 ![Visitors](https://api.visitorbadge.io/api/visitors?path=code-for-yourself%2Fcode-for-yourself&labelColor=%23697689&countColor=%23263759)
 
-This is a list of lectures from the [C++ for yourself](https://youtube.com/playlist?list=PLwhKb0RIaIS1sJkejUmWj-0lk7v_xgCuT) course.
+This repository is a collection of Markdown scripts used for all the videos in the [C++ for yourself](https://youtube.com/playlist?list=PLwhKb0RIaIS1sJkejUmWj-0lk7v_xgCuT) course. These can be used to follow-along the video or as a standalone learning material.
 
 ## 🙏 Support this work
 
