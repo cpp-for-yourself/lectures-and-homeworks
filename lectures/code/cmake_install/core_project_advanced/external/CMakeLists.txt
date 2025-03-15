@@ -1,0 +1,7 @@
+CPMAddPackage(
+  NAME fmt
+  GIT_TAG 11.0.2
+  GITHUB_REPOSITORY fmtlib/fmt
+  OPTIONS
+    "FMT_INSTALL ON"
+)
