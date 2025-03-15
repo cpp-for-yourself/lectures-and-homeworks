@@ -4,17 +4,25 @@
 ![Build status](https://img.shields.io/github/actions/workflow/status/cpp-for-yourself/supplementary-materials/action.yml?branch=main&label=Link%20and%20code%20validation&style=for-the-badge)
 ![Visitors](https://api.visitorbadge.io/api/visitors?path=code-for-yourself%2Fcode-for-yourself&labelColor=%23697689&countColor=%23263759)
 
-
 This is a list of lectures from the [C++ for yourself](https://youtube.com/playlist?list=PLwhKb0RIaIS1sJkejUmWj-0lk7v_xgCuT) course.
 
-## How to follow this course
+## 🙏 Support this work
+
+Please remember that there is a human behind all of this work. I write scripts, create animations, record and edit videos at night after a full-time work day. It is at times hard. But _you_ can make it easier. Here is what you can do:
+
+- If you think this work is worth anything -- become a [**sponsor here on GitHub**](https://github.com/sponsors/niosus).
+- If you can't support this work through sponsorship -- like my videos, leave comments on YouTube and help me **spread the word**.
+- If you don't like what you see -- **engage in a discussion** with me about it. I am always eager to improve.
+
+## :bulb: How to follow this course
+
 The course is designed to be consumed from top to bottom, so start at the beginning and you will always have enough knowledge for the next video.
 
 That being said, I aim to leave links in the videos so that one could watch them out of order without much hassle.
 
 Enjoy! 😎
 
-## C++ for yourself
+## 📕 C++ for yourself lectures
 
 <details>
 <summary>
