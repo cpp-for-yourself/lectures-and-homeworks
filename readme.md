@@ -1,7 +1,9 @@
 # Lectures and homeworks
 
+![GitHub Sponsors](https://img.shields.io/github/sponsors/niosus?style=for-the-badge)
 ![Build status](https://img.shields.io/github/actions/workflow/status/cpp-for-yourself/supplementary-materials/action.yml?branch=main&label=Link%20and%20code%20validation&style=for-the-badge)
 ![Visitors](https://api.visitorbadge.io/api/visitors?path=code-for-yourself%2Fcode-for-yourself&labelColor=%23697689&countColor=%23263759)
+
 
 This is a list of lectures from the [C++ for yourself](https://youtube.com/playlist?list=PLwhKb0RIaIS1sJkejUmWj-0lk7v_xgCuT) course.
 
@@ -33,7 +35,7 @@ Hello world program dissection
 </details>
 
 <details>
-<summary><code>Homework</code>: hello world program</summary>
+<summary><code>Project</code>: hello world program</summary>
 
 ----------------------------------------------------------
 [Homework script](homeworks/homework_1/homework.md)
@@ -117,7 +119,7 @@ Associative containers
 </details>
 
 <details>
-<summary><code>Homework</code>: fortune teller program</summary>
+<summary><code>Project</code>: fortune teller program</summary>
 
 ----------------------------------------------------------
 [Homework script](homeworks/homework_2/homework.md)
@@ -157,7 +159,7 @@ Random number generation
 </details>
 
 <details>
-<summary><code>Homework</code>: the guessing game</summary>
+<summary><code>Project</code>: the guessing game</summary>
 
 ----------------------------------------------------------
 [![Video thumbnail](https://img.youtube.com/vi/TYs_xwihCNc/maxresdefault.jpg)](https://youtu.be/TYs_xwihCNc)
@@ -284,7 +286,7 @@ Using GoogleTest framework for testing code
 </details>
 
 <details>
-<summary><code>Homework</code>: string processing library</summary>
+<summary><code>Project</code>: string processing library</summary>
 
 ----------------------------------------------------------
 [![Video thumbnail](https://img.youtube.com/vi/f0x2qcFgu5o/maxresdefault.jpg)](https://youtu.be/f0x2qcFgu5o)
@@ -418,7 +420,7 @@ Headers with classes
 </details>
 
 <details>
-<summary><code>Homework</code>: pixelate images in terminal</summary>
+<summary><code>Project</code>: pixelate images in terminal</summary>
 
 ----------------------------------------------------------
 [![Video thumbnail](https://img.youtube.com/vi/Cj3x51iJdvM/maxresdefault.jpg)](https://youtu.be/Cj3x51iJdvM)
