@@ -1,0 +1,14 @@
+aliveStatusCodes:
+  - 200
+  - 206
+  - 403
+
+ignorePatterns:
+  - pattern: "^https://bazel.build"
+  - pattern: "^https://makefiletutorial.com"
+
+modifiedFilesOnly: true
+
+replacementPatterns:
+  - pattern: "(https://youtu.be/blah)"
+    replacement: 'https://www.google.com/404'
