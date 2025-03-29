@@ -2,17 +2,17 @@
 
 <img alt="Icon" align="right" width=150 src="https://github.com/user-attachments/assets/2f72be25-d8b5-4bc8-ade5-c7167ac41324">
 
-![GitHub Sponsors](https://img.shields.io/github/sponsors/niosus?style=for-the-badge)
 ![Build status](https://img.shields.io/github/actions/workflow/status/cpp-for-yourself/supplementary-materials/action.yml?branch=main&label=Link%20and%20code%20validation&style=for-the-badge)
 [![YouTube Channel Views](https://img.shields.io/youtube/channel/views/UCRm39hwBxsX-8yj2xs3OJjQ?style=for-the-badge&label=YouTube%20views)](https://www.youtube.com/code-for-yourself)
 ![Visitors](https://api.visitorbadge.io/api/visitors?path=code-for-yourself%2Fcode-for-yourself&labelColor=%23697689&countColor=%23263759)
 
+This repository is a collection of Markdown scripts used for all the videos in the [C++ for yourself](https://youtube.com/playlist?list=PLwhKb0RIaIS1sJkejUmWj-0lk7v_xgCuT) course. 
 
-
-This repository is a collection of Markdown scripts used for all the videos in the [C++ for yourself](https://youtube.com/playlist?list=PLwhKb0RIaIS1sJkejUmWj-0lk7v_xgCuT) course. These can be used to follow-along the video or as a standalone learning material.
+These can be used to follow-along the video or as a standalone learning material.
 
 ## 🙏 Support this work
 
+[![GitHub Sponsors](https://img.shields.io/github/sponsors/niosus?style=for-the-badge&logo=github&label=Sponsor%20on%20github)](https://github.com/sponsors/niosus)
 [![Audible trial](https://img.shields.io/badge/Audible_free_trial-orange?style=for-the-badge&logo=audible&logoColor=white&logoSize=auto&link=https%3A%2F%2Fwww.audibletrial.com%2FCodeForYourself)](https://www.audibletrial.com/CodeForYourself)
 
 Please remember that there is a human behind all of this work. I write scripts, create animations, record and edit videos at night after a full-time work day. It is at times hard. 
