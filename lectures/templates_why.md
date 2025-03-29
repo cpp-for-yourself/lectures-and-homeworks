@@ -2,7 +2,7 @@ Why use templates?
 ---
 
 <p align="center">
-  <a href="https://youtu.be/blah"><img src="https://img.youtube.com/vi/1Mrt1NM3KnI/maxresdefault.jpg" alt="Video" align="right" width=50% style="margin: 0.5rem"></a>
+  <a href="https://youtu.be/blah"><img src="https://img.youtube.com/vi/blah/maxresdefault.jpg" alt="Video" align="right" width=50% style="margin: 0.5rem"></a>
 </p>
 
 - [Why use templates?](#why-use-templates)
@@ -14,6 +14,7 @@ Why use templates?
 - [Compile-time meta-programming](#compile-time-meta-programming)
 - [Summary](#summary)
 
+<a href="https://blah/blah"></a>
 
 [Templates](https://en.cppreference.com/w/cpp/language/templates) are definitely one of the features that make C++ so popular and powerful. They provide an extremely versatile mechanism to write truly generic code and allow building meaningful abstractions only paying for these benefits with some compilation time and little to no run time!
 

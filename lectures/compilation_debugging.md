@@ -35,7 +35,7 @@ Style (🎨) and software design (🎓) recommendations mostly come from [Google
   ```cmd
   c++ -std=c++17 -o test test.cpp
   ```
-- ✅ Enable **most** [warnings](https://gcc.gnu.org/onlinedocs/gcc/gcc-command-options/options-to-request-or-suppress-warnings.html#cmdoption-Wall), treat them as errors:
+- ✅ Enable **most** [warnings](https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wall), treat them as errors:
   `-Wall`, `-Wextra`, `-Wpedantic`, `-Werror`
 - Other warnings possible too:
   `-Wimplicit-fallthrough`, `-Wsign-conversion`, etc.
