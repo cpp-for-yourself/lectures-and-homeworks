@@ -14,6 +14,8 @@ These can be used to follow-along the video or as a standalone learning material
 
 [![GitHub Sponsors](https://img.shields.io/github/sponsors/niosus?style=for-the-badge&logo=github&label=Sponsor%20on%20github)](https://github.com/sponsors/niosus)
 [![Audible trial](https://img.shields.io/badge/Audible_free_trial-orange?style=for-the-badge&logo=audible&logoColor=white&logoSize=auto&link=https%3A%2F%2Fwww.audibletrial.com%2FCodeForYourself)](https://www.audibletrial.com/CodeForYourself)
+[![Amazon affiliate links](https://img.shields.io/badge/amazon_affiliate_links-orange?style=for-the-badge&logo=amazon&logoColor=white&logoSize=auto&color=black)](https://github.com/cpp-for-yourself/sponsor/blob/main/amazon.md)
+
 
 Please remember that there is a human behind all of this work. I write scripts, create animations, record and edit videos at night after a full-time work day. It is at times hard. 
 But _you_ can make it easier. Here is what you can do:
