@@ -22,11 +22,11 @@
 - [How to use the installed package](#how-to-use-the-installed-package)
 - [Summary](#summary)
 
-We talked about [CMake](cmake.md) before, why we use it, what it is and how to create various libraries and binaries using it. However, until now we targeted the development of a single project. If we want to develop multiple interdependent projects or make our CMake project reusable by others what we know so far is not enough.
+We talked about [CMake](cmake.md) before, why we use it, what it is and how to configure it to build various libraries and binaries. However, until now we targeted the development of a single project. If we want to develop multiple interdependent projects or make our CMake project reusable by others what we know so far is not enough.
 
 One way of doing this within the CMake world is to `install` a project and find it using the `find_package` command from another CMake project.
 
-As an example, some `dependent_project` might have an executable `print_hello` that uses a library from another `core_project`:
+As an example, some `dependent_project` might have an executable `print_hello`, implemented in a `print_hello.cpp` file that uses a library from another `core_project` by including its header and calling a function `core_project::PrintHello()` from it:
 
 `dependent_project/print_hello.cpp`
 
@@ -77,7 +77,7 @@ target_link_libraries(print_hello PRIVATE core_project::some_library)
 After the `find_package` is called, the `print_hello` executable can use the functionality from `some_library` which is part of the `core_project`.
 
 <!-- org: use travolta animation -->
-Note how we do not create the `some_library` before linking it to our new executable `print_hello` as it gets exported from the previously-installed `core_project` and the project builds when we call the commands very similar to those [we already know](cmake.md#build-generation-with-cmake), given that the `core_package` was installed before-wise into the `/tmp/install` folder:
+Note how we do not explicitly create the `some_library` before linking it to our new executable `print_hello` as it gets exported from the previously-installed `core_project` when we call the `find_package` command. The `dependent_project` builds when we call the commands very similar to those [we already know](cmake.md#build-generation-with-cmake), with a tiny addition of providing CMake with a `CMAKE_PREFIX_PATH` variable that points to the `/tmp/install` folder where, in this example, we chose to install the `core_project`:
 
 ```cmd
 # Note that -B flag requires at least CMake version 3.13
@@ -115,7 +115,7 @@ With that out of the way, we can start our deep dive by understanding what the `
 
 It is logical that in order to use the `core_project::some_library` target `find_package` must somehow provide us with it. What this really means is that the `find_package` command must somehow `include` all the CMake code that creates the needed `core_project::some_library` target as well as sets the required compiler and linker flags for it.
 
-For now let us assume that `core_project` has been installed into `/tmp/install` folder before and try to understand all of the steps that `find_package` takes to allow us to use the `core_project`'s targets. We'll get to *how* it was installed there in the second half of this tutorial.
+For now let us assume that `core_project` has already been installed into `/tmp/install` folder and try to understand all of the steps that `find_package` takes to allow us to use the `core_project`'s targets. We'll get to *how* it was installed there in the second half of this tutorial.
 
 ### Search modes
 
@@ -138,7 +138,7 @@ find_package(core_project CONFIG REQUIRED)
 
 <!-- org: show drake meme -->
 
-> 🚨 We must note that the default CMake behavior is a bit confusing here. You see, while **module mode** is the default one, in modern CMake we want to use **config mode** most of the time.
+> 🚨 We must note that while **module mode** is the default one, in modern CMake we want to use **config mode** most of the time.
 
 #### Config mode
 
@@ -154,7 +154,7 @@ So in today's tutorial, I'm going to focus exclusively on the **config mode** as
 
 Now that we know which files `find_package` looks for and where it looks for them, we can take a peek inside these files.
 
-As we've mentioned before, because we call `find_package(core_project)`, we expect to find a file `core_projectConfig.cmake` in a subfolder of the folder stored in the `CMAKE_PREFIX_PATH` CMake variable. In our case, as our `core_project` was installed into `/tmp/install` folder, we are able to find the file that matches our description in one of its subfolders: `/tmp/install/share/cmake/core_project/core_projectConfig.cmake`. This file is not very large, and its most important part is that it includes another `some_library_export.cmake` CMake file:
+As we've mentioned before, because we call `find_package(core_project)`, we expect to find a file `core_projectConfig.cmake` in a subfolder of the folder stored in the `CMAKE_PREFIX_PATH` CMake variable. In our case, as our `core_project` was installed into `/tmp/install` folder, we can inspect that folder to find the file that matches our description in one of its subfolders: `/tmp/install/share/cmake/core_project/core_projectConfig.cmake`. This file is not very large, and its most important part is that it includes another `some_library_export.cmake` CMake file:
 
 <!--
 `CPP_SKIP_SNIPPET`
@@ -165,7 +165,7 @@ include ( "${CMAKE_CURRENT_LIST_DIR}/some_library_export.cmake" )
 
 ### What are the export files?
 
-Looking around the same folder, we are also able to find this `some_library_export.cmake` file, which has a lot more auto-generated code in it. Today, we don't care about most of this code, and focus on the relevant parts only starting with the creation of an `IMPORTED` library:
+Looking around the same folder, we can easily find this `some_library_export.cmake` file, which has a lot more auto-generated code in it. Today, we don't care about most of this code, and focus on the relevant parts only, starting with the creation of an `IMPORTED` library:
 
 <!--
 `CPP_SKIP_SNIPPET`
@@ -210,10 +210,12 @@ set_target_properties(core_project::some_library PROPERTIES
 
 > ❓ Actually, I have a couple of questions to you here: ❓
 >
-> - Which library kind is `core_project::some_library`?
+> - Which [library kind](headers_and_libraries.md) is `core_project::some_library`?
 > - How do you think this code would change if the library would be a header-only one?
 
-The rest of the code in these files is not as relevant to us as it mostly performs some checks so that CMake is sure that all the necessary files are actually present on the system. Feel free to read into it when you get the time.
+<!-- Please write your answers below this video! And, while you're there, please do subscribe to my channel as only a third of you watching this are subscribed! -->
+
+The rest of the code in these files is not as relevant to us as it mostly performs some checks so that CMake is sure that all the necessary files are actually present on the system. But by all means, feel free to read into it when you have the time.
 
 So, you see, we've found the commands that create the targets as well as those that set their relevant properties.
 
@@ -233,13 +235,13 @@ graph TD
 
 So far so good. We now understand how a library within a `dependent_project` is able to use the library from the `core_project` after a `find_package` call. Now is a great time to figure out how these export files are actually created as well as how the header files and all the binary files land into the install folder in the first place.
 
-We'll actually follow the diagram that we've just introduced in reverse, starting at the bottom and making it all the way to its top.
+We'll actually follow the diagram that we've just introduced, but in reverse, starting at the bottom and making it all the way up to its top.
 
 ### Project skeleton for `core_project`
 
 Before we learn how to to install the project we will have to define it so that this example does not get too abstract. We've already done very similar things before, so feel free to refer to the [CMake](cmake.md) tutorial if we rush too fast over some details here.
 
-Let's start with the C++ code. For the sake of our example, our `some_library` library has a single function `PrintHello` that is declared in a header file:
+Let's start with the C++ code. For the sake of our example, our `some_library` has a single function `PrintHello` that is declared in a header file `some_library.hpp`:
 
 `core_project/core_project/some_library.hpp`:
 
@@ -259,7 +261,7 @@ void PrintHello();
 } // namespace core_project
 ```
 
-With the implementation of this function living in the corresponding source file:
+With the implementation of this function, that just prints "Hello, world!" to the terminal, living in the corresponding source file `some_library.cpp`:
 
 `core_project/core_project/some_library.cpp`
 
@@ -283,7 +285,26 @@ void PrintHello() {
 } // namespace core_project
 ```
 
-The CMake part of the `core_project` is pretty standard too - it declares a new project, chooses build type to be `Release` if the user did not provide one and delegates the target creation to other `CMakeLists.txt` files within the `core_project` and `examples` folders:
+And just to test that our library actually works, let's also add an example executable to `print_hello.cpp` file that includes `some_library.hpp` and calls it:
+
+`core_project/examples/print_hello.cpp`:
+
+<!--
+`CPP_SETUP_START`
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` core_project/examples/print_hello.cpp
+-->
+```cpp
+#include "core_project/some_library.hpp"
+
+int main() {
+  core_project::PrintHello();
+  return 0;
+}
+```
+
+The CMake part of the `core_project` is pretty standard too - it declares a new project, chooses build type to be `Release`, if the user did not provide one, and delegates the target creation to other `CMakeLists.txt` files within the `core_project` and `examples` folders:
 
 `core_project/CMakeLists.txt`:
 
@@ -312,7 +333,7 @@ add_subdirectory(examples)
 
 These other `CMakeLists.txt` files are, again, nothing special and we've seen their kind before.
 
-In the `core_project/CMakeLists.txt` we use a `LIBRARY_NAME` variable for convenience, create our library target, set its C++ standard to C++17, indicate to it and its descendants where to look for the includes, and, finally, create an alias for this library that is prefixed by the `${PROJECT_NAME}`. Strictly speaking, this alias is not required but it *is* a good practice to use the library in the same way from within the project as well as in other projects. We will see why a bit later.
+In the `core_project/CMakeLists.txt` we use a `LIBRARY_NAME` CMake variable for convenience, create our library target, set its C++ standard to C++17, indicate to it and its descendants where to look for the includes, and, finally, create an alias for this library that is prefixed by the `${PROJECT_NAME}`. Strictly speaking, this alias is not required but it *is* a good practice to use the library in the same way from within the project as well as in other projects. We will see why a bit later.
 
 `core_project/core_project/CMakeLists.txt`:
 
@@ -333,26 +354,7 @@ target_include_directories(${LIBRARY_NAME} PUBLIC
 add_library(${PROJECT_NAME}::${LIBRARY_NAME} ALIAS ${LIBRARY_NAME})
 ```
 
-And just to test that our library actually works, let's also add an executable `print_hello` that includes `some_library.hpp` and calls it:
-
-`core_project/examples/print_hello.cpp`:
-
-<!--
-`CPP_SETUP_START`
-$PLACEHOLDER
-`CPP_SETUP_END`
-`CPP_COPY_SNIPPET` core_project/examples/print_hello.cpp
--->
-```cpp
-#include "core_project/some_library.hpp"
-
-int main() {
-  core_project::PrintHello();
-  return 0;
-}
-```
-
-Which we of course also need to mention in the `examples/CMakeLists.txt`, linking this `print_hello` executable to the `core_project::some_library` target:
+As for the `examples/CMakeLists.txt`, it creates an executable `print_hello` and links it to the `core_project::some_library` target:
 
 `core_project/examples/CMakeLists.txt`:
 
@@ -383,7 +385,7 @@ Once it builds, we can run the example binaries without any issues:
 Hello world!
 ```
 
-So far so good. But we are still unable to use this library from our `dependent_project` aren't we? All of the special `export` and `Config` files are missing!
+But we are still unable to use this library from our `dependent_project` aren't we? All of the special `export` and `Config` files are missing!
 
 > :bulb: We say that we **install** a CMake package when we make CMake create the config and export files as well as copy all the headers and binaries into the needed folders where they can be found by other projects.
 
@@ -391,7 +393,14 @@ And for now our `core_project` does not know how to **install** itself!
 
 ### Installing a package
 
-The installation of a CMake package starts by calling an `install` command after configuring and building the project:
+This installation process usually involves a couple of steps. It must:
+
+1. Copy all the needed headers into some `include` folder
+2. Copy all of the binary libraries into a `lib` folder and all executables into a `bin` folder (typically)
+3. Create the appropriate `*_export.cmake` files that create and configure the imported libraries
+4. Create the `*Config.cmake` file that includes all of the needed export files
+
+And there is a special CMake command that we can call to kick-off all of these steps: `cmake --install`, which also gets an optional `--prefix` flag that sets the folder into which this package will be installed. We call this command after configuring and building the project:
 
 ```bash
 # Note that --install flag was introduced in CMake version 3.15
@@ -400,14 +409,9 @@ cmake --build build -j 12                    # Build.
 cmake --install build --prefix /tmp/install  # Install.
 ```
 
-This installation process usually involves a couple of steps. It must:
+Here, we aim to install our package into some temporary install folder, but a more standard location, like `/use/local` can be used if the `--prefix` flag is omitted. Note that in such a case we have to call this command with `sudo` rights.
 
-1. Copy all the needed headers into some `include` folder
-2. Copy all of the binary libraries into a `lib` folder and all executables into a `bin` folder (typically)
-3. Create the appropriate `*_export.cmake` files that create and configure the imported libraries
-4. Create the config file that includes all of the needed `export` files
-
-However, if we try to "install" our package now, nothing happens!
+:bulb: However, if we call the install command for our package now, nothing happens!
 
 To actually perform all of the actions we've just talked about we need to write some more CMake code. But fear not, there is a number of different built-in CMake `install` commands that help us in most of these steps.
 
@@ -432,7 +436,7 @@ install(
 )
 ```
 
-This finds all the `*.hpp` files in the folder specified under `DIRECTORY`, in our case `core_project/core_project` and copies that directory and all the matching files into the `include` folder, as the `DESTINATION` option specifies. If you also need to copy other header files, like `*.h` for example, you can always adapt the `FILES_MATCHING PATTERN`.
+This `install` command finds all the `*.hpp` files in the folder specified under `DIRECTORY`, in our case `core_project/core_project` and copies that directory and all the matching files into the `include` folder, as the `DESTINATION` option specifies. If you also need to copy other header files, like `*.h` for example, you can always adapt the `FILES_MATCHING PATTERN`.
 
 If we try installing our package after adding this CMake code to our project we'll be able to find the only header of our `core_project` installed into the expected location: `/tmp/install/include/core_project/some_library.hpp`:
 
@@ -449,7 +453,7 @@ cmake --install build --prefix /tmp/install  # Install.
         └── some_library.hpp
 ```
 
-We only have one header for now but I hope it is easy to imagine that we can do this for any number of headers and libraries. I prefer to add these install statements on a per-folder basis. This way we do not have to add too much code while keeping the folder structure intact. That being said, I've also seen people adding a single `install` statement to the top-most `CMakeLists.txt` file instead with minor modifications.
+We only have one header for now but I hope it is easy to imagine that we can do this for any number of headers and in any number of folders. I prefer to add these install statements on a per-folder basis. This way we do not have to add too much code while keeping the folder structure intact. That being said, I've also seen people adding a single similar `install` statement to the top-most `CMakeLists.txt` file of the project instead with minor modifications.
 
 #### 2. Copying binaries
 
@@ -517,7 +521,7 @@ But this command alone is not enough for us as it does not actually copy the cre
 
 <!-- TODO: add build and install trees -->
 
-So what remains is to copy this already generated file to the install folder, which we can do by using yet another `install` command that copies our export file to the `$/tmp/install/share/cmake/core_project` folder:
+So what remains is to copy this already generated file to the install folder, which we can do by using yet another `install` command that copies our export file to the `/tmp/install/share/cmake/core_project` folder:
 
 <!--
 `CPP_SETUP_START`
@@ -534,7 +538,7 @@ install(EXPORT ${LIBRARY_NAME}_export
 )
 ```
 
-Running our install procedure again, we'll be able to see this file where we expect to find it:
+Running our install procedure again with all of this new code, we'll be able to see this file where we expect to find it within the install folder tree:
 
 ```cmd
 λ › tree /tmp/install
@@ -559,7 +563,7 @@ Note also the `NAMESPACE` option that adds the project prefix to all targets tha
 
 Finally, with the export files in-place we only need to create the missing config files so that `find_package` can find all the export files we've just created. This process is a bit convoluted and involves a couple of steps.
 
-We start by actually creating the needed `core_projectConfig.cmake` file by calling `configure_package_config_file` from the `CMakePackageConfigHelpers` that we include into our main `CMakeLists.txt` file:
+To create the `core_projectConfig.cmake` file we typically call `configure_package_config_file` from the `CMakePackageConfigHelpers` that we include into our main `CMakeLists.txt` file:
 
 <!--
 `CPP_SETUP_START`
@@ -596,7 +600,7 @@ include("${CMAKE_CURRENT_LIST_DIR}/some_library_export.cmake")
 check_required_components(core_project)
 ```
 
-We can specify all of the export files by hand, like we just did, but we can also use a glob expression that matches *any* file that ends in `*_export.cmake`.
+We can specify all of the export files by hand, like we just did, but we can also use a glob expression that matches *any* file that ends in `*_export.cmake`:
 
 `${CMAKE_CURRENT_SOURCE_DIR}/cmake/Config.cmake.in`
 
@@ -618,9 +622,9 @@ endforeach()
 check_required_components(core_project)
 ```
 
-Passing this `cmake.in` file into `configure_package_config_file` we create `${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake` in the current build folder. Note that this file is still not "installed", i.e., it is not present in the install folder just yet!
+Passing this `cmake.in` file into `configure_package_config_file` we create a `${PROJECT_NAME}Config.cmake` in the current **build** folder. Note that this file is still not "installed", i.e., it is not present in the install folder just yet!
 
-Before we install it, we'll also need to generate another very similar file `${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake` by calling the `write_basic_package_version_file` command:
+Before we install it though, we'll also need to generate another very similar file `${PROJECT_NAME}ConfigVersion.cmake` by calling the `write_basic_package_version_file` command:
 
 <!--
 `CPP_SETUP_START`
@@ -638,9 +642,9 @@ write_basic_package_version_file(
 )
 ```
 
-This command generates a file needed if we want to specify a version of our package. We can select a version to match our project version as well as what the compatibility of this version is. This plays a role when we specify a version within the `find_package(core_package VERSION 0.9)` command. We will not go into more details here but I'm sure after this tutorial everyone should be able to look it up in the docs.
+This file is needed if we want to specify a version of our package. In our example we choose a version to match our project version as well as what the compatibility of this version is. This plays a role when we specify a version within the `find_package(core_project 1.0)` command. We will not go into more details here but I'm sure after this tutorial everyone should be able to look it up in the docs.
 
-Finally, our last step is to copy the just-generated config files into the install folder, which we can do with yet another `install(FILES ...)` command.
+Finally, our last step is to copy the just-generated config files into the install folder, which we can do with yet another `install(FILES ...)` command, providing all of our config files in the build folder into it and, as before, specifying their install destination:
 
 <!--
 `CPP_SETUP_START`
@@ -660,11 +664,11 @@ install(
 )
 ```
 
-And now we're done with installing! If we now look at how the `install` folder tree looks like, it will contain all of our headers, all our binary files as well as the export and config files needed to configure all of the targets, should someone look for them.
+And now we're done with installing! If we run `cmake --install` command again and look at how the `install` folder tree looks like, it will contain all of our headers, all our binary files as well as the export and config files needed to configure all of the targets, should someone look for them.
 
 ## How to use the installed package
 
-Now is a good time to specify how exactly we would look for these files. We do this by adding a `find_package` call to our `dependent_project` of course. We've already seen this at the start of this tutorial:
+One final thing to do now is to add a `find_package` call to our `dependent_project` of course. We've already seen this at the start of this tutorial:
 
 <!--
 `CPP_SETUP_START`
@@ -692,7 +696,7 @@ add_executable(print_hello print_hello.cpp)
 target_link_libraries(print_hello PRIVATE core_project::some_library)
 ```
 
-And, just as before, we can configure and build this project. However, there is a slight change from before. Because we've installed our `core_package` into a custom folder, `/tmp/install` in our case, we need to tell CMake where to look for packages by providing it with a `CMAKE_PREFIX_PATH`:
+And, just as before, we can configure and build this project. Because we've installed our `core_project` into a custom folder, `/tmp/install` in our case, we need to tell CMake where to look for packages by providing it with a `CMAKE_PREFIX_PATH`:
 
 ```bash
 cd dependent_project
@@ -700,7 +704,9 @@ cmake -DCMAKE_PREFIX_PATH="/tmp/install"  -S . -B build
 cmake --build build -j 12
 ```
 
-Et voila! This builds our `dependent_project` without issues and we can run the binary that we've just built too:
+Note that we don't need to provide an explicit `CMAKE_PREFIX_PATH` value if we installed our `core_project` in a standard system-wide location, like `/usr/local`.
+
+Running these commands builds our `dependent_project` without issues and we can run the binary that we've just built too:
 
 ```cmd
 ./build/print_hello
@@ -709,6 +715,19 @@ Hello World!
 
 ## Summary
 
-There was quite some content here but we've now covered all the basics one needs to know about installing packages. As always, I believe that learning new things comes from doing, so I urge you to play around with these examples. How would you install more libraries than one? What changes if we make the library header-only? How to install `dependent_project` too? If you are able to answer all of these questions, then, for my money, you understand this topic quite well!
+Now we've fully closed the loop on this topic. We started by understanding how `find_package` works under the hood - what files it looks for in which folders. We then went bottom up and learned how to configure a project to install all of these files ending with a fully working minimal two-project example that we can return to whenever we need to setup a more complex installation procedure.
+
+As always, I believe that learning new things comes from doing, so I urge you to play around with these examples, which you can find on my GitHub as complete projects.
+
+There is a number of questions I urge you to think about. How would you install more libraries than one? What changes in the generated export files if we make the library header-only? How to install `dependent_project` too? If you are able to answer all of these questions, then, for my money, you understand this topic quite well!
 
 The CMake installation process is not a thing cast in stone. It changes over the years and, just as we move to a more target-based build, we are probably also going to be moving away from what is presented here and towards a more target-based install. But as it stands now, I believe that what we've covered today is still the most popular way to install packages and can be found in most CMake projects in the wild with slight differences here and there, which, after this tutorial, should be easier to spot and understand.
+
+<!-- Thanks a lot for your time and for watching to the end. Watching these videos fully seems to be very important for the YouTube algorithm to recommend these videos to more people, so if you want to help out, please just let the video play fully through, it helps me a lot!
+
+I intentionally keep all of this content, including all the code on GitHub, free and available to everybody as I believe that education should be accessible. If you agree with this and would like to support this work, there are ways in the description below this video.
+
+And if you need a refresher on what CMake does, you can watch this video over here, while if you'd like to see how one can configure GoogleTest with CMake, head over here instead.
+
+Thanks again for watching and see you next time! Bye!
+-->
