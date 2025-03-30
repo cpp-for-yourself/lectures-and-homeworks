@@ -409,7 +409,7 @@ cmake --build build -j 12                    # Build.
 cmake --install build --prefix /tmp/install  # Install.
 ```
 
-Here, we aim to install our package into some temporary install folder, but a more standard location, like `/use/local` can be used if the `--prefix` flag is omitted. Note that in such a case we have to call this command with `sudo` rights.
+Here, we aim to install our package into some temporary install folder, but a more standard location, like `/usr/local` can be used if the `--prefix` flag is omitted. Note that in such a case we have to call this command with `sudo` rights.
 
 :bulb: However, if we call the install command for our package now, nothing happens!
 
