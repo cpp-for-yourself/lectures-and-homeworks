@@ -307,6 +307,33 @@ Using GoogleTest framework for testing code
 </details>
 
 <details>
+<summary>Installing projects and using <code>find_project</code> with CMake</summary>
+
+----------------------------------------------------------
+[![Video thumbnail](https://img.youtube.com/vi/blah/maxresdefault.jpg)](https://youtu.be/blah)
+
+- [Disclaimer](lectures/cmake_install.md#disclaimer)
+- [What does `find_package` do?](lectures/cmake_install.md#what-does-find_package-do)
+  - [Search modes](lectures/cmake_install.md#search-modes)
+    - [Module mode](lectures/cmake_install.md#module-mode)
+    - [Config mode](lectures/cmake_install.md#config-mode)
+  - [How do the config files look like?](lectures/cmake_install.md#how-do-the-config-files-look-like)
+  - [What are the export files?](lectures/cmake_install.md#what-are-the-export-files)
+  - [Summary of reusing targets](lectures/cmake_install.md#summary-of-reusing-targets)
+- [How to make `core_project` available to `dependent_project`](lectures/cmake_install.md#how-to-make-core_project-available-to-dependent_project)
+  - [Project skeleton for `core_project`](lectures/cmake_install.md#project-skeleton-for-core_project)
+  - [Installing a package](lectures/cmake_install.md#installing-a-package)
+    - [1. Copying headers](lectures/cmake_install.md#1-copying-headers)
+    - [2. Copying binaries](lectures/cmake_install.md#2-copying-binaries)
+    - [3. Creating export files](lectures/cmake_install.md#3-creating-export-files)
+    - [4. Creating config files](lectures/cmake_install.md#4-creating-config-files)
+- [How to use the installed package](lectures/cmake_install.md#how-to-use-the-installed-package)
+- [Summary](lectures/cmake_install.md#summary)
+
+----------------------------------------------------------
+</details>
+
+<details>
 <summary><code>Project</code>: string processing library</summary>
 
 ----------------------------------------------------------
