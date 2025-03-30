@@ -717,7 +717,7 @@ Hello World!
 
 Now we've fully closed the loop on this topic. We started by understanding how `find_package` works under the hood - what files it looks for in which folders. We then went bottom up and learned how to configure a project to install all of these files ending with a fully working minimal two-project example that we can return to whenever we need to setup a more complex installation procedure.
 
-As always, I believe that learning new things comes from doing, so I urge you to play around with these examples, which you can find on my GitHub as complete projects.
+As always, I believe that learning new things comes from doing, so I urge you to play around with these examples, which you can find on my GitHub as [complete projects](code/cmake_install/).
 
 There is a number of questions I urge you to think about. How would you install more libraries than one? What changes in the generated export files if we make the library header-only? How to install `dependent_project` too? If you are able to answer all of these questions, then, for my money, you understand this topic quite well!
 
