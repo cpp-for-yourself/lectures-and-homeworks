@@ -1,18 +1,41 @@
-# Lectures and homeworks
+# Lectures and projects for the [C++ for yourself](https://youtube.com/playlist?list=PLwhKb0RIaIS1sJkejUmWj-0lk7v_xgCuT) course
+
+<img alt="Icon" align="right" width=150 src="https://github.com/user-attachments/assets/2f72be25-d8b5-4bc8-ade5-c7167ac41324">
 
 ![Build status](https://img.shields.io/github/actions/workflow/status/cpp-for-yourself/supplementary-materials/action.yml?branch=main&label=Link%20and%20code%20validation&style=for-the-badge)
+[![YouTube Channel Views](https://img.shields.io/youtube/channel/views/UCRm39hwBxsX-8yj2xs3OJjQ?style=for-the-badge&label=YouTube%20views)](https://www.youtube.com/code-for-yourself)
 ![Visitors](https://api.visitorbadge.io/api/visitors?path=code-for-yourself%2Fcode-for-yourself&labelColor=%23697689&countColor=%23263759)
 
-This is a list of lectures from the [C++ for yourself](https://youtube.com/playlist?list=PLwhKb0RIaIS1sJkejUmWj-0lk7v_xgCuT) course.
+This repository is a collection of Markdown scripts used for all the videos in the [C++ for yourself](https://youtube.com/playlist?list=PLwhKb0RIaIS1sJkejUmWj-0lk7v_xgCuT) course. 
 
-## How to follow this course
+These can be used to follow-along the video or as a standalone learning material.
+
+## 🙏 Support this work
+
+[![GitHub Sponsors](https://img.shields.io/github/sponsors/niosus?style=for-the-badge&logo=github&label=Sponsor%20on%20github)](https://github.com/sponsors/niosus)
+[![Audible trial](https://img.shields.io/badge/Audible_free_trial-orange?style=for-the-badge&logo=audible&logoColor=white&logoSize=auto&link=https%3A%2F%2Fwww.audibletrial.com%2FCodeForYourself)](https://www.audibletrial.com/CodeForYourself)
+[![Amazon affiliate links](https://img.shields.io/badge/amazon_affiliate_links-orange?style=for-the-badge&logo=amazon&logoColor=white&logoSize=auto&color=black)](https://github.com/cpp-for-yourself/sponsor/blob/main/amazon.md)
+
+
+Please remember that there is a human behind all of this work. I write scripts, create animations, record and edit videos at night after a full-time work day. It is at times hard. 
+But _you_ can make it easier. Here is what you can do:
+
+- 💶 Become a [**sponsor on GitHub**](https://github.com/sponsors/niosus)!
+- 💸 Can't support monetarily?
+  + 👍 **Like** my videos!
+  + 💬 **Leave comments** on YouTube!
+  + 📢 **Spread the word** among your friends!
+- 🤬 Don't like something? 🗣️ **Talk to me about it!** I am always eager to improve.
+
+## :bulb: How to follow this course
+
 The course is designed to be consumed from top to bottom, so start at the beginning and you will always have enough knowledge for the next video.
 
 That being said, I aim to leave links in the videos so that one could watch them out of order without much hassle.
 
 Enjoy! 😎
 
-## C++ for yourself
+## 📕 C++ for yourself lectures
 
 <details>
 <summary>
@@ -33,7 +56,7 @@ Hello world program dissection
 </details>
 
 <details>
-<summary><code>Homework</code>: hello world program</summary>
+<summary><code>Project</code>: hello world program</summary>
 
 ----------------------------------------------------------
 [Homework script](homeworks/homework_1/homework.md)
@@ -117,7 +140,7 @@ Associative containers
 </details>
 
 <details>
-<summary><code>Homework</code>: fortune teller program</summary>
+<summary><code>Project</code>: fortune teller program</summary>
 
 ----------------------------------------------------------
 [Homework script](homeworks/homework_2/homework.md)
@@ -157,7 +180,7 @@ Random number generation
 </details>
 
 <details>
-<summary><code>Homework</code>: the guessing game</summary>
+<summary><code>Project</code>: the guessing game</summary>
 
 ----------------------------------------------------------
 [![Video thumbnail](https://img.youtube.com/vi/TYs_xwihCNc/maxresdefault.jpg)](https://youtu.be/TYs_xwihCNc)
@@ -305,13 +328,13 @@ Using GoogleTest framework for testing code
     - [3. Creating export files](lectures/cmake_install.md#3-creating-export-files)
     - [4. Creating config files](lectures/cmake_install.md#4-creating-config-files)
 - [How to use the installed package](lectures/cmake_install.md#how-to-use-the-installed-package)
-- [Summary](#summary)
+- [Summary](lectures/cmake_install.md#summary)
 
 ----------------------------------------------------------
 </details>
 
 <details>
-<summary><code>Homework</code>: string processing library</summary>
+<summary><code>Project</code>: string processing library</summary>
 
 ----------------------------------------------------------
 [![Video thumbnail](https://img.youtube.com/vi/f0x2qcFgu5o/maxresdefault.jpg)](https://youtu.be/f0x2qcFgu5o)
@@ -445,7 +468,7 @@ Headers with classes
 </details>
 
 <details>
-<summary><code>Homework</code>: pixelate images in terminal</summary>
+<summary><code>Project</code>: pixelate images in terminal</summary>
 
 ----------------------------------------------------------
 [![Video thumbnail](https://img.youtube.com/vi/Cj3x51iJdvM/maxresdefault.jpg)](https://youtu.be/Cj3x51iJdvM)
