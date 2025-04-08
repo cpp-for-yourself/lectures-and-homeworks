@@ -6,7 +6,7 @@
 [![YouTube Channel Views](https://img.shields.io/youtube/channel/views/UCRm39hwBxsX-8yj2xs3OJjQ?style=for-the-badge&label=YouTube%20views)](https://www.youtube.com/code-for-yourself)
 ![Visitors](https://api.visitorbadge.io/api/visitors?path=code-for-yourself%2Fcode-for-yourself&labelColor=%23697689&countColor=%23263759)
 
-This repository is a collection of Markdown scripts used for all the videos in the [C++ for yourself](https://youtube.com/playlist?list=PLwhKb0RIaIS1sJkejUmWj-0lk7v_xgCuT) course. 
+This repository is a collection of Markdown scripts used for all the videos in the [C++ for yourself](https://youtube.com/playlist?list=PLwhKb0RIaIS1sJkejUmWj-0lk7v_xgCuT) course.
 
 These can be used to follow-along the video or as a standalone learning material.
 
@@ -17,7 +17,7 @@ These can be used to follow-along the video or as a standalone learning material
 [![Amazon affiliate links](https://img.shields.io/badge/amazon_affiliate_links-orange?style=for-the-badge&logo=amazon&logoColor=white&logoSize=auto&color=black)](https://github.com/cpp-for-yourself/sponsor/blob/main/amazon.md)
 
 
-Please remember that there is a human behind all of this work. I write scripts, create animations, record and edit videos at night after a full-time work day. It is at times hard. 
+Please remember that there is a human behind all of this work. I write scripts, create animations, record and edit videos at night after a full-time work day. It is at times hard.
 But _you_ can make it easier. Here is what you can do:
 
 - 💶 Become a [**sponsor on GitHub**](https://github.com/sponsors/niosus)!
@@ -310,7 +310,7 @@ Using GoogleTest framework for testing code
 <summary>Installing projects and using <code>find_project</code> with CMake</summary>
 
 ----------------------------------------------------------
-[![Video thumbnail](https://img.youtube.com/vi/blah/maxresdefault.jpg)](https://youtu.be/blah)
+[![Video thumbnail](https://img.youtube.com/vi/OMx3cZj_hoo/maxresdefault.jpg)](https://youtu.be/OMx3cZj_hoo)
 
 - [Disclaimer](lectures/cmake_install.md#disclaimer)
 - [What does `find_package` do?](lectures/cmake_install.md#what-does-find_package-do)

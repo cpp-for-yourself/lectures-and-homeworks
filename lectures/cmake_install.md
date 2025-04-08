@@ -1,7 +1,7 @@
 **Reusing projects with CMake**
 
 <p align="center">
-  <a href="https://youtu.be/blah"><img src="https://img.youtube.com/vi/blah/maxresdefault.jpg" alt="Video" align="right" width=50% style="margin: 0.5rem"></a>
+  <a href="https://youtu.be/OMx3cZj_hoo"><img src="https://img.youtube.com/vi/OMx3cZj_hoo/maxresdefault.jpg" alt="Video" align="right" width=50% style="margin: 0.5rem"></a>
 </p>
 
 - [Disclaimer](#disclaimer)
