@@ -1,83 +1,75 @@
 
-**`std::optional` and `std::expected`**
+**Error handling in C++**
 --
 
 <p align="center">
   <a href="https://youtu.be/dummy_link"><img src="https://img.youtube.com/vi/dummy_link/maxresdefault.jpg" alt="Video Thumbnail" align="right" width=50% style="margin: 0.5rem"></a>
 </p>
 
-- [**`std::optional` and `std::expected`**](#stdoptional-and-stdexpected)
-- [Use `std::optional` to represent optional class fields](#use-stdoptional-to-represent-optional-class-fields)
-- [Use `std::optional` to return from functions that might fail](#use-stdoptional-to-return-from-functions-that-might-fail)
+- [**Error handling in C++**](#error-handling-in-c)
+- [Disclaimer](#disclaimer)
+- [What is error handling after all](#what-is-error-handling-after-all)
+- [What to do about unrecoverable errors](#what-to-do-about-unrecoverable-errors)
+- [How to recover from recoverable errors](#how-to-recover-from-recoverable-errors)
   - [Why not throw an exception](#why-not-throw-an-exception)
+  - [Why I don't use exceptions much](#why-i-dont-use-exceptions-much)
   - [Avoid the hidden error path](#avoid-the-hidden-error-path)
 - [How to work with `std::optional`](#how-to-work-with-stdoptional)
 - [Use `std::expected` to tell why a function failed](#use-stdexpected-to-tell-why-a-function-failed)
+- [Use `std::optional` to represent optional class fields](#use-stdoptional-to-represent-optional-class-fields)
 - [How are they implemented and their performance implications](#how-are-they-implemented-and-their-performance-implications)
 - [Summary](#summary)
 
+When writing code in C++, just like in life overall, we don't always get what we want. The good news is that we can prepare by being careful and anticipating some of the errors that we can encounter. There are many mechanisms in C++ for this and today we're talking about what options we have with an added benefit of some highly opinionated suggestions. All of you experienced C++ devs, prepare your pitch forks! :wink:
 
-When working with modern C++, we often need tools to handle optional values. These are useful in many situations, like when returning from a function that might fail during execution. Since C++17 we have a templated class `std::optional` that can be used in such situations. And since C++23 we're also getting `std::expected`. So let's chat about what these types are, when to use them and what to remember when using them to make sure we're not sacrificing any performance.
 
 <!-- Intro -->
 
-## Use `std::optional` to represent optional class fields
+## Disclaimer
 
-As a a first tiny example, imagine that we want to implement a game character and we have some items that they can hold in either hand (we'll for now assume that the items are of the same pre-defined type for simplicity but could of course extend this example with a class template):
+The topics we cover today don't have a single simple answer. The main reason for this is the shear power of C++ and all of the things is lets us do. This is only strengthened by how long C++ exists, the diversity of the use-cases and the people who use it. Depending on your context, the particular way of thinking presented here might be more or less useful to you. My experience mostly comes from automotive and robotics bubbles and might not apply to your domain. I will do my best to mention all options, but will only cover in-depth areas that I have been using myself over the last 15 or so years.
 
-```cpp
-struct Character {
-  Item left_hand_item;
-  Item right_hand_item;
-};
-```
+I aim to add links to opinions alternative to those expressed in this lecture to the best of my ability, but if I miss something, please do not hesitate to let me know in the comments.
 
-The character, however, might hold nothing in their hands too, so how do we model this?
+## What is error handling after all
 
-As a naïve solution, we could of course just add two additional boolean values `has_item_in_left_hand` and `has_item_in_right_hand` respectively:
+It makes sense to start our conversation with defining what we call an "error" in the first place in the context of our C++ code. Essentially, on the highest level of abstraction, we say that there was an error when the code does not produce the result we expect it to produce.
 
-```cpp
-struct Character {
-  Item left_hand_item;
-  Item right_hand_item;
-  // 😱 Not a great solution, we need to keep these in sync!
-  bool has_item_in_left_hand;
-  bool has_item_in_right_hand;
-};
-```
+We can further classify the possible error by its origin. The errors are typically thought of as:
 
-This is not a great solution as we would then need to keep these variables in sync and I, for one, do not trust myself with such an important task, especially if I can avoid it. So, speaking of avoiding this, can we somehow bake this information into the stored item types directly?
+- recoverable: errors that we can recover from within the normal operation of the program. An example of these would be a network timeout.
+- unrecoverable: errors that indicate a state of the program so broken that any recovery is a moot point. Typical examples are programmatic errors and errors resulting from undefined behavior encountered previously in the program.
 
-We _could_ just replace the items with pointers and if there is a `nullptr` stored in either of those it would mean that the character holds no item in the corresponding hand. But this has certain drawbacks as it changes the semantics of these variables.
+<!-- Link the CppCon talk by Andreas, maybe also Aleksandrescu? -->
 
-```cpp
-// 😱 Who owns the items?
-struct Character {
-  Item* left_hand_item;
-  Item* right_hand_item;
-};
-```
+Note that this classification is still highly debated. There is a large camp of people, who believe that every error is potentially recoverable and should be treated as such. This is a valid way of thinking but it comes with a price that, at least in my industry, people are usually unwilling to pay.
 
-Before, our `Character` object had value semantics and now it follows pointer semantics under the hood, meaning that copying our `Character` object would become [harder](memory_and_smart_pointers.md#performing-shallow-copy-by-mistake).
+## What to do about unrecoverable errors
 
-This is not great. The simple decision of allowing the character to have no objects in their hands forces us to actively think about memory, complicating the implementation and forcing unrelated design considerations upon us.
+Here, we will assume that we cannot or don't want to try to recover from a class of errors that we deem "unrecoverable". That being said, we still generally want to have tools to reduce the likelihood of these errors popping up. In my experience, most of these errors come from an erroneous assumption or an undetected error earlier in the program.
 
-One way to avoid this issue is to store a `std::optional<Item>` in each hand of the character instead:
+One typical way of dealing with issues like these is a combination of two techniques:
 
-```cpp
-struct Character {
-  std::optional<Item> left_hand_item;
-  std::optional<Item> right_hand_item;
-};
-```
+- Having a high [test code coverage](googletest.md), ideally 100% code line coverage
+- Enforcing contract checking at the start (and potentially also at the end) of every function
 
-Now it is clear just by looking at this tiny code snippet that neither item is required for the correct operation of the character. As a bonus, the object still has value semantics and can be copied and moved without any issues.
+The combination of these technique allows us to increases the likelihood that an actual error would be caught early in the development and won't make it into the actual delivered application.
 
-Before we talk about how to use `std:::optional`, I'd like to first talk a bit about another important use-case for it - **error handling**.
+<!-- TODO: add an example here or even before -->
 
-## Use `std::optional` to return from functions that might fail
+Such contract enforcement typically crash the application if their premise is not met, assuming that the only way this could have happened is if something before has already done horribly wrong.
 
-Let's say we have a function `GetAnswerFromLlm` that, getting a question, is supposed to answer all of our questions using some large language model.
+This obviously needs careful considerations. You don't want all of the software in your car die at a random point in time without any recovery procedure.
+
+We won't talk about this too much but in general, as at least one potential reason for such failures is memory being in an undefined and potentially inconsistent state, people usually run multiple processes and monitor the main process by some watchdog that activates a safe recovery procedure if needed.
+
+<!-- Add a fun video to this? Maybe laser or car? Or both? -->
+
+## How to recover from recoverable errors
+
+The bulk of this talk is focused around ways to recover from a recoverable error in modern C++. Here, a function is our smallest unit of concern.
+
+For the sake of example, let's say we have a function `GetAnswerFromLlm` that, getting a question, is supposed to answer all of our questions using some large language model living in the cloud.
 
 ```cpp
 #include <string>
@@ -85,21 +77,22 @@ Let's say we have a function `GetAnswerFromLlm` that, getting a question, is sup
 std::string GetAnswerFromLlm(const std::string& question);
 ```
 
-This is a simple interface that serves its purpose in most situations: we ask it things and get some `std::string` answers, sometimes of questionable quality. But what happens if something goes wrong within this function? What if it _cannot_ answer our question? What should this function return so that we know that an error has occurred.
+We've seen [functions](functions.md) like this before. This is a simple interface that serves its purpose in most situations: we ask it things and get some `std::string` answers (sometimes of questionable quality). But what if this function _cannot_ return an answer to our question? What should this function do in this case, so that we know that an error has occurred.
 
 Largely speaking there are two schools of thought here:
 
 - It can throw an **exception** to indicate that some error has occurred
-- It can return a special value to indicate a failure
-- TODO: add a third option where it sets some global error state
+- It can return or set a special value to indicate a failure
 
 ### Why not throw an exception
 
-We'll have to briefly talk about the first option here if only to explain why we're not going to talk about it in-depth. And I can already see people with pitchforks coming for me so do note that this is a highly-debated topic with even thoughts of [re-imagining exceptions altogether](https://www.youtube.com/watch?v=ARYP83yNAWk).
+We'll have to briefly talk about the first option here if only to explain why we're not going to talk about it in-depth. And I can already see people with pitchforks coming for me so do note that this is a highly-debated topic with even thoughts of [re-imagining exceptions altogether](https://www.youtube.com/watch?v=ARYP83yNAWk) as shown in this wonderful presentation by Herb Sutter.
 
-Anyway. Exceptions. Generally, at any point in our program we can `throw` an exception. It then is handled in a separate execution path, invisible to the user and can be caught by value or by reference at any point in the program upstream from the place where the exception was originally thrown. Yes, exceptions are polymorphic and use [runtime polymorphism](inheritance.md#using-virtual-for-interface-inheritance-and-proper-polymorphism), which is one of the issues people have with them.
+Anyway. Exceptions. Generally, at any point in our program we can `throw` an exception. This exception is then handled in a separate execution path, invisible to the user. Otherwise, `std::exception` is just a [class](classes_intro.md) like all those that we've seen before already. An exception object can be caught by value or by reference at any point in the program upstream from the place where the exception was originally thrown. Also, exceptions are polymorphic and use [runtime polymorphism](inheritance.md#using-virtual-for-interface-inheritance-and-proper-polymorphism), so there can be a hierarchy of exception classes and when exceptions are caught by reference, they can be caught by their base class.
 
-In our case, if, say, the network would be down and our LLM of choice would be unreachable, the `GetAnswerFromLlm` would throw an exception, say a `std::runtime_error`:
+Essentially the problem comes down to exceptions using dynamic allocation at the throwing side and RTTI (Runtime Type Information) at the catching side. This means that technically a program can take an arbitrary amount of time to throw and catch an exceptions. In many domains where C++ is used, like in automotive, this is a non-starter.
+
+In our case, if, say, the network would be down and our LLM of choice would be unreachable, the `GetAnswerFromLlm` could throw an exception, say a `std::runtime_error`:
 
 ```cpp
 #include <string>
@@ -128,8 +121,11 @@ int main() {
 }
 ```
 
+### Why I don't use exceptions much
+
 I will not talk too much about exceptions, mostly because in around a decade of using C++ professionally I very rarely worked in code bases that use exceptions. Many code bases, especially those that contain safety-critical code, ban exceptions altogether due to the fact that there is, strictly speaking, no way to guarantee how long it takes to process an exception once one is thrown because of their dynamic implementation.
 <!-- TODO: link Stack Overflow questionnaire about using exceptions -->
+<!-- TODO: link to herb sutter's proposal: https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2019/p0709r4.pdf -->
 
 Furthermore, there is another thing I don't really like about them. They create a hidden logic path that can be hard to trace when reading the code.
 You see, the `catch` block that catches an exception can be in _any_ calling function and it will catch a matching exception that is thrown at any depth of the call stack.
@@ -141,6 +137,8 @@ This typically means that we have to become very rigorous about what function th
 
 To be a bit more concrete, just imagine that the `LlmHandle::GetAnswer` function throws some other exception, say `std::logic_error` that we don't expect - this would lead us to showing such a `"Something happened"` message, which is not super useful to the user of our code.
 <!-- TODO: add an example of this -->
+
+<!-- Old text below -->
 
 ### Avoid the hidden error path
 
@@ -262,6 +260,62 @@ std::expected<std::string, std::string> GetAnswerFromLlm(const std::string& ques
 }
 ```
 Now if we have a network outage, we can return an error that tells us about this being the case and should the `LlmHandle::GetAnswer` return an expected object of the same type too, it would automagically propagate to the caller of the `GetAnswerFromLlm` function.
+
+## Use `std::optional` to represent optional class fields
+
+As a a first tiny example, imagine that we want to implement a game character and we have some items that they can hold in either hand (we'll for now assume that the items are of the same pre-defined type for simplicity but could of course extend this example with a class template):
+
+```cpp
+struct Character {
+  Item left_hand_item;
+  Item right_hand_item;
+};
+```
+
+The character, however, might hold nothing in their hands too, so how do we model this?
+
+As a naïve solution, we could of course just add two additional boolean values `has_item_in_left_hand` and `has_item_in_right_hand` respectively:
+
+```cpp
+struct Character {
+  Item left_hand_item;
+  Item right_hand_item;
+  // 😱 Not a great solution, we need to keep these in sync!
+  bool has_item_in_left_hand;
+  bool has_item_in_right_hand;
+};
+```
+
+This is not a great solution as we would then need to keep these variables in sync and I, for one, do not trust myself with such an important task, especially if I can avoid it. So, speaking of avoiding this, can we somehow bake this information into the stored item types directly?
+
+We _could_ just replace the items with pointers and if there is a `nullptr` stored in either of those it would mean that the character holds no item in the corresponding hand. But this has certain drawbacks as it changes the semantics of these variables.
+
+```cpp
+// 😱 Who owns the items?
+struct Character {
+  Item* left_hand_item;
+  Item* right_hand_item;
+};
+```
+
+Before, our `Character` object had value semantics and now it follows pointer semantics under the hood, meaning that copying our `Character` object would become [harder](memory_and_smart_pointers.md#performing-shallow-copy-by-mistake).
+
+This is not great. The simple decision of allowing the character to have no objects in their hands forces us to actively think about memory, complicating the implementation and forcing unrelated design considerations upon us.
+
+One way to avoid this issue is to store a `std::optional<Item>` in each hand of the character instead:
+
+```cpp
+struct Character {
+  std::optional<Item> left_hand_item;
+  std::optional<Item> right_hand_item;
+};
+```
+
+Now it is clear just by looking at this tiny code snippet that neither item is required for the correct operation of the character. As a bonus, the object still has value semantics and can be copied and moved without any issues.
+
+Before we talk about how to use `std:::optional`, I'd like to first talk a bit about another important use-case for it - **error handling**.
+
+
 
 ## How are they implemented and their performance implications
 Largely speaking, both `std::optional` and `std::expected` are both implemented as a `union` in C++, meaning that the expected and unexpected values are stored _in the same underlying memory_ with helper functions allowing us to query which one is actually stored there.
