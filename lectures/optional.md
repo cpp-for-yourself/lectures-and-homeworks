@@ -11,17 +11,18 @@
 - [What is error handling after all](#what-is-error-handling-after-all)
 - [What to do about unrecoverable errors](#what-to-do-about-unrecoverable-errors)
 - [How to recover from recoverable errors](#how-to-recover-from-recoverable-errors)
+  - [Why not set a global value](#why-not-set-a-global-value)
   - [Why not throw an exception](#why-not-throw-an-exception)
-  - [Why I don't use exceptions much](#why-i-dont-use-exceptions-much)
-  - [Avoid the hidden error path](#avoid-the-hidden-error-path)
+    - [Exceptions are expensive](#exceptions-are-expensive)
+    - [The hidden path is hidden](#the-hidden-path-is-hidden)
+  - [Use return type for explicit error path](#use-return-type-for-explicit-error-path)
 - [How to work with `std::optional`](#how-to-work-with-stdoptional)
 - [Use `std::expected` to tell why a function failed](#use-stdexpected-to-tell-why-a-function-failed)
 - [Use `std::optional` to represent optional class fields](#use-stdoptional-to-represent-optional-class-fields)
 - [How are they implemented and their performance implications](#how-are-they-implemented-and-their-performance-implications)
 - [Summary](#summary)
 
-When writing code in C++, just like in life overall, we don't always get what we want. The good news is that we can prepare by being careful and anticipating some of the errors that we can encounter. There are many mechanisms in C++ for this and today we're talking about what options we have with an added benefit of some highly opinionated suggestions. All of you experienced C++ devs, prepare your pitch forks! :wink:
-
+When writing code in C++, just like in life overall, we don't always get what we want. The good news is that we can prepare by being careful and anticipating some of the errors that we can encounter. Just like with everything else in C++, there are many mechanisms for this and today we're talking about what options we have with an added "benefit" of some highly opinionated suggestions. All of you experienced C++ devs, prepare your pitch forks! :wink:
 
 <!-- Intro -->
 
@@ -33,20 +34,22 @@ I aim to add links to opinions alternative to those expressed in this lecture to
 
 ## What is error handling after all
 
-It makes sense to start our conversation with defining what we call an "error" in the first place in the context of our C++ code. Essentially, on the highest level of abstraction, we say that there was an error when the code does not produce the result we expect it to produce.
+With the disclaimer out of the way, it makes sense to start our conversation by defining what we call an "error" in the first place in the context of our C++ code.
 
-We can further classify the possible error by its origin. The errors are typically thought of as:
+Essentially, on the highest level of abstraction, we say that there was an error when the code does not produce the result we expect it to produce.
 
-- recoverable: errors that we can recover from within the normal operation of the program. An example of these would be a network timeout.
-- unrecoverable: errors that indicate a state of the program so broken that any recovery is a moot point. Typical examples are programmatic errors and errors resulting from undefined behavior encountered previously in the program.
+We can further classify the possible errors by their origin. The errors are typically thought of as:
+
+- **recoverable:** errors that we can recover from within the normal operation of the program. An example of these would be a network timeout in a situation when a user can wait and retry.
+- **unrecoverable:** errors that indicate a state of the program so broken that any recovery is useless. Typical examples are programmatic errors and errors resulting from undefined behavior encountered previously in the program.
 
 <!-- Link the CppCon talk by Andreas, maybe also Aleksandrescu? -->
 
-Note that this classification is still highly debated. There is a large camp of people, who believe that every error is potentially recoverable and should be treated as such. This is a valid way of thinking but it comes with a price that, at least in my industry, people are usually unwilling to pay.
+Note that, while some languages, like Rust, make this distinction directly in their official documentation, the classification of errors into recoverable and unrecoverable is still highly debated in C++. There is a large camp of people, who believe that every error is potentially recoverable and should be treated as such and that an error should be reported for potentially being handled later at a different place in the program. This is absolutely a valid way of thinking but it comes with a price that, at least in my industry, people are usually unwilling to pay.
 
 ## What to do about unrecoverable errors
 
-Here, we will assume that we cannot or don't want to try to recover from a class of errors that we deem "unrecoverable". That being said, we still generally want to have tools to reduce the likelihood of these errors popping up. In my experience, most of these errors come from an erroneous assumption or an undetected error earlier in the program.
+In this lecture, we will assume that we cannot or don't want to try to recover from a class of errors that we deem "unrecoverable". That being said, we still generally want to have tools to reduce the likelihood of these errors popping up. In my experience, most of these errors come from an erroneous assumption or an undetected error earlier in the program.
 
 One typical way of dealing with issues like these is a combination of two techniques:
 
@@ -57,17 +60,17 @@ The combination of these technique allows us to increases the likelihood that an
 
 <!-- TODO: add an example here or even before -->
 
-Such contract enforcement typically crash the application if their premise is not met, assuming that the only way this could have happened is if something before has already done horribly wrong.
+Such contract enforcement typically crash the application if their premise is not met, assuming that the only way this could have happened is if something before has already gone horribly wrong, no recovery is possible, and the best way to move on is to die as quickly as possible.
 
-This obviously needs careful considerations. You don't want all of the software in your car die at a random point in time without any recovery procedure.
+This obviously needs careful considerations. You don't want all of the software in your car to die at a random point in time without any recovery procedure.
 
-We won't talk about this too much but in general, as at least one potential reason for such failures is memory being in an undefined and potentially inconsistent state, people usually run multiple processes and monitor the main process by some watchdog that activates a safe recovery procedure if needed.
+We won't talk about this too much but in general, as at least one potential reason for such failures is memory being in an undefined and potentially inconsistent state, people usually run multiple processes or even multiple programs on different hardware and monitor the main execution path by some watchdog that activates a safe recovery procedure if needed.
 
 <!-- Add a fun video to this? Maybe laser or car? Or both? -->
 
 ## How to recover from recoverable errors
 
-The bulk of this talk is focused around ways to recover from a recoverable error in modern C++. Here, a function is our smallest unit of concern.
+The bulk of this talk is focused around ways to recover from a recoverable error in modern C++ with a function being our smallest unit of concern.
 
 For the sake of example, let's say we have a function `GetAnswerFromLlm` that, getting a question, is supposed to answer all of our questions using some large language model living in the cloud.
 
@@ -77,22 +80,28 @@ For the sake of example, let's say we have a function `GetAnswerFromLlm` that, g
 std::string GetAnswerFromLlm(const std::string& question);
 ```
 
-We've seen [functions](functions.md) like this before. This is a simple interface that serves its purpose in most situations: we ask it things and get some `std::string` answers (sometimes of questionable quality). But what if this function _cannot_ return an answer to our question? What should this function do in this case, so that we know that an error has occurred.
+We've seen [functions](functions.md) like this before. This is a simple interface that serves its purpose in most situations: we ask it things and get some `std::string` answers (sometimes of questionable quality). But what if this function _cannot_ return an answer to our question? What should this function do in this case, so that we know that an error has occurred?
 
-Largely speaking there are two schools of thought here:
+Largely speaking there are three schools of thought here:
 
-- It can throw an **exception** to indicate that some error has occurred
-- It can return or set a special value to indicate a failure
+1. It can throw an **exception** to indicate that some error has occurred
+2. **It can return a special value to indicate a failure**
+3. It can set a special global value to indicate a failure
+
+Today we mostly focus on option 2., where we would return a special value of a special type to indicate that something went wrong, but before we go there, I'd like to briefly talk about why I don't like the other options.
+
+### Why not set a global value
+
+We'll start with option 3 - setting some global value as an indicator for a failure. This way was quite popular long time ago but it rarely used today when we believe that variables should live in as local scope as possible. But you can still encounter it if you ever code using OpenGL, for example.
+<!-- Check this and add an illustration -->
 
 ### Why not throw an exception
 
-We'll have to briefly talk about the first option here if only to explain why we're not going to talk about it in-depth. And I can already see people with pitchforks coming for me so do note that this is a highly-debated topic with even thoughts of [re-imagining exceptions altogether](https://www.youtube.com/watch?v=ARYP83yNAWk) as shown in this wonderful presentation by Herb Sutter.
+A more interesting question is why not use option 1 - to throw an exception.
 
-Anyway. Exceptions. Generally, at any point in our program we can `throw` an exception. This exception is then handled in a separate execution path, invisible to the user. Otherwise, `std::exception` is just a [class](classes_intro.md) like all those that we've seen before already. An exception object can be caught by value or by reference at any point in the program upstream from the place where the exception was originally thrown. Also, exceptions are polymorphic and use [runtime polymorphism](inheritance.md#using-virtual-for-interface-inheritance-and-proper-polymorphism), so there can be a hierarchy of exception classes and when exceptions are caught by reference, they can be caught by their base class.
+And I can already see people with pitchforks coming for me so do note that this is a highly-debated topic with even thoughts of [re-imagining exceptions altogether](https://www.youtube.com/watch?v=ARYP83yNAWk) as shown in this wonderful presentation by Herb Sutter.
 
-Essentially the problem comes down to exceptions using dynamic allocation at the throwing side and RTTI (Runtime Type Information) at the catching side. This means that technically a program can take an arbitrary amount of time to throw and catch an exceptions. In many domains where C++ is used, like in automotive, this is a non-starter.
-
-In our case, if, say, the network would be down and our LLM of choice would be unreachable, the `GetAnswerFromLlm` could throw an exception, say a `std::runtime_error`:
+Anyway. Exceptions. Generally, at any point in our program we can `throw` an exception. In our case, if, say, the network would be down and our LLM of choice would be unreachable, the `GetAnswerFromLlm` could throw an exception, say a `std::runtime_error`:
 
 ```cpp
 #include <string>
@@ -106,7 +115,7 @@ std::string GetAnswerFromLlm(const std::string& question) {
 }
 ```
 
-On the calling side, we would need to "catch" this exception using the `try`-`catch` blocks. Generally, if using exceptions for reporting errors, we wrap the code we want to execute into a `try` block that is followed by a `catch` block that handles all of our potential errors.
+This exception is then "caught" in some other part of the program upstream of the place at which it was thrown using a so-called "try-catch" block. The exception travels to get there on a separate execution path, invisible to the user.
 
 ```cpp
 int main() {
@@ -121,26 +130,35 @@ int main() {
 }
 ```
 
-### Why I don't use exceptions much
+<!-- Explain catch blocks -->
 
-I will not talk too much about exceptions, mostly because in around a decade of using C++ professionally I very rarely worked in code bases that use exceptions. Many code bases, especially those that contain safety-critical code, ban exceptions altogether due to the fact that there is, strictly speaking, no way to guarantee how long it takes to process an exception once one is thrown because of their dynamic implementation.
+This sounds wonderful at first glance as it allows us to use the return type of our function for actually returning the result of the operation without trying to use it for anything else. This way also goes along the philosophy of having no unrecoverable errors: the function that throws an exception makes no decision about this error being recoverable or not - this will be decided by some other part of code that handles (or fails to handle) this exception.
+
+However, there are some limitations to this approach that we'll try to outline here.
+
+#### Exceptions are expensive
+
+A `std::exception` is just a [class](classes_intro.md) like all those that we've seen before already. An exception object can be caught by value or by reference at any point in the program upstream from the place where the exception was originally thrown. Also, exceptions are polymorphic and use [runtime polymorphism](inheritance.md#using-virtual-for-interface-inheritance-and-proper-polymorphism), so there can be a hierarchy of exception classes and when exceptions are caught by reference, they can be caught by their base class.
+
+Essentially the problem comes down to exceptions using dynamic allocation at the throwing side and RTTI (Runtime Type Information) at the catching side. This means that technically a program can take an arbitrary amount of time to throw and catch an exceptions. Many code bases, especially those that contain safety-critical code, ban exceptions altogether due to the fact that there is, strictly speaking, no way to guarantee how long it takes to process an exception once one is thrown because of their dynamic implementation. In all the places where I worked the exceptions were either banned altogether or avoided when possible.
 <!-- TODO: link Stack Overflow questionnaire about using exceptions -->
 <!-- TODO: link to herb sutter's proposal: https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2019/p0709r4.pdf -->
 
+#### The hidden path is hidden
+
 Furthermore, there is another thing I don't really like about them. They create a hidden logic path that can be hard to trace when reading the code.
 You see, the `catch` block that catches an exception can be in _any_ calling function and it will catch a matching exception that is thrown at any depth of the call stack.
-
 
 <img src="images/error.png.webp" alt="Video Thumbnail" align="right" width=50% style="margin: 0.5rem">
 
 This typically means that we have to become very rigorous about what function throws which exceptions when and, in some cases, the only way to know this is by relying on a documentation of a function which, in many cases, does not fully exist or is not up to date. I firmly believe that the statement `catch (...)` is singlehandedly responsible for many errors of the style of "oops, something happened" that we've all encountered.
 
-To be a bit more concrete, just imagine that the `LlmHandle::GetAnswer` function throws some other exception, say `std::logic_error` that we don't expect - this would lead us to showing such a `"Something happened"` message, which is not super useful to the user of our code.
+To be a bit more concrete, just imagine that the `LlmHandle::GetAnswer` function throws some other exception, say `std::logic_error` that we don't expect - this would lead us to showing such a `"Something happened"` message, which is not super useful to the user of our code and still likely leads to the program to crash, which is what we tried to avoid with exceptions in the first place.
 <!-- TODO: add an example of this -->
 
-<!-- Old text below -->
+### Use return type for explicit error path
 
-### Avoid the hidden error path
+<!-- TODO: old text below -->
 
 All of these issues prompted people to think out of the box to avoid using exceptions. And that while still having a way to know that something went wrong during the execution of some code.
 
@@ -159,7 +177,7 @@ In the olden days (before C++17), there were only three options.
     }
     ```
 
-    This option is not ideal because it is hard to define an appropriate "failure" value to return from most functions. For example, an empty string sounds like a good option for such a value, but then the LLM response to a query "Read this text, do not answer anything when done" would overlap with such a default value. Not great, right? We can extend the same logic of course for any string we would designate as the "failure value".
+    This option is not ideal because it is hard to define an appropriate "failure" value to return from most functions. For example, an empty string sounds like a good option for such a value, but then the LLM response to a query "Read this text, return empty string when done" would overlap with such a default value. Not great, right? We can extend the same logic of course for any string we would designate as the "failure value".
 2. Another option is to return an error code from the function, which required passing any values that the function had to change as a non-const reference or pointer:
 
     ```cpp
@@ -175,7 +193,7 @@ In the olden days (before C++17), there were only three options.
     }
     ```
 
-    This options is also not great. I would argue that not being able to have pure functions that get only const inputs and return a single output makes the code a lot less readable. Furthermore, modern compilers are very good at optimizing the returned value and sometimes the function that constructs this value altogether which might be a bit harder if we pass a reference to some value stored elsewhere. Although I don't know enough about the magic that the compilers do under the hood to be 100% about this second reason, so if you happen to know more - tell me!
+    This options is also not great. I would argue that not being able to have pure functions that get only const inputs and return a single output makes the code a lot less readable. Furthermore, modern compilers are very good at optimizing the returned value and sometimes the function that constructs this value altogether which might be a bit harder if we pass a reference to a value stored elsewhere. Although I don't know enough about the magic that the compilers do under the hood to be 100% about this second reason, so if you happen to know more - tell me!
     <!-- In the comments below this video -->
 3. An arguably even worse but still sometimes used method (OpenGL, anyone?) is to set some global error variable if an error has occurred and explore its value after every call to see if something bad has actually happened.
 
@@ -262,6 +280,8 @@ std::expected<std::string, std::string> GetAnswerFromLlm(const std::string& ques
 Now if we have a network outage, we can return an error that tells us about this being the case and should the `LlmHandle::GetAnswer` return an expected object of the same type too, it would automagically propagate to the caller of the `GetAnswerFromLlm` function.
 
 ## Use `std::optional` to represent optional class fields
+
+<!-- Maybe talk about this elsewhere. -->
 
 As a a first tiny example, imagine that we want to implement a game character and we have some items that they can hold in either hand (we'll for now assume that the items are of the same pre-defined type for simplicity but could of course extend this example with a class template):
 
