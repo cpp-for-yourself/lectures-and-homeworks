@@ -335,7 +335,7 @@ This has all the benefits we mentioned before:
 - The signature of our function clearly states that it might fail
 - The error if it happens needs to be dealt with explicitly by the caller
 - Everything happens in deterministic time with no RTTI overhead
-- World for functions returning `void` too
+- Works for functions returning `void` too
 
 Using it is also quite neat:
 
