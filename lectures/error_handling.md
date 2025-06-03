@@ -333,7 +333,7 @@ std::expected<std::string, std::string> GetAnswerFromLlm(const std::string& ques
 This has all the benefits we mentioned before:
 
 - The signature of our function clearly states that it might fail
-- The error if it happens needs to be dealt explicitly by the caller
+- The error if it happens needs to be dealt with explicitly by the caller
 - Everything happens in deterministic time with no RTTI overhead
 - World for functions returning `void` too
 
