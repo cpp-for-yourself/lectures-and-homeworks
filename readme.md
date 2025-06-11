@@ -22,7 +22,7 @@ But _you_ can make it easier. Here is what you can do:
 
 - 💶 Become a [**sponsor on GitHub**](https://github.com/sponsors/niosus)!
 - 💸 Can't support monetarily?
-  + 👍 **Like** my videos!
+  + 👍 **Like** the videos and **watch them to the end**!
   + 💬 **Leave comments** on YouTube!
   + 📢 **Spread the word** among your friends!
 - 🤬 Don't like something? 🗣️ **Talk to me about it!** I am always eager to improve.
