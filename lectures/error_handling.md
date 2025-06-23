@@ -16,13 +16,13 @@
     - [Catch them as early as possible](#catch-them-as-early-as-possible)
     - [Use `CHECK` macro to fail early](#use-check-macro-to-fail-early)
     - [Don't use `assert`](#dont-use-assert)
-    - [Complete the example yourself](#complete-the-example-yourself)
+    - [Complete the `Game` class yourself](#complete-the-game-class-yourself)
   - [How to minimize number of unrecoverable errors](#how-to-minimize-number-of-unrecoverable-errors)
 - [Recoverable errors: **handle and proceed**](#recoverable-errors-handle-and-proceed)
   - [Exceptions](#exceptions)
     - [How to use exceptions](#how-to-use-exceptions)
     - [A case for exceptions for both "recoverable" and "unrecoverable" errors](#a-case-for-exceptions-for-both-recoverable-and-unrecoverable-errors)
-    - [Why not just use exceptions](#why-not-just-use-exceptions)
+    - [Why we might not want to use exceptions](#why-we-might-not-want-to-use-exceptions)
       - [Exceptions are (sometimes) expensive](#exceptions-are-sometimes-expensive)
       - [Exceptions hide the error path](#exceptions-hide-the-error-path)
       - [Exceptions are banned in many code bases](#exceptions-are-banned-in-many-code-bases)
@@ -40,7 +40,9 @@ When writing C++ code, much like in real life, we don’t always get what we wan
 
 Today we’re talking about error handling. What options we have, which trade-offs they come with, and what tools modern C++ gives us to make our lives a bit easier.
 
-Buckle up! There is a lot to cover and quite some nuance in this topic! There will also inevitably be some statements that are quite opinionated and I can already see people with pitchforks and torches coming for me... so... I'm sure it's gonna be fun!
+So get a coffee and buckle up! There is a lot to cover and quite some nuance in this topic!
+
+Ah, and I can already smell the torches and hear the scraping of the pitchforks that people will bring to punish me for all the controversial statements I am about to make! What can go wrong, eh?
 
 <!-- Add a video from shreck?
 Link: https://www.youtube.com/watch?v=Waa9UqVP4KI
@@ -48,7 +50,7 @@ Link: https://www.youtube.com/watch?v=Waa9UqVP4KI
 
 # Disclaimer
 
-This is definitely *not* a one-size-fits-all topic. C++ is huge, powerful, and used across every domain imaginable for a long-long time.
+Jokes aside, this is definitely *not* a one-size-fits-all topic. C++ is huge, powerful, and used across every domain imaginable for a long-long time.
 
 *My* perspective comes from domains like robotics and automotive—where predictability and safety are of highest importance. What works for us may not work for everyone.
 
@@ -56,15 +58,17 @@ However, I believe that what we talk about today fits many other domains with mi
 
 <!-- in the comments -->
 
-<!-- And, on this note, your comments and likes are the only ways I get any feedback from shouting into the void! So please do not shy away from sharing what you think, positive or negative! I value every nugget of feedback I can get!
+<!-- And, on this note, your comments and likes are the only ways I get any feedback from speaking into the void! So please do not shy away from sharing what you think, positive or negative! I value every nugget of feedback I can get!
 
 Now, back to error handling. -->
+
+<!-- TODO: Film the camera that films me, slowly zooming in. -->
 
 # What Do We Mean by “Error”?
 
 Before we go into how to handle errors, however, let’s clarify what we mean when we think about an "error" in programming.
 
-At the highest level: an error is something that happens when a program doesn’t produce the result we expect.
+At the highest level: **an error is something that happens when a program doesn’t produce the result we expect.**
 
 I tend to think of errors belonging to one of two broad groups:
 
@@ -182,19 +186,23 @@ int main() {
 }
 ```
 
+This is not the most elegant code out there, but it is not too far from the style of code we might encounter in the wild.
+
+And by the way, all of this code is, as always, [available](code/error_handling/comparison_game/comparison_game.cpp) for you to play around on the accompanying GitHub page.
+
 We can build this program as a single executable directly from the command line:
 
 ```cmd
 c++ -std=c++17 -o comparison_game comparison_game.cpp
 ```
 
-Ideally, we should test all of our functions, but for now let's just give it a play-through instead!
+Ideally, we should at least unit-test all of our functions, but it will serve as a great cautionary tale if we just give it a play-through instead!
 
 # Unrecoverable errors: **fail early**
 
 ## Our first unrecoverable error encounter
 
-We run our executable and are greeted with expected numbers as well as a prompt to change one of our numbers:
+We run our executable and are greeted with expected numbers as well as a prompt to change one of *our* numbers:
 
 ```output
 λ › ./comparison_game
@@ -204,7 +212,7 @@ Player numbers:    42    40      23
 Please enter number to change:
 ```
 
-We tie the reference numbers in the first and third columns but lose in the second. So our only chance to win is to change the value `40` to `50`, which is also what our budget allows for! So we provide these numbers to our program and observe what happens:
+We tie the reference numbers in the first and third columns but lose in the second one. So our only chance to win is to change the value `40` to `50`, which is also what our budget allows for! So we provide these numbers to our program and observe what happens:
 
 ```output
 λ › ./comparison_game
@@ -221,11 +229,13 @@ Please enter number to change:
 
 But wait, what's going on here? Why did our number in the second column not change? Why is our budget not decreased by `10`? Even more strangely, why did the first reference number change to `50`?
 
-The answer to all of these questions is that we have just encountered our first unrecoverable error that manifests itself in wrong values in our memory through the "virtues" of Undefined Behavior. But what gives?
+The answer to all of these questions is that we have just encountered an unrecoverable error that manifests itself in wrong values in our memory through the "virtues" of Undefined Behavior. But what gives?
 
-Well, there is a chain of events that caused our values to be changed in ways that we don't expect and we'll be digging through all of these in the remainder of today's lecture.
+Well, there is a chain of events that caused our values to be changed in ways that we don't expect and we'll be digging through all of these and more in the remainder of today's lecture.
 
-But the most immediate cause is that the user has mistakenly provided the number they wanted to change, `40`, rather than an index of that number, `1`. We then did not check that provided "index" and wrote the provided new value directly into it. If we rerun our game again and provide `1` as the first input, we win, just as we expect!
+But the most immediate cause is that the user has mistakenly provided the number they wanted to change, `40`, rather than an index of that number, `1`. We then did not check that the provided "index" is within the bounds of our number array and wrote the provided new value directly into the number array under this wrong index.
+
+If we correct our mistake, rerun our game again and provide `1` as the first input, we win, just as we expect!
 
 ```output
 λ › ./comparison_game
@@ -242,11 +252,13 @@ You win!
 
 When we provide `40` as we did the first time, our wrong index is far beyond the size of the `player_numbers_` vector and, when we write beyond its bounds we enter the Undefined Behavior land.
 
-What happens next is unpredictable. If we are lucky and the address into which we write does not belong to our program, the program will crash.
+What happens next is **unpredictable**. If we are *lucky* and the address into which we write does **not** belong to our program, the program will crash.
 
-If we are not lucky however, we will rewrite *some* memory that belongs to our program, potentially corrupting any object that actually owns that memory. In this particular example, I picked the values in such a way, that the "fake index" just happens to be equal to a difference in pointers to the data of the `player_numbers_` and `ref_numbers_` vectors. Which then results in us writing directly into the first element of the `ref_numbers_` vector, resulting in an update to reference numbers.
+If we are *not* lucky however, we will rewrite *some* memory that belongs to our program, potentially corrupting any object that actually owns that memory. In this particular example, I picked the values in such a way, that the "fake index" just happens to be equal to a difference in pointers `player_numbers_.data()` and `ref_numbers_.data()`. Which then results in us writing directly into the first element of the `ref_numbers_` vector, resulting in an unexpected update to reference numbers.
 
-But I want to stress again, that most likely if you run the same program on your machine - you will get a different behavior altogether! Even the order of `ref_numbers_` and `player_numbers_` in memory is not guaranteed, note how on my machine they do not even follow the order of declaration!
+But I want to stress again that if we run the same program on another machine - we will most likely get a *different behavior* altogether!
+
+Even the order of `ref_numbers_` and `player_numbers_` in memory is not guaranteed, note how on my machine they do not even follow the order of declaration!
 
 What *doesn't* change is that once the `ChangePlayerNumberIfPossible` method is called with a wrong `change_entry` in our example, all bets are off - **we do not have any guarantees on the consistency of the state of our program anymore**
 
@@ -268,7 +280,6 @@ My favorite tool for this is the [`CHECK`](https://abseil.io/docs/cpp/guides/log
 `CPP_SETUP_START`
 #include <vector>
 
-#define CHECK(expr)
 #define CHECK_GE(expr, value)
 #define CHECK_LT(expr, value)
 
@@ -326,11 +337,11 @@ For my money, in most cases, the benefits far outweigh the costs, and, unless we
 
 ### Don't use `assert`
 
-You might wonder if using `CHECK` if our only way and so I have to talk about one very famous alternative here that is often recommended on the Internet. This alternative is to use [`assert`](https://en.cppreference.com/w/cpp/error/assert.html) in place of `CHECK`. The `assert` statement can be found in the `<cassert>` include file. I'm not a fan of using `assert`.
+You might wonder if using `CHECK` is our only way to help us detect when we are in an inconsistent state and so I have to talk about one very famous alternative here that is often recommended on the Internet. This alternative is to use [`assert`](https://en.cppreference.com/w/cpp/error/assert.html). The `assert` statement can be found in the `<cassert>` include file. I'm not a fan of using `assert`.
 
-What is this smell? Is something on fire? Ah, it's the people with torches and pitchforks again coming for me for not liking `assert`!
+If you came here with your torches and pitchforks, this is probably a good time to take them out! 😉
 
-Let me explain myself. You see, `assert` has one super annoying flaw that makes it impossible for me to recommend it for production code. I've seen sooo many bugs stemming from this! But let me show what I'm talking about on our game example.
+But let me explain myself. You see, `assert` has one super annoying flaw that makes it impossible for me to recommend it for production code. I've seen sooo many bugs stemming from this! But let me show what I'm talking about using our game example.
 
 First, we can use `assert` in a very similar way to `CHECK`:
 
@@ -375,7 +386,13 @@ void Game::ChangePlayerNumberIfPossible(const ChangeEntry& change_entry) {
 // Old code unchanged here.
 ```
 
-Now, if we compile and run our game just as we did before - the assertion will trigger:
+We compile and run our game just as we did before:
+
+```cmd
+c++ -std=c++17 -DNDEBUG -o comparison_game comparison_game.cpp
+```
+
+And if we run our program the assertion will trigger:
 
 ```output
 output.s: /app/example.cpp:44: void Game::ChangePlayerNumberIfPossible(const ChangeEntry &): Assertion `change_entry.index < player_numbers_.size()' failed.
@@ -384,9 +401,9 @@ Program terminated with signal: SIGSEGV
 
 So far so good, right? Using `assert` also crashes our program when the wrong input is provided and shows us where the wrong value was detected.
 
-So what is that annoying flaw I've been talking about that makes me dislike `assert`? Well, you see, all `assert` statements get *disabled* when a macro `NDEBUG` is defined. This is a standard macro name that controls if the debug symbols get compiled into the binary and gets passed to the compilation command for most release builds as we generally don't want debug symbols in the binary we release. So essentially, `assert` **does not protect us from undefined behavior in the code we actually deploy**!
+So what is that annoying flaw I've been talking about that makes me dislike `assert`? Well, you see, all `assert` statements get *disabled* when a macro `NDEBUG` is defined. This is a standard macro name that controls if the debug symbols get compiled into the binary and gets passed to the compilation command for most release builds as we generally don't want debug symbols in the binary we release. So essentially, `assert` almost always **does not protect us from undefined behavior in the code we actually deploy**!
 
-We can easily demonstrate that the `asserts` indeed get *compiled out* by adding `-DNDEBUG` flag to our compilation command:
+We can easily demonstrate that the `assert`s indeed get *compiled out* by adding `-DNDEBUG` flag to our compilation command:
 
 ```cmd
 c++ -std=c++17 -DNDEBUG -o comparison_game comparison_game.cpp
@@ -394,7 +411,9 @@ c++ -std=c++17 -DNDEBUG -o comparison_game comparison_game.cpp
 
 Running our game *now* and providing a wrong input index leads to the same undefined behavior we observed before as all of the assertions were compiled out. Not great, right?
 
-### Complete the example yourself
+<!-- Get the UB kick assert's ass, and me pushing the UB away -->
+
+### Complete the `Game` class yourself
 
 By the way, we've only covered how we could improve our `ChangePlayerNumberIfPossible` method of the `Game` class. Do you think our `CheckIfPlayerWon` function would benefit from the same treatment?
 
@@ -402,25 +421,25 @@ By the way, we've only covered how we could improve our `ChangePlayerNumberIfPos
 
 ## How to minimize number of unrecoverable errors
 
-Of course, hard failures in the programs we ship is also not ideal!
+Of course, hard failures in the programs we ship are not ideal!
 
-One way to reduce the risk of such failures is to keep the test coverage high for the code we write, ideally close to 100% line and branch coverage, i.e., every line and logical branch gets executed at least once in our test suite.
+One way to reduce the risk of such failures is to keep the test coverage high for the code we write, ideally close to 100% line and branch coverage, i.e., every line and logical branch gets executed at least once in our test suite which is run regularly and automatically.
 
 This way we catch most of the unrecoverable errors during development. In some industries, like automotive, aviation, or medical this is actually a legal requirement.
 
-But unfortunately, despite our best efforts, we cannot *completely* avoid failures in the programs we ship!
+But unfortunately, despite our best efforts, we cannot *completely* avoid catastrophic failures in the programs we ship!
 
 Even if we do everything right on our side, hardware can still fail and corrupt our memory. One fun example of this is the famous error in the Belgian election on the 18th of May 2003, where [one political party got 4096 extra votes](https://en.wikipedia.org/wiki/Electronic_voting_in_Belgium) due to what is believed to have been a cosmic ray flipping "a bit at the position 13 in the memory of the computer", essentially leading to 4096 more votes.
 
 <!-- Use Veritasium visualization for a bit flip -->
 
-This visualization is actually taken from this [excellent Veritasium video](https://www.youtube.com/watch?v=AaZ_RSt0KP8). Do give it a watch, it speaks about this and other similar cases much more in-depth!
+This visualization is actually taken from an [excellent Veritasium video](https://www.youtube.com/watch?v=AaZ_RSt0KP8) on this topic. Do watch it if you want to know more!
 
-With the knowledge that we cannot completely remove the risk of hitting an unrecoverable error in production, and that we also cannot just outright fail, in safety-critical systems, we often isolate components into separate processes or even separate hardware units, with watchdogs that can trigger recovery actions if one of our components suddenly crashes.
+With the knowledge that we cannot completely remove the risk of hitting an unrecoverable error in production, and that we also probably don't want our, say, flight software just randomly die during operation, in safety-critical systems, we often isolate components into separate processes or even separate hardware units, with watchdogs that can trigger recovery actions if one of our components suddenly crashes.
 
 This way we can have our cake and eat it at the same time: using `CHECK` minimizes the time-to-failure when a bug is encountered, while our fallback options keep the system safe as a whole even when certain components fail.
 
-That being said, this is a system architecture question and this topic is far beyond what I want to talk about today. In most non-safety-critical systems we do not need to think about these failure cases as deeply and we can usually just restart our program in case of a one-off failure. But, if you're interested in this topic, In an introductory lecture to the Self Driving Cars course at the University of Bonn that I've given some years ago I've dedicated a significant part towards the end of that lecture [to this topic](https://youtu.be/DtRktn4bVWg?si=DJuU8OjxtBcj5o2C). So do give it a watch if you're interested.
+That being said, this is a system architecture question and this topic is far beyond what I want to talk about today. In most non-safety-critical systems we do not need to think about these failure cases as deeply and we can usually just restart our program in case of a one-off failure. But, if it sounds interesting to you, in an [introductory lecture to the Self Driving Cars course](https://youtu.be/DtRktn4bVWg?si=DJuU8OjxtBcj5o2C) at the University of Bonn, I've dedicated a significant part towards the end to this topic.
 
 # Recoverable errors: **handle and proceed**
 
@@ -428,9 +447,9 @@ But not *every* error should instantly crash our program! Indeed, in our example
 
 The good thing about user inputs is that we can ask the user to correct these without crashing! The type of errors we encounter here can be called **recoverable errors**.
 
-To talk about them, let us focus on the function `GetNextChangeEntryFromUser` from our example. Currently, there is no validation of what the user inputs but we absolutely *can* and *should* perform such validation!
+To talk about them, let us focus on the function `GetNextChangeEntryFromUser` from our example. Currently, there is no validation of what the user provides as input but we absolutely *can* and *should* perform such validation!
 
-As we design our program, we know that the number index that the user provides first must be within the bounds of the player numbers vector of the `game` object:
+As we design our program, we know that the index that the player provides must be within the bounds of the player numbers vector in the `game` object:
 
 <!--
 `CPP_SETUP_START`
@@ -472,7 +491,7 @@ Broadly speaking, we have two strategies of communicating failures like these th
 
 We’ll spend most of our time on the first option—but let’s first talk about throwing exceptions, and yes, why I think it might not be the best thing we could do.
 
-This is yet again a good time to get your pitchforks and torches ready 😉.
+This is, yet again, a good time to get your pitchforks and torches ready 😉.
 
 ## Exceptions
 
@@ -519,7 +538,7 @@ ChangeEntry GetNextChangeEntryFromUser(const Game& game) {
 
 Throwing an exception interrupts the normal program flow. We leave the current scope, so all objects allocated in it are automatically destroyed and the program continues with the "exceptional flow" to find a place where the thrown exception can be handled.
 
-Speaking of handling exceptions, we can "catch" them anywhere upstream from the place they have been thrown from. As `std::exception` is just an object, it can be caught by value or by reference. It is considered best practice to catch them by reference. In our case we can catch either an `std::out_of_range` exception directly or, as `std::out_of_range` derives from `std::exception`, catch `std::exception` instead:
+Speaking of handling exceptions, we can "catch" them anywhere upstream from the place they have been thrown from. As `std::exception` is just an object, it can be caught by value or by reference but it is considered a good practice to catch them by reference. In our case we can catch either a `std::out_of_range` exception directly or, as `std::out_of_range` derives from `std::exception`, catch `std::exception` instead:
 
 <!--
 `CPP_SETUP_START`
@@ -583,7 +602,7 @@ Should we forget to catch an exception it bubbles up to the very top and termina
 
 On paper, this looks very neat. Essentially, with exceptions, we could forget about the distinction between recoverable and unrecoverable errors: if we catch an error, it is a "recoverable" one, if not - we treat it as "unrecoverable".
 
-This is one the main arguments from people who like using exceptions - do not make a global decision about the error type inside of a local scope - let someone with more overview figure out what to do.
+This is one of the main arguments from people who like using exceptions - do not make a global decision about the error type inside of a local scope - let someone with more overview figure out what to do.
 
 And it *is* a very good argument!
 
@@ -591,11 +610,13 @@ The other good argument is that exceptions *are* part of the language so it feel
 
 But there are problems with exceptions that, at least in some industries, we just cannot ignore.
 
-### Why not just use exceptions
+### Why we might not want to use exceptions
 
 #### Exceptions are (sometimes) expensive
 
-Exceptions typically [allocate memory on the heap](memory_and_smart_pointers.md#the-heap) when thrown, and rely on **R**un-**T**ime **T**ype **I**nformation ([RTTI](https://en.wikipedia.org/wiki/Run-time_type_information)) to propagate through the call stack. There is a really in-depth talk, called ["Exceptions demystified", by Andreas Weiss](https://www.youtube.com/watch?v=kO0KVB-XIeE), my former colleague at BMW, that goes into a lot of detail about how exceptions behave.
+Exceptions typically [allocate memory on the heap](memory_and_smart_pointers.md#the-heap) when thrown, and rely on **R**un-**T**ime **T**ype **I**nformation ([RTTI](https://en.wikipedia.org/wiki/Run-time_type_information)) to propagate through the call stack. See previous lectures on [memory](memory_and_smart_pointers.md) and [dynamic polymorphism](inheritance.md) if this does not ring a bell.
+
+There is a really in-depth C++Now talk, called ["Exceptions demystified", by Andreas Weiss](https://www.youtube.com/watch?v=kO0KVB-XIeE), my former colleague at BMW, that goes into a lot of detail about how exceptions behave.
 
 Long story short, both throwing and catching exceptions relies on mechanisms that work at runtime and therefore cost execution time.
 
@@ -603,7 +624,7 @@ Unfortunately, there are no guarantees on timing or performance of these operati
 
 #### Exceptions hide the error path
 
-Exceptions also arguably make control flow harder to read and reason about. To quote Google C++ style sheet:
+Exceptions also arguably make control flow harder to read and reason about. To quote [Google C++ style sheet](https://google.github.io/styleguide/cppguide.html#Exceptions):
 
 > Exceptions make the control flow of programs difficult to evaluate by looking at code: functions may return in places you don't expect. This causes maintainability and debugging difficulties.
 
@@ -611,7 +632,7 @@ Exceptions also arguably make control flow harder to read and reason about. To q
 
 Indeed, an error can propagate across many layers of calls before being caught. It’s easy to miss what a function might throw—especially if documentation is incomplete or out of date (which it almost always is).
 
-Furthermore, the language permits the use of generic catch blocks like `catch (...)` and these make things even more confusing. We end up catching *something*, but we no longer know what or who threw it at us! 😱
+Furthermore, the language permits the use of generic `catch (...)` blocks and these make things even more confusing. We end up catching *something*, but we no longer know what or who threw it at us! 😱
 
 In our own example, if, the `ChangePlayerNumberIfPossible` function throws an undocumented `std::runtime_error` exception but we only expect `std::out_of_range`, we don't have a good way of detecting this! Our only options are to allow such exceptions to be left unhandled and eventually to terminate our program or to add a `catch(...)` clause where we miss important context for what caused the error, making catching it a lot less useful:
 
@@ -669,11 +690,11 @@ All of these issues led a lot of code bases to ban exceptions altogether. In 201
 
 My own experience aligns with these results - every serious project I’ve worked on either banned exceptions completely, or avoided them in performance-critical paths. But then again, I did work in robotics and automotive for the majority of my career.
 
-The problem of using exceptions with an acceptable overhead has quite vibrant discussions around it with even calls for re-designing exceptions altogether as can be seen in this [wonderful talk by Herb Sutter](https://www.youtube.com/watch?v=ARYP83yNAWk) from CppCon 2019 as well as his [corresponding paper](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2019/p0709r4.pdf) on this topic.
+The problem of ensuring that using exceptions has an acceptable overhead has quite vibrant discussions around it with even calls for re-designing exceptions altogether as can be seen in this [wonderful talk by Herb Sutter](https://www.youtube.com/watch?v=ARYP83yNAWk) from CppCon 2019 as well as his [corresponding paper](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2019/p0709r4.pdf) on this topic.
 
 <!-- All of these are of course linked in description to this video. -->
 
-But until the C++ community figures out what to do, we are stuck with many people being unable to use the default error handling mechanism in C++.
+But until the C++ community figures out what to do, we are stuck with many people being unable to use the default error handling mechanism in C++. 🤷‍♂️
 
 So what *do* we do?
 
@@ -701,25 +722,9 @@ ChangeEntry GetNextChangeEntryFromUser(const Game& game);
 
 We can:
 
-1. Keep the return type, `ChangeEntry` in our case, but return a special **value** of this type in case of failure, say a value-initialized `ChangeEntry{}` object;
-2. Return an **error code**, which would change the signature of the function to return `int` or a similar type instead:
-
-    <!--
-    `CPP_SETUP_START`
-
-    struct ChangeEntry;
-    struct Game;
-
-    $PLACEHOLDER
-    `CPP_SETUP_END`
-    `CPP_COPY_SNIPPET` error_handling/get_change_error_code.cpp
-    `CPP_RUN_CMD` CWD:error_handling c++ -std=c++17 -c get_change_error_code.cpp
-    -->
-    ```cpp
-    int GetNextChangeEntryFromUser(const Game& game, ChangeEntry& result);
-    ```
-
-3. Return a **different type** specifically designed to encode failure states alongside the actual return, like `std::optional<ChangeEntry>` which only holds a valid `ChangeEntry` in case of success.
+1. Keep the return type, `ChangeEntry` in our case, but return a special **value** of this type in case of failure;
+2. Return an **error code** from our function to indicate success or failure;
+3. Return a **different type** specifically designed to encode failure states alongside the actual return.
 
 I believe that the third option is the best out of these three, but it will be easier to explain why I think so after we talk about why the first two are not cutting it.
 
@@ -1116,8 +1121,8 @@ using HugeErrorObject = int;
 
 $PLACEHOLDER
 `CPP_SETUP_END`
-`CPP_COPY_SNIPPET` error_handling/get_change_expected_main.cpp
-`CPP_RUN_CMD` CWD:error_handling c++ -std=c++23 -c get_change_expected_main.cpp
+`CPP_COPY_SNIPPET` error_handling/expected_bad.cpp
+`CPP_RUN_CMD` CWD:error_handling c++ -std=c++23 -c expected_bad.cpp
 -->
 ```cpp
 // Bad idea, wasting memory 😱
