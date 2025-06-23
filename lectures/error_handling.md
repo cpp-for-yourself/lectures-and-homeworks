@@ -120,9 +120,10 @@ class Game {
 
   void Print() const {
     std::cout << "Budget: " << budget_ << std::endl;
-    std::cout << "Computer numbers: ";
+    std::cout << "Reference numbers: ";
     for (auto number : ref_numbers_) { std::cout << number << "\t"; }
-    std::cout << "\nPlayer numbers:   ";
+    std::cout << std::endl;
+    std::cout << "Player numbers:    ";
     for (auto number : player_numbers_) { std::cout << number << "\t"; }
     std::cout << std::endl;
   }
@@ -145,6 +146,8 @@ class Game {
     budget_ -= difference;
   }
 
+  const std::vector<int>& ref_numbers() const { return ref_numbers_; }
+  const std::vector<int>& player_numbers() const { return player_numbers_; }
   bool UserHasBudget() const { return budget_ > 0; }
 
  private:
@@ -159,17 +162,18 @@ ChangeEntry GetNextChangeEntryFromUser(const Game& game) {
   ChangeEntry entry{};
   std::cout << "Please enter number to change: ";
   std::cin >> entry.index;
-  std::cout << "Please provide a a new value: ";
+  std::cout << "Please provide a new value: ";
   std::cin >> entry.value;
   return entry;
 }
 
 int main() {
-  Game game{{42, 50, 23}, {42, 40, 99}, 10};
+  Game game{{42, 49, 23}, {42, 40, 23}, 10};
   while (game.UserHasBudget()) {
     const auto change_entry = GetNextChangeEntryFromUser(game);
     game.ChangePlayerNumberIfPossible(change_entry);
   }
+  game.Print();
   if (game.CheckIfPlayerWon()) {
     std::cout << "You win!\n";
   } else {
@@ -260,6 +264,17 @@ Therefore a typical advice is to catch any wrong values that propagate through o
 
 My favorite tool for this is the [`CHECK`](https://abseil.io/docs/cpp/guides/logging#CHECK) macro that can be found in the [Abseil library](https://abseil.io/docs/). We can use it in our `ChangePlayerNumberIfPossible` to check if the index is within bounds:
 
+<!--
+`CPP_SETUP_START`
+#define CHECK(expr)
+#define CHECK_GE(expr, value)
+#define CHECK_LT(expr, value)
+
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` error_handling/main.cpp
+`CPP_RUN_CMD` CWD:error_handling mkdir -p absl/log && touch absl/log/check.h && c++ -std=c++17 -c main.cpp
+-->
 ```cpp
 #include <absl/log/check.h>
 

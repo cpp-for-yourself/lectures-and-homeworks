@@ -54,8 +54,7 @@ class Game {
   int budget_{};
 };
 
-// Multiple issues here for now.
-// We should handle failure to get a proper value.
+// 😱 We should handle failure to get a proper value.
 ChangeEntry GetNextChangeEntryFromUser(const Game& game) {
   game.Print();
   ChangeEntry entry{};
