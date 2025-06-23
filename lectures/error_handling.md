@@ -266,21 +266,37 @@ My favorite tool for this is the [`CHECK`](https://abseil.io/docs/cpp/guides/log
 
 <!--
 `CPP_SETUP_START`
+#include <vector>
+
 #define CHECK(expr)
 #define CHECK_GE(expr, value)
 #define CHECK_LT(expr, value)
 
+struct ChangeEntry {
+  int index{};
+  int value{};
+};
+
+class Game {
+  void ChangePlayerNumberIfPossible(const ChangeEntry& change_entry);
+
+ private:
+  std::vector<int> ref_numbers_{};
+  std::vector<int> player_numbers_{};
+  int budget_{};
+};
+
 $PLACEHOLDER
 `CPP_SETUP_END`
 `CPP_COPY_SNIPPET` error_handling/main.cpp
-`CPP_RUN_CMD` CWD:error_handling mkdir -p absl/log && touch absl/log/check.h && c++ -std=c++17 -c main.cpp
+`CPP_RUN_CMD` CWD:error_handling mkdir -p absl/log && touch absl/log/check.h && c++ -std=c++17 -I . -c main.cpp
 -->
 ```cpp
 #include <absl/log/check.h>
 
 // Old code unchanged here.
 
-void ChangePlayerNumberIfPossible(const ChangeEntry& change_entry) {
+void Game::ChangePlayerNumberIfPossible(const ChangeEntry& change_entry) {
   // Checking:
   //   (change_entry.index >= 0)
   //   (change_entry.index < player_numbers_.size())
@@ -318,12 +334,35 @@ Let me explain myself. You see, `assert` has one super annoying flaw that makes 
 
 First, we can use `assert` in a very similar way to `CHECK`:
 
+<!--
+`CPP_SETUP_START`
+#include <vector>
+
+struct ChangeEntry {
+  int index{};
+  int value{};
+};
+
+class Game {
+  void ChangePlayerNumberIfPossible(const ChangeEntry& change_entry);
+
+ private:
+  std::vector<int> ref_numbers_{};
+  std::vector<int> player_numbers_{};
+  int budget_{};
+};
+
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` error_handling/main_assert.cpp
+`CPP_RUN_CMD` CWD:error_handling c++ -std=c++17 -c main_assert.cpp
+-->
 ```cpp
 #include <cassert>
 
 // Old code unchanged here.
 
-void ChangePlayerNumberIfPossible(const ChangeEntry& change_entry) {
+void Game::ChangePlayerNumberIfPossible(const ChangeEntry& change_entry) {
   assert(change_entry.index >= 0);
   assert(change_entry.index < player_numbers_.size());
   auto& player_number = player_numbers_[change_entry.index];
@@ -393,6 +432,24 @@ To talk about them, let us focus on the function `GetNextChangeEntryFromUser` fr
 
 As we design our program, we know that the number index that the user provides first must be within the bounds of the player numbers vector of the `game` object:
 
+<!--
+`CPP_SETUP_START`
+#include <iostream>
+
+struct ChangeEntry {
+  int index{};
+  int value{};
+};
+
+struct Game {
+  void Print() const;
+};
+
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` error_handling/main_get_change_before.cpp
+`CPP_RUN_CMD` CWD:error_handling c++ -std=c++17 -c main_get_change_before.cpp
+-->
 ```cpp
 // 😱 We should handle failure to get a proper value.
 ChangeEntry GetNextChangeEntryFromUser(const Game& game) {
@@ -425,13 +482,32 @@ Since C++98 we have a powerful machinery of exceptions at our disposal. An excep
 
 In our example, we could throw an object of `std::out_of_range` when the user inputs a wrong number index:
 
+<!--
+`CPP_SETUP_START`
+#include <iostream>
+
+struct ChangeEntry {
+  int index{};
+  int value{};
+};
+
+struct Game {
+  void Print() const;
+  std::vector<int> player_numbers() const;
+};
+
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` error_handling/get_change_exceptions.cpp
+`CPP_RUN_CMD` CWD:error_handling c++ -std=c++17 -c get_change_exceptions.cpp
+-->
 ```cpp
 // 😱 I'm not a fan of using exceptions.
 ChangeEntry GetNextChangeEntryFromUser(const Game& game) {
   game.Print();
   ChangeEntry entry{};
   std::cout << "Please enter number to change: ";
-  std::cin >> entry.index;  // <-- This value is NOT arbitrary!
+  std::cin >> entry.index;
   if ((entry.index < 0) || (entry.index >= game.player_numbers().size())) {
     throw std::out_of_range("Wrong number index provided.");
   }
@@ -445,6 +521,40 @@ Throwing an exception interrupts the normal program flow. We leave the current s
 
 Speaking of handling exceptions, we can "catch" them anywhere upstream from the place they have been thrown from. As `std::exception` is just an object, it can be caught by value or by reference. It is considered best practice to catch them by reference. In our case we can catch either an `std::out_of_range` exception directly or, as `std::out_of_range` derives from `std::exception`, catch `std::exception` instead:
 
+<!--
+`CPP_SETUP_START`
+#include <iostream>
+
+struct ChangeEntry {
+  int index{};
+  int value{};
+};
+
+struct Game {
+  Game(std::vector<int>&& ref_numbers,
+       std::vector<int>&& player_numbers,
+       int budget)
+      : ref_numbers_{std::move(ref_numbers)},
+        player_numbers_{std::move(player_numbers)},
+        budget_{budget} {}
+  void Print() const;
+  std::vector<int> player_numbers() const;
+  void ChangePlayerNumberIfPossible(const ChangeEntry&);
+  bool UserHasBudget() const;
+  bool CheckIfPlayerWon() const;
+
+  std::vector<int> ref_numbers_{};
+  std::vector<int> player_numbers_{};
+  int budget_{};
+};
+
+ChangeEntry GetNextChangeEntryFromUser(const Game& game);
+
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` error_handling/main_get_change_exceptions.cpp
+`CPP_RUN_CMD` CWD:error_handling c++ -std=c++17 -c main_get_change_exceptions.cpp
+-->
 ```cpp
 // Old unchanged code.
 
@@ -505,6 +615,32 @@ Furthermore, the language permits the use of generic catch blocks like `catch (.
 
 In our own example, if, the `ChangePlayerNumberIfPossible` function throws an undocumented `std::runtime_error` exception but we only expect `std::out_of_range`, we don't have a good way of detecting this! Our only options are to allow such exceptions to be left unhandled and eventually to terminate our program or to add a `catch(...)` clause where we miss important context for what caused the error, making catching it a lot less useful:
 
+<!--
+`CPP_SETUP_START`
+#include <iostream>
+
+struct ChangeEntry {
+  int index{};
+  int value{};
+};
+
+struct Game {
+  Game(std::vector<int>&& ref_numbers,
+       std::vector<int>&& player_numbers,
+       int budget);
+  void Print() const;
+  std::vector<int> player_numbers() const;
+  void ChangePlayerNumberIfPossible(const ChangeEntry&);
+  bool UserHasBudget() const;
+};
+
+ChangeEntry GetNextChangeEntryFromUser(const Game& game);
+
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` error_handling/main_get_change_exceptions_ellipsis.cpp
+`CPP_RUN_CMD` CWD:error_handling c++ -std=c++17 -c main_get_change_exceptions_ellipsis.cpp
+-->
 ```cpp
 int main() {
   Game game{{42, 49, 23}, {42, 40, 23}, 10};
@@ -548,6 +684,17 @@ Now is a time to return to the other option of detecting errors in functions tha
 I would say that there are three distinct ways of thinking about it.
 Let's illustrate all of them on a function we've already looked at:
 
+<!--
+`CPP_SETUP_START`
+
+struct ChangeEntry;
+struct Game;
+
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` error_handling/main_get_change_old.cpp
+`CPP_RUN_CMD` CWD:error_handling c++ -std=c++17 -c main_get_change_old.cpp
+-->
 ```cpp
 ChangeEntry GetNextChangeEntryFromUser(const Game& game);
 ```
@@ -557,6 +704,17 @@ We can:
 1. Keep the return type, `ChangeEntry` in our case, but return a special **value** of this type in case of failure, say a value-initialized `ChangeEntry{}` object;
 2. Return an **error code**, which would change the signature of the function to return `int` or a similar type instead:
 
+    <!--
+    `CPP_SETUP_START`
+
+    struct ChangeEntry;
+    struct Game;
+
+    $PLACEHOLDER
+    `CPP_SETUP_END`
+    `CPP_COPY_SNIPPET` error_handling/get_change_error_code.cpp
+    `CPP_RUN_CMD` CWD:error_handling c++ -std=c++17 -c get_change_error_code.cpp
+    -->
     ```cpp
     int GetNextChangeEntryFromUser(const Game& game, ChangeEntry& result);
     ```
@@ -569,6 +727,30 @@ I believe that the third option is the best out of these three, but it will be e
 
 There is a number of issues with returning a special value from a function without using a special return type. As an illustration, in our case, a naïve choice would be to return a value-initialized `ChangeEntry{}` object from the `GetNextChangeEntryFromUser` function if the user provided a wrong number index. This object will essentially hold zeros for its `index` and `value` entries. However, as you might imagine, a pair of zeros *is* a completely valid, if slightly useless, change entry! How do we disambiguate this value from a valid one?
 
+<!--
+`CPP_SETUP_START`
+#include <iostream>
+
+struct ChangeEntry {
+  int index{};
+  int value{};
+};
+
+struct Game {
+  Game(std::vector<int>&& ref_numbers,
+       std::vector<int>&& player_numbers,
+       int budget);
+  void Print() const;
+  std::vector<int> player_numbers() const;
+};
+
+ChangeEntry GetNextChangeEntryFromUser(const Game& game);
+
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` error_handling/get_change_default_value.cpp
+`CPP_RUN_CMD` CWD:error_handling c++ -std=c++17 -c get_change_default_value.cpp
+-->
 ```cpp
 // 😱 Not a great idea!
 ChangeEntry GetNextChangeEntryFromUser(const Game& game) {
@@ -591,18 +773,92 @@ Many other real-world functions will face the same issues which makes this metho
 
 Returning an error code instead solves at least a couple of these issues. It is fast and reliable and we can design our software with different error codes in mind so that the reason for the failure is also communicated to us. This is also still the prevalent way of handling errors in C and in some libraries that we can find in the wild, so there *is* some merit to this method.
 
-However, if our function actually must *return* a value, which most of the functions do, the only way to use error codes is to change its return type to the type that our error codes have, like `int`, which forces us to provide an additional output parameter to our function, like `ChangeEntry& result`:
+However, if our function actually must *return* a value, which most of the functions do, the only way to use error codes is to change its return type to the type that our error codes have, like `int`, which forces us to provide an additional output parameter to our function, like `ChangeEntry& result` which we subsequently dill inside of the body of our function:
 
+<!--
+`CPP_SETUP_START`
+#include <vector>
+#include <iostream>
+
+struct ChangeEntry {
+  int index{};
+  int value{};
+};
+
+struct Game {
+  Game(std::vector<int>&& ref_numbers,
+       std::vector<int>&& player_numbers,
+       int budget);
+  void Print() const;
+  std::vector<int> player_numbers() const;
+};
+
+constexpr inline int kError = 1;
+constexpr inline int kSuccess = 0;
+
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` error_handling/get_change_error_code_full.cpp
+`CPP_RUN_CMD` CWD:error_handling c++ -std=c++17 -c get_change_error_code_full.cpp
+-->
 ```cpp
-int GetNextChangeEntryFromUser(const Game& game, ChangeEntry& result);
+// 😱 Mostly not a great idea in C++.
+int GetNextChangeEntryFromUser(const Game& game, ChangeEntry& result) {
+  game.Print();
+  std::cout << "Please enter number to change: ";
+  int index{};
+  std::cin >> index;
+  if ((index < 0) || (index >= game.player_numbers().size())) {
+    return kError;  // Probably some constant defined elsewhere.
+  }
+  result.index = index;
+  std::cout << "Please provide a new value: ";
+  std::cin >> result.value;
+  return kSuccess;  // Typically a 0, but using a constant is better.
+}
 ```
 
 The main issue with this from my point of view is that it is clunky, mixes input/output in the signature, and limits functional composition.
 
 Consider how we would use this function:
 
+<!--
+`CPP_SETUP_START`
+#include <iostream>
+
+constexpr inline int kError = 1;
+constexpr inline int kSuccess = 0;
+
+struct ChangeEntry {
+  int index{};
+  int value{};
+};
+
+struct Game {
+  Game(std::vector<int>&& ref_numbers,
+       std::vector<int>&& player_numbers,
+       int budget);
+  void Print() const;
+  std::vector<int> player_numbers() const;
+  void ChangePlayerNumberIfPossible(const ChangeEntry&);
+  bool UserHasBudget() const;
+};
+
+int GetNextChangeEntryFromUser(const Game&, ChangeEntry&);
+
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` error_handling/main_get_change_error_code.cpp
+`CPP_RUN_CMD` CWD:error_handling c++ -std=c++17 -c main_get_change_error_code.cpp
+-->
 ```cpp
 // Old code above.
+
+std::string GetFailureReason(int constant) {
+  // Some logic to return a message.
+  if (constant == kError) { return "Provided index is out of range."; }
+  return "Unknown error encountered.";
+}
 
 int main() {
   Game game{{42, 49, 23}, {42, 40, 23}, 10};
@@ -610,8 +866,8 @@ int main() {
     // Cannot be const, cannot use auto, have to allocate.
     ChangeEntry change_entry{};
     const auto error_code = GetNextChangeEntryFromUser(game, change_entry);
-    if (error_code != 0) {
-      std::cerr << GetReason(error_code) << std::endl;
+    if (error_code != kSuccess) {
+      std::cerr << GetFailureReason(error_code) << std::endl;
       continue;
     }
     game.ChangePlayerNumberIfPossible(change_entry);
@@ -634,6 +890,33 @@ So clearly, there are some issues with this method too. I believe it has its mer
 
 I believe that there *is* a better way though. With C++17, we gained [`std::optional`](https://en.cppreference.com/w/cpp/utility/optional.html) with which we can express that a function “might return a value” by returning an object of `std::optional<ChangeEntry>` type. We can create this object either empty, holding a so-called `std::nullopt`, or from a valid `ChangeEntry`:
 
+<!--
+`CPP_SETUP_START`
+#include <iostream>
+
+constexpr inline int kError = 1;
+constexpr inline int kSuccess = 0;
+
+struct ChangeEntry {
+  int index{};
+  int value{};
+};
+
+struct Game {
+  Game(std::vector<int>&& ref_numbers,
+       std::vector<int>&& player_numbers,
+       int budget);
+  void Print() const;
+  std::vector<int> player_numbers() const;
+  void ChangePlayerNumberIfPossible(const ChangeEntry&);
+  bool UserHasBudget() const;
+};
+
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` error_handling/get_change_optional.cpp
+`CPP_RUN_CMD` CWD:error_handling c++ -std=c++17 -c get_change_optional.cpp
+-->
 ```cpp
 #include <optional>
 
@@ -654,6 +937,32 @@ std::optional<ChangeEntry> GetNextChangeEntryFromUser(const Game& game) {
 
 We can use our newly-returned optional object in an `if` statement to find out if it actually holds a valid change entry. If the object does not hold a value, we show an error and continue asking the user to provide better input but if the object *does* hold a value, we can get to it by calling its `value()` method or using a dereferencing operators `*` and `->`, just like we did with pointers:
 
+<!--
+`CPP_SETUP_START`
+#include <iostream>
+
+struct ChangeEntry {
+  int index{};
+  int value{};
+};
+
+struct Game {
+  Game(std::vector<int>&& ref_numbers,
+       std::vector<int>&& player_numbers,
+       int budget);
+  void Print() const;
+  std::vector<int> player_numbers() const;
+  void ChangePlayerNumberIfPossible(const ChangeEntry&);
+  bool UserHasBudget() const;
+};
+
+std::optional<ChangeEntry> GetNextChangeEntryFromUser(const Game& game);
+
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` error_handling/get_change_optional_main.cpp
+`CPP_RUN_CMD` CWD:error_handling c++ -std=c++17 -c get_change_optional_main.cpp
+-->
 ```cpp
 // Other code above.
 int main() {
@@ -686,12 +995,31 @@ Enter [`std::expected`](https://en.cppreference.com/w/cpp/utility/expected.html)
 
 With `std::expected` we could do the same things we could do with `std::optional` and more by changing our function accordingly:
 
-```cpp
-std::expected<std::string, std::string> GetAnswerFromLlm(const std::string& question);
-```
+<!--
+`CPP_SETUP_START`
+#include <iostream>
+#include <vector>
 
-Essentially, `std::expected` holds one of two values of two potentially different types - an expected (`ChangeEntry` in our case) or an unexpected one (`std::string` in our tiny example). Now we can return either a valid result, *or* an error message:
+struct ChangeEntry {
+  int index{};
+  int value{};
+};
 
+struct Game {
+  Game(std::vector<int>&& ref_numbers,
+       std::vector<int>&& player_numbers,
+       int budget);
+  void Print() const;
+  std::vector<int> player_numbers() const;
+  void ChangePlayerNumberIfPossible(const ChangeEntry&);
+  bool UserHasBudget() const;
+};
+
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` error_handling/get_change_expected.cpp
+`CPP_RUN_CMD` CWD:error_handling c++ -std=c++23 -c get_change_expected.cpp
+-->
 ```cpp
 #include <expected>
 #include <format>
@@ -711,8 +1039,38 @@ std::expected<ChangeEntry, std::string> GetNextChangeEntryFromUser(const Game& g
 }
 ```
 
+Essentially, `std::expected` holds one of two values of two potentially different types - an expected (`ChangeEntry` in our case) or an unexpected one (`std::string` in our tiny example). Now we can return either a valid result, *or* an error message.
+
 Using it is also quite neat and is actually very similar to how we used the `std::optional`, the only difference is that we can now get the `error` from the object we return from `GetNextChangeEntryFromUser` if it holds one:
 
+<!--
+`CPP_SETUP_START`
+#include <iostream>
+#include <expected>
+#include <vector>
+
+struct ChangeEntry {
+  int index{};
+  int value{};
+};
+
+struct Game {
+  Game(std::vector<int>&& ref_numbers,
+       std::vector<int>&& player_numbers,
+       int budget);
+  void Print() const;
+  std::vector<int> player_numbers() const;
+  void ChangePlayerNumberIfPossible(const ChangeEntry&);
+  bool UserHasBudget() const;
+};
+
+std::expected<ChangeEntry, std::string> GetNextChangeEntryFromUser(const Game& game);
+
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` error_handling/get_change_expected_main.cpp
+`CPP_RUN_CMD` CWD:error_handling c++ -std=c++23 -c get_change_expected_main.cpp
+-->
 ```cpp
 // Other code above.
 int main() {
@@ -750,6 +1108,17 @@ In the case of `std::optional` this does not play much of a difference, as the "
 
 So this is something to avoid:
 
+<!--
+`CPP_SETUP_START`
+#include <expected>
+
+using HugeErrorObject = int;
+
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` error_handling/get_change_expected_main.cpp
+`CPP_RUN_CMD` CWD:error_handling c++ -std=c++23 -c get_change_expected_main.cpp
+-->
 ```cpp
 // Bad idea, wasting memory 😱
 std::expected<int, HugeErrorObject> SomeFunction();
