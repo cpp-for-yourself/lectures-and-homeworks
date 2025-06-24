@@ -284,6 +284,7 @@ My favorite tool for this is the [`CHECK`](https://abseil.io/docs/cpp/guides/log
 <!--
 `CPP_SETUP_START`
 #include <vector>
+#include <algorithm>
 
 #define CHECK_GE(expr, value)
 #define CHECK_LT(expr, value)
@@ -357,6 +358,7 @@ First, we can use `assert` in a very similar way to `CHECK`:
 <!--
 `CPP_SETUP_START`
 #include <vector>
+#include <algorithm>
 
 struct ChangeEntry {
   int index{};
@@ -515,6 +517,7 @@ In our example, we could throw an object of `std::out_of_range` when the user in
 <!--
 `CPP_SETUP_START`
 #include <iostream>
+#include <vector>
 
 struct ChangeEntry {
   int index{};
@@ -554,6 +557,7 @@ Speaking of handling exceptions, we can "catch" them anywhere upstream from the 
 <!--
 `CPP_SETUP_START`
 #include <iostream>
+#include <vector>
 
 struct ChangeEntry {
   int index{};
@@ -650,6 +654,7 @@ In our own example, if, the `ChangePlayerNumberIfPossible` function throws an un
 <!--
 `CPP_SETUP_START`
 #include <iostream>
+#include <vector>
 
 struct ChangeEntry {
   int index{};
@@ -730,6 +735,7 @@ There is a number of issues with returning a special value from a function witho
 <!--
 `CPP_SETUP_START`
 #include <iostream>
+#include <vector>
 
 struct ChangeEntry {
   int index{};
@@ -825,6 +831,7 @@ Consider how we would use this function:
 <!--
 `CPP_SETUP_START`
 #include <iostream>
+#include <vector>
 
 constexpr inline int kError = 1;
 constexpr inline int kSuccess = 0;
@@ -891,6 +898,7 @@ I believe that there *is* a better way though. With C++17, we gained [`std::opti
 <!--
 `CPP_SETUP_START`
 #include <iostream>
+#include <vector>
 
 constexpr inline int kError = 1;
 constexpr inline int kSuccess = 0;
@@ -938,6 +946,7 @@ We can use our newly-returned optional object in an `if` statement to find out i
 <!--
 `CPP_SETUP_START`
 #include <iostream>
+#include <vector>
 
 struct ChangeEntry {
   int index{};
