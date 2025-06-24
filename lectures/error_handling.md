@@ -947,6 +947,7 @@ We can use our newly-returned optional object in an `if` statement to find out i
 `CPP_SETUP_START`
 #include <iostream>
 #include <vector>
+#include <optional>
 
 struct ChangeEntry {
   int index{};
