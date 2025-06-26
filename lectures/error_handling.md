@@ -86,7 +86,11 @@ But, for my money, this classification, while not universal, is still useful. So
 
 We have a lot to talk about and to not get lost, I would like to introduce a small example that will guide us and help illustrate all of the concepts we are talking about today.
 
-To this end, let's model a simple puzzle game. In this game a player start with a vector of numbers generated for them. In the end of the game, this vector gets compared to some, also generated, reference vector. The player wins if, when comparing numbers one-by-one, they have the higher number more times.
+<img src="images/game_loss.png" alt="Game loss" align="right" width=50% style="margin: 0.5rem">
+
+To this end, let's model a simple puzzle game. In this game a player start with a vector of numbers generated for them. In the end of the game, this vector gets compared to some, also generated, reference vector. The vectors are compared element-by-element. The player gets nothing if the elements are equal, a `-1` if their number is smaller than the reference one, and a `+1` if their number is larger. If the resulting sum of these scores is positive - the player wins the game, and loses otherwise.
+
+<img src="images/game_win.png" alt="Game win" align="right" width=50% style="margin: 0.5rem">
 
 To make it an actual *game*, we need to give the player at least *some* control over their numbers. So we allow them to use a certain budget that can be used up to increase any numbers in their vector. The goal is to use the budget cleverly to win the game.
 
@@ -175,7 +179,7 @@ ChangeEntry GetNextChangeEntryFromUser(const Game& game) {
 }
 
 int main() {
-  Game game{{42, 49, 23}, {42, 40, 23}, 10};
+  Game game{{42, 49, 23}, {10, 40, 24}, 10};
   while (game.UserHasBudget()) {
     const auto change_entry = GetNextChangeEntryFromUser(game);
     game.ChangePlayerNumberIfPossible(change_entry);
@@ -211,22 +215,22 @@ We run our executable and are greeted with expected numbers as well as a prompt 
 λ › ./comparison_game
 Budget: 10
 Reference numbers: 42    49      23
-Player numbers:    42    40      23
+Player numbers:    10    40      24
 Please enter number to change:
 ```
 
-We tie the reference numbers in the first and third columns but lose in the second one. So our only chance to win is to change the value `40` to `50`, which is also what our budget allows for! So we provide these numbers to our program and observe what happens:
+We see that we hopelessly lose on the first number but we win on the last number. The decisive number here is the second one, which we can increase by `10` from `40` to `50`, leading us to win this game! Considering that our budget is exactly `10` we provide these numbers to our program and observe what happens:
 
 ```output
 λ › ./comparison_game
 Budget: 10
 Reference numbers: 42    49      23
-Player numbers:    42    40      23
+Player numbers:    10    40      24
 Please enter number to change: 40
 Please provide a a new value: 49
 Budget: 2
 Reference numbers: 50    49      23
-Player numbers:    42    40      23
+Player numbers:    10    40      24
 Please enter number to change:
 ```
 
@@ -244,12 +248,12 @@ If we correct our mistake by rerunning our game again and providing `1` as the f
 λ › ./comparison_game
 Budget: 10
 Reference numbers: 42   49      23
-Player numbers:    42   40      23
+Player numbers:    10   40      24
 Please enter number to change: 1
 Please provide a new value: 50
 Budget: 0
 Reference numbers: 42   49      23
-Player numbers:    42   50      23
+Player numbers:    10   50      24
 You win!
 ```
 
@@ -258,6 +262,8 @@ When we provide `40` as we did the first time, our wrong index is far beyond the
 What happens next is **unpredictable**. If we are *lucky* and the address into which we write does **not** belong to our program, the program will crash.
 
 If we are *not* lucky however, we will rewrite *some* memory that belongs to our program, potentially corrupting any objects that actually own that memory.
+
+<img src="images/memory_ub.png" alt="Memory layout" align="right" width=50% style="margin: 0.5rem">
 
 In this particular example, I picked the values in such a way, that the "fake index" just happens to be equal to a difference in pointers `player_numbers_.data()` and `ref_numbers_.data()`. Which then results in us writing directly into the first element of the `ref_numbers_` vector, resulting in an unexpected update to the reference numbers.
 
@@ -269,7 +275,7 @@ What *doesn't* change is that once the `ChangePlayerNumberIfPossible` method is 
 
 Arbitrary objects might have already been corrupted and can behave in unpredictable ways from this point on without us knowing about it. Which can lead to random-looking sporadic failures in seemingly unrelated parts of our program across multiple runs. This obviously becomes even harder to track down when we write more complex programs than our toy example here.
 
-🚨 This idea lies at the core of what makes this type of errors "unrecoverable". If the data we try to use for recovery is also corrupted, we have no guarantees that any recovery will succeed at all!
+🚨 **This idea lies at the core of what makes this type of errors "unrecoverable". If the data we try to use for recovery is also corrupted, we have no guarantees that any recovery will succeed at all!**
 
 ## How to deal with unrecoverable errors
 
@@ -279,7 +285,7 @@ Therefore a typical advice is to catch any wrong values that propagate through o
 
 ### Use `CHECK` macro to fail early
 
-My favorite tool for this is the [`CHECK`](https://abseil.io/docs/cpp/guides/logging#CHECK) macro that can be found in the [Abseil library](https://abseil.io/docs/). We can use it in our `ChangePlayerNumberIfPossible` to check if the index is within bounds:
+My favorite tool for this is the [`CHECK`](https://abseil.io/docs/cpp/guides/logging#CHECK) macro that can be found in the [Abseil library](https://abseil.io/docs/). To use it, we must include the `absl/log/check.h` header file and change our `ChangePlayerNumberIfPossible` function so that is uses the `CHECK` macro to check if the index is within bounds:
 
 <!--
 `CPP_SETUP_START`
@@ -593,7 +599,7 @@ $PLACEHOLDER
 // Old unchanged code.
 
 int main() {
-  Game game{{42, 49, 23}, {42, 40, 23}, 10};
+  Game game{{42, 49, 23}, {10, 40, 24}, 10};
   while (game.UserHasBudget()) {
     try {
       const auto change_entry = GetNextChangeEntryFromUser(game);
@@ -680,7 +686,7 @@ $PLACEHOLDER
 -->
 ```cpp
 int main() {
-  Game game{{42, 49, 23}, {42, 40, 23}, 10};
+  Game game{{42, 49, 23}, {10, 40, 24}, 10};
   while (game.UserHasBudget()) {
     try {
       const auto change_entry = GetNextChangeEntryFromUser(game);
@@ -868,7 +874,7 @@ std::string GetFailureReason(int constant) {
 }
 
 int main() {
-  Game game{{42, 49, 23}, {42, 40, 23}, 10};
+  Game game{{42, 49, 23}, {10, 40, 24}, 10};
   while (game.UserHasBudget()) {
     // Cannot be const, cannot use auto, have to allocate.
     ChangeEntry change_entry{};
@@ -974,7 +980,7 @@ $PLACEHOLDER
 ```cpp
 // Other code above.
 int main() {
-  Game game{{42, 49, 23}, {42, 40, 23}, 10};
+  Game game{{42, 49, 23}, {10, 40, 24}, 10};
   while (game.UserHasBudget()) {
     const auto change_entry = GetNextChangeEntryFromUser(game);
     if (!change_entry) {  // Also possible: change_entry.has_value().
@@ -1078,7 +1084,7 @@ $PLACEHOLDER
 ```cpp
 // Other code above.
 int main() {
-  Game game{{42, 49, 23}, {42, 40, 23}, 10};
+  Game game{{42, 49, 23}, {10, 40, 24}, 10};
   while (game.UserHasBudget()) {
     const auto change_entry = GetNextChangeEntryFromUser(game);
     if (!change_entry) {  // Also possible: change_entry.has_value().
