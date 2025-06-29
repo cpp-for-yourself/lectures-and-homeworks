@@ -541,6 +541,10 @@ $PLACEHOLDER
 `CPP_RUN_CMD` CWD:error_handling c++ -std=c++17 -c get_change_exceptions.cpp
 -->
 ```cpp
+#include <stdexcept>
+
+// Old unchanged code.
+
 // 😱 I'm not a fan of using exceptions.
 ChangeEntry GetNextChangeEntryFromUser(const Game& game) {
   game.Print();
@@ -596,6 +600,8 @@ $PLACEHOLDER
 `CPP_RUN_CMD` CWD:error_handling c++ -std=c++17 -c main_get_change_exceptions.cpp
 -->
 ```cpp
+#include <stdexcept>
+
 // Old unchanged code.
 
 int main() {
@@ -685,6 +691,8 @@ $PLACEHOLDER
 `CPP_RUN_CMD` CWD:error_handling c++ -std=c++17 -c main_get_change_exceptions_ellipsis.cpp
 -->
 ```cpp
+// Old unchanged code.
+
 int main() {
   Game game{{42, 49, 23}, {10, 40, 24}, 10};
   while (game.UserHasBudget()) {
@@ -876,7 +884,7 @@ std::string GetFailureReason(int constant) {
 int main() {
   Game game{{42, 49, 23}, {10, 40, 24}, 10};
   while (game.UserHasBudget()) {
-    // Cannot be const, cannot use auto, have to allocate.
+    // Cannot be const, cannot use auto, has to allocate.
     ChangeEntry change_entry{};
     const auto error_code = GetNextChangeEntryFromUser(game, change_entry);
     if (error_code != kSuccess) {
@@ -1041,7 +1049,9 @@ std::expected<ChangeEntry, std::string> GetNextChangeEntryFromUser(const Game& g
   std::cout << "Please enter number to change: ";
   std::cin >> entry.index;
   if ((entry.index < 0) || (entry.index >= game.player_numbers().size())) {
-    return std::unexpected(std::format("Index {} must be in [0, {}) interval", entry.index, game.player_numbers().size()));
+    return std::unexpected(
+      std::format("Index {} must be in [0, {}) interval",
+                  entry.index, game.player_numbers().size()));
   }
   std::cout << "Please provide a new value: ";
   std::cin >> entry.value;
@@ -1148,7 +1158,7 @@ These topics are quite nuanced, and I don't want to go into many details here bu
 
 I believe that this concludes a more of less complete overview of how to deal (and how *not* to deal) with errors in modern C++.
 
-As a short summary, I hope that I could convince you that these are some sane suggestions:
+As a short summary, I hope that I could convince you that these are some sane suggestions (that can also be found in the [final example](code/error_handling/comparison_game/comparison_game_expected.cpp)):
 
 - Use `CHECK` and similar macros for dealing with unrecoverable errors like programming bugs or contract violations in order to fail as fast as possible when they are encountered;
 - Keep the test coverage of the code high to reduce chances of crashing in the released code;
