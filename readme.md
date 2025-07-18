@@ -721,6 +721,47 @@ Headers with classes
 ----------------------------------------------------------
 </details>
 
+<details>
+<summary>Error handling in C++</summary>
+
+----------------------------------------------------------
+[![Video thumbnail](https://img.youtube.com/vi/6DqX8OJKM1g/maxresdefault.jpg)](https://youtu.be/6DqX8OJKM1g)
+
+- [Disclaimer](#disclaimer)
+- [What Do We Mean by “Error”?](lectures/error_handling.md#what-do-we-mean-by-error)
+- [Setting up the example: **a comparison game**](lectures/error_handling.md#setting-up-the-example-a-comparison-game)
+  - [Rules of the game](lectures/error_handling.md#rules-of-the-game)
+  - [Initial code of the game](lectures/error_handling.md#initial-code-of-the-game)
+- [Unrecoverable errors: **fail early**](lectures/error_handling.md#unrecoverable-errors-fail-early)
+  - [Our first unrecoverable error encounter](lectures/error_handling.md#our-first-unrecoverable-error-encounter)
+  - [How to deal with unrecoverable errors](lectures/error_handling.md#how-to-deal-with-unrecoverable-errors)
+    - [Catch them as early as possible](lectures/error_handling.md#catch-them-as-early-as-possible)
+    - [Use `CHECK` macro to fail early](lectures/error_handling.md#use-check-macro-to-fail-early)
+    - [Don't use `assert`](lectures/error_handling.md#dont-use-assert)
+    - [Complete the `Game` class yourself](lectures/error_handling.md#complete-the-game-class-yourself)
+  - [How to minimize number of unrecoverable errors](lectures/error_handling.md#how-to-minimize-number-of-unrecoverable-errors)
+- [Recoverable errors: **handle and proceed**](lectures/error_handling.md#recoverable-errors-handle-and-proceed)
+  - [Exceptions](lectures/error_handling.md#exceptions)
+    - [How to use exceptions](lectures/error_handling.md#how-to-use-exceptions)
+    - [A case for exceptions for both "recoverable" and "unrecoverable" errors](lectures/error_handling.md#a-case-for-exceptions-for-both-recoverable-and-unrecoverable-errors)
+    - [Why we might not want to use exceptions](lectures/error_handling.md#why-we-might-not-want-to-use-exceptions)
+      - [Exceptions are (sometimes) expensive](lectures/error_handling.md#exceptions-are-sometimes-expensive)
+      - [Exceptions hide the error path](lectures/error_handling.md#exceptions-hide-the-error-path)
+      - [Exceptions are banned in many code bases](lectures/error_handling.md#exceptions-are-banned-in-many-code-bases)
+  - [Returning errors explicitly can work better if done well](lectures/error_handling.md#returning-errors-explicitly-can-work-better-if-done-well)
+    - [Returning a value indicating error does not always work 😱](lectures/error_handling.md#returning-a-value-indicating-error-does-not-always-work-)
+    - [Returning an error code breaks "pure functions" 😱](lectures/error_handling.md#returning-an-error-code-breaks-pure-functions-)
+    - [Using `std::optional`: **a better way**](lectures/error_handling.md#using-stdoptional-a-better-way)
+    - [Using `std::expected`: **add context**](lectures/error_handling.md#using-stdexpected-add-context)
+  - [Performance Considerations for `std::optional` and `std::expected`](lectures/error_handling.md#performance-considerations-for-stdoptional-and-stdexpected)
+    - [Error type size matters](lectures/error_handling.md#error-type-size-matters)
+    - [Return value optimization with `std::optional` and `std::expected`](lectures/error_handling.md#return-value-optimization-with-stdoptional-and-stdexpected)
+  - [Summary](lectures/error_handling.md#summary)
+  - [Other use of `std::optional`](lectures/error_handling.md#other-use-of-stdoptional)
+
+----------------------------------------------------------
+</details>
+
 ## PS
 
 ### Most of the code snippets are validated automatically
