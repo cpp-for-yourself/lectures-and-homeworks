@@ -2,7 +2,7 @@
 **Error Handling in C++**
 
 <p align="center">
-  <a href="https://youtu.be/dummy_link"><img src="https://img.youtube.com/vi/dummy_link/maxresdefault.jpg" alt="Video Thumbnail" align="right" width=50% style="margin: 0.5rem"></a>
+  <a href="https://youtu.be/6DqX8OJKM1g"><img src="https://img.youtube.com/vi/6DqX8OJKM1g/maxresdefault.jpg" alt="Video Thumbnail" align="right" width=50% style="margin: 0.5rem"></a>
 </p>
 
 - [Disclaimer](#disclaimer)
@@ -45,10 +45,6 @@ So get a coffee and buckle up! There is a lot to cover and quite some nuance in 
 
 Ah, and I can already smell the torches and hear the scraping of the pitchforks that people will inevitably bring to punish me for all the controversial statements I am about to make! What can go wrong, eh?
 
-<!-- Add a video from shreck?
-Link: https://www.youtube.com/watch?v=Waa9UqVP4KI
--->
-
 # Disclaimer
 
 Jokes aside, this is definitely *not* a one-size-fits-all topic. C++ is huge, powerful, and used across every domain imaginable for a long-long time.
@@ -62,8 +58,6 @@ However, I believe that what we talk about today fits many setups with minimal a
 <!-- And, on this note, your comments and likes are the only ways I get any feedback from speaking into the void! So please do not shy away from sharing what you think, positive or negative! I value every nugget of feedback I can get!
 
 Now, back to error handling. -->
-
-<!-- TODO: Film the camera that films me, slowly zooming in. -->
 
 # What Do We Mean by “Error”?
 
@@ -227,7 +221,7 @@ Budget: 10
 Reference numbers: 42    49      23
 Player numbers:    10    40      24
 Please enter number to change: 40
-Please provide a a new value: 49
+Please provide a new value: 50
 Budget: 2
 Reference numbers: 50    49      23
 Player numbers:    10    40      24
@@ -341,7 +335,7 @@ If we run our example now, we will get a crash as soon as we call the `ChangePla
 F0000 00:00:1750605447.566908       1 example.cpp:44] Check failed: change_entry.index < player_numbers_.size() (40 vs. 3)
 ```
 
-To the degree of my knowledge, using `CHECK`-like macros to check pre-conditions of functions is widely considered a good practice. These `CHECK`s can be violated either due to a bug in our program or due to some undefined behavior just like in our example from earlier.
+To the degree of my knowledge, using `CHECK`-like macros to check pre-conditions of functions is [widely considered a good practice](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#i6-prefer-expects-for-expressing-preconditions). These `CHECK`s can be violated either due to a bug in our program or due to some undefined behavior just like in our example from earlier.
 
 One concern that people have when thinking of using the `CHECK` macros is performance as these checks stay in the production code we ship and do cost some little time when our program runs.
 
@@ -427,8 +421,6 @@ c++ -std=c++17 -DNDEBUG -o comparison_game comparison_game.cpp
 ```
 
 Running our game *now* and providing a wrong input index leads to the same undefined behavior we observed before as all of the assertions were compiled out. Not great, right? What makes it even less great is that many people just don't know that `asserts` get disabled like that and are sure that they are protected, while they really are not!
-
-<!-- Get the UB kick assert's ass, and me pushing the UB away -->
 
 And `CHECK` does not have these flaws.
 
