@@ -6,45 +6,175 @@
   <a href="https://youtu.be/dummy_link"><img src="https://img.youtube.com/vi/dummy_link/maxresdefault.jpg" alt="Video Thumbnail" align="right" width=50% style="margin: 0.5rem"></a>
 </p>
 
-In the last lecture we talked about `std::optional` and `std::expected` types that make our life better when we want to handle errors. Both of these types can store multiple values in the same memory. It might be useful to understand _how_ they can store two values of different types in the same memory. We can get a glimpse into this by understanding how `std::variant` works. Furthermore, we can store many more types than two in it.
+When people think about runtime polymorphism in C++ they usually think about virtual functions and pointers. But in modern C++ we seem to embrace value semantics more and more for its efficiency and clarity.
 
-But, probably even more importantly, `std::variant` also happens to be the key to achieving a form of dynamic polymorphism when using templates.
+So the question is: what if we want that runtime power without giving up value semantics?
+
+And, as you might have already guessed, there’s a modern, elegant solution for exactly that, and its name is `std::variant` class!
 
 <!-- Intro -->
 
-## Why use `std::variant`?
+Let's dive deeper into what exactly `std::variant` allows us to do, shall we?
 
-`std::variant` is a type-safe `union` type introduced in C++17. It allows a variable to hold one value out of a defined set of types.
+When we talked about static polymorphism we learnt how to use templates (and concepts) to be able to work with objects of different classes that all conform to some common interface.
 
-For instance, if a variable can hold either an integer or a string, we can use `std::variant<int, std::string>` and put any value in it:
+Think of various image classes that all have a `Save` method and a function `SaveImage` taking a template that we assume to have a `Save` method:
+
+```cpp
+#include <iostream>
+#include <string>
+
+struct PngImage {
+    void Save(const std::string& file_name) const {
+        std::cout << "Saving " << file_name << " as PNG\n";
+    }
+    // Some private image data would go here.
+};
+
+struct JpegImage {
+    void Save(const std::string& file_name) const {
+        std::cout << "Saving " << file_name << " as JPEG\n";
+    }
+    // Some private image data would go here.
+};
+
+template <typename Image>
+void SaveImage(const Image& image, const std::string& file_name) {
+    image.Save(file_name);
+}
+
+int main() {
+    SaveImage(PngImage{}, "diagram");
+    SaveImage(JpegImage{}, "photo");
+}
+```
+
+But this pattern is not very useful if we want, for example, to load our files from a folder at runtime - all the code with all the types needs to be visible to the compiler at compile time!
+
+We would really like to store a bunch of different images into a vector, potentially populating it at runtime, and save them all using their common `Save` method. But our images have different types so we can't easily put them into a vector!
+
+```cpp
+// ❌ Can't store objects of different types in a vector!
+const std::vector<???> images{PngImage{}, JpegImage{}, ...};
+```
+
+Aha, I hear you say, we can create an interface class and store its pointer in vector, using *dynamic polymorphism* that we covered when we talked about inheritance! Indeed, we can create a class, say `Saveable`, that has a single pure virtual function `Save`. We can then inherit from this class in our `PngImage` and `JpegImage` that override `Save` with their respective implementations:
+
+```cpp
+#include <iostream>
+#include <memory>
+#include <string>
+#include <vector>
+
+// Interface
+struct Saveable : public Noncopyable {
+    virtual void Save(const std::string& file_name) const = 0;
+    virtual ~Saveable() = default;
+};
+
+struct PngImage : public Saveable {
+    void Save(const std::string& file_name) const override {
+        std::cout << "Saving " << file_name << " as PNG\n";
+    }
+    // Some private image data would go here.
+};
+
+struct JpegImage : public Saveable {
+    void Save(const std::string& file_name) const override {
+        std::cout << "Saving " << file_name << " as JPEG\n";
+    }
+    // Some private image data would go here.
+};
+
+void SaveImage(const Saveable& image, const std::string& file_name) {
+    image.Save(file_name);
+}
+
+int main() {
+    // A bunch of images that could be put here at runtime.
+    const std::vector<std::unique_ptr<Saveable>> images {
+      std::make_unique<PngImage>(),
+      std::make_unique<JpegImage>()
+    };
+    for (const auto& image : images) SaveImage(*image, "output");
+}
+```
+
+This *does* allow us to store a bunch of image pointers in a vector and process all of them in a for loop without regard to their actual type:
+
+While cool, we did have to give up certain things. Now, our image classes have a common explicit interface which will be hard to change down the line if this was a bad design decision. They also now follow reference / pointer semantics rather than value semantics, meaning that our classes are now designed to be accessed by a pointer to them and we cannot copy or move the actual objects around. Finally, because of this, while we did gain the ability to put objects into a vector, we now have to allocate pointers to them and that means that we have to allocate them on the heap. Usually this is not a big issue but can become one if we need to allocate many objects in a performance-critical context.
+<!-- Watch a video on the heap for a more in-depth look into this topic. -->
+
+This is where `std::variant` comes to the rescue. It allows us to keep using templates just like we originally wanted, but adds a twist. We can store a variant of our two types in a vector and use `std::visit` to call our `SaveImage` on any type from the ones we allow in the variant:
+
+```cpp
+#include <iostream>
+#include <string>
+#include <variant>
+#include <vector>
+
+struct PngImage {
+    void Save(const std::string& file_name) const {
+        std::cout << "Saving " << file_name << " as PNG\n";
+    }
+    // Some private image data would go here.
+};
+
+struct JpegImage {
+    void Save(const std::string& file_name) const {
+        std::cout << "Saving " << file_name << " as JPEG\n";
+    }
+    // Some private image data would go here.
+};
+
+using Image = std::variant<PngImage, JpegImage>;
+
+void SaveImage(const Image& image, const std::string& file_name) {
+    std::visit([&](const auto& img) { img.Save(file_name); }, image);
+}
+
+int main() {
+    const std::vector<Image> images = {PngImage{}, JpegImage{}};
+    for (const auto& image : images) SaveImage(image, "output");
+}
+```
+
+Note, how we create the vector in exactly the way that we dreamed about before! We also call the same `SaveImage` function just like we did when using `virtual` functions and pointers!
+
+However, it is hard not to notice that there is a bit more syntax present here. There is the `std::variant` as well as `std::visit` being used and we have not really looked into those before. So let's do so now.
+
+## Basics of what `std::variant` is
+
+The class `std::variant` is a so-called type-safe `union` type introduced in C++17. It allows a variable to hold one value out of a defined set of types.
+
+For instance, if a variable can hold either an `int` or a `double`, we can use `std::variant<int, double>` and put any values of these types in it:
 
 ```cpp
 #include <variant>
 #include <iostream>
-#include <string>
 
 int main() {
-  // This compiles
-  std::variant<int, std::string> value;
-  value = 42;   // value holds an int.
+  // There can be many more types in std::variant.
+  std::variant<int, double> value;
+  value = 42;   // Value holds an int.
   std::cout << "Integer: " << std::get<int>(value) << '\n';
-  value = "42"  // value now holds a string.
-  std::cout << "String: " << std::get<std::string>(value) << '\n';
+  value = 42.42  // Value now holds a double.
+  std::cout << "Double: " << std::get<double>(value) << '\n';
   return 0;
 }
 ```
 
 Do note though, that once we put one type into variant, `get`ting another type is undefined behavior, so don't do that.
 
-<!-- TODO: talk about memory? -->
+The values of different types occupy the same memory, which means that the amount of memory allocated for the whole variant needs to be enough to store the biggest type stored in it. In our previous example, even when we write an `int` into our variant object, the object still allocates 8 bytes as needed for a `double`.
 
-<!-- Can we store more than one same type? -->
+By the way, this is also how `std::optional` and `std::expected` that we talked about in the previous lecture work too.
 
-## How `std::variant` is used in practice?
+## How to use `std::variant` with `std::visit` in practice
 
-While cool already, the current tiny example might feel quite limited. Think about it, we somehow have to _know_ which type our `std::variant` holds to use it. Which almost feels like it defeats the purpose. And, well, it does. If we need to know the type we want to use at compile time, we could as well just use that type and not bother with `std::variant` at all.
+While cool already, the current tiny example might feel quite limited. Think about it, we somehow have to *know* which type our `std::variant` holds to use it. Which almost feels like it defeats the purpose. And, well, it does. If we need to know the type we want to use at compile time, we could as well just use that type and not bother with `std::variant` at all.
 
-But we should not despair, this is C++ after all, there are options for us to use to make sure that we can work with _any_ type that the variant holds. This option is to use a visitor pattern through the use of the `std::visit` function:
+But we should not despair, this is C++ after all, there are options for us to use to make sure that we can work with *any* type that the variant holds. This option is to use a visitor pattern through the use of the `std::visit` function that we've already seen in our original example:
 
 ```cpp
 #include <variant>
@@ -69,34 +199,20 @@ int main() {
 }
 ```
 
-Here, `std::visit` applies a [function object](lambdas.md#before-lambdas-we-had-function-objects-or-functors) to the value contained in the variant. Should our variant hold a string, the operator that accepts a string is called and should it hold an integer, the operator that accepts an integer is called instead.
+Here, `std::visit` applies a [function object](lambdas.md#before-lambdas-we-had-function-objects-or-functors) to the value contained in the variant. Should our variant hold a string - the operator that accepts a string is called, and should it hold an integer - the operator that accepts an integer is called instead.
 
-<!-- Talk about it all happening at runtime and the cost -->
+And while we used an explicit function object here, we could as well use a lambda function of course.
 
-Note, that a typical pitfall that beginners make is to forget that all of the checks for this code happen at compile time _without taking into account the runtime logic of our code_.
+It is important to remember that the selection of the function to be called happens at runtime! To quote cppreference.com:
 
-<!-- TODO: change the below to just drop one operator from `Printer` -->
-If, for example, we would change our `Printer` function object to a `LengthPrinter` function object that only knows how to print length of objects, our code would not compile even though we only ever actually store a `std::string` in our variant:
+> Implementations usually generate a table equivalent to an (possibly multidimensional) array of n function pointers for every specialization of `std::visit`, which is similar to the implementation of virtual functions.
+> On typical implementations, the time complexity of the invocation of the callable can be considered equal to that of access to an element in an (possibly multidimensional) array or execution of a switch statement.
 
-```cpp
-#include <variant>
-#include <iostream>
-#include <string>
+That is to say: it is usually pretty fast but still takes *some* tiny amount of time.
 
-struct LengthPrinter {
-  void operator(const std::string& value) const {
-    std::cout << "String length: " << value.size() << '\n';
-  }
-};
+However, and this is an important pitfall that I see many beginners struggle with, we need to ensure that *all* the types in a variant are covered in the function object we provide into the `std::visit`. The code won't compile otherwise.
 
-int main() {
-  // ❌ Does not compile!
-  std::variant<int, std::string> value = "Hello, Variant!";
-  std::visit(LengthPrinter{}, value);
-}
-```
-
-This _is_ confusing. It might seem strange that we have to cover a case that we never aim to use. However, the reason why it was designed the way it was designed becomes easier to see if we look at a slightly more complex example.
+This *is* confusing. It might seem strange that we have to cover a case that we never aim to use. However, the reason why it was designed the way it was designed becomes easier to see if we look at a slightly more complex example.
 
 Imagine that our `variant` is part of some class `Foo` that we design. The header file `foo.hpp` contains a declaration of our `Foo` class with a function `Print`:
 
@@ -144,7 +260,7 @@ void Foo::Print() const { std::visit(BadPrinter{}, value); }
 
 ```
 
-If we try to compile this code it won't - the compiler wants us to cover all the types of our variant in the `BadPrinter` class. However, let us for a moment assume that it _would_ be allowed by the standard and we would be able to compile this code into a library.
+If we try to compile this code it won't - the compiler wants us to cover all the types of our variant in the `BadPrinter` class. However, let us for a moment assume that it *would* be allowed by the standard and we would be able to compile this code into a library.
 
 In that case, the code that we compile would be generated and stored in our library binary file. Without the code for handling `std::string` in `BadPrinter` that is.
 
@@ -160,41 +276,9 @@ int main() {
 }
 ```
 
-The behavior of this code would be undefined as our library's binary file would have no way to print a string stored in the variant inside the `Foo` class.
+The behavior of this code would be undefined as our library's binary file would have no idea about how to print a string stored in the variant inside the `Foo` class.
 
-To the degree of my understanding this is the reason why the standard requires a function object passed into `std::visit` to be able to handle all the types that can be stored inside of a given `std::variant` object.
-
-## Use it with an `std::vector`
-
-Now with that out of the way, I want to talk about arguably the most important thing that `std::visit` allows us to do with `std::variant`. You see, we can now have a **vector of variants**.
-
-Think about [dynamic polymorphism](inheritance.md#simple-polymorphic-class-example-following-best-practices) that we talked about before. The coolest thing about it was our ability to put multiple pointers to some interface class into a vector and then work with them without regard of which concrete type we're using. Here, with variant, we can do a very similar thing!
-
-```cpp
-#include <iostream>
-#include <string>
-#include <variant>
-#include <vector>
-
-struct Printer {
-    void operator()(int v) const { std::cout << "int: " << v << '\n'; }
-    void operator()(float v) const { std::cout << "float: " << v << '\n'; }
-    void operator()(const std::string& v) const {std::cout << "str: " << v << '\n';}
-};
-
-int main() {
-    std::vector<std::variant<int, float, std::string>> stuff{};
-    stuff.emplace_back(42);
-    stuff.emplace_back(42.42F);
-    stuff.emplace_back("Some string");
-    const Printer printer{};
-    for (const auto& element : stuff) {
-        std::visit(printer, element);
-    }
-}
-```
-
-We get to store any type from the allowed list of types and then we can process them in a uniform way using the `std::visit` pattern. Note that all of these values are set at runtime! This means that we can set these values from user input or from reading some file etc. And so we achieve dynamic polymorphism while using strong types and templated code.
+To the degree of my understanding this is *the* reason why the standard requires a function object passed into `std::visit` to be able to handle all the types that can be stored inside of a given `std::variant` object.
 
 ## `std::monostate`
 
@@ -208,6 +292,23 @@ std::variant<std::monostate, SomeType, SomeOtherType> value{};
 ```
 
 Note that it probably means that we'll need to differentiate between our variant holding the `std::monostate` value or some other value in the `std::visit` that we will inevitably use at a later point in time.
+
+## Use it with an `std::vector`
+
+And this brings us back to our original example. We now know that declaring `Image` to be a variant allows us to store any kind of image in a vector of `Image`s:
+
+```cpp
+using Image = std::variant<PngImage, JpegImage>;
+const std::vector<Image> images = {PngImage{}, JpegImage{}};
+```
+
+At the same time, the use of `std::visit` with a tiny lambda allows us to call `Save` on any concrete image class, thus achieving dynamic polymorphism keeping our value semantics completely intact:
+
+```cpp
+void SaveImage(const Image& image, const std::string& file_name) {
+    std::visit([&](const auto& img) { img.Save(file_name); }, image);
+}
+```
 
 ## **Summary**
 
