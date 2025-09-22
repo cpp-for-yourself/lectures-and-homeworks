@@ -65,6 +65,22 @@ Aha, I hear you say, we can create an interface class and store pointers to obje
 
 Indeed, we can create a class, say `Saveable`, that has a single pure `virtual` function `Save`. We can then inherit from this class in our `PngImage` and `JpegImage` that override `Save` with their respective implementations:
 
+<!--
+`CPP_SETUP_START`
+
+struct Noncopyable {
+  Noncopyable() = default;
+  Noncopyable(const Noncopyable&) = delete;
+  Noncopyable(Noncopyable&&) = delete;
+  Noncopyable& operator=(const Noncopyable&) = delete;
+  Noncopyable& operator=(Noncopyable&&) = delete;
+};
+
+$PLACEHOLDER
+`CPP_SETUP_END`
+`CPP_COPY_SNIPPET` variant_images/main.cpp
+`CPP_RUN_CMD` CWD:variant_images c++ -std=c++17 main.cpp
+-->
 ```cpp
 #include <iostream>
 #include <memory>
@@ -72,36 +88,35 @@ Indeed, we can create a class, say `Saveable`, that has a single pure `virtual` 
 #include <vector>
 
 // 💡 See lecture on inheritance for Noncopyable implementation.
-struct Saveable : public Noncopyable {
-    virtual void Save(const std::string& file_name) const = 0;
-    virtual ~Saveable() = default;
+struct Saveable {
+  virtual void Save(const std::string& file_name) const = 0;
+  virtual ~Saveable() = default;
 };
 
 struct PngImage : public Saveable {
-    void Save(const std::string& file_name) const override {
-        std::cout << "Saving " << file_name << ".png\n";
-    }
-    // Some private image data would go here.
+  void Save(const std::string& file_name) const override {
+    std::cout << "Saving " << file_name << ".png\n";
+  }
+  // Some private image data would go here.
 };
 
 struct JpegImage : public Saveable {
-    void Save(const std::string& file_name) const override {
-        std::cout << "Saving " << file_name << ".jpg\n";
-    }
-    // Some private image data would go here.
+  void Save(const std::string& file_name) const override {
+    std::cout << "Saving " << file_name << ".jpg\n";
+  }
+  // Some private image data would go here.
 };
 
 void SaveImage(const Saveable& image, const std::string& file_name) {
-    image.Save(file_name);
+  image.Save(file_name);
 }
 
 int main() {
-    // A bunch of images that could be put here at runtime.
-    const std::vector<std::unique_ptr<Saveable>> images {
-      std::make_unique<PngImage>(),
-      std::make_unique<JpegImage>()
-    };
-    for (const auto& image : images) SaveImage(*image, "output");
+  // A bunch of images that could be put here at runtime.
+  std::vector<std::unique_ptr<Saveable>> images;
+  images.push_back(std::make_unique<PngImage>());
+  images.push_back(std::make_unique<JpegImage>());
+  for (const auto& image : images) SaveImage(*image, "output");
 }
 ```
 
@@ -119,28 +134,28 @@ This is where `std::variant` comes to the rescue. It allows us to keep using tem
 #include <vector>
 
 struct PngImage {
-    void Save(const std::string& file_name) const {
-        std::cout << "Saving " << file_name << ".png\n";
-    }
-    // Some private image data would go here.
+  void Save(const std::string& file_name) const {
+    std::cout << "Saving " << file_name << ".png\n";
+  }
+  // Some private image data would go here.
 };
 
 struct JpegImage {
-    void Save(const std::string& file_name) const {
-        std::cout << "Saving " << file_name << ".jpg\n";
-    }
-    // Some private image data would go here.
+  void Save(const std::string& file_name) const {
+    std::cout << "Saving " << file_name << ".jpg\n";
+  }
+  // Some private image data would go here.
 };
 
 using Image = std::variant<PngImage, JpegImage>;
 
 void SaveImage(const Image& image, const std::string& file_name) {
-    std::visit([&](const auto& img) { img.Save(file_name); }, image);
+  std::visit([&](const auto& img) { img.Save(file_name); }, image);
 }
 
 int main() {
-    const std::vector<Image> images = {PngImage{}, JpegImage{}};
-    for (const auto& image : images) SaveImage(image, "output");
+  const std::vector<Image> images = {PngImage{}, JpegImage{}};
+  for (const auto& image : images) SaveImage(image, "output");
 }
 ```
 
@@ -163,7 +178,7 @@ int main() {
   std::variant<int, std::string> value{};
   // By default, variant stores a value of the first type.
   std::cout << "Integer: " << std::get<int>(value) << '\n';
-  value = "Hello, variant!"  // Value now holds a std::string.
+  value = "Hello, variant!";  // Value now holds a string.
   std::cout << "String: " << std::get<std::string>(value) << '\n';
   value = 42;                // Value holds an int.
   std::cout << "Integer: " << std::get<int>(value) << '\n';
@@ -191,10 +206,10 @@ But we already saw that there is this function `std::visit` that we can use to m
 #include <variant>
 
 struct Printer {
-  void operator(int value) const {
+  void operator()(int value) const {
     std::cout << "Integer: " << value << '\n';
   }
-  void operator(std::string value) const {
+  void operator()(const std::string& value) const {
     std::cout << "String: " << value << '\n';
   }
 };
@@ -448,8 +463,9 @@ For this purpose there is a type `std::monostate` in the standard library. This 
 
 <!--
 `CPP_SETUP_START`
+#include <variant>
 using SomeType = int;
-using someOtherType = double;
+using SomeOtherType = double;
 $PLACEHOLDER
 `CPP_SETUP_END`
 `CPP_COPY_SNIPPET` variant_monostate/main.cpp
