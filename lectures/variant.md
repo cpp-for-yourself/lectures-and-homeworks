@@ -8,11 +8,11 @@
 
 When people think about runtime polymorphism in C++ they usually think about `virtual` functions and pointer or reference semantics. But in modern C++ we seem to embrace *value* semantics more and more for its efficiency and clarity.
 
-So a natural question comes up: what if we want that runtime power without giving up value semantics?
+So a natural question comes up: what do we do if we want that runtime power without giving up value semantics?
 
 And, as you might have already guessed, there’s a modern, elegant solution for exactly that, and its name is `std::variant`!
 
-Oh, and as a bonus, remember `std::optional` and `std::expected` from the previous lecture? It turns out those can be implemented with `std::variant` too!
+Oh, and as a bonus, remember `std::optional` and `std::expected` from the previous lecture? It turns out those can be implemented using `std::variant` too!
 
 <!-- Intro -->
 
@@ -25,27 +25,27 @@ Think of various image classes that all have a `Save` method and a function `Sav
 #include <string>
 
 struct PngImage {
-    void Save(const std::string& file_name) const {
-        std::cout << "Saving " << file_name << ".png\n";
-    }
-    // Some private image data would go here.
+  void Save(const std::string& file_name) const {
+    std::cout << "Saving " << file_name << ".png\n";
+  }
+  // Some private image data would go here.
 };
 
 struct JpegImage {
-    void Save(const std::string& file_name) const {
-        std::cout << "Saving " << file_name << ".jpg\n";
-    }
-    // Some private image data would go here.
+  void Save(const std::string& file_name) const {
+    std::cout << "Saving " << file_name << ".jpg\n";
+  }
+  // Some private image data would go here.
 };
 
 template <typename Image>
 void SaveImage(const Image& image, const std::string& file_name) {
-    image.Save(file_name);
+  image.Save(file_name);
 }
 
 int main() {
-    SaveImage(PngImage{}, "diagram");
-    SaveImage(JpegImage{}, "photo");
+  SaveImage(PngImage{}, "output");
+  SaveImage(JpegImage{}, "output");
 }
 ```
 
@@ -74,6 +74,7 @@ struct Noncopyable {
   Noncopyable(Noncopyable&&) = delete;
   Noncopyable& operator=(const Noncopyable&) = delete;
   Noncopyable& operator=(Noncopyable&&) = delete;
+  ~Noncopyable() = default;
 };
 
 $PLACEHOLDER
@@ -112,7 +113,7 @@ void SaveImage(const Saveable& image, const std::string& file_name) {
 }
 
 int main() {
-  // A bunch of images that could be put here at runtime.
+  // A bunch of image pointers that can be put here at runtime.
   std::vector<std::unique_ptr<Saveable>> images;
   images.push_back(std::make_unique<PngImage>());
   images.push_back(std::make_unique<JpegImage>());
@@ -120,12 +121,14 @@ int main() {
 }
 ```
 
-This *does* allow us to store a bunch of image pointers in a vector and process all of them in a for loop without regard to their actual type!
+This *does* allow us to store a bunch of image pointers in a vector and process all of them in a for loop without regard to their actual type! Is it polymorphism? Yes! Is it dynamic? Yes again!
 
-While cool, we did have to give up certain things. Now, our image classes have a common explicit interface which will be hard to change down the line if this turns out a bad design decision. We also had to embrace reference / pointer semantics rather than value semantics, meaning that our classes are now designed to be accessed by a pointer to them and we cannot easily copy or move the actual objects around. Finally, because of this, while we did gain the ability to put objects into a vector, we now have to allocate *pointers* to them and that means that we have to allocate them on the heap. Usually this is not a big issue but can become one if we need to allocate many objects in a performance-critical context as they can land in different areas of our memory and finding a good place for them in memory takes some time.
+But we *did* have to give up certain things. Now our image classes inherit from a common rigid interface class. This dependency will be hard to change down the line if it turns out to be a bad design decision. We are also forced to embrace reference and pointer semantics rather than value semantics, meaning that our classes are now designed to be accessed by a pointer to them and we cannot easily copy or move the actual objects around, thus the use of `Noncopyable` base class. For a refresher on this, please refer to our lecture about [inheritance](inheritance.md#delete-other-special-methods-for-polymorphic-classes).
+
+Another potential issue with having to allocate *pointers* rather than concrete objects is that it usually means that we have to allocate them on the heap. Typically this is not a big issue but can become one if we need to allocate many objects in a performance-critical context as they can land in different areas of our memory and finding a good place for them in memory takes some time.
 <!-- Watch a video on the heap for a more in-depth look into this topic. -->
 
-This is where `std::variant` comes to the rescue. It allows us to keep using templates just like we originally wanted, but adds a twist. We can store a **variant** of our two types in a vector and use `std::visit` to call our `SaveImage` on any type from the ones we allow in the variant:
+This is where `std::variant` comes to the rescue. It allows us to keep using templates just like we originally wanted, but adds a twist. We can store a **variant** of our types in a vector and use `std::visit` to call our `SaveImage` on any type from the ones we allow in the variant:
 
 ```cpp
 #include <iostream>
@@ -165,7 +168,7 @@ However, it is hard not to notice that there is a bit more syntax present here. 
 
 ## Basics of what `std::variant` is
 
-The class `std::variant` is a so-called type-safe `union` type introduced in C++17. It allows a variable to hold one value out of a defined set of types.
+The class `std::variant` is a so-called type-safe `union` type introduced in C++17. A variable of such a variant type holds one value out of a defined set of types.
 
 For instance, if a variable's type is `std::variant<int, std::string>` it means that this variable can hold either an `int` or a `std::string` value. We can set our variable's value by simply assigning it a value of any of our selected types with a value of the *first* type being stored by default:
 
@@ -190,7 +193,7 @@ Do note though, that once we put one type into variant, `get`ting another type i
 
 <img src="images/variant_memory.png" alt="Variant memory" align="right" width=50% style="margin: 0.5rem">
 
-The values of different types, when stored as a variant, occupy the same memory, which means that the amount of memory allocated for the whole variant needs to be enough to store the biggest type stored in it (plus some memory to store an index of which value is stored, more on that later). In our previous example, even when we write an `int` into our variant object, the object still allocates enough memory needed for a `std::string`.
+The values of different types, when stored as a variant, occupy the same memory, which means that the amount of memory allocated for the whole variant needs to be enough to store the biggest type potentially stored in it (plus some memory to store an index of which value is stored, more on that later). In our previous example, even when we write an `int` into our variant object, the object still allocates enough memory needed for a `std::string`.
 
 And just as I hinted at in the intro, this is also how `std::optional` and `std::expected` that we talked about in the previous lecture work too.
 
@@ -235,9 +238,7 @@ And while we used an explicit function object here, we could as well use a lambd
 #include <variant>
 
 int main() {
-  const auto Print = [](auto value) {
-    std::cout << value << std::endl;
-  };
+  const auto Print = [](auto value) { std::cout << value << std::endl; };
 
   std::variant<int, std::string> value{};
   std::visit(Print, value);
@@ -248,20 +249,24 @@ int main() {
 }
 ```
 
-Such selection might seem magical, but, as always, it is nothing but a clever implementation. The exact details of how `std::visit` is implemented are probably beyond the scope of today's lecture, but we can quote cppreference.com to get the gist of how the fitting function is selected when `std::visit` is called:
+Note how in this example we use `auto` for a type of our `value` in a lambda. This `auto` will become different types depending on which type is actually stored in a variant and the whole example works here because `std::cout` is able to accept any of the types we use here.
+
+Such almost automatic type selection might seem magical, but, as always, it is nothing but a clever implementation. The exact details of how `std::visit` is implemented are probably beyond the scope of today's lecture, but we can quote cppreference.com to get the gist of how the appropriate function is selected when `std::visit` is called:
 
 > Implementations usually generate a table equivalent to a possibly multidimensional array of function pointers for every specialization of `std::visit`, which is similar to the implementation of virtual functions.
 > On typical implementations, the time complexity of the invocation of the callable can be considered equal to that of access to an element in a possibly multidimensional array or execution of a switch statement.
 
-That is to say: selecting the right function is usually pretty fast but still takes *some* tiny amount of time **at runtime**. Which means that with this tiny example, we *did* implement dynamic polymorphism that still lets us use value semantics (and even built-in types)!
+That is to say: selecting the right function is usually pretty fast but still takes *some* tiny amount of time **at runtime**. And the more different `std::visit` calls there are the slower every call will become.
+
+But the main thing here is that with this tiny example we *did* implement dynamic polymorphism that still lets us use value semantics (and even built-in types)! 🎉
 
 ### All paths must be covered
 
-One important pitfall of `std::visit` that I see many beginners struggle with, is that we need to ensure that *all* the types in a variant are covered in the function object we provide into the `std::visit`. The code won't compile otherwise.
+One important pitfall of `std::visit` that I see many beginners fall into, is that we need to ensure that *all* the types in a variant are covered in the function object we provide into the `std::visit`. The code won't compile otherwise.
 
-This might seem confusing at the beginning: why do we have to cover cases that we never aim to use? However, the reason why it was designed the way it was designed becomes easier to see if we look at a slightly more complex example.
+This might seem confusing at the beginning: why do we have to cover cases that we never aim to use? However, the reason why it was designed this way becomes easier to see if we look at a slightly more complex example.
 
-Imagine that our `variant` is part of some class `Foo`. The header file `foo.hpp` contains a declaration of our `Foo` class with a function `Print`:
+Imagine for a moment that we have a class `Foo` that holds some `std::variant` member variable and a function `Print`. Let's say the declaration of this class lives in a `foo.hpp` file:
 
 `foo.hpp`
 <!--
@@ -284,7 +289,7 @@ struct Foo {
 
 ```
 
-We implement this `Print` function in a corresponding `foo.cpp` file and, because we want to print the value stored in a `std::variant` we need to use `std::visit` with, say, `BadPrinter` function object passed to it. We call it "bad" because it does not handle all of the types in our variant.
+We implement its `Print` function in a corresponding `foo.cpp` file and, because we want to print the value stored in a `std::variant` we need to use `std::visit` with, say, `BadPrinter` function object passed to it. We call it "bad" because this particular printer class does not handle all of the types that we can store in our variant:
 
 `foo.cpp`
 <!--
@@ -311,7 +316,7 @@ struct BadPrinter {
 void Foo::Print() const { std::visit(BadPrinter{}, value); }
 ```
 
-If we try to compile this code we won't succeed with an error that says something about not being able to find a "matching function for call to `invoke(BadPrinter, const std::__cxx11::basic_string<char>&)`". This happens because the compiler wants us to cover all the types of our variant in the `BadPrinter` class.
+If we try to compile this code we won't succeed with an error that says something along the lines of not being able to find a "matching function for call to `invoke(BadPrinter, const std::string&)`". This happens because the compiler wants us to cover *all* the types of our variant in the `BadPrinter` class.
 
 <details>
 <summary>Approximate error message</summary>
@@ -399,11 +404,11 @@ Compiler returned: 1
 
 </details>
 
-However, let us for a moment assume that it *would* be allowed by the standard and we would be able to compile this code into a library.
+To understand why the compiler insists on it, let us for a moment assume that it *would* be allowed to compile this code into a library without covering all the variant types in the provided function object.
 
-In that case, the code that we compile would be generated and stored in our library binary file. Without the code for handling `double` in `BadPrinter` that is.
+In that case, there will be no way for the compiled library binary file to handle the missing `std::string` type as the binary code for this would never be generated.
 
-Now imagine what would happen if at some point down the line someone would write an executable, link it to our code, try to store a `double` in the variant, and call `Print` on our `foo` object!
+Now imagine what would happen if at some point down the line someone would write an executable, link it to our code, try to store a `std::string` in the variant, and call `Print` on our `foo` object!
 
 <!--
 `CPP_SETUP_START`
@@ -418,8 +423,8 @@ struct Printer {
     void operator()(int value) const {
         std::cout << "Integer: " << value << '\n';
     }
-    void operator()(double value) const {
-        std::cout << "Double: " << value << '\n';
+    void operator()(const std::string& value) const {
+        std::cout << "String: " << value << '\n';
     }
 };
 
@@ -436,12 +441,12 @@ $PLACEHOLDER
 
 int main() {
     Foo foo{};
-    foo.value = 42.42;
+    foo.value = "Hello, variant!";
     foo.Print();
 }
 ```
 
-The behavior of this code would be undefined as our library's binary file would have no idea about how to print a double stored in the variant inside the `Foo` class.
+The behavior of this code would be undefined as our library's binary file would have no idea about how to print a string stored in the variant of the `Foo` class object.
 
 To the degree of my understanding this is *the* reason why the standard requires a function object passed into `std::visit` to be able to handle all the types that can be stored inside of a given `std::variant` object.
 
@@ -491,30 +496,32 @@ At the same time, the use of `std::visit` with a tiny lambda allows us to call `
 #include <vector>
 
 struct PngImage {
-    void Save(const std::string& file_name) const {
-        std::cout << "Saving " << file_name << ".png\n";
-    }
-    // Some private image data would go here.
+  void Save(const std::string& file_name) const {
+    std::cout << "Saving " << file_name << ".png\n";
+  }
+  // Some private image data would go here.
 };
 
 struct JpegImage {
-    void Save(const std::string& file_name) const {
-        std::cout << "Saving " << file_name << ".jpg\n";
-    }
-    // Some private image data would go here.
+  void Save(const std::string& file_name) const {
+    std::cout << "Saving " << file_name << ".jpg\n";
+  }
+  // Some private image data would go here.
 };
 
 using Image = std::variant<PngImage, JpegImage>;
 
 void SaveImage(const Image& image, const std::string& file_name) {
-    std::visit([&](const auto& img) { img.Save(file_name); }, image);
+  std::visit([&](const auto& img) { img.Save(file_name); }, image);
 }
 
 int main() {
-    const std::vector<Image> images = {PngImage{}, JpegImage{}};
-    for (const auto& image : images) SaveImage(image, "output");
+  const std::vector<Image> images = {PngImage{}, JpegImage{}};
+  for (const auto& image : images) SaveImage(image, "output");
 }
 ```
+
+<!-- TODO: add part about overloaded -->
 
 ## **Summary**
 
