@@ -279,12 +279,13 @@ $PLACEHOLDER
 #pragma once
 
 #include <variant>
+#include <string>
 
 // Using struct for simplicity here.
 struct Foo {
     void Print() const;
 
-    std::variant<int, double> value{};
+    std::variant<int, std::string> value{};
 };
 
 ```
@@ -303,7 +304,7 @@ We implement its `Print` function in a corresponding `foo.cpp` file and, because
 
 namespace {
 
-// ❌ Won't compile. Does not handle double.
+// ❌ Won't compile. Does not handle std::string.
 struct BadPrinter {
     void operator()(int value) const {
         std::cout << "Integer: " << value << '\n';
