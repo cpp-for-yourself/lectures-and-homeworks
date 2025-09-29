@@ -19,12 +19,11 @@
 - [Back to the original example](#back-to-the-original-example)
 - [**Summary**](#summary)
 
-
 When people think about runtime polymorphism in C++ they usually think about `virtual` functions and pointer or reference semantics. But in *modern* C++ we seem to embrace *value* semantics more and more for its efficiency and clarity.
 
 So a natural question comes up: what do we do if we want that runtime flexibility without giving up the power of value semantics?
 
-And, as you might have already guessed, there’s a modern, elegant solution for exactly that, and its name is `std::variant`!
+And, as you might have already guessed, there’s actually a couple of modern, elegant solutions for exactly that, and today we'll talk about one of them: `std::variant`!
 
 <!-- Intro -->
 
@@ -90,17 +89,6 @@ Indeed, we can create a class, say `Saveable`, that has a single pure `virtual` 
 
 <!--
 `CPP_SETUP_START`
-
-// 💡 See lecture on inheritance for details.
-struct Noncopyable {
-  Noncopyable() = default;
-  Noncopyable(const Noncopyable&) = delete;
-  Noncopyable(Noncopyable&&) = delete;
-  Noncopyable& operator=(const Noncopyable&) = delete;
-  Noncopyable& operator=(Noncopyable&&) = delete;
-  ~Noncopyable() = default;
-};
-
 $PLACEHOLDER
 `CPP_SETUP_END`
 `CPP_COPY_SNIPPET` variant_images/main.cpp
@@ -112,7 +100,16 @@ $PLACEHOLDER
 #include <string>
 #include <vector>
 
-// 💡 See lecture on inheritance for Noncopyable implementation.
+// 💡 See lecture on inheritance for details.
+struct Noncopyable {
+  Noncopyable() = default;
+  Noncopyable(const Noncopyable&) = delete;
+  Noncopyable(Noncopyable&&) = delete;
+  Noncopyable& operator=(const Noncopyable&) = delete;
+  Noncopyable& operator=(Noncopyable&&) = delete;
+  ~Noncopyable() = default;
+};
+
 struct Saveable : public Noncopyable {
   virtual void Save(const std::string& file_name) const = 0;
   virtual ~Saveable() = default;
@@ -420,6 +417,37 @@ template <class... Ts>
 Overloaded(Ts...) -> Overloaded<Ts...>;
 
 int main() {
+  std::variant<int, std::string> value{};
+
+  const Overloaded visitor{
+      [](int arg) { std::cout << "Int: " << arg << '\n'; },
+      [](const std::string& arg) { std::cout << "String: " << arg << '\n'; }};
+
+  std::visit(visitor, value);
+  value = "Hello, variant!";
+  std::visit(visitor, value);
+  value = 42;
+  std::visit(visitor, value);
+}
+```
+
+Note how here too we can use `auto` to catch any types that we don't want to handle explicitly, but if we *do* decide to handle them explicitly, those implementations will be preferred.
+
+```cpp
+#include <iostream>
+#include <string>
+#include <variant>
+
+// Helper type for nicer calling-site syntax
+template <class... Ts>
+struct Overloaded : Ts... {
+  using Ts::operator()...;
+};
+// Explicit deduction guide (not needed as of C++20)
+template <class... Ts>
+Overloaded(Ts...) -> Overloaded<Ts...>;
+
+int main() {
   std::variant<std::monostate, int, std::string> value{};
 
   const Overloaded visitor{
@@ -435,15 +463,15 @@ int main() {
 }
 ```
 
-Note how here too we can use `auto` to catch any types that we don't want to handle explicitly, but if we *do* decide to handle them explicitly, those implementations will be preferred.
-
-As a tiny excercise - try to use the above `Overloaded` struct with the `Printer` function object we created in the previous example. Would that work?
+That being said, our `Overloaded` struct can take anything that has a call operator, so, as a tiny exercise, try to use the above `Overloaded` struct with the `Printer` function object we created in the previous example. Would that work?
 <!-- Post a link to godbolt.org with your answer in the comments.
 And if you feel that I'm doing an ok job at explaining all of this, do hit those like and subscribe buttons and consider supporting this channel by becoming a sponsor. -->
 
 ### How `std::visit` selects the correct function
 
-The fact that `std::visit` can select the correct function from a variant seems almost magical, but, as always, it is nothing but a clever implementation. The exact details of how `std::visit` is implemented are probably beyond the scope of today's lecture, but we can quote cppreference.com to get the gist of how the appropriate function is selected when `std::visit` is called:
+The fact that `std::visit` can select the correct function from a variant seems almost magical, but, as always, it is nothing but a clever implementation.
+
+The exact details of how `std::visit` is implemented are probably beyond the scope of today's lecture, but we can quote cppreference.com to get the gist of how the appropriate function is selected when `std::visit` is called:
 
 > Implementations usually generate a table equivalent to a possibly multidimensional array of function pointers for every specialization of `std::visit`, which is similar to the implementation of virtual functions.
 > On typical implementations, the time complexity of the invocation of the callable can be considered equal to that of access to an element in a possibly multidimensional array or execution of a switch statement.
@@ -682,10 +710,8 @@ int main() {
 }
 ```
 
-<!-- TODO: add part about overloaded -->
-
 ## **Summary**
 
 Overall, `std::variant` is extremely important for modern C++. If we embrace value semantics and implement our code largely using templates or concepts and need to enable dynamic polymorphism based on some values provided at runtime, there is probably no way around using `std::variant`. Which also means that we probably also need to use `std::visit`.
 
-For whatever reason, these tools are still not considered first-class citizens when C++ is taught in schools and universities, which *is* a shame. I hope that after this lecture, you'll be able to embrace the power that these tools provide and be better informed about the options you have when in need of implementing dynamic polymorphism in modern C++.
+For whatever reason, these tools are still not considered first-class citizens when C++ is taught in schools and universities, which *is* a shame. I hope that after this lecture, you'll be able to embrace the power that these tools provide and be better informed about the options we have when in need of implementing dynamic polymorphism in modern C++.
