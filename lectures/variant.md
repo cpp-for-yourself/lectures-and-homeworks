@@ -11,6 +11,7 @@
 - [Until now dynamic polymorphism required reference semantics](#until-now-dynamic-polymorphism-required-reference-semantics)
 - [Use `std::variant` for dynamic polymorphism with value semantics](#use-stdvariant-for-dynamic-polymorphism-with-value-semantics)
   - [Basics of `std::variant`](#basics-of-stdvariant)
+  - [Memory used by `std::variant`](#memory-used-by-stdvariant)
   - [Use `std::monostate` to allow for "empty" variants](#use-stdmonostate-to-allow-for-empty-variants)
   - [Storing values in a `std::variant`](#storing-values-in-a-stdvariant)
   - [Using `std::variant` with `std::visit`](#using-stdvariant-with-stdvisit)
@@ -23,7 +24,7 @@ When people think about runtime polymorphism in C++ they usually think about `vi
 
 So a natural question comes up: what do we do if we want that runtime flexibility without giving up the power of value semantics?
 
-And, as you might have already guessed, there’s actually a couple of modern, elegant solutions for exactly that, and today we'll talk about one of them: `std::variant`!
+Well, as you might have already guessed, there’s actually a couple of modern, elegant solutions for exactly that, and today we'll talk about one of them: `std::variant`!
 
 <!-- Intro -->
 
@@ -71,7 +72,7 @@ Saving output.jpg
 
 But this pattern is not very useful if we want to decide which format an image has *at runtime* - all the code with all the concrete types needs to be visible to the compiler, well, at compile time!
 
-Furthermore, it would be awesome to be able to store a bunch of different images into, say, a vector, potentially populating this vector at runtime, and save them all using their common `Save` method. But our images have different types so we can't put them into a vector in a naïve way!
+Furthermore, it would be awesome to be able to store a bunch of different images into, say, a vector, potentially populating this vector at runtime, and save them all using their common `Save` method. But our images have different types so we can't put them into a single vector in a naïve way!
 
 <!--
 `CPP_SKIP_SNIPPET`
@@ -150,8 +151,8 @@ But we *did* have to give up certain things. Now our image classes inherit from 
 
 We are also forced to embrace reference and pointer semantics rather than value semantics, meaning that our classes are now designed to be accessed by a pointer to them and we cannot easily copy or move the actual objects around, thus the use of `Noncopyable` base class. For a refresher on this, please refer to our lecture about [inheritance](inheritance.md#delete-other-special-methods-for-polymorphic-classes).
 
-Another potential issue with having to allocate *pointers* rather than concrete objects is that it usually means that we have to allocate them [on the heap](memory_and_smart_pointers.md#the-heap). Typically this is not a big issue but can become one if we need to allocate many objects in a performance-critical context as they can land in different areas of our memory and finding a good place for them in memory takes some time.
-<!-- Watch a video on the heap for a more in-depth look into this topic. -->
+Another potential issue with having to allocate *pointers* rather than concrete objects is that it usually means that we have to allocate them [on the heap](memory_and_smart_pointers.md#the-heap). Typically this is not a big issue but can become one if we need to allocate many objects in a performance-critical context as they can land in different areas of our memory and finding a good place for them takes some, potentially non-negligible, time.
+<!-- Watch a video where we talk about memory for a more in-depth look into this topic. -->
 
 ## Use `std::variant` for dynamic polymorphism with value semantics
 
@@ -193,13 +194,18 @@ int main() {
 
 Note, how we create the vector in exactly the way that we dreamed about before! We also call the same `SaveImage` function just like we did when using `virtual` functions and pointers!
 
-However, it is hard not to notice that there is a bit more syntax present here. There is the `std::variant` as well as `std::visit` being used and we have not really looked into those before. So let's do so now.
+However, it is hard not to notice that there is a bit more syntax present here. There is the new `std::variant` class as well as a new `std::visit` entity being used and we have not seen those before. So let's look into them now!
 
 ### Basics of `std::variant`
 
 The class `std::variant` is a so-called type-safe `union` type introduced in C++17. A variable of such a variant type holds one value out of a defined set of types.
 
-For instance, if a variable's type is `std::variant<int, std::string, double>` it means that this variable can hold either an `int`, `std::string` or a `double` value. Do note though that a variant is not permitted to hold references, arrays, or the type `void`. Also, while variant can technically hold the same type more than once, I rarely see the need to do this as these variants are much harder to work with.
+
+<img src="images/banana_apple.png" alt="Variant memory" align="right" width=200 style="margin: 0.5rem">
+
+Intuitively we can imagine `std::variant` as a "box" type in which we can store objects of some selected set of types.
+
+Or, in terms of code, if a variable's type is `std::variant<int, std::string, double>` it means that this variable can hold either an `int`, `std::string` or a `double` value. Do note though that a variant is not permitted to hold references, arrays, or the type `void`. Also, while variant can technically be configured with the same type more than once, I rarely see the need to do this as these variants are much harder to work with.
 
 ```cpp
 #include <string>
@@ -213,15 +219,25 @@ int main() {
 }
 ```
 
-<img src="images/variant_memory.png" alt="Variant memory" align="right" width=50% style="margin: 0.5rem">
-
-The values in a variant, occupy the same memory, which means that the amount of memory allocated for the whole variant object needs to be enough to store and object of biggest type potentially stored in it (plus some memory to store an index of which value is stored, more on that later). In our previous example, even when we write an `int` into our variant object, the object still allocates enough memory needed for a `std::string`.
-
 And if you feel that what we talk about here rings a bell, that's because it does! The `std::optional` and `std::expected` classes that we talked about in the previous lecture are based on the same underlying principle too and can even be implemented by using a `std::variant`.
+
+### Memory used by `std::variant`
+
+<img src="images/variant_memory.png" alt="Variant memory" align="right" width=300 style="margin: 0.5rem">
+
+The values in a variant, occupy the same memory, which means that the amount of memory allocated for the whole variant object needs to be enough to store an object of the biggest type potentially stored in it (plus some memory to store an index of which value is stored, more on that later). In our previous example, even when we write an `int` into our variant object, the object still allocates enough memory needed for a `std::string`.
+
+<img src="images/banana_apple_empty.png" alt="Variant memory" align="right" width=200 style="margin: 0.5rem">
+
+Or, coming back to our "box" analogy, as our box needs to be big enough to hold a banana, if we put an apple into it, some space will be left unused.
 
 ### Use `std::monostate` to allow for "empty" variants
 
-Those who were paying attention to the example code we've just looked at could notice a comment that, by default, variants store a value of the first type. This might not always be desirable or, indeed, even possible. Imagine that we store only types that do not have a default constructor in the first place.
+But if we look long enough at our box analogy a logical question pops up. Can the box be empty? In other words, can we have an "empty" `std::variant`?
+
+Those who were paying attention to the example code we've just looked at, could notice a comment that, by default, variants store a value of the first type. So it would seem that creating an empty box would be problematic?
+
+But if we think more about it, always creating a variable of the first type to populate a `std::variant` value might not be desirable or, indeed, even possible. Imagine that we store only types that do not have a default constructor in the first place.
 
 <!--
 `CPP_SKIP_SNIPPET`
@@ -294,7 +310,7 @@ Compiler returned: 1
 </details>
 <br>
 
-For this purpose there is a type `std::monostate` in the standard library. This is an empty type that is default-constructible and we can define our variant type using `std::monostate` as its first type in the list should we want our variant to hold no value by default:
+To mitigate such situations there is a type `std::monostate` in the standard library. This is an empty type that is default-constructible and we can use it as the first type in the list of types that we pass to a `std::variant` should none of our types be default constructible or if we simply want our variant to be in an "empty" state by default:
 
 ```cpp
 #include <variant>
@@ -309,9 +325,13 @@ int main() {
 }
 ```
 
-Note that it probably means that we'll need to differentiate between our variant holding the `std::monostate` value or some other value in the `std::visit` that we will inevitably use at a later point in time.
+So essentially, in our "fruit" example, an empty box actually holds a `std::monostate` object.
+
+Those who remember our [previous chat](error_handling.md) about `std::optional` and `std::expected` might draw some parallels between [`std::monostate`](https://en.cppreference.com/w/cpp/utility/variant/monostate) and [`std::nullopt`](https://en.cppreference.com/w/cpp/utility/optional/nullopt.html) and they are indeed quite similar, although there are crucial differences which I'm not going to go into here. What I do want to mention instead is that the `std::optional` and `std::expected` classes can easily be implemented in terms of `std::variant`, so there is a strong connection there!
 
 ### Storing values in a `std::variant`
+
+Now with all of that out of the way, let us talk about how we can store some value in a `std::variant` object.
 
 If we don't have repeating types in our variant, we can set our variant variable's value by simply assigning it a value of any of our selected types. For all the other cases, I'd point you to the `emplace` method of the variant class but we won't talk about it here.
 
@@ -348,9 +368,11 @@ Do note though, that once we put one type into variant, `get`ting another type w
 
 ### Using `std::variant` with `std::visit`
 
-But this tiny example might feel quite limited. Think about it, we need to provide the type of our variable in order to get its value at the call site. Which means that we somehow have to *know at compile time* which type our `std::variant` holds to use it. Which almost feels like it defeats the purpose. And, well, to a degree it does. If we need to know the type we want to use at compile time, we could as well just use that type and not bother with `std::variant` at all.
+But this tiny example might feel quite limited. Think about it, we need to provide the type of our variable in order to get its value at the call site. Which means that we somehow have to *know at compile time* which type our `std::variant` holds to use it. Which almost feels like it defeats the purpose of using the variant type in the first place!
 
-But we already saw that there is this function `std::visit` that we can use to magically access the stored type. So let's take a deeper look at what it does using a tiny example:
+And, well, to a degree it does. If we need to know the type we want to use at compile time, we could as well just use that type and not bother with `std::variant` at all.
+
+But remember in our motivating example, there was this function `std::visit` that we could use to magically access the stored object, regardless of its type? Let's take a deeper look at what it does using a tiny example:
 
 ```cpp
 #include <iostream>
@@ -379,7 +401,7 @@ int main() {
 
 Here, `std::visit` applies a [function object](lambdas.md#before-lambdas-we-had-function-objects-or-functors) to the value contained in the variant. Should our variant hold a string - the operator that accepts a string is called, and should it hold an integer - the operator that accepts an integer is called instead.
 
-And while we used an explicit function object here, we could as well use a [lambda function](lambdas.md) of course:
+And while we used an explicit function object for illustration here, we could as well use a [lambda function](lambdas.md) of course:
 
 ```cpp
 #include <iostream>
@@ -398,9 +420,13 @@ int main() {
 }
 ```
 
-Note how in this example we use `auto` for a type of our `value` in a lambda. This `auto` will become different types depending on which type is actually stored in a variant and the whole example works here because `std::cout` is able to accept any of the types we use here. If we would store a type that `std::cout` does not work with, like `std::monostate` the situation is a bit different.
+Note how in this example we use `auto` for a type of our `value` in a lambda. This `auto` will become different types depending on which type is actually stored in a variant and the whole example works here because `std::cout` is able to accept any of the types we use here. If we would store a type that `std::cout` does not work with, like `std::monostate` the situation would look a bit different.
 
-We can use a neat trick to make the code look better at the call site. By creating a template `struct` (often called `Overloaded`) that accepts multiple classes each with an `operator()` (like a function call), we can instantiate an object of this struct by passing in as many function objects (also lambdas) as we need. This lets us easily create a local visitor right where we need it, taking full advantage of the flexibility that lambdas offer.
+In such a case, we can use a neat trick to allow specifying all the different overloads for different types at the call site.
+
+By creating a template `struct` (often called `Overloaded`) that accepts multiple classes, each with an `operator()` (like a function call), we can instantiate an object of this struct by passing in as many function objects (also lambdas) as we need.
+
+This lets us easily create a local visitor right where we need it, taking full advantage of the flexibility that lambdas offer while having explicit overloads for types that demand it:
 
 ```cpp
 #include <iostream>
@@ -431,7 +457,7 @@ int main() {
 }
 ```
 
-Note how here too we can use `auto` to catch any types that we don't want to handle explicitly, but if we *do* decide to handle them explicitly, those implementations will be preferred.
+Note how here too we can use `auto` to catch any types that we don't want to handle explicitly, but if we *do* decide to handle them explicitly, those implementations are preferred.
 
 ```cpp
 #include <iostream>
@@ -463,26 +489,32 @@ int main() {
 }
 ```
 
-That being said, our `Overloaded` struct can take anything that has a call operator, so, as a tiny exercise, try to use the above `Overloaded` struct with the `Printer` function object we created in the previous example. Would that work?
+All in all, our `Overloaded` struct can take anything that has a call operator, so, as a tiny exercise, try to use the above `Overloaded` struct with the `Printer` function object we created in the previous example. Would that work?
 <!-- Post a link to godbolt.org with your answer in the comments.
-And if you feel that I'm doing an ok job at explaining all of this, do hit those like and subscribe buttons and consider supporting this channel by becoming a sponsor. -->
+And while you're there, please take a moment and answer a simple question for me: "how useful are my videos to you"? If they *are* useful, please tell me what they helped you achieve in the comments, and maybe even consider supporting this channel if they brought you something tangible.
+
+If these videos fall short of their goal of being helpful though, please tell me what I can improve. I spent quite some time on these videos and it would be such a waste not to keep improving them just because of the lack of feedback.
+
+Regardless of the choices you made, I thank you sincerely for your time! Now back to `std::visit`. -->
 
 ### How `std::visit` selects the correct function
 
 The fact that `std::visit` can select the correct function from a variant seems almost magical, but, as always, it is nothing but a clever implementation.
 
-The exact details of how `std::visit` is implemented are probably beyond the scope of today's lecture, but we can quote cppreference.com to get the gist of how the appropriate function is selected when `std::visit` is called:
+The exact details of how `std::visit` is implemented are probably beyond the scope of today's lecture, but we can quote [cppreference.com](https://en.cppreference.com/w/cpp/utility/variant/visit2.html#Notes) to get the gist of how the appropriate function is selected when `std::visit` is called:
 
 > Implementations usually generate a table equivalent to a possibly multidimensional array of function pointers for every specialization of `std::visit`, which is similar to the implementation of virtual functions.
 > On typical implementations, the time complexity of the invocation of the callable can be considered equal to that of access to an element in a possibly multidimensional array or execution of a switch statement.
 
-That is to say: selecting the right function is usually pretty fast but still takes *some* tiny amount of time **at runtime**. And the more different `std::visit` calls there are the slower every call will become.
+That is to say: selecting the right function is usually pretty fast but still takes *some* tiny amount of time **at runtime**. And the more different `std::visit` calls there are - the slower every call becomes.
 
-But the main message I wanted to convey here is that with this tiny example we *did* implement dynamic polymorphism that still lets us use value semantics (and even built-in types)! 🎉
+But the main message I wanted to convey here is that this selection *does* happen at runtime and that means that we *did* implement dynamic polymorphism that still lets us use value semantics (and even built-in types) and typically works pretty fast! 🎉
 
 ### Visitor must cover all variant types
 
-One important pitfall of `std::visit` that I see many beginners struggle with, is that we need to ensure that *all* the types in a variant are covered in the function object we provide into the `std::visit`. The code won't compile otherwise.
+However, the whole conversation about `std::visit` would not be complete without talking about one important pitfall of `std::visit` that I see many beginners struggle with. And we'll have to do some digging to understand all the reasons behind it.
+
+You see, we need to ensure that *all* the types in a variant are covered in the function object we provide into the `std::visit`. The code won't compile otherwise.
 
 This might seem confusing at the beginning: why do we have to cover cases that we never aim to use? However, the reason why it was designed this way becomes easier to see if we look at a slightly more complex example.
 
@@ -628,9 +660,9 @@ Compiler returned: 1
 
 To understand why the compiler insists on it, let us for a moment assume that it *would* be allowed to compile this code into a library without covering all the variant types in the provided function object.
 
-In that case, there will be no way for the compiled library binary file to handle the missing `std::string` type as the binary code for this would never be generated.
+In that case, there would be no way for the `std::visit` compiled into this library's binary file to handle the missing `std::string` type, should it ever be stored in our variant object as the binary code for this would have never been generated.
 
-Now imagine what would happen if at some point down the line someone would write an executable, link it to our code, try to store a `std::string` in the variant, and call `Print` on our `foo` object!
+But there is nothing that forbids someone to write an executable and link it to our library, right? There is also nothing that forbids them to to store a `std::string` in the variant, and call `Print` on our `foo` object!
 
 <!--
 `CPP_SETUP_START`
@@ -674,9 +706,9 @@ To the degree of my understanding this is *the* reason why the standard requires
 
 ## Back to the original example
 
-And this brings us back to our original example. We now know that declaring `Image` to be a variant allows us to store any kind of image in a vector of `Image`s.
+And now we know everything that we need to return to our original example. It is now clear that declaring `Image` to be a variant allows us to store either a `PngImage` or a `JpegImage` in a vector of `Image`s.
 
-At the same time, the use of `std::visit` with a tiny lambda allows us to call `Save` on any concrete image class, thus achieving dynamic polymorphism keeping our value semantics completely intact:
+At the same time, the use of `std::visit` with a tiny lambda allows us to call `Save` on any concrete image class object, thus achieving dynamic polymorphism all while keeping our value semantics intact:
 
 ```cpp
 #include <iostream>
@@ -712,6 +744,11 @@ int main() {
 
 ## **Summary**
 
-Overall, `std::variant` is extremely important for modern C++. If we embrace value semantics and implement our code largely using templates or concepts and need to enable dynamic polymorphism based on some values provided at runtime, there is probably no way around using `std::variant`. Which also means that we probably also need to use `std::visit`.
+So I hope I could get you convinced that `std::variant` is extremely important for modern C++. If we embrace value semantics and implement our code largely using templates or concepts and need to enable dynamic polymorphism based on some values provided at runtime, `std::variant` along with `std::visit` offer us a pretty good way to do that!
 
-For whatever reason, these tools are still not considered first-class citizens when C++ is taught in schools and universities, which *is* a shame. I hope that after this lecture, you'll be able to embrace the power that these tools provide and be better informed about the options we have when in need of implementing dynamic polymorphism in modern C++.
+For whatever reason, these tools are still not considered first-class citizens when C++ is taught in schools and universities, which *is* a bit of a shame. I hope that after this lecture, you'll be able to embrace the power that these tools provide and be better informed about the options we have when in need of implementing dynamic polymorphism in modern C++.
+
+<!-- And on this note, I want to thank you for watching until the end! It really seems to make a big difference to how many people end up seeing this video and to my motivation for continuing doing all of this work.
+
+And if you feel like you would benefit from a refresher on the topic of dynamic polymorphism as viewed through the prism of inheritance then please watch this video of mine, while if you'd rather refresh you understanding of how we allocate memory in C++, then go ahead and watch this video about stack, heap, smart pointers and overall on memory management in C++.
+ -->
