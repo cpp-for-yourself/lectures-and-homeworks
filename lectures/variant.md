@@ -229,7 +229,7 @@ The values in a variant, occupy the same memory, which means that the amount of 
 
 <img src="images/banana_apple_empty.png" alt="Variant memory" align="right" width=200 style="margin: 0.5rem">
 
-Or, coming back to our "box" analogy, as our box needs to be big enough to hold a banana, if we put an apple into it, some space will be left unused.
+Or, coming back to our "box" analogy, as our box needs to be big enough to hold a banana type, if we put an apple into it, some space will be left unused. Here we of course assume that the size of the fruits corresponds to the amount of memory they take up in memory.
 
 ### Use `std::monostate` to allow for "empty" variants
 
