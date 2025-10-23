@@ -3,7 +3,7 @@
 --
 
 <p align="center">
-  <a href="https://youtu.be/dummy_link"><img src="https://img.youtube.com/vi/dummy_link/maxresdefault.jpg" alt="Video Thumbnail" align="right" width=50% style="margin: 0.5rem"></a>
+  <a href="https://youtu.be/mNeu4S0x3gA"><img src="https://img.youtube.com/vi/mNeu4S0x3gA/maxresdefault.jpg" alt="Video Thumbnail" align="right" width=50% style="margin: 0.5rem"></a>
 </p>
 
 - [`std::variant` in Modern C++](#stdvariant-in-modern-c)
@@ -251,7 +251,7 @@ struct NonDefaultConstructibleType {
 
 // ❌ Can't compile if first type is not default constructible.
 // 💡 Other types don't play a role here.
-int main() { std::variant<NonDefaultConstructibleType, int, double> v; }
+int main() { std::variant<NonDefaultConstructibleType, int, double> v{}; }
 ```
 
 This code won't compile, throwing an error that tells us that a constructor of the variant is ignored because it does not satisfy the requirement `std::is_default_constructible<NonDefaultConstructibleType>`.
@@ -261,7 +261,7 @@ This code won't compile, throwing an error that tells us that a constructor of t
 
 ```css
 <source>:7:69: error: no matching constructor for initialization of 'std::variant<NonDefaultConstructibleType, int, double>'
-    7 | int main() { std::variant<NonDefaultConstructibleType, int, double> v; }
+    7 | int main() { std::variant<NonDefaultConstructibleType, int, double> v{}; }
       |                                                                     ^
 /cefs/d2/d2e6ebb9fe16525f6e7eb0c3_consolidated/compilers_c++_clang_17.0.1/bin/../include/c++/v1/variant:1326:13: note: candidate template ignored: requirement '__dependent_type<std::is_default_constructible<NonDefaultConstructibleType>, true>::value' was not satisfied [with _Dummy = true]
  1326 |   constexpr variant() noexcept(is_nothrow_default_constructible_v<__first_type>)
@@ -315,12 +315,12 @@ To mitigate such situations there is a type `std::monostate` in the standard lib
 ```cpp
 #include <variant>
 
-struct NonDefaultConstructibleType{
+struct NonDefaultConstructibleType {
   NonDefaultConstructibleType(int) {}
 };
 
 int main() {
-  std::variant<std::monostate, NonDefaultConstructibleType, int, double> value{};
+  std::variant<std::monostate, NonDefaultConstructibleType, int, double> v{};
   // value holds an instance of std::monostate for now.
 }
 ```
@@ -409,7 +409,7 @@ And while we used an explicit function object for illustration here, we could as
 #include <variant>
 
 int main() {
-  const auto Print = [](auto value) { std::cout << value << std::endl; };
+  const auto Print = [](const auto& value) { std::cout << value << std::endl; };
 
   std::variant<int, std::string> value{};
   std::visit(Print, value);

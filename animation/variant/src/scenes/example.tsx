@@ -258,7 +258,7 @@ int main() {
 #include <variant>
 
 int main() {
-  const auto Print = [](auto value) { std::cout << value << '\\n'; };
+  const auto Print = [](const auto& value) { std::cout << value << '\\n'; };
 
   std::variant<int, std::string> value{};
   std::visit(Print, value);
