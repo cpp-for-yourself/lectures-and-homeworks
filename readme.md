@@ -762,6 +762,29 @@ Headers with classes
 ----------------------------------------------------------
 </details>
 
+<details>
+<summary>Dynamic polymorphism with <code>std::variant</code></summary>
+
+----------------------------------------------------------
+[![Video thumbnail](https://img.youtube.com/vi/mNeu4S0x3gA/maxresdefault.jpg)](https://youtu.be/mNeu4S0x3gA)
+
+- [`std::variant` in Modern C++](lectures/variant.md#stdvariant-in-modern-c)
+- [Templates (and concepts) allow static polymorphism](lectures/variant.md#templates-and-concepts-allow-static-polymorphism)
+- [Until now dynamic polymorphism required reference semantics](lectures/variant.md#until-now-dynamic-polymorphism-required-reference-semantics)
+- [Use `std::variant` for dynamic polymorphism with value semantics](lectures/variant.md#use-stdvariant-for-dynamic-polymorphism-with-value-semantics)
+  - [Basics of `std::variant`](lectures/variant.md#basics-of-stdvariant)
+  - [Memory used by `std::variant`](lectures/variant.md#memory-used-by-stdvariant)
+  - [Use `std::monostate` to allow for "empty" variants](lectures/variant.md#use-stdmonostate-to-allow-for-empty-variants)
+  - [Storing values in a `std::variant`](lectures/variant.md#storing-values-in-a-stdvariant)
+  - [Using `std::variant` with `std::visit`](lectures/variant.md#using-stdvariant-with-stdvisit)
+  - [How `std::visit` selects the correct function](lectures/variant.md#how-stdvisit-selects-the-correct-function)
+  - [Visitor must cover all variant types](lectures/variant.md#visitor-must-cover-all-variant-types)
+- [Back to the original example](lectures/variant.md#back-to-the-original-example)
+- [**Summary**](lectures/variant.md#summary)
+
+----------------------------------------------------------
+</details>
+
 ## PS
 
 ### Most of the code snippets are validated automatically
