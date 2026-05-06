@@ -5,3 +5,5 @@
 *.a
 *.so
 *.o
+
+**/node_modules/
