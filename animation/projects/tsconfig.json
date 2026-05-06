@@ -1,0 +1,14 @@
+{
+  "extends": "@motion-canvas/2d/tsconfig.project.json",
+  "compilerOptions": {
+    "baseUrl": "src",
+    "paths": {
+      "@lectures/*": ["../../../lectures/*"]
+    },
+    "target": "es2020",
+    "downlevelIteration": true
+  },
+  "include": [
+    "src"
+  ]
+}
