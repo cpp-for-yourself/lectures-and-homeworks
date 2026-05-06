@@ -26,14 +26,13 @@ log.setLevel(logging.INFO)
 # See a playground here: https://regex101.com/r/Tfwjsq/1
 REGEX_TEMPLATE = r"""
 (?:\s*<!--
-(:?\s*`CPP_SETUP_START`\n(?P<setup>(?:[^`]+)\n)\s*`CPP_SETUP_END`\s*)*\s*
+(:?\s*`CPP_SETUP_START`\n(?P<setup>[\s\S]*?)\s*`CPP_SETUP_END`\s*)*\s*
 (?P<skip>`CPP_SKIP_SNIPPET`)*\s*
 (?:`CPP_COPY_SNIPPET`\s*(?P<copy>.*$))*\s*
 (?:`CPP_RUN_CMD`\s*(?:CWD:(?P<cwd>[\w/]+))*\s*(?P<cmd>.*$))*\s*
 -->\s*)*
 ```(?P<language>\w+)
-(?P<code>(?:[^`]+)\n)+\s*
-```\s*
+(?P<code>[\s\S]*?)\n```\s*
 """
 
 DEFAULT_CMD_PER_LANGUAGE = {
@@ -46,7 +45,8 @@ DEFAULT_CMD_PER_LANGUAGE = {
 
 
 class CmdResult:
-    def __init__(self, status, stdout, stderr) -> None:
+    TIMEOUT = -1
+    def __init__(self, status, stdout="", stderr="") -> None:
         self.status = status
         self.stdout = stdout
         self.stderr = stderr
