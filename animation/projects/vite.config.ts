@@ -15,6 +15,7 @@ export default defineConfig({
     motionCanvas({
       project: [
         './src/dummy/project.ts',
+        './src/std_function/project.ts',
       ]
     }),
     ffmpeg(),
