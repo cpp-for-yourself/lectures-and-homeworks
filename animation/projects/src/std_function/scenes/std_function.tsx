@@ -29,14 +29,26 @@ export default makeScene2D(function* (view) {
     yield* waitFor(1);
 
     // 1. Template Button
-    yield* centerOn(codeRef(), lines(4, 5), 1, 40); // template <typename Callback>
+    yield* centerOn(codeRef(), lines(3, 4), 1, 40); // template <typename Callback>
     yield* waitFor(3);
 
-    yield* centerOn(codeRef(), lines(17, 17), 1, 40); // Callback on_click_;
+    yield* centerOn(codeRef(), [lines(16, 16), lines(6, 7)], 1, 40); // Callback on_click_;
     yield* waitFor(3);
 
-    yield* centerOn(codeRef(), DEFAULT, 1, 28);
-    yield* waitFor(2);
+    yield* centerOn(codeRef(), [lines(16, 16), lines(6, 7), lines(9, 12)], 1, 40); // Callback on_click_;
+    yield* waitFor(3);
+
+    yield* centerOn(codeRef(), [lines(24, 25)], 1, 40); // std::vector<Button> buttons;
+    yield* waitFor(3);
+
+    yield* centerOn(codeRef(), [lines(24, 24), lines(22, 22)], 1, 40); // std::vector<Button> buttons;
+    yield* waitFor(3);
+
+    yield* centerOn(codeRef(), [lines(25, 25), lines(19, 19)], 1, 40); // std::vector<Button> buttons;
+    yield* waitFor(3);
+
+    yield* centerOn(codeRef(), [lines(27, 28)], 1, 40); // std::vector<Button> buttons;
+    yield* waitFor(3);
 
     // 3. std::function Button
     yield* codeRef().code(templateCode, 0);
@@ -45,27 +57,33 @@ export default makeScene2D(function* (view) {
     yield* codeRef().code(stdFunctionCode, 1);
     yield* waitFor(1);
 
-    yield* centerOn(codeRef(), lines(8, 9), 1, 40); // explicit Button(std::string name, std::function<void()> callback)
+    yield* centerOn(codeRef(), lines(7, 7), 1, 40); // explicit Button(std::string name, std::function<void()> callback)
+    yield* waitFor(1);
+
+    yield* centerOn(codeRef(), [lines(7, 8), lines(17, 17)], 1, 40); // explicit Button(std::string name, std::function<void()> callback)
     yield* waitFor(3);
 
-    yield* centerOn(codeRef(), lines(18, 18), 1, 40); // std::function<void()> on_click_;
+    yield* centerOn(codeRef(), lines(22, 48), 1, 40); // std::function<void()> on_click_;
     yield* waitFor(3);
 
-    yield* centerOn(codeRef(), lines(30, 30), 1, 40); // std::vector<Button> buttons{play_button, quit_button};
+    yield* centerOn(codeRef(), lines(28, 30), 1, 40); // std::vector<Button> buttons{play_button, quit_button};
     yield* waitFor(3);
-
-    yield* centerOn(codeRef(), DEFAULT, 1, 28);
-    yield* waitFor(2);
 
     // 4. MultiButton
+    yield* codeRef().code(stdFunctionCode, 0);
+    yield* centerOn(codeRef(), DEFAULT, 0, 22);
+    yield* waitFor(1);
     yield* codeRef().code(multiButtonCode, 1);
     yield* waitFor(1);
 
-    yield* centerOn(codeRef(), lines(23, 23), 1, 40); // std::vector<std::function<void()>> on_click_callbacks_;
+    yield* centerOn(codeRef(), [lines(7, 8), lines(25, 28), lines(30, 30)], 1, 22);
     yield* waitFor(3);
 
-    yield* centerOn(codeRef(), DEFAULT, 1, 28);
-    yield* waitFor(2);
+    yield* centerOn(codeRef(), DEFAULT, 1, 22);
+    yield* waitFor(3);
+
+    yield* centerOn(codeRef(), [lines(13, 13)], 1, 35);
+    yield* waitFor(3);
 
     // 5. Type Erasure
     yield* codeRef().code(typeErasureCode, 1);
