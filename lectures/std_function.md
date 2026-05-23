@@ -8,6 +8,8 @@
 - [Type Erasure (How it works under the hood)](#type-erasure-how-it-works-under-the-hood)
 - [Summary](#summary)
 
+<!-- Hey everyone. It has been a while since the last video, but I have a good reason for such a delay! Anyway, I finally found the time to record another video so let's dive in! -->
+
 Remember in one of our [previous lectures](lambdas.md) we looked at lambdas? We saw how they give us an easy and clean way to create function objects on the fly, saving us from writing boilerplate structs just to pass a callable - for example, a simple comparator or an operation to a standard algorithm.
 
 But what happens if we want to store these callables somewhere and call them at a later time? And what if we want these callables to be *anything* that behaves like a function, not just lambdas? 
@@ -343,8 +345,10 @@ Real `std::function` class is, of course, much more complex. It handles differen
 > ⚠️ Finally, it won't hurt to stress this again: you'll probably never need to implement your own type-erased wrapper. But it's good to know how it works under the hood. Who knows, maybe it'll come up in a job interview (like it did for me some years ago, looking at you, Misha)!
 
 ## Summary
-To sum up, `std::function` is a powerful tool when we need a generic, uniform way to store and pass around things that can be called. It bridges the gap between the static compile-time world of lambdas/functors and the dynamic runtime world of vectors of callbacks. All without defining common base classes for all of our callables! 
+To sum up, `std::function` is a powerful tool when we need a generic, uniform way to store and pass around things that can be called. It is extremely versatile, allowing to use any callable object with the same interface.
 
-But remember, with great power comes great responsibility (and potential heap allocations). So we should probably use `std::function` for callbacks, event handlers, and storing tasks, but stick to templates when we need maximum performance on hot paths, unless we measured otherwise.
+However, with great power comes great responsibility (and potential heap allocations) as well as a potential runtime overhead due to the use of a vtable. 
+
+So, as a rule of thumb, we should probably use `std::function` for callbacks, event handlers, and storing tasks, but stick to templates when we need maximum performance on hot paths, unless we measured otherwise.
 
 <!-- And that's it for now! Thanks a lot for watching and I'll catch you in the next video, bye! -->
