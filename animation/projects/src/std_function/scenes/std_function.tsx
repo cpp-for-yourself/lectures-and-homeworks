@@ -76,8 +76,17 @@ export default makeScene2D(function* (view) {
     yield* codeRef().code(multiButtonCode, 1);
     yield* waitFor(1);
 
-    yield* centerOn(codeRef(), [lines(7, 8), lines(25, 28), lines(30, 30)], 1, 22);
+    yield* centerOn(codeRef(), [lines(7, 8)], 1, 30);
+    yield* waitFor(0.5);
+    yield* centerOn(codeRef(), [lines(7, 8), lines(19, 19)], 1, 30);
     yield* waitFor(3);
+
+    yield* centerOn(codeRef(), [lines(25, 28), lines(30, 30)], 1, 30);
+    yield* waitFor(1);
+
+    yield* centerOn(codeRef(), [lines(12, 14)], 1, 30);
+    yield* waitFor(3);
+
 
     yield* centerOn(codeRef(), DEFAULT, 1, 22);
     yield* waitFor(3);
@@ -86,21 +95,29 @@ export default makeScene2D(function* (view) {
     yield* waitFor(3);
 
     // 5. Type Erasure
-    yield* codeRef().code(typeErasureCode, 1);
+    yield* centerOn(codeRef(), DEFAULT, 0, 20);
+    yield* codeRef().code(typeErasureCode, 0);
     yield* waitFor(1);
 
-    yield* centerOn(codeRef(), lines(21, 24), 1, 36); // CallableBase
+    yield* centerOn(codeRef(), lines(3, 3), 1, 32);
+    yield* waitFor(1);
+    yield* centerOn(codeRef(), [lines(13, 18), lines(28, 28)], 1, 32);
+    yield* waitFor(1);
+
+    yield* centerOn(codeRef(), lines(19, 27), 1, 36);
+    yield* waitFor(1);
+    yield* centerOn(codeRef(), [lines(19, 27), lines(5, 8)], 1, 35);
     yield* waitFor(3);
 
-    yield* centerOn(codeRef(), lines(29, 36), 1, 36); // CallableImpl
+    yield* centerOn(codeRef(), lines(30, 42), 1, 36);
+    yield* waitFor(3);
+    yield* centerOn(codeRef(), lines(10, 10), 1, 36);
+    yield* waitFor(1);
+    yield* centerOn(codeRef(), [lines(16, 16)], 1, 35);
+    yield* waitFor(1);
+    yield* centerOn(codeRef(), [lines(23, 23)], 1, 35);
     yield* waitFor(3);
 
-    yield* centerOn(codeRef(), lines(6, 11), 1, 36); // MyFunction constructor
-    yield* waitFor(3);
-
-    yield* centerOn(codeRef(), lines(41, 41), 1, 36); // std::unique_ptr<CallableBase> callable_;
-    yield* waitFor(3);
-
-    yield* centerOn(codeRef(), DEFAULT, 1, 28);
+    yield* centerOn(codeRef(), DEFAULT, 1, 20);
     yield* waitFor(3);
 });

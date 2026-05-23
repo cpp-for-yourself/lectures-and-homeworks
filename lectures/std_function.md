@@ -144,7 +144,7 @@ int main() {
   // ✅ This works now! Both buttons are the EXACT SAME type.
   std::vector<Button> buttons{play_button, quit_button};
 
-  for (const auto& btn : buttons) { btn.Click(); }
+  for (const auto& button : buttons) { button.Click(); }
 }
 ```
 
@@ -161,7 +161,7 @@ Playing game!
 Quitting game...
 ```
 
-And what about our second problem? Now that our callbacks are wrapped in a uniform type, we can easily change our `Button` to store a `std::vector` of different `std::function` objects, allowing us to attach multiple diverse actions to a single button:
+And what about our second problem? Now that our callbacks are wrapped in a uniform type, we can easily change our `Button` class to store a `std::vector` of different `std::function` objects, allowing us to attach multiple diverse actions to a single button. We can pass this vector of callbacks in the constructor and store it as a class member:
 
 <!-- 
 `CPP_COPY_SNIPPET` std_function/multi_button.cpp
@@ -202,11 +202,11 @@ int main() {
 
   std::vector<Button> buttons{play_button, quit_button};
 
-  for (const auto& btn : buttons) { btn.Click(); }
+  for (const auto& button : buttons) { button.Click(); }
 }
 ```
 
-The rest of the example stays largely the same with the main difference being that we now pass a vector of callbacks to a button. 
+We can now pass a vector of callbacks to a button in the `main` function, and call all of them in a `for` loop when a button is clicked. The rest of the example stays largely the same.
 
 When we run the code, all of our callbacks are being called as expected:
 
@@ -218,7 +218,7 @@ Logging: Play was clicked.
 Quitting game...
 ```
 
-Notice that `std::function` can also be empty! Just like pointers can be `nullptr`, a `std::function` can hold nothing. If we try to call an empty `std::function`, it throws a `std::bad_function_call` [exception](error_handling.md). That's why we check `if (callback)` before calling it, similar to how we check if a pointer is valid.
+Notice that `std::function` can also be empty! Just like pointers can be `nullptr`, a `std::function` can hold nothing. If we try to call an empty `std::function`, it throws a `std::bad_function_call` [exception](error_handling.md). That's why we check `if (callback)` before calling it, similar to how we can check if a pointer is valid before dereferencing it.
 
 ## Performance considerations
 Now, before we go rewriting all our code to use `std::function`, we need to have a brief chat about performance. While `std::function` is incredibly flexible, that flexibility comes at a cost.
@@ -227,18 +227,31 @@ Let's look at the pros and cons of each of the two approaches we just explored.
 
 **Template Approach:**
 
-- **Pro**: Zero overhead. The compiler knows the exact type of the callable at compile time, leading to aggressive inlining. It is blazing fast and never allocates memory on the heap.
-- **Con**: It relies on static, compile-time polymorphism. For every different callable type we pass, the compiler generates a completely new class type or function. Oh, also all implementation lives in headers.
-- **Con**: As we saw, we cannot easily store these objects in a single standard container, because they all have different underlying types.
+- **Pro**: The compiler knows the exact type of the callable at compile time making it easier for the compiler to optimize the code. This approach is fast and never allocates memory on the heap.
+- **Con**: It relies on static, compile-time polymorphism. For every different callable type we pass, the compiler generates a completely new class type or function. Also, all implementation lives in headers unless we [pre-compile for a selected set of callable types](templates_and_headers.md).
+- **Con**: Objects have different types so we can't store them in a single standard container.
 
 **`std::function` Approach:**
 
-- **Pro**: True dynamic, runtime polymorphism! The `std::function` can wrap *any* callable matching the provided signature at runtime.
-- **Pro**: Because all matching callables are wrapped in the exact same type (e.g., `std::function<void()>`), we can easily store them in vectors, pass them around, and swap out their callbacks on the fly.
-- **Con**: **Heap Allocation**. Implementations of `std::function` usually have a small internal buffer (Small Object Optimization) to store small callables, which is quite fast to use. But if our callable's state (like a lambda with a large capture list) is too large for the internal buffer, `std::function` will silently call `new` to allocate memory on the heap. This can be a major performance hit if used on a hot path.
-- **Con**: **Virtual Call Overhead**. Invoking a `std::function` generally involves an indirect function call (like calling a virtual function), which can defeat compiler inlining and branch prediction. 
+- **Pro**: The `std::function` can wrap *any* callable matching the provided signature **at runtime**. 
+- **Pro**: All matching callables are wrapped in the exact same type (e.g., `std::function<void()>()`), so we can easily store them in standard containers, pass them around, and swap out their callbacks on the fly.
+- **Con**: **Heap Allocation**. Implementations of `std::function` usually have a small internal buffer (Small Object Optimization) to store small callables, which is quite fast to use. But if our callable's state (like a lambda with a large capture list) is too large for the internal buffer, `std::function` will call `new` to allocate memory on the heap. This can be a major performance bottleneck if used on a hot path.
+- **Con**: **Virtual Call Overhead**. Invoking a `std::function` generally involves an indirect function call (like calling a [virtual function](inheritance.md#runtime-and-memory-overhead-of-using-virtual)), which can make it harder for the compiler to perform all of its optimizations. 
 
-Because of this, if we are writing performance-critical code on hot paths (like a `std::sort` algorithm that runs a callable we pass into it millions of times a second), we typically stick to templates. `std::function` is for situations like UI callbacks and event handlers, where we *must* store different types at runtime and the tiny performance overhead of a virtual call doesn't matter. That being said, when performance really matters - we should always measure the alternatives and pick the option that suits us best! 
+Because of this, if we are writing performance-critical code on hot paths (like a `std::sort` algorithm that runs a callable we pass into it millions of times a second), we typically stick to templates. 
+
+<!-- 
+`CPP_SKIP_SNIPPET`
+-->
+```cpp
+// std::sort taking a templated callable as a parameter
+template<class RandomIt, class Compare>
+void sort(RandomIt first, RandomIt last, Compare comp);
+```
+
+On the contrary, `std::function` is for situations like UI callbacks and event handlers, where we want to store and maybe even replace different callable types at runtime and the tiny performance overhead of a virtual call doesn't matter. 
+
+However, what I just said is just a rule of a thumb. When performance really matters - we should always measure the alternatives and pick the option that suits us best! 
 
 ## Type Erasure (How it works under the hood)
 Finally, I want to briefly talk about how `std::function` actually works under the hood. How can it store an arbitrary callable (say a lambda or a functor) without knowing its exact type at compile time? How does it all get cleaned up neatly without [leaking memory](memory_and_smart_pointers.md)?
@@ -247,9 +260,9 @@ This is achieved using a design pattern called **Type Erasure**.
 
 > 💡 Note that you don't have to know this to use `std::function`! It is also very unlikely that you'll ever need to implement your own type-erased wrapper. Still, it is a pretty cool pattern worth knowing about. It's used in several places in the standard library, including `std:shared_ptr`, `std::any`, and, as we'll see, in `std::function` itself.
 
-To see how it all works, let's build a simplified version of `std::function` that only handles `void()` callables. We'll call it `MyFunction`.
+To see how it all works, let's build a simplified version of `std::function` that only handles `void()` callables. We'll call it `MyFunction` because I have no imagination.
 
-The core idea is to use classical [inheritance](inheritance.md) and virtual functions to hide the actual type:
+The core idea is to use a templated class that inherits from a non-templated base class that uses [virtual functions](inheritance.md) to call the stored callable:
 
 <!-- 
 `CPP_SETUP_START`
@@ -288,7 +301,7 @@ class MyFunction {
   };
 
   template <typename T>
-  struct CallableImpl : CallableBase {
+  struct CallableImpl : public CallableBase {
     explicit CallableImpl(T callable) : stored_callable(std::move(callable)) {}
 
     void Invoke() const override { stored_callable(); }
@@ -310,9 +323,13 @@ int main() {
 }
 ```
 
-This is the essence of Type Erasure. The `MyFunction` class itself is *not* templated. The `callable_` pointer just points to some `CallableBase`. By the way, here we inherit from `Noncopyable` base class to make sure our `CallableBase` is only used through a pointer, see the [inheritance lecture](inheritance.md#things-to-know-about-classes-with-virtual-methods) for more details. 
+Let's unpack what is happening here. The `MyFunction` class itself is *not* templated. The `callable_` pointer just points to some `CallableBase` that has a pure virtual `Invoke()` method. By the way, here we inherit from `Noncopyable` base class to make sure our `CallableBase` only has pointer / reference semantics, not value semantics, see the [inheritance lecture](inheritance.md#things-to-know-about-classes-with-virtual-methods) for more details.
 
-The exact type `T` is remembered *only* inside the templated `CallableImpl<T>` class, which is instantiated when the constructor is called. Once constructed, the type `T` is effectively "erased" from the perspective of `MyFunction`. However, when `MyFunction` object is destroyed, it's destructor will call the destructor of the `CallableBase`, which, having a virtual destructor, will call the destructor of `CallableImpl<T>` which will in turn call the destructor of the actual callable object it holds. This is how the object is safely cleaned up without any memory leaks and without `MyFunction` needing to know anything about the concrete type `T`. This is what type erasure is all about!
+The exact type `T` is remembered *only* inside the templated `CallableImpl<T>` class, which is instantiated when the templated `MyFunction` constructor is called. The `CallableImpl` class overrides the virtual `Invoke()` method and actually calls the stored callable object.
+
+So now if we create a couple of `MyFunction` objects - one with a free function, one with a lambda - the call to `operator()` on either `MyFunction` object will call the `Invoke()` method on the `CallableBase` pointer, which through the vtable finds the actual `Invoke` method on the appropriate `CallableImpl` object, which then calls the stored callable object. 
+
+Same logic applies when `MyFunction` object is destroyed, its destructor will call the destructor of the `CallableBase`, which, having a virtual destructor, will call the destructor of `CallableImpl<T>` which will in turn call the destructor of the actual callable object it holds. This is how the underlying callable object can be called and safely cleaned up without any memory leaks and without `MyFunction` needing to know anything about the concrete type `T`. This is what type erasure is all about!
 
 And of course, if we run the code we get the printout that we expect!
 
