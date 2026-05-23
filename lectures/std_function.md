@@ -1,5 +1,10 @@
 `std::function`
 --
+
+<p align="center">
+  <a href="https://youtu.be/blah"><img src="https://img.youtube.com/vi/blah/maxresdefault.jpg" alt="Video Thumbnail" align="right" width=50% style="margin: 0.5rem"></a>
+</p>
+
 - [`std::function`](#stdfunction)
 - [Overview](#overview)
 - [The problem: storing callables](#the-problem-storing-callables)
@@ -255,10 +260,10 @@ On the contrary, `std::function` is for situations like UI callbacks and event h
 
 However, what I just said is just a rule of a thumb. When performance really matters - we should always measure the alternatives and pick the option that suits us best! 
 
-## Type Erasure (How it works under the hood)
+## Type erasure (how it works under the hood)
 Finally, I want to briefly talk about how `std::function` actually works under the hood. How can it store an arbitrary callable (say a lambda or a functor) without knowing its exact type at compile time? How does it all get cleaned up neatly without [leaking memory](memory_and_smart_pointers.md)?
 
-This is achieved using a design pattern called **Type Erasure**.
+This is achieved using a design pattern called **type erasure**.
 
 > 💡 Note that you don't have to know this to use `std::function`! It is also very unlikely that you'll ever need to implement your own type-erased wrapper. Still, it is a pretty cool pattern worth knowing about. It's used in several places in the standard library, including `std:shared_ptr`, `std::any`, and, as we'll see, in `std::function` itself.
 

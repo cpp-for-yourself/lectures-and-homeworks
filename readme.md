@@ -785,6 +785,23 @@ Headers with classes
 ----------------------------------------------------------
 </details>
 
+<details>
+<summary>Storing callables with <code>std::function</code></summary>
+
+----------------------------------------------------------
+[![Video thumbnail](https://img.youtube.com/vi/blah/maxresdefault.jpg)](https://youtu.be/blah)
+
+- [`std::function`](lectures/std_function.md#stdfunction)
+- [Overview](lectures/std_function.md#overview)
+- [The problem: storing callables](lectures/std_function.md#the-problem-storing-callables)
+- [Enter `std::function`](lectures/std_function.md#enter-stdfunction)
+- [Performance considerations](lectures/std_function.md#performance-considerations)
+- [Type erasure (how it works under the hood)](lectures/std_function.md#type-erasure-how-it-works-under-the-hood)
+- [Summary](lectures/std_function.md#summary)
+
+----------------------------------------------------------
+</details>
+
 ## PS
 
 ### Most of the code snippets are validated automatically
