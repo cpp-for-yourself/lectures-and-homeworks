@@ -17,15 +17,14 @@
     "resolutionScale": 1
   },
   "rendering": {
-    "fps": 60,
-    "resolutionScale": 1,
+    "fps": 30,
+    "resolutionScale": 2,
     "colorSpace": "srgb",
     "exporter": {
-      "name": "@motion-canvas/core/image-sequence",
+      "name": "@motion-canvas/ffmpeg",
       "options": {
-        "fileType": "image/png",
-        "quality": 100,
-        "groupByScene": false
+        "fastStart": true,
+        "includeAudio": true
       }
     }
   }

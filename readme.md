@@ -789,7 +789,7 @@ Headers with classes
 <summary>Storing callables with <code>std::function</code></summary>
 
 ----------------------------------------------------------
-[![Video thumbnail](https://img.youtube.com/vi/blah/maxresdefault.jpg)](https://youtu.be/blah)
+[![Video thumbnail](https://img.youtube.com/vi/_qteFBrAKSM/maxresdefault.jpg)](https://youtu.be/_qteFBrAKSM)
 
 - [`std::function`](lectures/std_function.md#stdfunction)
 - [Overview](lectures/std_function.md#overview)

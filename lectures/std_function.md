@@ -2,7 +2,7 @@
 --
 
 <p align="center">
-  <a href="https://youtu.be/blah"><img src="https://img.youtube.com/vi/blah/maxresdefault.jpg" alt="Video Thumbnail" align="right" width=50% style="margin: 0.5rem"></a>
+  <a href="https://youtu.be/_qteFBrAKSM"><img src="https://img.youtube.com/vi/_qteFBrAKSM/maxresdefault.jpg" alt="Video Thumbnail" align="right" width=50% style="margin: 0.5rem"></a>
 </p>
 
 - [`std::function`](#stdfunction)
@@ -39,7 +39,7 @@ One thing we could do is to use **templates**. If we template the entire `Button
 template <typename Callback>
 class Button {
  public:
-  explicit Button(std::string name, Callback callback)
+  Button(std::string name, Callback callback)
       : name_{std::move(name)}, on_click_{std::move(callback)} {}
 
   void Click() const {
@@ -48,17 +48,17 @@ class Button {
   }
 
  private:
-  std::string name_;
-  Callback on_click_;
+  std::string name_{};
+  Callback on_click_{};
 };
 
 void QuitGame() { std::cout << "Quitting game...\n"; }
 
 int main() {
-  auto lambda_play = [] { std::cout << "Playing game!\n"; };
+  const auto lambda_play = [] { std::cout << "Playing game!\n"; };
 
-  Button play_button{"Play", lambda_play};
-  Button quit_button{"Quit", QuitGame};
+  const Button play_button{"Play", lambda_play};
+  const Button quit_button{"Quit", QuitGame};
 
   play_button.Click();
   quit_button.Click();
@@ -127,7 +127,7 @@ Let's rewrite our `Button` class using `std::function` then. We will remove the 
 
 class Button {
  public:
-  explicit Button(std::string name, std::function<void()> callback)
+  Button(std::string name, std::function<void()> callback)
       : name_{std::move(name)}, on_click_{std::move(callback)} {}
 
   void Click() const {
@@ -136,20 +136,20 @@ class Button {
   }
 
  private:
-  std::string name_;
-  std::function<void()> on_click_;
+  std::string name_{};
+  std::function<void()> on_click_{};
 };
 
 void QuitGame() { std::cout << "Quitting game...\n"; }
 
 int main() {
-  auto lambda_play = [] { std::cout << "Playing game!\n"; };
+  const auto lambda_play = [] { std::cout << "Playing game!\n"; };
 
-  Button play_button{"Play", lambda_play};
-  Button quit_button{"Quit", QuitGame};
+  const Button play_button{"Play", lambda_play};
+  const Button quit_button{"Quit", QuitGame};
 
   // ✅ This works now! Both buttons are the EXACT SAME type.
-  std::vector<Button> buttons{play_button, quit_button};
+  const std::vector<Button> buttons{play_button, quit_button};
 
   for (const auto& button : buttons) { button.Click(); }
 }
@@ -182,7 +182,7 @@ And what about our second problem? Now that our callbacks are wrapped in a unifo
 
 class Button {
  public:
-  explicit Button(std::string name, std::vector<std::function<void()>> callbacks) 
+  Button(std::string name, std::vector<std::function<void()>> callbacks) 
       : name_{std::move(name)}, on_click_callbacks_{std::move(callbacks)} {}
 
   void Click() const {
@@ -193,21 +193,21 @@ class Button {
   }
 
  private:
-  std::string name_;
-  std::vector<std::function<void()>> on_click_callbacks_;
+  std::string name_{};
+  std::vector<std::function<void()>> on_click_callbacks_{};
 };
 
 void QuitGame() { std::cout << "Quitting game...\n"; }
 
 int main() {
-  Button play_button{"Play", {
+  const Button play_button{"Play", {
     [] { std::cout << "Playing game!\n"; },
     [] { std::cout << "Logging: Play was clicked.\n"; },
   }};
 
-  Button quit_button{"Quit", {QuitGame}};
+  const Button quit_button{"Quit", {QuitGame}};
 
-  std::vector<Button> buttons{play_button, quit_button};
+  const std::vector<Button> buttons{play_button, quit_button};
 
   for (const auto& button : buttons) { button.Click(); }
 }
@@ -293,10 +293,10 @@ $PLACEHOLDER
 
 class MyFunction {
  public:
+  // Other constructors missing for brevity
   template <typename T>
-  MyFunction(T callable) {
-    callable_ = std::make_unique<CallableImpl<T>>(std::move(callable));
-  }
+  MyFunction(T&& callable)
+      : callable_{std::make_unique<CallableImpl<T>>(std::forward<T>(callable))} {}
 
   void operator()() const { if (callable_) { callable_->Invoke(); } }
 
@@ -309,21 +309,21 @@ class MyFunction {
 
   template <typename T>
   struct CallableImpl : public CallableBase {
-    explicit CallableImpl(T callable) : stored_callable(std::move(callable)) {}
+    explicit CallableImpl(T callable) : stored_callable{std::move(callable)} {}
 
     void Invoke() const override { stored_callable(); }
 
     T stored_callable;
   };
 
-  std::unique_ptr<CallableBase> callable_;
+  std::unique_ptr<CallableBase> callable_{};
 };
 
 void FreeFunction() { std::cout << "Free function!\n"; }
 
 int main() {
-  MyFunction func1(FreeFunction);
-  MyFunction func2([] { std::cout << "Lambda!\n"; });
+  const MyFunction func1{FreeFunction};
+  const MyFunction func2{[] { std::cout << "Lambda!\n"; }};
 
   func1();
   func2();
