@@ -17,6 +17,7 @@ These can be used to follow-along the video or as a standalone learning material
 [![Amazon affiliate links](https://img.shields.io/badge/amazon_affiliate_links-orange?style=for-the-badge&logo=amazon&logoColor=white&logoSize=auto&color=black)](https://github.com/cpp-for-yourself/sponsor/blob/main/amazon.md)
 
 
+
 Please remember that there is a human behind all of this work. I write scripts, create animations, record and edit videos at night after a full-time work day. It is at times hard.
 But _you_ can make it easier. Here is what you can do:
 
@@ -25,6 +26,7 @@ But _you_ can make it easier. Here is what you can do:
   + 👍 **Like** the videos and **watch them to the end**!
   + 💬 **Leave comments** on YouTube!
   + 📢 **Spread the word** among your friends!
+  + ⭐️ **Star the repo** to help others find it!
 - 🤬 Don't like something? 🗣️ **Talk to me about it!** I am always eager to improve.
 
 ## :bulb: How to follow this course
@@ -806,3 +808,11 @@ Headers with classes
 
 ### Most of the code snippets are validated automatically
 If you **do** find an error in some of those, please open an issue in this repo!
+
+<a href="https://www.star-history.com/?repos=cpp-for-yourself%2Flectures-and-homeworks&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=cpp-for-yourself/lectures-and-homeworks&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=cpp-for-yourself/lectures-and-homeworks&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=cpp-for-yourself/lectures-and-homeworks&type=date&legend=top-left" />
+ </picture>
+</a>
