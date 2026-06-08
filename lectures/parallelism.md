@@ -752,7 +752,9 @@ class ImageProcessingPipeline {
       }
 
       // Now we can process the local queue without locking the mutex
-      for (const auto& image : local_images) {
+      while(!local_images.empty()) {
+        const auto image = std::move(local_images.front());
+        local_images.pop();
         std::cout << "Thread " << std::this_thread::get_id() << " processing image " << image.id << "!\n";
         ProcessImage(image);
       }
@@ -848,9 +850,10 @@ private:
         std::swap(local_images, image_queue_);
       } // The queue lock is automatically released here!
 
-      for (const auto& image : local_images) {
-         std::cout << "Thread " << std::this_thread::get_id()
-                  << " processing image " << image.id << "!\n";
+      while(!local_images.empty()) {
+        const auto image = std::move(local_images.front());
+        local_images.pop();
+        std::cout << "Thread " << std::this_thread::get_id() << " processing image " << image.id << "!\n";
         ProcessImage(image);
       }
     }
@@ -944,7 +947,11 @@ private:
         std::swap(local_items, queue_);
       }
 
-      for (const auto& item : local_items) { process_task_(item); }
+      while(!local_items.empty()) {
+        const auto item = std::move(local_items.front());
+        local_items.pop();
+        process_task_(item);
+      }
     }
   }
 
@@ -1041,13 +1048,17 @@ template <typename T> class ThreadPool {
     while (true) {
       std::queue<T> local_items;
       {
-        const std::unique_lock lock{queue_mutex_};
+        std::unique_lock lock{queue_mutex_};
         cv_.wait(lock, [this] { return !queue_.empty() || shutting_down_; });
         if (shutting_down_ && queue_.empty()) { break; }
         local_items = std::move(queue_);
       }
 
-      for (const auto& item : local_items) { process_task_(item); }
+      while(!local_items.empty()) {
+        const auto item = std::move(local_items.front());
+        local_items.pop();
+        process_task_(item);
+      }
     }
   }
 
@@ -1064,12 +1075,7 @@ int main() {
   std::mt19937 rng{std::random_device{}()};
   std::uniform_int_distribution<int> dist{10, 100};
 
-  ThreadPool<TinyImage> pool{4, [](TinyImage img) {
-                               std::cout
-                                   << "Thread " << std::this_thread::get_id()
-                                   << " processing image " << img.id << "!\n";
-                               img.Process();
-                             }};
+  ThreadPool<TinyImage> pool{4, ProcessImage};
 
   for (int i = 1; i <= 15; ++i) {
     pool.Submit(TinyImage{i, dist(rng)});
