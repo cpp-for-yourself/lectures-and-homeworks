@@ -1051,7 +1051,7 @@ template <typename T> class ThreadPool {
         std::unique_lock lock{queue_mutex_};
         cv_.wait(lock, [this] { return !queue_.empty() || shutting_down_; });
         if (shutting_down_ && queue_.empty()) { break; }
-        local_items = std::move(queue_);
+        std::swap(local_items, queue_);
       }
 
       while(!local_items.empty()) {
