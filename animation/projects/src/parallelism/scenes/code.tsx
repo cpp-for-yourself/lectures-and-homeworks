@@ -1,13 +1,9 @@
 /// <reference types="vite/client" />
 import { createRef } from '@motion-canvas/core/lib/utils';
 import { makeScene2D, Code, LezerHighlighter, lines, Camera, Rect, Node } from '@motion-canvas/2d';
-import { all, waitFor, waitUntil } from '@motion-canvas/core/lib/flow';
-import { ThreadGenerator } from '@motion-canvas/core/lib/threading';
+import { all, waitFor } from '@motion-canvas/core/lib/flow';
 import { DEFAULT } from '@motion-canvas/core/lib/signals';
-import { tags } from '@lezer/highlight';
-import { HighlightStyle } from '@codemirror/language';
 
-import { parser as parser_css } from '@lezer/css';
 import { parser as parser_cpp } from '@lezer/cpp';
 
 import blockingCode from '@lectures/parallelism.md?snippet=parallelism_blocking/main.cpp';
@@ -19,7 +15,8 @@ import jthreadCode from '@lectures/parallelism.md?snippet=parallelism_jthread/ma
 import threadpool17Code from '@lectures/parallelism.md?snippet=parallelism_threadpool_17/main.cpp';
 
 import { MyStyle } from '../../styles';
-import { centerOn, zoomInOn, zoomOut } from '../../utils';
+import { centerOn, zoomInOn, zoomOut, getCodeBBox } from '../../utils';
+import { BBox } from '@motion-canvas/core';
 
 const CppHighlighter = new LezerHighlighter(parser_cpp, MyStyle);
 
@@ -124,29 +121,45 @@ export default makeScene2D(function* (view) {
     yield* waitFor(duration);
 
     // 1. std::async Background Task
+    yield* zoomInOn(popup1Rect(), popup1Camera(), outline1(), getCodeBBox(codeRef(), lines(23, 23)), duration, { zoom: 2 });
+    yield* all(
+        codeRef().code(asyncCode, 0),
+        codeRef().y(-200, 0),
+    );
+    let final_box = getCodeBBox(codeRef(), lines(44, 45));
+    yield* all(
+        codeRef().code(blockingCode, 0),
+        centerOn(codeRef(), DEFAULT, 0, 20),
+        codeRef().y(0, 0),
+    );
     yield* all(
         codeRef().code(asyncCode, duration),
-        centerOn(codeRef(), DEFAULT, duration, 14)
+        codeRef().y(-200, duration),
+        zoomInOn(popup1Rect(), popup1Camera(), outline1(), final_box, duration, { zoom: 2 })
     );
+    yield* waitFor(duration);
+    yield* zoomInOn(popup1Rect(), popup1Camera(), outline1(), getCodeBBox(codeRef(), lines(44, 45)), duration, { zoom: 2 })
+    yield* waitFor(duration);
+    yield* zoomInOn(popup1Rect(), popup1Camera(), outline1(), getCodeBBox(codeRef(), lines(21, 38)), duration);
     yield* waitFor(duration);
 
     // Focus on loading an image
-    yield* zoomInOn(popup1Rect(), popup1Camera(), outline1(), codeRef(), lines(21, 38), duration);
+    yield* zoomInOn(popup1Rect(), popup1Camera(), outline1(), getCodeBBox(codeRef(), lines(21, 38)), duration);
     yield* waitFor(duration);
 
     // Focus on std::async AND future polling simultaneously!
     yield* all(
-        zoomInOn(popup1Rect(), popup1Camera(), outline1(), codeRef(), lines(42, 45), duration),
-        zoomInOn(popup2Rect(), popup2Camera(), outline2(), codeRef(), lines(46, 54), duration)
+        zoomInOn(popup1Rect(), popup1Camera(), outline1(), getCodeBBox(codeRef(), lines(42, 45)), duration),
+        zoomInOn(popup2Rect(), popup2Camera(), outline2(), getCodeBBox(codeRef(), lines(46, 54)), duration)
     );
     yield* waitFor(duration);
 
     // Focus on getting in popup 1, keep polling in popup 2
-    yield* zoomInOn(popup1Rect(), popup1Camera(), outline1(), codeRef(), lines(55, 58), duration);
+    yield* zoomInOn(popup1Rect(), popup1Camera(), outline1(), getCodeBBox(codeRef(), lines(55, 58)), duration);
     yield* waitFor(duration);
 
     // Zoom in closer on launch policy args in popup 1
-    yield* zoomInOn(popup1Rect(), popup1Camera(), outline1(), codeRef(), lines(44, 45), duration);
+    yield* zoomInOn(popup1Rect(), popup1Camera(), outline1(), getCodeBBox(codeRef(), lines(44, 45)), duration);
     yield* waitFor(duration);
 
     // Zoom out both popups
@@ -164,22 +177,22 @@ export default makeScene2D(function* (view) {
     );
     yield* waitFor(duration);
 
-    yield* zoomInOn(popup1Rect(), popup1Camera(), outline1(), codeRef(), lines(16, 22), duration);
+    yield* zoomInOn(popup1Rect(), popup1Camera(), outline1(), getCodeBBox(codeRef(), lines(16, 22)), duration);
     yield* waitFor(duration);
 
-    yield* zoomInOn(popup1Rect(), popup1Camera(), outline1(), codeRef(), lines(8, 10), duration);
+    yield* zoomInOn(popup1Rect(), popup1Camera(), outline1(), getCodeBBox(codeRef(), lines(8, 10)), duration);
     yield* waitFor(duration);
 
-    yield* zoomInOn(popup1Rect(), popup1Camera(), outline1(), codeRef(), lines(12, 14), duration);
+    yield* zoomInOn(popup1Rect(), popup1Camera(), outline1(), getCodeBBox(codeRef(), lines(12, 14)), duration);
     yield* waitFor(duration);
 
-    yield* zoomInOn(popup1Rect(), popup1Camera(), outline1(), codeRef(), lines(26, 28), duration);
+    yield* zoomInOn(popup1Rect(), popup1Camera(), outline1(), getCodeBBox(codeRef(), lines(26, 28)), duration);
     yield* waitFor(duration);
 
-    yield* zoomInOn(popup1Rect(), popup1Camera(), outline1(), codeRef(), lines(32, 35), duration);
+    yield* zoomInOn(popup1Rect(), popup1Camera(), outline1(), getCodeBBox(codeRef(), lines(32, 35)), duration);
     yield* waitFor(duration);
 
-    yield* zoomInOn(popup1Rect(), popup1Camera(), outline1(), codeRef(), lines(29, 39), duration);
+    yield* zoomInOn(popup1Rect(), popup1Camera(), outline1(), getCodeBBox(codeRef(), lines(29, 39)), duration);
     yield* waitFor(duration);
 
     // 2. Parallel Algorithms (Parallel Version)
@@ -190,13 +203,13 @@ export default makeScene2D(function* (view) {
     );
     yield* waitFor(duration);
 
-    yield* zoomInOn(popup1Rect(), popup1Camera(), outline1(), codeRef(), lines(32, 37), duration);
+    yield* zoomInOn(popup1Rect(), popup1Camera(), outline1(), getCodeBBox(codeRef(), lines(32, 37)), duration);
     yield* waitFor(duration);
 
-    yield* zoomInOn(popup2Rect(), popup2Camera(), outline2(), codeRef(), lines(2, 2), duration);
+    yield* zoomInOn(popup2Rect(), popup2Camera(), outline2(), getCodeBBox(codeRef(), lines(2, 2)), duration);
     yield* waitFor(duration);
 
-    yield* zoomInOn(popup1Rect(), popup1Camera(), outline1(), codeRef(), lines(29, 41), duration);
+    yield* zoomInOn(popup1Rect(), popup1Camera(), outline1(), getCodeBBox(codeRef(), lines(29, 41)), duration);
     yield* waitFor(duration);
 
     yield* all(
@@ -213,7 +226,7 @@ export default makeScene2D(function* (view) {
     );
     yield* waitFor(duration);
 
-    yield* zoomInOn(popup1Rect(), popup1Camera(), outline1(), codeRef(), lines(34, 41), duration);
+    yield* zoomInOn(popup1Rect(), popup1Camera(), outline1(), getCodeBBox(codeRef(), lines(34, 41)), duration);
     yield* waitFor(duration);
 
     yield* zoomOut(popup1Rect(), outline1(), duration);
@@ -228,11 +241,11 @@ export default makeScene2D(function* (view) {
     yield* waitFor(duration);
 
     // Focus constructor and submit
-    yield* zoomInOn(popup1Rect(), popup1Camera(), outline1(), codeRef(), lines(22, 42), duration);
+    yield* zoomInOn(popup1Rect(), popup1Camera(), outline1(), getCodeBBox(codeRef(), lines(22, 42)), duration);
     yield* waitFor(duration);
 
     // Focus on the locking and cv in ProcessImages
-    yield* zoomInOn(popup2Rect(), popup2Camera(), outline2(), codeRef(), lines(55, 61), duration);
+    yield* zoomInOn(popup2Rect(), popup2Camera(), outline2(), getCodeBBox(codeRef(), lines(55, 61)), duration);
     yield* waitFor(duration);
 
     yield* all(
@@ -250,15 +263,15 @@ export default makeScene2D(function* (view) {
     yield* waitFor(duration);
 
     // Focus on shutdown logic
-    yield* zoomInOn(popup1Rect(), popup1Camera(), outline1(), codeRef(), lines(41, 61), duration);
+    yield* zoomInOn(popup1Rect(), popup1Camera(), outline1(), getCodeBBox(codeRef(), lines(41, 61)), duration);
     yield* waitFor(duration);
 
     // Focus CV condition
-    yield* zoomInOn(popup2Rect(), popup2Camera(), outline2(), codeRef(), lines(71, 77), duration);
+    yield* zoomInOn(popup2Rect(), popup2Camera(), outline2(), getCodeBBox(codeRef(), lines(71, 77)), duration);
     yield* waitFor(duration);
 
     // Focus on the data members changing
-    yield* zoomInOn(popup1Rect(), popup1Camera(), outline1(), codeRef(), lines(100, 105), duration);
+    yield* zoomInOn(popup1Rect(), popup1Camera(), outline1(), getCodeBBox(codeRef(), lines(100, 105)), duration);
     yield* waitFor(duration);
 
     yield* all(

@@ -62,12 +62,30 @@ export function* centerOn(
     yield* all(...animations);
 }
 
+export function getCodeBBox(codeRef: Code, selectionInput: any): BBox {
+    let bboxes: BBox[] = [];
+    if (selectionInput !== DEFAULT) {
+        bboxes = codeRef.getSelectionBBox(selectionInput);
+    }
+
+    if (bboxes.length === 0) {
+        return new BBox();
+    }
+
+    // Combine all selection bounding boxes
+    const bboxInCode = BBox.fromBBoxes(...bboxes);
+
+    // Transform local coordinates to the parent container's coordinate space.
+    // This correctly accounts for the Code node's offsetX/offsetY and scale.
+    const codeToContainerMatrix = codeRef.localToParent();
+    return bboxInCode.transform(codeToContainerMatrix);
+}
+
 export function* zoomInOn(
     popupRect: Rect,
     camera: Camera,
     outlineRect: Rect,
-    codeRef: Code,
-    selectionInput: any,
+    targetBBox: BBox,
     duration: number,
     options?: {
         padding?: number;
@@ -78,27 +96,10 @@ export function* zoomInOn(
         maxPopupHeight?: number;
     }
 ): ThreadGenerator {
-    let bboxes: BBox[] = [];
-    if (selectionInput !== DEFAULT) {
-        bboxes = codeRef.getSelectionBBox(selectionInput);
-    }
-
-    if (bboxes.length === 0) {
-        return;
-    }
-
-    // Combine all selection bounding boxes
-    const bboxInCode = BBox.fromBBoxes(...bboxes);
-
-    // Transform local coordinates to the parent container's coordinate space.
-    // This correctly accounts for the Code node's offsetX/offsetY and scale.
-    const codeToContainerMatrix = codeRef.localToParent();
-    const bboxInContainer = bboxInCode.transform(codeToContainerMatrix);
-    
-    const expandedBBox = bboxInContainer.expand(options?.outlinePadding ?? 8);
+    const expandedBBox = targetBBox.expand(options?.outlinePadding ?? 8);
     const outlineCenter = expandedBBox.center;
     const outlineSize = expandedBBox.size;
-    
+
     const targetPos = outlineCenter;
 
     const maxPopupWidth = options?.maxPopupWidth ?? 1000;
