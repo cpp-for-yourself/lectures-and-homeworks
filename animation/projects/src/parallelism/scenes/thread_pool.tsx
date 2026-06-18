@@ -1,5 +1,16 @@
 import { makeScene2D, Rect, Txt, Node, Layout } from '@motion-canvas/2d';
-import { all, waitFor, createRef, createRefArray, useRandom } from '@motion-canvas/core';
+import { all, waitFor, createRef, createRefArray, useRandom, linear } from '@motion-canvas/core';
+
+const colors = [
+    '#FFD43B', // Yellow
+    '#FF8787', // Red
+    '#9775FA', // Purple
+    '#74C0FC', // Blue
+    '#69DB7C', // Green
+    '#FFA94D', // Orange
+    '#F06595', // Pink
+    '#20C997', // Teal
+];
 
 export default makeScene2D(function* (view) {
     const duration = 1.0;
@@ -13,6 +24,7 @@ export default makeScene2D(function* (view) {
     const threadTexts = createRefArray<Txt>();
     const threadStates = createRefArray<Txt>();
     const threadTaskContainers = createRefArray<Rect>();
+    const threadProgressBars = createRefArray<Rect>();
 
     // To keep track of images
     const queueItems: Rect[] = [];
@@ -30,25 +42,33 @@ export default makeScene2D(function* (view) {
                 justifyContent={'center'}
             >
                 {[0, 1, 2, 3].map((i) => (
-                    <Rect
-                        ref={threads}
-                        width={180}
-                        height={180}
-                        radius={16}
-                        fill={'#343A40'} // Dark gray (Sleeping)
-                        stroke={'#868E96'}
-                        lineWidth={4}
-                        alignItems={'center'}
-                        justifyContent={'flex-start'}
-                        paddingTop={20}
-                        layout={true}
-                        direction={'column'}
-                        gap={10}
-                    >
-                        <Txt ref={threadTexts} text={`Thread ${i}`} fill="#FFF" fontSize={24} fontWeight={600} />
-                        <Txt ref={threadStates} text="Zzz..." fill="#ADB5BD" fontSize={28} fontWeight={700} />
-                        <Rect ref={threadTaskContainers} layout={true} direction={'row'} gap={10} width={'100%'} height={40} alignItems={'center'} justifyContent={'center'} marginTop={10} />
-                    </Rect>
+                    <Layout layout={true} direction={'column'} alignItems={'center'} gap={12}>
+                        <Rect width={180} height={4} radius={2} fill="#343A40" layout={true} direction={'row'} alignItems={'center'} justifyContent={'flex-start'} clip>
+                            <Rect ref={threadProgressBars} width={0} height={'100%'} radius={2} fill="#FFFFFF" shadowColor="#FFFFFF" shadowBlur={10} />
+                        </Rect>
+
+                        <Rect
+                            ref={threads}
+                            width={180}
+                            height={180}
+                            radius={16}
+                            fill={'#343A40'} // Dark gray (always)
+                            stroke={'#868E96'}
+                            lineWidth={4}
+                            shadowColor={'#51CF66'}
+                            shadowBlur={0}
+                            alignItems={'center'}
+                            justifyContent={'flex-start'}
+                            paddingTop={20}
+                            layout={true}
+                            direction={'column'}
+                            gap={10}
+                        >
+                            <Txt ref={threadTexts} text={`Thread ${i}`} fill="#FFF" fontSize={24} fontWeight={600} />
+                            <Txt ref={threadStates} text="Zzz..." fill="#ADB5BD" fontSize={28} fontWeight={700} />
+                            <Rect ref={threadTaskContainers} layout={true} direction={'row'} gap={10} width={'100%'} height={40} alignItems={'center'} justifyContent={'center'} marginTop={10} />
+                        </Rect>
+                    </Layout>
                 ))}
             </Layout>
 
@@ -80,6 +100,7 @@ export default makeScene2D(function* (view) {
         isQueueAnimating = true;
 
         const newImg = createRef<Rect>();
+        const color = colors[imgIndex % colors.length];
         queueBox().add(
             <Rect
                 ref={newImg}
@@ -87,7 +108,7 @@ export default makeScene2D(function* (view) {
                 height={0}
                 margin={[0, 0, 0, 0]}
                 radius={8}
-                fill={'#FFD43B'}
+                fill={color}
                 alignItems={'center'}
                 justifyContent={'center'}
                 opacity={0}
@@ -124,15 +145,15 @@ export default makeScene2D(function* (view) {
                 const items = queueItems.splice(0, batchSize);
 
                 // Small pause so images sit in the queue visibly before being processed
-                yield* waitFor(0.5);
+                yield* waitFor(0.2);
 
                 while (isQueueAnimating) yield* waitFor(0.1);
                 isQueueAnimating = true;
 
                 if (!isAwake) {
                     yield* all(
-                        threads[threadIndex].fill('#2B8A3E', 0.2), // Green
-                        threads[threadIndex].stroke('#51CF66', 0.2),
+                        threads[threadIndex].stroke('#51CF66', 0.2), // Glowing Green outline
+                        threads[threadIndex].shadowBlur(20, 0.2), // Add glow
                         threadStates[threadIndex].text("Working", 0.2),
                         threadStates[threadIndex].fill("#FFF", 0.2),
                     );
@@ -149,6 +170,7 @@ export default makeScene2D(function* (view) {
                     const item = items[i];
                     const textNode = item.children()[0] as Txt;
                     const textValue = textNode.text();
+                    const color = colors[parseInt(textValue) % colors.length];
 
                     // MUST capture startPos before any layout changes
                     startPositions.push(item.absolutePosition());
@@ -169,7 +191,7 @@ export default makeScene2D(function* (view) {
                             width={35}
                             height={35}
                             radius={6}
-                            fill={'#FFD43B'}
+                            fill={color}
                             alignItems={'center'}
                             justifyContent={'center'}
                             opacity={0} // Hidden during flight
@@ -184,7 +206,8 @@ export default makeScene2D(function* (view) {
                 for (let i = 0; i < items.length; i++) {
                     const textNode = items[i].children()[0] as Txt;
                     const textValue = textNode.text();
-                    
+                    const color = colors[parseInt(textValue) % colors.length];
+
                     // Calculate target absolute position AFTER all items are added
                     const targetPos = taskRefs[i].absolutePosition();
 
@@ -196,7 +219,7 @@ export default makeScene2D(function* (view) {
                             width={70}
                             height={70}
                             radius={8}
-                            fill={'#FFD43B'}
+                            fill={color}
                             alignItems={'center'}
                             justifyContent={'center'}
                             zIndex={100}
@@ -219,7 +242,7 @@ export default makeScene2D(function* (view) {
                 }
 
                 yield* all(...consumeAnim);
-                
+
                 // Cleanup
                 items.forEach(item => item.remove());
                 flyingRefs.forEach((fly, i) => {
@@ -229,8 +252,12 @@ export default makeScene2D(function* (view) {
 
                 isQueueAnimating = false;
 
-                // Simulate processing time
-                yield* waitFor(6.0 * items.length);
+                // Simulate processing time with progress bar
+                const processTime = 4.0 * items.length;
+                yield* threadProgressBars[threadIndex].width('100%', processTime, linear);
+
+                // Reset progress bar instantly
+                threadProgressBars[threadIndex].width(0);
 
                 // Finish processing
                 const finishAnim = [];
@@ -243,8 +270,8 @@ export default makeScene2D(function* (view) {
 
                 // Thread always goes back to sleep after finishing
                 yield* all(
-                    threads[threadIndex].fill('#343A40', 0.2),
                     threads[threadIndex].stroke('#868E96', 0.2),
+                    threads[threadIndex].shadowBlur(0, 0.2), // Remove glow
                     threadStates[threadIndex].text("Zzz...", 0.2),
                     threadStates[threadIndex].fill("#ADB5BD", 0.2),
                 );
@@ -253,8 +280,8 @@ export default makeScene2D(function* (view) {
             } else {
                 if (isAwake) {
                     yield* all(
-                        threads[threadIndex].fill('#343A40', 0.2),
                         threads[threadIndex].stroke('#868E96', 0.2),
+                        threads[threadIndex].shadowBlur(0, 0.2), // Remove glow
                         threadStates[threadIndex].text("Zzz...", 0.2),
                         threadStates[threadIndex].fill("#ADB5BD", 0.2),
                     );
@@ -267,8 +294,8 @@ export default makeScene2D(function* (view) {
         // Cleanup at the end if it was awake
         if (isAwake) {
             yield* all(
-                threads[threadIndex].fill('#343A40', 0.2),
                 threads[threadIndex].stroke('#868E96', 0.2),
+                threads[threadIndex].shadowBlur(0, 0.2), // Remove glow
                 threadStates[threadIndex].text("Zzz...", 0.2),
                 threadStates[threadIndex].fill("#ADB5BD", 0.2),
             );
@@ -279,7 +306,7 @@ export default makeScene2D(function* (view) {
         for (let i = 1; i <= 20; i++) {
             yield* pushToQueue(i);
             // Random interval between 0.5 and 2.0 seconds
-            yield* waitFor(0.5 + random.nextFloat() * 1.0);
+            yield* waitFor(random.nextFloat(0.05, 1.0));
         }
         isSimulationRunning = false;
     }
