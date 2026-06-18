@@ -81,6 +81,30 @@ export function getCodeBBox(codeRef: Code, selectionInput: any): BBox {
     return bboxInCode.transform(codeToContainerMatrix);
 }
 
+export function getFutureCodeBBox(codeRef: Code, selectionInput: any, setup: () => void): BBox {
+    // Save current state
+    const oldCode = codeRef.code();
+    const oldX = codeRef.x();
+    const oldY = codeRef.y();
+    const oldScale = codeRef.scale();
+    const oldFontSize = codeRef.fontSize();
+
+    // Apply future state synchronously
+    setup();
+
+    // Measure bounding box
+    const bbox = getCodeBBox(codeRef, selectionInput);
+
+    // Restore old state synchronously
+    codeRef.code(oldCode);
+    codeRef.x(oldX);
+    codeRef.y(oldY);
+    codeRef.scale(oldScale);
+    codeRef.fontSize(oldFontSize);
+
+    return bbox;
+}
+
 export function* zoomInOn(
     popupRect: Rect,
     camera: Camera,
@@ -94,6 +118,9 @@ export function* zoomInOn(
         zoom?: number;
         maxPopupWidth?: number;
         maxPopupHeight?: number;
+        position?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'center' | Vector2;
+        screenPaddingX?: number;
+        screenPaddingY?: number;
     }
 ): ThreadGenerator {
     const expandedBBox = targetBBox.expand(options?.outlinePadding ?? 8);
@@ -116,13 +143,61 @@ export function* zoomInOn(
         }
     }
 
-    const targetPopupSize = outlineSize.scale(targetZoom);
+    const paddingX = options?.screenPaddingX ?? 100;
+    const paddingY = options?.screenPaddingY ?? 100;
+
+    let targetPopupSize = outlineSize.scale(targetZoom);
+
+    // Default to the popup's current static position
+    let finalPopupPos = popupRect.position();
+
+    let maxAllowedWidth = 1920 - paddingX * 2;
+    let maxAllowedHeight = 1080 - paddingY * 2;
+
+    if (!options?.position) {
+        // If no dynamic position is requested, the center is fixed. 
+        // We must restrict size so it doesn't bleed off the screen.
+        maxAllowedWidth -= 2 * Math.abs(finalPopupPos.x);
+        maxAllowedHeight -= 2 * Math.abs(finalPopupPos.y);
+    }
+
+    // Limit the popup size to the allowed dimensions
+    if (targetPopupSize.width > maxAllowedWidth || targetPopupSize.height > maxAllowedHeight) {
+        const scaleX = maxAllowedWidth / targetPopupSize.width;
+        const scaleY = maxAllowedHeight / targetPopupSize.height;
+        const scale = Math.min(scaleX, scaleY);
+
+        targetPopupSize = targetPopupSize.scale(scale);
+        targetZoom *= scale;
+    }
+
+    // Now resolve dynamic position
+    if (options?.position) {
+        if (options.position instanceof Vector2) {
+            finalPopupPos = options.position;
+        } else {
+            const halfW = targetPopupSize.width / 2;
+            const halfH = targetPopupSize.height / 2;
+            const screenW = 1920 / 2 - paddingX;
+            const screenH = 1080 / 2 - paddingY;
+
+            if (options.position === 'top-left') {
+                finalPopupPos = new Vector2(-screenW + halfW, -screenH + halfH);
+            } else if (options.position === 'top-right') {
+                finalPopupPos = new Vector2(screenW - halfW, -screenH + halfH);
+            } else if (options.position === 'bottom-left') {
+                finalPopupPos = new Vector2(-screenW + halfW, screenH - halfH);
+            } else if (options.position === 'bottom-right') {
+                finalPopupPos = new Vector2(screenW - halfW, screenH - halfH);
+            } else if (options.position === 'center') {
+                finalPopupPos = new Vector2(0, 0);
+            }
+        }
+    }
 
     const isOpening = popupRect.opacity() === 0 || popupRect.scale.x() === 0;
 
     if (isOpening) {
-        // Save the final target position defined in the JSX/layout
-        const finalPopupPos = popupRect.position();
         const finalPopupSize = targetPopupSize;
 
         // Snap popup to start exactly at the outline's position and size
@@ -156,7 +231,8 @@ export function* zoomInOn(
             camera.zoom(targetZoom, duration),
             outlineRect.position(outlineCenter, duration),
             outlineRect.size(outlineSize, duration),
-            popupRect.size(targetPopupSize, duration)
+            popupRect.size(targetPopupSize, duration),
+            popupRect.position(finalPopupPos, duration)
         );
     }
 }

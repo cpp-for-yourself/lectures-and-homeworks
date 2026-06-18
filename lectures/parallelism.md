@@ -49,7 +49,7 @@ The safest way to do parallelism is to **not** do it at all. What I mean here is
 ### High-level Task-Based Parallelism
 But there *are* cases when we *need* to employ parallelism. One example of such a case is common in many GUI frameworks, where there is a main thread that handles the UI, and background threads that handle heavy tasks, because nobody likes a frozen application, which happens if the UI thread does too much work.
 
-If we have such a heavy task to run, we can use [`std::async`](https://en.cppreference.com/w/cpp/thread/async.html). This function takes a callable (like a [lambda](lambdas.md)) and a [launch policy](https://en.cppreference.com/w/cpp/thread/launch.html), and runs this callable asynchronously, potentially on a background thread. It returns a `std::future`, which is basically a promise like "I don't have the result now, but I will in the *future*."
+If we have such a heavy task to run, we can use [`std::async`](https://en.cppreference.com/w/cpp/thread/async.html). This function takes a callable (like a [lambda](lambdas.md)) and a [launch policy](https://en.cppreference.com/w/cpp/thread/launch.html), and runs this callable asynchronously, potentially on a background thread. It returns a `std::future`, which is basically a promise like "I don't have the result now, but I will in the *future*." This future object handles getting us the result with a `.get()` call as well as what happens if the underlying code fails or when the result is not ready yet.
 
 For the sake of example, let's say our application, given a path to a massive image (we'll fake it here), needs to load it from disk (we'll simulate this by sleeping for 5 seconds). Let's first see what happens if we just load the image on the main thread:
 
@@ -92,7 +92,7 @@ int main() {
 
 When we run this, the application just prints "Loading massive image..." and then hangs for 5 full seconds with no signs of life. The main thread is completely blocked. There is no way for us to draw any kind of progress spinner or update any other UI element while the image is loading. To the user, the application looks frozen — and, well, that's because it *is* frozen.
 
-Let's fix this! Let's use `std::async` just like I described a minute ago to kick off the heavy `LoadMassiveImage` function on a background thread, freeing the main thread to update the UI. While we're at it, let's encapsulate our spinner logic into a reusable `Spinner` class that iterates through an array of progress spinner characters when we call `Spin()` and cleans them up on destruction:
+Let's fix this! Let's use `std::async` just like I described a minute ago to kick off the heavy `LoadMassiveImage` function on a background thread, freeing the main thread to update the UI. While we're at it, let's encapsulate our spinner logic into a reusable `Spinner` class that iterates through an array of progress spinner characters when we call `Spin()` and cleans them up on destruction. Which allows us to use it in the main thread by calling its `Spin()` function in a while loop:
 
 <!--
 `CPP_SETUP_START`
@@ -128,7 +128,7 @@ class Spinner {
   static inline const std::array<std::string, 10> kFrames = {
       "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"};
 
-  Spinner(std::string message) : message_{std::move(message)} { Spin(); }
+  explicit Spinner(std::string message) : message_{std::move(message)} { Spin(); }
 
   void Spin() {
     std::cout << "\r" << message_ << ' ' << kFrames[idx_++] << std::flush;
@@ -146,8 +146,7 @@ class Spinner {
 int main() {
   // 🚀 Kick off the heavy task in the background.
   // std::launch::async forces it to run in a new thread.
-  std::future<Image> future_image =
-      std::async(std::launch::async, LoadMassiveImage);
+  std::future<Image> future_image = std::async(std::launch::async, LoadMassiveImage);
 
   // ⏳ Start the spinner while we wait.
   {
@@ -165,10 +164,10 @@ int main() {
 }
 ```
 
-Using this spinner class, we do the following in `main`:
+But let's focus closely on what we do here in the `main` function:
 1. We kick off the heavy `LoadMassiveImage` function in a background thread using `std::async` with the `std::launch::async` policy, which returns a `std::future` that holds a promise of the result.
-2. We create a `Spinner` in the main thread. We call `spinner.Spin()` in a loop to animate the spinner while the `std::future` is waiting for the result.
-3. We call `.get()` on the future to wait for and retrieve the final `Image` data once the future is ready.
+2. We create a `Spinner` in the main thread. We call `spinner.Spin()` in a loop to animate the spinner while the `std::future` is waiting for the result using the `.wait_for` function. This function checks if the result is ready, and if not, it waits for a specified amount of time before returning, here for `kSpinInterval` microseconds. If the result is ready, it returns immediately, otherwise it returns `std::future_status::timeout`. By the end of this scope, the snipper gets destroyed, printing the success message.
+3. Finally, we call `.get()` on the future to wait for and retrieve the final `Image` data once the future is ready. This function blocks the main thread if the result is not ready yet but in our case we know it's there already. Note that here we don't handle the case if the `LoadMassiveImage` function throws an exception. In this case `std::future` will rethrow the exception when we call `.get()` on it. So in a production code we should wrap this call in a `try-catch` block.
 
 ### Execution Strategies (`std::launch`)
 Notice that we passed `std::launch::async` as the first argument to `std::async`. This is the **launch policy**, which tells the C++ runtime exactly how it should execute our task. This parameter is the cause of one of the most common beginner pitfalls and is not very intuitive. Let's dive a bit deeper into the options we have:
@@ -176,7 +175,7 @@ Notice that we passed `std::launch::async` as the first argument to `std::async`
 * `std::launch::async`: Forces the task to be executed on a separate, dedicated background thread immediately. We used this in our example because we want the image to load in the background *while* our main thread is busy drawing and updating the loading spinner UI.
 * `std::launch::deferred`: The task is **deferred**. This is also knows as "lazy evaluation". It does not execute immediately, and it doesn't even spawn a new thread. Instead, it waits until we actually call `.get()` or `.wait()` on the future, and then executes synchronously on the *same* thread that requested the result. This is useful when we want to define a task upfront but leave the details of if, when, and on which thread it will be executed to a later point in time. In some cases, depending on circumstances, we might even never need that result. However, I rarely see this being used in practice, at least in my field of robotics. <!-- If you have a good use-case for this - please tell me what it is in the comments! -->
 * `std::launch::async | std::launch::deferred` -  the default case. If we don't specify a policy, the C++ runtime decides! It might run it on a new thread, or it might defer it, depending on system resources. What actually happens is implementation-defined so it is hard to rely on. So we usually specify `std::launch::async` explicitly when we need a strict guarantee that background work is happening immediately (like keeping our UI responsive). Honestly, it is a bit unfortunate that this is the default behavior, I'd rather have no default at all to avoid confusion! 
-<!-- If anyone knows why this default was chosen, please also comment below! -->
+<!-- If anyone knows why this default was chosen historically, please also comment below! -->
 
 ### Parallel Algorithms
 But what if we don't want to do *just one* heavy task in the background, but rather perform an operation (usually a much smaller one) on lots of elements simultaneously? 
@@ -189,7 +188,7 @@ Our image now holds a vector of pixels, with each pixel holding an RGB value. A 
 
 <!-- 
 `CPP_COPY_SNIPPET` parallelism_algorithms/main_sequential.cpp
-`CPP_RUN_CMD` CWD:parallelism_algorithms bash -c 'g++-15 -std=c++17 -O3 -I/opt/homebrew/include -L/opt/homebrew/lib main_sequential.cpp -o sequential 2>/dev/null || c++ -std=c++17 -O3 main_sequential.cpp -o sequential'
+`CPP_RUN_CMD` CWD:parallelism_algorithms c++ -std=c++17 -O3 main_sequential.cpp -o sequential
 -->
 ```cpp
 #include <algorithm>
@@ -231,7 +230,7 @@ int main() {
 
   const auto end = std::chrono::high_resolution_clock::now();
   const DoubleMilliseconds time_taken = end - start;
-  std::cout << "Sequential time: " << time_taken.count() << " ms\n\n";
+  std::cout << "Sequential time: " << time_taken.count() << " ms\n";
   return 0;
 }
 ```
@@ -246,7 +245,7 @@ We can compile this program with all the optimizations enabled:
 c++ -std=c++17 -O3 main.cpp
 ```
 
-On my machine, this program completes the image color inversion in about 12ms.
+On my machine, this program completes the image color inversion in about 60ms.
 
 Now let's make this program run in parallel! 
 
@@ -301,15 +300,15 @@ int main() {
 }
 ```
 
-The code didn't change much at all! We only added the `std::execution::par` parameter to the `std::transform` algorithm as well as the `<execution>` header needed for it. We also need to slightly change that compile command from before by adding `-ltbb`, which links the TBB library to it:
+The code doesn't need to change much at all! Let's focus on that `std::transform` call. We only need to add the `std::execution::par` parameter to the `std::transform` algorithm as well as the `<execution>` header needed for it. We also need to slightly change that compile command from before by adding `-ltbb`, which links the TBB library to the resulting binary:
 
 ```
 c++ -std=c++17 -O3 main.cpp -ltbb
 ```
 
-These tiny changes suddenly make the execution time drop dramaticaly, to around 5ms on my machine running 12 threads. 
+These tiny changes suddenly make the execution time drop dramaticaly, to around 18ms on my machine running 12 threads. 
 
-That's nearly a 2.5x performance improvement for practically zero extra engineering effort, simply by typing `std::execution::par`. However, I have to mention that we shouldn't read into these numbers too much. Proper time measurement is non-trivial as it can be influenced by many factors such as what runs in the background, how much data is pre-loaded into the cache of our processor etc. But even with these caveats in mind, the performance improvement is drammatic enough for us to notice! 
+That's more than a 3x performance improvement for practically zero extra engineering effort, simply by typing `std::execution::par`. However, I have to mention that we shouldn't read into these numbers too much. Proper time measurement is non-trivial as it can be influenced by many factors such as what runs in the background, how much data is pre-loaded into the cache of our processor etc. But even with these caveats in mind, the performance improvement is drammatic enough for us to notice! 
 
 Although one might notice that it is very far from being 12x better even though my machine has 12 threads! The reason for this is that while we can run multiple threads in parallel, there is overhead associated with how our task is broken down into chunks to be distributed among threads, how threads are scheduled and synchronized, and how the results are combined back to the output image. Given that our task is very simple, the overhead is quite noticeable! 
 
@@ -319,7 +318,7 @@ Now let's talk about that `std::execution::par` parameter. Similar to launch pol
 * `std::execution::seq`: Executes sequentially on the current thread. This is the same as not passing a policy at all. Useful for debugging, testing, or if the data size is too small to benefit from parallelism overhead.
 * `std::execution::par`: Executes in parallel on multiple threads. The runtime breaks the container (like our `std::vector`) into chunks based on how many CPU cores we have. This is the most common way to parallelize an algorithm. Note that is is _our job_ to ensure that such parallel execution is safe. Again, more on that later.
 * `std::execution::unseq` (C++20): Executes on a single thread, but allows the CPU to use SIMD (Single Instruction, Multiple Data) vector instructions to process multiple elements at the exact same time. This is also known as vectorization.
-* `std::execution::par_unseq`: Allows both multi-threading (`par`) AND vectorization (`unseq`). Going deep into vectorization is beyond the scope of this course but I still want to add a warning here that while this option might seem like it should be fastest in most cases its performance highly depends on the hardware as well as the problem we are trying to solve. Measure when in doubt!
+* `std::execution::par_unseq`: Allows both multi-threading (`par`) AND vectorization (`unseq`). Going deep into vectorization is beyond the scope of this course but I still want to add a warning here that while this option might seem like it should be fastest in most cases its performance highly depends on the hardware as well as the problem we are trying to solve. Measure when in doubt! Oh, and it is much easier to shoot one's leg off with this policy when it comes to data races which we'll discuss in a couple of minutes.
 
 > [!NOTE]
 > Speaking of warnings... Please note that if you're on macOS, using any parallel `std::execution` policy is more complex as Apple Clang [lacks full built-in support for standard parallel algorithms](https://en.cppreference.com/w/cpp/compiler_support/17#C.2B.2B17_library_features). Therefore, the primary target for compiling our examples using standard libraries in all of the examples here is typically Linux (e.g., using GCC). If you'd like to run them on MacOS, you'll need to install gcc or clang with tbb support. For example, you can install gcc with `brew install gcc` and then use the installed specific version of `g++` (e.g. `g++-15`) to compile (and link) the code like so:
@@ -330,11 +329,11 @@ Now let's talk about that `std::execution::par` parameter. Similar to launch pol
 ### Raw TBB Parallelism
 
 > [!NOTE]
-> This is a good time to talk about this `-ltbb` [linker](headers_and_libraries.md#linking-libraries-to-binaries) option! We also used it in the previous compilation command. The reason why we often need it to enable parallel version of the standard algorithms is because, under the hood, compilers often use [**Threading Building Blocks (oneTBB)**](https://github.com/uxlfoundation/oneTBB) library as the backend for these parallel algorithms. Originally developed by Intel and now transitioned to a more community driven project, TBB is (and has been for quite a while) an industry-standard library for task-based parallelism. But again, if you're on Apple Clang you'll need to switch to Clang (non-Apple) or GCC to use it.
+> This is probably also a good time to talk about this `-ltbb` [linker](headers_and_libraries.md#linking-libraries-to-binaries) option! We also used it in the previous compilation command. The reason why we often need it to enable parallel version of the standard algorithms is because, under the hood, compilers often use [**Threading Building Blocks (oneTBB)**](https://github.com/uxlfoundation/oneTBB) library as the backend for these parallel algorithms. Originally developed by Intel and now transitioned to a more community driven project, TBB is (and has been for quite a while) an industry-standard library for task-based parallelism. But again, if you're on Apple Clang you'll need to switch to Clang (non-Apple) or GCC to use it.
 
 This also then means that we are not confined to the limits of standard library when we want to write code that runs in parallel. If we need more control than the standard library algorithms provide, we can drop down an abstraction level and use Intel TBB directly. It provides a rich set of algorithms like `tbb::parallel_for`, `tbb::parallel_reduce`, concurrent data structures, and more.
 
-Let's rewrite our color inversion example using `tbb::parallel_for`. This explicitly tells TBB to split our vector index range into chunks ("blocked ranges") and process them across available worker threads:
+Let's rewrite our color inversion example using `tbb::parallel_for`. The only two changes are regarding the replacement of the `std::transform` with the `tbb::parallel_for` and the matching changes in headers. This new code now explicitly tells TBB to split our vector index range into chunks ("blocked ranges") and process them across available worker threads:
 
 <!-- 
 `CPP_COPY_SNIPPET` parallelism_algorithms/main_tbb.cpp
@@ -375,10 +374,10 @@ int main() {
   std::cout << "Starting raw TBB inversion...\n";
   const auto start = std::chrono::high_resolution_clock::now();
 
-  // tbb::parallel_for takes a range, and a lambda to process that sub-range
+  // tbb::parallel_for takes a range, and a lambda to process that range
   tbb::parallel_for(tbb::blocked_range<size_t>(0, image.pixels.size()),
                     [&](const tbb::blocked_range<size_t>& r) {
-                      // This loop processes ONE chunk assigned to a specific thread
+                      // This loop processes ONE chunk assigned to a thread
                       for (size_t i = r.begin(); i != r.end(); ++i) {
                         image.pixels[i] = Invert(image.pixels[i]);
                       }
@@ -391,7 +390,7 @@ int main() {
 }
 ```
 
-We can compile this example just as we compiled the previous one and it should run in about the same time as the parallel version of the standard algorithms, in around 5ms on my machine.
+We can compile this example just as we compiled the previous one and it should run in about the same time as the parallel version of the standard algorithms, in around 18ms on my machine.
 
 All in all, oneTBB is a very powerful library that gives us much more control over how our code runs in parallel. From deciding how many threads to use under the hood to precise details of how our algorithm splits the data and processes it in parallel. If you want a small challenge, go ahead and find a way to only use, say, half of the available threads rather than all of them with our TBB example!
 

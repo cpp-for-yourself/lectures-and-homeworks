@@ -31,8 +31,8 @@ REGEX_TEMPLATE = r"""
 (?:`CPP_COPY_SNIPPET`\s*(?P<copy>.*$))*\s*
 (?:`CPP_RUN_CMD`\s*(?:CWD:(?P<cwd>[\w/]+))*\s*(?P<cmd>.*$))*\s*
 -->\s*)*
-```(?P<language>\w+)
-(?P<code>[\s\S]*?)\n```\s*
+[> ]*```(?P<language>\w+)
+(?P<code>[\s\S]*?)\n[> ]*```\s*
 """
 
 DEFAULT_CMD_PER_LANGUAGE = {
