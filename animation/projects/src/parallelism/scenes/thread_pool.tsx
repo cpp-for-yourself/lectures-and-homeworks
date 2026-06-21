@@ -58,14 +58,13 @@ export default makeScene2D(function* (view) {
                             shadowColor={'#51CF66'}
                             shadowBlur={0}
                             alignItems={'center'}
-                            justifyContent={'flex-start'}
                             paddingTop={20}
                             layout={true}
                             direction={'column'}
                             gap={10}
                         >
                             <Txt ref={threadTexts} text={`Thread ${i}`} fill="#FFF" fontSize={24} fontWeight={600} />
-                            <Txt ref={threadStates} text="Zzz..." fill="#ADB5BD" fontSize={28} fontWeight={700} />
+                            <Txt ref={threadStates} text="zzz..." fill="#ADB5BD" fontSize={28} fontWeight={700} />
                             <Rect ref={threadTaskContainers} layout={true} direction={'row'} gap={10} width={'100%'} height={40} alignItems={'center'} justifyContent={'center'} marginTop={10} />
                         </Rect>
                     </Layout>
@@ -272,7 +271,7 @@ export default makeScene2D(function* (view) {
                 yield* all(
                     threads[threadIndex].stroke('#868E96', 0.2),
                     threads[threadIndex].shadowBlur(0, 0.2), // Remove glow
-                    threadStates[threadIndex].text("Zzz...", 0.2),
+                    threadStates[threadIndex].text("zzz...", 0.2),
                     threadStates[threadIndex].fill("#ADB5BD", 0.2),
                 );
                 isAwake = false;
@@ -282,7 +281,7 @@ export default makeScene2D(function* (view) {
                     yield* all(
                         threads[threadIndex].stroke('#868E96', 0.2),
                         threads[threadIndex].shadowBlur(0, 0.2), // Remove glow
-                        threadStates[threadIndex].text("Zzz...", 0.2),
+                        threadStates[threadIndex].text("zzz...", 0.2),
                         threadStates[threadIndex].fill("#ADB5BD", 0.2),
                     );
                     isAwake = false;
@@ -296,7 +295,7 @@ export default makeScene2D(function* (view) {
             yield* all(
                 threads[threadIndex].stroke('#868E96', 0.2),
                 threads[threadIndex].shadowBlur(0, 0.2), // Remove glow
-                threadStates[threadIndex].text("Zzz...", 0.2),
+                threadStates[threadIndex].text("zzz...", 0.2),
                 threadStates[threadIndex].fill("#ADB5BD", 0.2),
             );
         }

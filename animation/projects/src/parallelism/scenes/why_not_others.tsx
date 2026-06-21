@@ -3,74 +3,78 @@ import { all, waitFor, createRef, Vector2, easeInOutCubic, createRefArray } from
 
 export default makeScene2D(function* (view) {
     const container = createRef<Node>();
-    
+
     // --- Part 1: std::async overhead ---
     const asyncContainer = createRef<Node>();
     const incomingImage = createRef<Rect>();
-    const threadBox = createRef<Rect>();
+    const timelineContainer = createRef<Node>();
+    const timelineTrack = createRef<Rect>();
     const osOverhead = createRef<Rect>();
     const taskBox = createRef<Rect>();
-    
+    const osOverheadText = createRef<Txt>();
+    const taskText = createRef<Txt>();
+    const titleText = createRef<Txt>();
+
     yield view.add(
         <Node ref={container}>
             <Node ref={asyncContainer}>
                 <Rect
                     ref={incomingImage}
-                    width={60}
-                    height={60}
-                    radius={8}
-                    fill={'#FFD43B'}
+                    width={100}
+                    height={100}
+                    radius={16}
+                    fill={'#495057'} // Modern dark gray background
+                    stroke={'#ADB5BD'}
+                    lineWidth={4}
                     x={-800}
                     y={0}
-                    shadowBlur={10}
+                    shadowBlur={15}
                     shadowColor={'rgba(0,0,0,0.5)'}
+                    alignItems={'center'}
+                    justifyContent={'center'}
                 >
-                    <Txt text="Img" fill="#1E1E1E" fontSize={24} fontWeight={600} />
+                    <Txt text="🖼️" fontSize={120} />
                 </Rect>
 
-                <Rect
-                    ref={threadBox}
-                    width={0}
-                    height={0}
-                    radius={16}
-                    fill={'#2C2E33'}
-                    stroke={'#4DABF7'}
-                    lineWidth={4}
-                    x={0}
-                    y={0}
-                    clip={true}
-                    opacity={0}
-                    layout={true}
-                    direction={'column'}
-                    padding={20}
-                    gap={20}
-                >
-                    <Txt text="std::async Thread" fill="#4DABF7" fontSize={32} fontWeight={700} alignSelf={'center'} />
-                    
-                    <Rect
-                        ref={osOverhead}
-                        width={'100%'}
-                        grow={1}
-                        fill={'#FF6B6B'}
-                        radius={8}
-                        alignItems={'center'}
-                        justifyContent={'center'}
-                    >
-                        <Txt text="OS Thread Overhead\n(Stack, TCB, Context Switch)" fill="#FFF" fontSize={28} fontWeight={600} textAlign={'center'} />
-                    </Rect>
+                <Node ref={timelineContainer} x={0} y={100} opacity={0}>
+                    <Txt ref={titleText} text="" fill="#ffffff" fontSize={36} fontWeight={700} y={-80} textAlign={'center'} />
 
                     <Rect
-                        ref={taskBox}
-                        width={'100%'}
-                        height={100}
-                        fill={'#51CF66'}
-                        radius={8}
-                        alignItems={'center'}
-                        justifyContent={'center'}
+                        ref={timelineTrack}
+                        width={800}
+                        height={60}
+                        radius={30}
+                        fill={'#2C2E33'}
+                        x={0}
+                        y={0}
+                        clip={true}
+                        layout={true}
+                        direction={'row'}
                     >
-                        <Txt text="Invert Img" fill="#1E1E1E" fontSize={28} fontWeight={600} />
+                        <Rect
+                            ref={osOverhead}
+                            width={0}
+                            height={'100%'}
+                            fill={'#845EF7'} // Modern Purple
+                            alignItems={'center'}
+                            justifyContent={'center'}
+                            clip={true}
+                        >
+                            <Txt ref={osOverheadText} text="OS Overhead (Create Thread)" fill="#FFF" fontSize={24} fontWeight={600} opacity={0} />
+                        </Rect>
+                        <Rect
+                            ref={taskBox}
+                            width={0}
+                            height={'100%'}
+                            fill={'#20C997'} // Modern Teal
+                            alignItems={'center'}
+                            justifyContent={'center'}
+                            clip={true}
+                        >
+                            <Txt ref={taskText} text="Invert" fill="#1E1E1E" fontSize={24} fontWeight={600} opacity={0} />
+                        </Rect>
                     </Rect>
-                </Rect>
+                </Node>
             </Node>
         </Node>
     );
@@ -81,12 +85,26 @@ export default makeScene2D(function* (view) {
     yield* incomingImage().x(0, duration, easeInOutCubic);
     yield* waitFor(0.5);
 
-    // Spawn thread box
+    // Show timeline & animate title
     yield* all(
-        threadBox().width(500, duration),
-        threadBox().height(700, duration),
-        threadBox().opacity(1, duration),
-        incomingImage().opacity(0, duration/2) // Hide standalone image as it "enters" the thread
+        timelineContainer().opacity(1, duration),
+        incomingImage().y(-150, duration),
+        incomingImage().scale(0.8, duration),
+        titleText().text("std::async Execution Timeline", duration) // Animate writing the text
+    );
+    yield* waitFor(0.5);
+
+    // Animate OS overhead taking up 85% of time
+    yield* all(
+        osOverhead().width('85%', 2.5),
+        osOverheadText().opacity(1, 0.5)
+    );
+    yield* waitFor(0.5);
+
+    // Animate actual task taking up 15% of time
+    yield* all(
+        taskBox().width('15%', 0.5),
+        taskText().opacity(1, 0.5)
     );
     yield* waitFor(1.5);
 
@@ -99,7 +117,7 @@ export default makeScene2D(function* (view) {
     const vectorBox = createRef<Rect>();
     const algoBox = createRef<Rect>();
     const waitingTxt = createRef<Txt>();
-    const images = createRefArray<Rect>();
+    const questionTxt = createRef<Txt>();
 
     yield view.add(
         <Node ref={algoContainer} opacity={0}>
@@ -107,7 +125,7 @@ export default makeScene2D(function* (view) {
             <Rect
                 ref={vectorBox}
                 width={800}
-                height={120}
+                height={140}
                 radius={16}
                 stroke={'#868E96'}
                 lineWidth={4}
@@ -119,6 +137,7 @@ export default makeScene2D(function* (view) {
                 gap={20}
             >
                 {/* We'll spawn images here */}
+                <Txt ref={questionTxt} text="Size: ???" fill="#868E96" fontSize={32} fontWeight={600} position={[0, 0]} isPositionedAbsolute={true} />
             </Rect>
 
             <Rect
@@ -138,7 +157,7 @@ export default makeScene2D(function* (view) {
             >
                 <Txt text="std::for_each ( std::execution::par )" fill="#4DABF7" fontSize={36} fontWeight={700} />
                 <Txt text="or raw TBB" fill="#4DABF7" fontSize={28} fontWeight={600} opacity={0.8} />
-                <Txt ref={waitingTxt} text="Waiting for full batch..." fill="#FFD43B" fontSize={28} fontWeight={600} marginTop={40} />
+                <Txt ref={waitingTxt} text="Waiting for all ??? images..." fill="#FFD43B" fontSize={28} fontWeight={600} marginTop={40} />
             </Rect>
         </Node>
     );
@@ -147,41 +166,69 @@ export default makeScene2D(function* (view) {
     yield* waitFor(0.5);
 
     // Stream images in
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 5; i++) {
         const newImg = createRef<Rect>();
         vectorBox().add(
             <Rect
                 ref={newImg}
                 width={100}
-                height={80}
-                radius={8}
-                fill={'#FFD43B'}
+                height={100}
+                radius={16}
+                fill={'#495057'}
+                stroke={'#ADB5BD'}
+                lineWidth={4}
                 alignItems={'center'}
                 justifyContent={'center'}
                 opacity={0}
                 scale={0}
+                zIndex={10}
             >
-                <Txt text={`Img ${i+1}`} fill="#1E1E1E" fontSize={20} fontWeight={600} />
+                <Txt text="🖼️" fill="#FFF" fontSize={64} />
             </Rect>
         );
-        
+
         yield* all(
             newImg().opacity(1, 0.4),
-            newImg().scale(1, 0.4)
+            newImg().scale(1, 0.4),
+            questionTxt().opacity(0, 0.4) // Hide the "Size: ???" once images start coming
         );
-        yield* waitFor(0.2);
+        yield* waitFor(0.3);
     }
 
-    yield* waitFor(0.5);
+    yield* waitFor(1.0);
 
-    // Vector is full, algorithm can finally start
     yield* all(
-        waitingTxt().text("Processing Batch!", 0.3),
-        waitingTxt().fill("#51CF66", 0.3),
-        algoBox().fill("#2B8A3E", 0.5), // turn green
-        algoBox().stroke("#51CF66", 0.5)
+        waitingTxt().text("Still waiting... how many more?", 0.5),
+        waitingTxt().fill("#FF6B6B", 0.5)
     );
 
+    yield* waitFor(1.5);
+
+    // One more image arrives randomly late
+    const lateImg = createRef<Rect>();
+    vectorBox().add(
+        <Rect
+            ref={lateImg}
+            width={100}
+            height={100}
+            radius={16}
+            fill={'#495057'}
+            stroke={'#ADB5BD'}
+            lineWidth={4}
+            alignItems={'center'}
+            justifyContent={'center'}
+            opacity={0}
+            scale={0}
+            zIndex={10}
+        >
+            <Txt text="🖼️" fill="#FFF" fontSize={64} />
+        </Rect>
+    );
+
+    yield* all(
+        lateImg().opacity(1, 0.4),
+        lateImg().scale(1, 0.4)
+    );
     yield* waitFor(1.5);
 
     // Fade out
