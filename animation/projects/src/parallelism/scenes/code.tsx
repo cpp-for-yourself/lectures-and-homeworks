@@ -11,6 +11,11 @@ import asyncCode from '@lectures/parallelism.md?snippet=parallelism_async/main.c
 import algorithmsSequentialCode from '@lectures/parallelism.md?snippet=parallelism_algorithms/main_sequential.cpp';
 import algorithmsParallelCode from '@lectures/parallelism.md?snippet=parallelism_algorithms/main_parallel.cpp';
 import tbbCode from '@lectures/parallelism.md?snippet=parallelism_algorithms/main_tbb.cpp';
+import jthread1Code from '@lectures/parallelism.md?snippet=parallelism_jthread_1/main.cpp';
+import jthread2Code from '@lectures/parallelism.md?snippet=parallelism_jthread_2/main.cpp';
+import jthread2ClassCode from '@lectures/parallelism.md?snippet=parallelism_jthread_2_class/main.cpp';
+import jthread2ClassSwapCode from '@lectures/parallelism.md?snippet=parallelism_jthread_2_class_swap/main.cpp';
+import jthread3Code from '@lectures/parallelism.md?snippet=parallelism_jthread_3/main.cpp';
 import jthreadCode from '@lectures/parallelism.md?snippet=parallelism_jthread/main.cpp';
 import threadpool17Code from '@lectures/parallelism.md?snippet=parallelism_threadpool_17/main.cpp';
 
@@ -243,5 +248,189 @@ export default makeScene2D(function* (view) {
     );
     yield* waitFor(duration);
 
-});
+    yield* all(
+        zoomOut(popup1Rect(), outline1(), duration),
+        zoomOut(popup2Rect(), outline2(), duration),
+        codeRef().selection(DEFAULT, duration),
+    );
+    yield* waitFor(duration);
 
+
+    // 3. Worker threads and thread pools
+    // #### Step 1: How to create a thread
+    yield* all(
+        codeRef().code(jthread1Code, duration),
+        codeRef().fontSize(14, duration),
+        centerOn(codeRef(), DEFAULT, duration, 15),
+    );
+    yield* waitFor(duration);
+
+    // Highlight 1 (TinyImage struct)
+    yield* all(
+        centerOn(codeRef(), lines(7, 10), duration, 30),
+    );
+    yield* waitFor(duration);
+
+    // Highlight 2 (Pushing to queue)
+    yield* all(
+        centerOn(codeRef(), lines(32, 35), duration, 30),
+    );
+    yield* waitFor(duration);
+
+    // Highlight 3 (ProcessImage)
+    yield* all(
+        centerOn(codeRef(), lines(12, 15), duration, 30),
+    );
+    yield* waitFor(duration);
+
+    // Highlight 4 (jthread worker)
+    yield* all(
+        centerOn(codeRef(), lines(38, 38), duration, 30),
+    );
+    yield* waitFor(duration);
+
+    // Highlight 5 (pointer to images)
+    yield* all(
+        centerOn(codeRef(), [lines(17, 17), lines(38, 38)], duration, 30),
+    );
+    yield* waitFor(duration);
+
+    // #### Step 2: Adding another thread and a Mutex
+    yield* all(
+        codeRef().code(jthread2Code, duration),
+        centerOn(codeRef(), DEFAULT, duration, 15),
+    );
+    yield* waitFor(duration);
+
+    // Highlight 1 (mutex created)
+    yield* all(
+        centerOn(codeRef(), lines(46, 46), duration, 30),
+    );
+    yield* waitFor(duration);
+
+    // Highlight 2 (2 jthreads)
+    yield* all(
+        centerOn(codeRef(), lines(49, 50), duration, 30),
+    );
+    yield* waitFor(duration);
+
+    // Highlight 3 (ProcessImages params & lock_guard)
+    yield* all(
+        centerOn(codeRef(), [lines(19, 19), lines(23, 30)], duration, 30),
+    );
+    yield* waitFor(duration);
+
+    // #### Step 2: Class approach
+    yield* all(
+        codeRef().code(jthread2ClassCode, duration),
+        centerOn(codeRef(), DEFAULT, duration, 15),
+    );
+    yield* waitFor(duration);
+
+    // Highlight 1 (class)
+    yield* all(
+        centerOn(codeRef(), lines(19, 48), duration, 25),
+    );
+    yield* waitFor(duration);
+
+    // Highlight 2 (constructor, private method, instantiation)
+    yield* all(
+        centerOn(codeRef(), [lines(21, 26), lines(29, 43), lines(60, 60)], duration, 25),
+    );
+    yield* waitFor(duration);
+
+    // #### Step 2: Class swap approach
+    yield* all(
+        codeRef().code(jthread2ClassSwapCode, duration),
+        centerOn(codeRef(), DEFAULT, duration, 15),
+    );
+    yield* waitFor(duration);
+
+    // Highlight 1 (the swap part)
+    yield* all(
+        centerOn(codeRef(), lines(31, 36), duration, 30),
+    );
+    yield* waitFor(duration);
+
+    // Highlight 2 (processing local queue)
+    yield* all(
+        centerOn(codeRef(), lines(38, 44), duration, 30),
+    );
+    yield* waitFor(duration);
+
+    // #### Step 3: Sleeping with Condition Variables
+    yield* all(
+        codeRef().code(jthread3Code, duration),
+        centerOn(codeRef(), DEFAULT, duration, 15),
+    );
+    yield* waitFor(duration);
+
+    // Highlight 1 (Submit method, notify_one)
+    yield* all(
+        centerOn(codeRef(), lines(31, 37), duration, 30),
+    );
+    yield* waitFor(duration);
+
+    // Highlight 2 (cv wait)
+    yield* all(
+        centerOn(codeRef(), lines(46, 48), duration, 30),
+    );
+    yield* waitFor(duration);
+
+    // #### Step 4: Putting it all together into a Generic Thread Pool
+    yield* all(
+        codeRef().code(jthreadCode, duration),
+        centerOn(codeRef(), DEFAULT, duration, 15),
+    );
+    yield* waitFor(duration);
+
+    // Highlight 1 (template, ThreadPool)
+    yield* all(
+        centerOn(codeRef(), lines(21, 22), duration, 30),
+    );
+    yield* waitFor(duration);
+
+    // Highlight 2 (std::function)
+    yield* all(
+        centerOn(codeRef(), [lines(24, 26), lines(66, 66)], duration, 30),
+    );
+    yield* waitFor(duration);
+
+    // Highlight 3 (pool usage)
+    yield* all(
+        centerOn(codeRef(), lines(75, 75), duration, 30),
+    );
+    yield* waitFor(duration);
+
+    // #### What if I don't have C++20?
+    yield* all(
+        codeRef().code(threadpool17Code, duration),
+        centerOn(codeRef(), DEFAULT, duration, 15),
+    );
+    yield* waitFor(duration);
+
+    // Highlight 1 (shutting_down flag)
+    yield* all(
+        centerOn(codeRef(), lines(75, 75), duration, 30),
+    );
+    yield* waitFor(duration);
+
+    // Highlight 2 (notify_all)
+    yield* all(
+        centerOn(codeRef(), lines(38, 38), duration, 30),
+    );
+    yield* waitFor(duration);
+
+    // Highlight 3 (join)
+    yield* all(
+        centerOn(codeRef(), lines(40, 40), duration, 30),
+    );
+    yield* waitFor(duration);
+
+    // Final clean up
+    yield* all(
+        centerOn(codeRef(), DEFAULT, duration, 15),
+    );
+    yield* waitFor(duration);
+
+});

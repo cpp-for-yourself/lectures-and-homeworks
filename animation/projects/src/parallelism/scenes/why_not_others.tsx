@@ -233,9 +233,10 @@ export default makeScene2D(function* (view) {
     yield* waitFor(0.5);
 
     // Highlight the problem
-    explanationTextLine1().text("Images are streaming!");
-    explanationTextLine2().text("When to start processing?");
+
     yield* all(
+        explanationTextLine1().text("Images are streaming!", 0.1),
+        explanationTextLine2().text("When to start processing?", 0.1),
         algoBlock().stroke('#FF6B6B', 0.5),
         algoBlock().shadowBlur(20, 0.5),
         algoBlock().shadowColor('rgba(255, 107, 107, 0.3)', 0.5),

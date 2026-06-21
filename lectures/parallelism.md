@@ -39,7 +39,7 @@ When we run an application, the operating system creates a **process**, which is
 
 In **multi-processing**, we spawn multiple processes to run at the same time. Because each process gets its own distinct memory space, they don't step on each other's toes. This makes multi-processing theoretically relatively safe, but data sharing between processes is often relatively slow and complex.
 
-In **multi-threading**, however, the execution happens on multiple **threads** *inside* a single process. Every process starts with a single main thread, but it can ask the OS to spawn additional threads to perform multiple tasks at once. The crucial difference here is that **all threads within a single process share the exact same memory space.** Also, every thread has a lifetime: it needs to be created and, when our work with it is done, it needs to be either *joined* with the spawning thread or *detached* from it. More on that towards the end of this video.
+In **multi-threading**, however, the execution happens on multiple **threads** *inside* a single process. Every process starts with a single main thread, but it can ask the OS to spawn additional threads which allows us to perform multiple tasks at once. The crucial difference here is that **all threads within a single process share the exact same memory space.** Just as the threads can be created, every thread needs to be either *joined* with the spawning thread or *detached* from it at the end of its lifetime within our program. More on that towards the end of this video.
 
 In this lecture, we will exclusively focus on **multi-threading**, which is probably the most common form of true parallelism in C++. Since threads can read and write to the exact same variables on the heap without restrictions, they can efficiently work together. This can be fantastic for performance... and absolutely terrifying for stability! If we don't carefully manage how they access those shared data, they will overwrite each other's work and crash our program. But before we look into how things can go wrong under the hood, let's look into the easiest ways to do things right!
 
@@ -402,7 +402,6 @@ Not quite. Imagine instead of one huge image, like in the previous example, we r
 Our previous approaches are not well-suited for this. The `std::async` approach is too heavy. Spawning a brand new async task for every single tiny image would be devastating to performance, as every task would need a thread, and the OS overhead of creating a thread costs more computing time than actually inverting our tiny image. At the same time, the parallel versions of standard algorithms or even using raw TBB are a poor fit too, as they work well when we provide them a bunch of available data. But our images are streaming one by one? How many should we pass? Is 3 enough? 4? More?
 
 Instead, we can use a different paradigm that is used quite often in real life: a **thread pool** working on a **concurrent queue** that stores the data. In this paradigm, at the thread pool creation, we spawn a fixed number of threads (typically derived from the number of CPU cores we have), have them sleep in the background, and wake them up to process data from the queue, which is designed to work correctly when multiple threads read and write to it at the same time.  
-<!-- TODO: add a diagram here -->
 
 To understand how it all works, we need to dive into these three things:
 - How to create (and cleanup) a thread
@@ -410,11 +409,13 @@ To understand how it all works, we need to dive into these three things:
 - How to make threads go to sleep and wake them up when new data arrives
 
 #### Step 1: How to create a thread
-Let's start at the beginning. To create a thread we could use `std::thread` but in more modern C++ (C++20 onwards), we can use `std::jthread` instead. As we mentioned at the start of this lecture, every thread needs to be created and, when our work with it is done, it needs to be either joined or detached. Unlike the older `std::thread`, `std::jthread` automatically joins the thread when it goes out of scope which makes it much safer to use!
+As we mentioned at the start of this lecture, every thread needs to be created (by forking off the spawning thread) and, when our work with it is done, it needs to be either joined back into the spawning thread or detached. Today, we won't talk about detatched threads (because we should almost never use them) and assume that every thread we create needs to be joined. This model is called [Fork–join model](https://en.wikipedia.org/wiki/Fork%E2%80%93join_model) and was first formulated, to the best of my knowledge, by Melvin E. Conway in 1963.
 
-Let's look at a simple example. Here we create 5 images of `TinyImage` type that have an id and a fake "size" represented by a randomly generated integer. We immediately push them into a `std::queue` in the main thread. Every `TinyImage` can be processed by a function `ProcessImage()` which here simulates some work by sleeping for a duration proportional to its "size".
+To create a thread in C++ we use a standard class that abstracts away the OS-level thread from us. From C++11 and until C++20 we use the `std::thread` class for that but in more modern C++ (C++20 onwards), we can use the `std::jthread` class instead. Essentially, both serve the same purpose but the `std::jthread` automatically joins the thread when it goes out of scope, which prevents a number of potential programming errors and makes it much safer to use.
 
-To create a new `std::jthread`, we simply pass the function this thread will run, in our case `ProcessImages`, along with any arguments this function needs, into its constructor.
+Let's look at a simple example to understand better how it works in practice. Here we create 5 images of `TinyImage` type that have an id and a fake "size" represented by a randomly generated integer. We immediately push them into a `std::queue` in the main thread. Every `TinyImage` can be processed by a function `ProcessImage()` which here simulates some work by sleeping for a duration proportional to its "size".
+
+To create a new `std::jthread`, we simply pass the function this thread will run, in our case `ProcessImages`, along with any arguments this function needs, into its constructor:
 
 <!-- 
 `CPP_COPY_SNIPPET` parallelism_jthread_1/main.cpp
@@ -439,7 +440,7 @@ void ProcessImage(const TinyImage& image) {
 }
 
 void ProcessImages(std::queue<TinyImage>* images) {
-  // Don't forget to check this pointer for nullptr value!
+  if (!images) { return; } 
   while (!images->empty()) {
     const TinyImage image = images->front();
     images->pop();
@@ -459,14 +460,15 @@ int main() {
   }
 
   std::cout << "Starting background thread...\n";
-  // Kick off a background thread passing the images queue
   std::jthread worker{ProcessImages, &images};
 
   std::cout << "Main thread is free to do other things!\n";
-  // When main returns, `worker` goes out of scope and is automatically joined which will happen when it finishes the work.
+  // worker goes out of scope and is automatically joined when it finishes the work.
   return 0;
 }
 ```
+
+Note how we pass a pointer into the `ProcessImages` function. That's because `std::jthread` doesn't support passing arguments by reference! The reason for this is that `jthread` needs to maintain a thread-local copy of any variable we pass into it. It _could_ just happily copy a mutable reference but it would be unsafe to do so, so it actively decays any reference type to a normal type. This way if we want to pass a reference we either need to wrap it in a `std::ref` or or just pass a pointer as we did here. This way we can still get an unsafe behavior, but we opt-in to it.
 
 As we can see from the output, the main thread continues executing in parallel to the images being processed in the background until the queue is empty! When main reaches the end, the `worker` thread needs to be destroyed and, being a `std::jthread`, it will automatically join itself, waiting for the background work to finish before the program terminates. So far so good!
 
