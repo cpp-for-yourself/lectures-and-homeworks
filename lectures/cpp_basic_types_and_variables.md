@@ -148,7 +148,7 @@ int main() {
 
 ---
 
-# Always initialize all variables! 🚨
+# Always initialize all variables!
 
 (unless measured slow, stay tuned to a later point in the course)
 <!--

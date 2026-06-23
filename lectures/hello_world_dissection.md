@@ -26,7 +26,7 @@ Hello World!
 ---
 # Here is what we can learn from it
 
-- [Some keywords](hello_world_dissection.md#some-words-and-symbols-are-more-special-than-other-🦄) like `return` or `int` _(and many more!)_
+- [Some keywords](hello_world_dissection.md#some-words-and-symbols-are-more-special--than-other) like `return` or `int` _(and many more!)_
 - Constants like `"Hello World!"` and `0`
 - [Lots of whitespaces!](hello_world_dissection.md#whitespaces-mostly-play-no-role)
 - [Different brackets:](hello_world_dissection.md#what-are-all-those-brackets-about)  `{}`, `()`, `<>`
@@ -38,7 +38,7 @@ Hello World!
 ## 📺 Watch the related [YouTube video](https://youtu.be/t2h1geGSww4)!
 
 ---
-# Some words and symbols are more special🦄 than other
+# Some words and symbols are more special 🦄 than other
 - In the code above, some words and symbols are highlighted
 - This is done by **parsing** the language into meaningful parts
 - Whitespaces and symbols **separate** these parts
