@@ -802,8 +802,7 @@ Once the condition variables in those threads receive a notification we sent out
 More concretely, if we have some queue that needs to have data in it to be processed, we can fill it with data and notify the condition variable in the following way:
 
 <!-- 
-`CPP_COPY_SNIPPET` parallelism_condition_variable/main.cpp
-`CPP_RUN_CMD` CWD:parallelism_condition_variable c++ -std=c++20 main.cpp
+`CPP_SKIP_SNIPPET`
 -->
 ```cpp
 // Somewhere in a function that produces data. 
@@ -820,6 +819,9 @@ cv.notify_one();
 
 On the receiving side, we need to use `std::unique_lock` (not `std::lock_guard`) to guard the queue. The reason for this is that a condition variable keeps the lock unlocked until the condition becomes true and locks it after the wait is over. A typical code snippet for this would look something like this: 
 
+<!--
+`CPP_SKIP_SNIPPET`
+-->
 ```cpp
 // Somewhere in a function that consumes data. 
 // Here we assume access to std::condition_variable cv, 
