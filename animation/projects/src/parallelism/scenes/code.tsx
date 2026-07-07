@@ -37,6 +37,10 @@ export default makeScene2D(function* (view) {
     const popup2Camera = createRef<Camera>();
     const outline2 = createRef<Rect>();
 
+    const popup3Rect = createRef<Rect>();
+    const popup3Camera = createRef<Camera>();
+    const outline3 = createRef<Rect>();
+
     yield view.add(
         <Node ref={codeContainerRef}>
             <Code
@@ -103,6 +107,33 @@ export default makeScene2D(function* (view) {
             >
                 <Camera
                     ref={popup2Camera}
+                    scene={codeContainerRef()}
+                />
+            </Rect>
+
+            <Rect
+                ref={outline3}
+                stroke={'#3eec9dff'}
+                lineWidth={3}
+                radius={4}
+                opacity={0}
+            />
+            <Rect
+                ref={popup3Rect}
+                clip={true}
+                width={1000}
+                height={480}
+                x={200}
+                y={250}
+                fill={'#1E1E1E'}
+                stroke={'#3eec9dff'}
+                lineWidth={4}
+                radius={8}
+                opacity={0}
+                scale={0.8}
+            >
+                <Camera
+                    ref={popup3Camera}
                     scene={codeContainerRef()}
                 />
             </Rect>
@@ -271,15 +302,14 @@ export default makeScene2D(function* (view) {
     );
     yield* waitFor(duration);
 
-    // Highlight 2 (Pushing to queue)
     yield* all(
-        centerOn(codeRef(), lines(32, 35), duration, 30),
+        centerOn(codeRef(), lines(12, 15), duration, 30),
     );
     yield* waitFor(duration);
 
-    // Highlight 3 (ProcessImage)
+    // Highlight 2 (Pushing to queue)
     yield* all(
-        centerOn(codeRef(), lines(12, 15), duration, 30),
+        centerOn(codeRef(), lines(32, 35), duration, 30),
     );
     yield* waitFor(duration);
 
@@ -295,6 +325,16 @@ export default makeScene2D(function* (view) {
     );
     yield* waitFor(duration);
 
+    yield* all(
+        centerOn(codeRef(), [lines(17, 25)], duration, 25),
+    );
+    yield* waitFor(duration);
+
+    yield* all(
+        centerOn(codeRef(), DEFAULT, duration, 15),
+    );
+    yield* waitFor(duration);
+
     // #### Step 2: Adding another thread and a Mutex
     yield* all(
         codeRef().code(jthread2Code, duration),
@@ -304,45 +344,83 @@ export default makeScene2D(function* (view) {
 
     // Highlight 1 (mutex created)
     yield* all(
-        centerOn(codeRef(), lines(46, 46), duration, 30),
+        centerOn(codeRef(), lines(40, 44), duration, 30),
+    );
+    yield* waitFor(duration);
+
+    yield* all(
+        centerOn(codeRef(), [lines(40, 44), lines(46, 46)], duration, 30),
     );
     yield* waitFor(duration);
 
     // Highlight 2 (2 jthreads)
     yield* all(
-        centerOn(codeRef(), lines(49, 50), duration, 30),
+        centerOn(codeRef(), [lines(40, 44), lines(46, 46), lines(48, 50)], duration, 30),
     );
     yield* waitFor(duration);
 
     // Highlight 3 (ProcessImages params & lock_guard)
     yield* all(
-        centerOn(codeRef(), [lines(19, 19), lines(23, 30)], duration, 30),
+        centerOn(codeRef(), [lines(18, 34)], duration, 28),
+    );
+    yield* waitFor(duration);
+
+    yield* all(
+        centerOn(codeRef(), DEFAULT, duration, 15),
     );
     yield* waitFor(duration);
 
     // #### Step 2: Class approach
     yield* all(
         codeRef().code(jthread2ClassCode, duration),
-        centerOn(codeRef(), DEFAULT, duration, 15),
+        centerOn(codeRef(), DEFAULT, duration, 13),
     );
     yield* waitFor(duration);
 
-    // Highlight 1 (class)
+    const pipeline_constructor = getFutureCodeBBox(codeRef(), lines(20, 26), () => {
+        codeRef().code(jthread2ClassCode);
+        codeRef().fontSize(13);
+    });
+
+    const process_images_func = getFutureCodeBBox(codeRef(), lines(29, 44), () => {
+        codeRef().code(jthread2ClassCode);
+        codeRef().fontSize(13);
+    });
+
+    const start_threads_func = getFutureCodeBBox(codeRef(), lines(60, 60), () => {
+        codeRef().code(jthread2ClassCode);
+        codeRef().fontSize(13);
+    });
+
     yield* all(
-        centerOn(codeRef(), lines(19, 48), duration, 25),
+        zoomInOn(popup1Rect(), popup1Camera(), outline1(), pipeline_constructor, duration, { zoom: 1.7, position: 'top-right', screenPaddingY: 100 }),
+    );
+    yield* all(
+        zoomInOn(popup1Rect(), popup1Camera(), outline1(), pipeline_constructor, duration, { zoom: 1.7, position: 'top-right', screenPaddingY: 100 }),
+        zoomInOn(popup2Rect(), popup2Camera(), outline2(), process_images_func, duration, { zoom: 1.7, position: 'top-right', screenPaddingX: 100, screenPaddingY: 340 }),
+    );
+    yield* all(
+        zoomInOn(popup1Rect(), popup1Camera(), outline1(), pipeline_constructor, duration, { zoom: 1.7, position: 'top-right', screenPaddingY: 100 }),
+        zoomInOn(popup2Rect(), popup2Camera(), outline2(), process_images_func, duration, { zoom: 1.7, position: 'top-right', screenPaddingX: 100, screenPaddingY: 340 }),
+        zoomInOn(popup3Rect(), popup3Camera(), outline3(), start_threads_func, duration, { zoom: 2.0, position: 'bottom-right', screenPaddingX: 100, screenPaddingY: 250 }),
     );
     yield* waitFor(duration);
 
-    // Highlight 2 (constructor, private method, instantiation)
     yield* all(
-        centerOn(codeRef(), [lines(21, 26), lines(29, 43), lines(60, 60)], duration, 25),
+        zoomOut(popup1Rect(), outline1(), duration),
+        zoomOut(popup2Rect(), outline2(), duration),
+        zoomOut(popup3Rect(), outline3(), duration),
+    );
+
+    yield* all(
+        centerOn(codeRef(), lines(29, 44), duration, 25),
     );
     yield* waitFor(duration);
 
     // #### Step 2: Class swap approach
     yield* all(
         codeRef().code(jthread2ClassSwapCode, duration),
-        centerOn(codeRef(), DEFAULT, duration, 15),
+        centerOn(codeRef(), lines(29, 46), duration, 25),
     );
     yield* waitFor(duration);
 
@@ -358,29 +436,50 @@ export default makeScene2D(function* (view) {
     );
     yield* waitFor(duration);
 
+    yield* all(
+        centerOn(codeRef(), DEFAULT, duration, 10),
+    );
+    yield* waitFor(duration);
+
     // #### Step 3: Sleeping with Condition Variables
     yield* all(
         codeRef().code(jthread3Code, duration),
-        centerOn(codeRef(), DEFAULT, duration, 15),
     );
     yield* waitFor(duration);
 
-    // Highlight 1 (Submit method, notify_one)
     yield* all(
-        centerOn(codeRef(), lines(31, 37), duration, 30),
+        centerOn(codeRef(), lines(62, 62), duration, 30),
     );
     yield* waitFor(duration);
 
-    // Highlight 2 (cv wait)
     yield* all(
-        centerOn(codeRef(), lines(46, 48), duration, 30),
+        centerOn(codeRef(), lines(30, 36), duration, 30),
+    );
+    yield* waitFor(duration);
+
+    yield* all(
+        centerOn(codeRef(), lines(70, 74), duration, 30),
+    );
+    yield* waitFor(duration);
+
+    yield* all(
+        centerOn(codeRef(), lines(21, 28), duration, 30),
+    );
+    yield* waitFor(duration);
+
+    yield* all(
+        centerOn(codeRef(), lines(39, 58), duration, 30),
+    );
+    yield* waitFor(duration);
+
+    yield* all(
+        centerOn(codeRef(), DEFAULT, duration, 10),
     );
     yield* waitFor(duration);
 
     // #### Step 4: Putting it all together into a Generic Thread Pool
     yield* all(
         codeRef().code(jthreadCode, duration),
-        centerOn(codeRef(), DEFAULT, duration, 15),
     );
     yield* waitFor(duration);
 

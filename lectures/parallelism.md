@@ -413,9 +413,10 @@ As we mentioned at the start of this lecture, every thread needs to be created (
 
 To create a thread in C++ we use a standard class that abstracts away the OS-level thread from us. From C++11 and until C++20 we use the `std::thread` class for that but in more modern C++ (C++20 onwards), we can use the `std::jthread` class instead. Essentially, both serve the same purpose but the `std::jthread` automatically joins the thread when it goes out of scope, which prevents a number of potential programming errors and makes it much safer to use.
 
-Let's look at a simple example to understand better how it works in practice. Here we create 5 images of `TinyImage` type that have an id and a fake "size" represented by a randomly generated integer. We immediately push them into a `std::queue` in the main thread. Every `TinyImage` can be processed by a function `ProcessImage()` which here simulates some work by sleeping for a duration proportional to its "size".
+Let's look at a simple example to understand better how it works in practice. Here we assume that every image is of `TinyImage` type that has an id and a fake "size" represented by a randomly generated integer. Every `TinyImage` can be processed by a function `ProcessImage()` which here simulates some work by sleeping for a duration proportional to its "size". At the start of our program we immediately push 10 such images into a `std::queue` in the main thread. 
 
-To create a new `std::jthread`, we simply pass the function this thread will run, in our case `ProcessImages`, along with any arguments this function needs, into its constructor:
+Then we want to process them in a separate thread. To get this up and runnign we need to create a new thread, which we do by creating an object of `std::jthread` type by passing the function this thread will run, in our case `ProcessImages`, along with any arguments this function needs, into its constructor. In this particular example, since we want to modify the queue, we pass a pointer to it.
+In its turn, the `ProcessImages` function runs a loop that, as long as the queue is not empty, takes one image at a time from it and processes it by calling `ProcessImage`.
 
 <!-- 
 `CPP_COPY_SNIPPET` parallelism_jthread_1/main.cpp
@@ -442,7 +443,7 @@ void ProcessImage(const TinyImage& image) {
 void ProcessImages(std::queue<TinyImage>* images) {
   if (!images) { return; } 
   while (!images->empty()) {
-    const TinyImage image = images->front();
+    const TinyImage image = std::move(images->front());
     images->pop();
     std::cout << "Thread " << std::this_thread::get_id() << " processing image " << image.id << "!\n";
     ProcessImage(image);
@@ -455,7 +456,7 @@ int main() {
   std::uniform_int_distribution<int> dist{10, 100};
 
   std::queue<TinyImage> images{};
-  for (int i = 1; i <= 5; ++i) {
+  for (int i = 1; i <= 10; ++i) {
     images.push(TinyImage{i, dist(rng)});
   }
 
@@ -468,20 +469,20 @@ int main() {
 }
 ```
 
-Note how we pass a pointer into the `ProcessImages` function. That's because `std::jthread` doesn't support passing arguments by reference! The reason for this is that `jthread` needs to maintain a thread-local copy of any variable we pass into it. It _could_ just happily copy a mutable reference but it would be unsafe to do so, so it actively decays any reference type to a normal type. This way if we want to pass a reference we either need to wrap it in a `std::ref` or or just pass a pointer as we did here. This way we can still get an unsafe behavior, but we opt-in to it.
-
-As we can see from the output, the main thread continues executing in parallel to the images being processed in the background until the queue is empty! When main reaches the end, the `worker` thread needs to be destroyed and, being a `std::jthread`, it will automatically join itself, waiting for the background work to finish before the program terminates. So far so good!
+As we can see from the output, the main thread continues executing in parallel to the images being processed in the background until the queue is empty! When main reaches the end, the `worker` thread needs to be destroyed and, being a `std::jthread`, it will automatically wait for the background work to finish before it can safely join itself. So far so good!
 
 #### Step 2: Adding another thread and a Mutex
 One thread is neat, but we might want multiple threads to share the workload and process the same queue created in the main thread.
 
 However, if multiple threads try to modify the queue simultaneously, we will get a **data race**, which will crash our program (in the best case scenario) or silently corrupt data. These silent issues are **undefined behavior** and are super hard to debug so we need to make sure we avoid them at all costs!
 
-To protect us from data races like this, we can use a `std::mutex` object from the `<mutex>` header.
+By the way, note how we pass a pointer into the `ProcessImages` function. That's because `std::jthread` doesn't support passing arguments by reference! The reason for this is that `jthread` needs to maintain a thread-local copy of any variable we pass into it. It _could_ of course just copy a mutable reference but it would be unsafe to do so as this would potentially silently create a data race, so `jthread` actively decays any reference type to a normal type and so a copy is performed. This way if we want to pass a reference we either need to wrap it in a `std::ref` or just pass a pointer as we did in our example. This way we can still get an unsafe behavior, but we opt-in to it. Now back to how we can deal with the data race scenarios just like ours.
 
-The word itself comes from **mut**ual **ex**clusion. And indeed, when a thread locks the mutex, it takes exclusive ownership of the resource that the mutex protects. Any other thread trying to access that same resource must wait its turn, trying to lock the mutex that's already locked will block the thread until the mutex is unlocked. 
+To protect us from data races like this, we can use arguably the most common tool for dealing with such scenarios: a `std::mutex` object from the `<mutex>` header.
 
-Typically, we don't lock and unlock mutexes by ourselves but use RAII principle in the form of `std::lock_guard` that locks a given mutex at creation and automatically unlocks it when the lock guard object goes out of scope and dies. This ensures that the mutex is always unlocked, even if an [exception](error_handling.md#exceptions) is thrown and the end of the function is never reached.
+The word `mutex` itself comes from **mut**ual **ex**clusion. And indeed, when a thread locks the mutex, it takes exclusive ownership of the resource that the mutex protects. Any other thread trying to access that same resource must wait its turn, trying to lock the mutex that's already locked will block the thread until the mutex is unlocked.
+
+Typically, we don't lock and unlock mutexes by ourselves but use RAII principle in the form of `std::lock_guard` that locks a given mutex at creation and automatically unlocks it when the lock guard object goes out of scope and dies. This ensures that the mutex is always unlocked if it has been locked, even if an [exception](error_handling.md#exceptions) is thrown and the end of the function is never reached.
 
 Note that `std::lock_guard` is templated on the type of the mutex used but, from C++17 onwards, due to **class template argument deduction (CTAD)** we can let the compiler deduce it for us!
 
@@ -580,7 +581,6 @@ But how does this translate to our `TinyImage` processing example?
 #include <thread>
 
 namespace {
-// Using a struct instead of a class to keep the example code short.
 struct TinyImage {
   int id{};
   int size{};
@@ -591,16 +591,17 @@ void ProcessImage(const TinyImage& image) {
   std::this_thread::sleep_for(std::chrono::milliseconds(image.size));
 }
 
-void ProcessImages(std::queue<TinyImage>* image_queue, std::mutex* queue_mutex) {
-  // Don't forget to check these pointers for nullptr values! 
+void ProcessImages(std::queue<TinyImage>* images, std::mutex* queue_mutex) {
+  if (!images) { return; } 
+  if (!queue_mutex) { return; } 
   while (true) {
     TinyImage image;
     {
       // Safely lock the queue to pop an image
       const std::lock_guard lock{*queue_mutex};
-      if (image_queue->empty()) { break; }
-      image = std::move(image_queue->front());
-      image_queue->pop();
+      if (images->empty()) { break; }
+      image = std::move(images->front());
+      images->pop();
       std::cout << "Thread " << std::this_thread::get_id() << " processing image " << image.id << "!\n";
     }  // The queue lock is automatically released here!
     
@@ -628,11 +629,11 @@ int main() {
 }
 ```
 
-Let's unpack what's happening here. We create the queue of images in the main thread as before. However, this time around we also create a `std::mutex` to protect access to this queue. Then, instead of creating a single background `std::jthread`, we create two, passing the same queue and mutex to both.
+Let's unpack what's happening here. We create the queue of images in the main thread as before. However, this time we also create a `std::mutex` to protect access to this queue. Then, instead of creating a single background `std::jthread`, we create two, passing the same queue and mutex to both.
 
-The `ProcessImages` function also changed and now also takes a pointer to a mutex. Now working with the queue is protected by the mutex. Once an image is copied into a local variable, the mutex is released and the image is processed independently. 
+The `ProcessImages` function also changed and now also takes a pointer to a mutex. This mutex protects access to the queue. Instead of processing the image under the mutex, we move each image into a local variable. Only this copy is protected by the mutex, minimizing the time we hold the lock. Once we have a local copy of an image it can be processed safely without locking the queue.
 
-This works as intended but passing the queue and the mutex as pointers is a bit ugly from my perspective and I would wrap it into a class, for example, `ImageProcessingPipeline`. 
+This works as intended, but passing the queue and the mutex as pointers is a bit ugly from my perspective and I would wrap it into a class, for example, `ImageProcessingPipeline`. 
 
 <!-- 
 `CPP_COPY_SNIPPET` parallelism_jthread_2_class/main.cpp
@@ -647,7 +648,6 @@ This works as intended but passing the queue and the mutex as pointers is a bit 
 #include <thread>
 
 namespace {
-// Using a struct instead of a class to keep the example code short.
 struct TinyImage {
   int id{};
   int size{};
@@ -660,7 +660,8 @@ void ProcessImage(const TinyImage& image) {
 
 class ImageProcessingPipeline {
  public:
-  explicit ImageProcessingPipeline(size_t number_of_threads, std::queue<TinyImage>&& images) : image_queue_{std::move(images)} {
+  ImageProcessingPipeline(size_t number_of_threads, std::queue<TinyImage>&& images) 
+      : images_{std::move(images)} {
     std::cout << "Starting " << number_of_threads << " background threads...\n";
     for (size_t i = 0; i < number_of_threads; ++i) {
       worker_threads_.emplace_back(&ImageProcessingPipeline::ProcessImages, this);
@@ -674,9 +675,9 @@ class ImageProcessingPipeline {
       {
         // Safely lock the queue to pop an image
         const std::lock_guard lock{queue_mutex_};
-        if (image_queue_.empty()) { break; }
-        image = std::move(image_queue_.front());
-        image_queue_.pop();
+        if (images_.empty()) { break; }
+        image = std::move(images_.front());
+        images_.pop();
         std::cout << "Thread " << std::this_thread::get_id() << " processing image " << image.id << "!\n";
       } // The queue lock is automatically released here!
   
@@ -684,30 +685,30 @@ class ImageProcessingPipeline {
     }
   }
 
-  std::queue<TinyImage> image_queue_{};
+  std::queue<TinyImage> images_{};
   std::mutex queue_mutex_{};
   std::vector<std::jthread> worker_threads_{};
 };
 }  // namespace
 
 int main() {
-    std::mt19937 rng{std::random_device{}()};
-    std::uniform_int_distribution<int> dist{10, 100};
+  std::mt19937 rng{std::random_device{}()};
+  std::uniform_int_distribution<int> dist{10, 100};
 
-    std::queue<TinyImage> images{};
-    for (int i = 1; i <= 10; ++i) {
-        images.push(TinyImage{i, dist(rng)});
-    }
+  std::queue<TinyImage> images{};
+  for (int i = 1; i <= 10; ++i) {
+    images.push(TinyImage{i, dist(rng)});
+  }
 
-    ImageProcessingPipeline pipeline{2, std::move(images)};
+  ImageProcessingPipeline pipeline{2, std::move(images)};
 
-    return 0;
+  return 0;
 }
 ```
 
-This class would then be responsible for safely managing the queue, mutex, and the worker threads. Here, we take the queue as an input, move the function `ProcessImages` to be a private member function, and start two worker threads by passing this number of threads to the constructor of the `IamgeProcessingPipeline` class. 
+This class would then be responsible for safely managing the queue, mutex, and the worker threads. Here, we take the queue as an input and store it as a member variable. We also move the function `ProcessImages` to be a private member function, and start two worker threads by passing the number of threads to the constructor of the `ImageProcessingPipeline` class. 
 
-Oh, and one more thing. Right now the queue is locked for every image we take off the queue. This is not quite optimal. We can instead lock the queue only once to get all tasks into a local queue and then process this local queue instead without keeping the mutex locked:
+Oh, and one more thing. Right now the queue is locked for every image we take off the queue. This is not quite optimal and we can definitely do better than that. We can instead lock the queue only once to get all images into a local queue and then process this local queue instead without keeping the mutex locked:
 
 <!-- 
 `CPP_COPY_SNIPPET` parallelism_jthread_2_class_swap/main.cpp
@@ -722,7 +723,6 @@ Oh, and one more thing. Right now the queue is locked for every image we take of
 #include <thread>
 
 namespace {
-// Using a struct instead of a class to keep the example code short.
 struct TinyImage {
   int id{};
   int size{};
@@ -735,7 +735,8 @@ void ProcessImage(const TinyImage& image) {
 
 class ImageProcessingPipeline {
  public:
-  explicit ImageProcessingPipeline(size_t number_of_threads, std::queue<TinyImage>&& images) : image_queue_{std::move(images)} {
+  ImageProcessingPipeline(size_t number_of_threads, std::queue<TinyImage>&& images) 
+      : images_{std::move(images)} {
     std::cout << "Starting " << number_of_threads << " background threads...\n";
     for (size_t i = 0; i < number_of_threads; ++i) {
       worker_threads_.emplace_back(&ImageProcessingPipeline::ProcessImages, this);
@@ -748,9 +749,9 @@ class ImageProcessingPipeline {
       std::queue<TinyImage> local_images;
       {
         const std::lock_guard lock{queue_mutex_};
-        if (image_queue_.empty()) { break; }
-        std::swap(local_images, image_queue_);
-      }
+        if (images_.empty()) { break; }
+        std::swap(local_images, images_);
+      } // The queue lock is automatically released here!
 
       // Now we can process the local queue without locking the mutex
       while(!local_images.empty()) {
@@ -762,37 +763,76 @@ class ImageProcessingPipeline {
     }
   }
 
-  std::queue<TinyImage> image_queue_{};
+  std::queue<TinyImage> images_{};
   std::mutex queue_mutex_{};
   std::vector<std::jthread> worker_threads_{};
 };
 }  // namespace
 
 int main() {
-    std::mt19937 rng{std::random_device{}()};
-    std::uniform_int_distribution<int> dist{10, 100};
+  std::mt19937 rng{std::random_device{}()};
+  std::uniform_int_distribution<int> dist{10, 100};
 
-    std::queue<TinyImage> images{};
-    for (int i = 1; i <= 10; ++i) {
-        images.push(TinyImage{i, dist(rng)});
-    }
+  std::queue<TinyImage> images{};
+  for (int i = 1; i <= 10; ++i) {
+    images.push(TinyImage{i, dist(rng)});
+  }
 
-    ImageProcessingPipeline pipeline{2, std::move(images)};
+  ImageProcessingPipeline pipeline{2, std::move(images)};
 
-    return 0;
+  return 0;
 }
 ```
 
 #### Step 3: Sleeping with Condition Variables
 One might argue (and be right) that it is strange to pass a pre-filled queue to the constructor of our `ImageProcessingPipeline`. In a real application, we would likely want to start our pipeline with an empty queue, keep the threads alive, and add images to the queue as they arrive over time.
 
-However, if our threads simply constantly check `if (image_queue_.empty())` in a `while (true)` loop, they will "spin", keeping the CPU at 100% while doing absolutely nothing useful. Also, how do we know when to stop them?
+However, if our threads simply constantly check `if (images_.empty())` in a `while (true)` loop, this is called **spinning** the threads. This can keep the CPU at 100% while doing absolutely nothing useful! Also, how would we know when to stop them?
 
-Instead, we want the threads to go to **sleep** and only wake up when new work arrives. We can do this with a `std::condition_variable`. With C++20, we use `std::condition_variable_any`, which seamlessly pairs with `std::jthread`'s built-in `std::stop_token` to easily wake up and terminate all threads when the program ends.
+Instead, we want the threads to go to **sleep** and only wake up when new work arrives. We can do this with a `std::condition_variable`. Conditional variables might seem a bit confusing at first, but in a nutshell here is how to work with one. We'll look at a toy example before we use this pattern for our image pipeline. 
 
-<!-- TODO: Explain conditional variable better -->
+There are three main puzzle pieces to using conditional variables. First, we need some data to protect, for example some `data_queue`. Then we need a **mutex** that protects these data. Finally, we need a **condition variable** itself.
 
-Let's modify our `ImageProcessingPipeline` class to have a `Submit` method and use condition variables to control when the threads should wake up and process new images:
+Now the interplay between these is as follows. A single condition variable is shared among multiple threads. There are threads that want to work with the underlying data but can only do so under a certain condition. So they wait for the condition variable to be notified that this condition is now satisfied. 
+
+When another thread makes a change to the data that makes the condition true, we call `cv.notify_once()` or `cv.notify_all()` depending on circumstances to notify one or all instances of our condition variable that the condition has been now met.
+
+Once the condition variables in those threads receive a notification we sent out the threads wake up and continue their work.
+
+More concretely, if we have some queue that needs to have data in it to be processed, we can fill it with data and notify the condition variable in the following way:
+
+<!-- 
+`CPP_COPY_SNIPPET` parallelism_condition_variable/main.cpp
+`CPP_RUN_CMD` CWD:parallelism_condition_variable c++ -std=c++20 main.cpp
+-->
+```cpp
+// Somewhere in a function that produces data. 
+// Here we assume access to std::condition_variable cv, 
+// queue_mutex and data_queue.
+{
+  const std::lock_guard lock{queue_mutex};
+  data_queue.push(new_value);
+}
+// Notify one waiting thread that new data is available.
+// Note that this happens _after_ releasing the lock!
+cv.notify_one(); 
+```
+
+On the receiving side, we need to use `std::unique_lock` (not `std::lock_guard`) to guard the queue. The reason for this is that a condition variable keeps the lock unlocked until the condition becomes true and locks it after the wait is over. A typical code snippet for this would look something like this: 
+
+```cpp
+// Somewhere in a function that consumes data. 
+// Here we assume access to std::condition_variable cv, 
+// queue_mutex and data_queue.
+std::unique_lock lock{queue_mutex};
+cv.wait(lock, []{ return !data_queue.empty(); });
+// We can work with the data_queue now. 
+// The lock is locked.
+```
+
+Here we wait for the queue to not be empty. When a condition variable receives a wake-up call, it locks the lock, checks if the condition provided to it as a lambda (called a predicate) is true and if it *is* true, it keeps the lock locked and continues execution. Otherwise it unlocks the lock and goes back to sleep. 
+
+Ok, these were the basics. Now let's modify our image processing pipeline to use condition variables so that we can submit images to it over time. There is one more piece of a puzzle we must use here to know when to actually stop waiting for new images. For this we will use `std::stop_token` which is built-in to std::jthread. Furthermore, if we are already focusing on C++20, `std::condition_variable_any` seamlessly pairs with `std::stop_token` to easily wake up and terminate all threads when the program ends.
 
 <!-- 
 `CPP_COPY_SNIPPET` parallelism_jthread_3/main.cpp
@@ -808,7 +848,6 @@ Let's modify our `ImageProcessingPipeline` class to have a `Submit` method and u
 #include <thread>
 
 namespace {
-// Using a struct instead of a class to keep the example code short.
 struct TinyImage {  
   int id{};
   int size{};
@@ -832,8 +871,8 @@ public:
 
   void Submit(TinyImage&& img) {
     {
-      std::lock_guard lock{queue_mutex_};
-      image_queue_.push(std::move(img));
+      const std::lock_guard lock{queue_mutex_};
+      images_.push(std::move(img));
     }
     cv_.notify_one();
   }
@@ -846,9 +885,9 @@ private:
         // Safely lock the queue to pop an image
         std::unique_lock lock{queue_mutex_};
         // Wait until the queue has items OR we are told to stop
-        const bool work_exists = cv_.wait(lock, stoken, [this] { return !image_queue_.empty(); });
+        const bool work_exists = cv_.wait(lock, stoken, [this] { return !images_.empty(); });
         if (!work_exists) { break; }
-        std::swap(local_images, image_queue_);
+        std::swap(local_images, images_);
       } // The queue lock is automatically released here!
 
       while(!local_images.empty()) {
@@ -860,7 +899,7 @@ private:
     }
   }
 
-  std::queue<TinyImage> image_queue_{};
+  std::queue<TinyImage> images_{};
   std::mutex queue_mutex_{};
   std::condition_variable_any cv_{};
   std::vector<std::jthread> worker_threads_{};
@@ -872,7 +911,6 @@ int main() {
   std::uniform_int_distribution<int> dist{10, 100};
 
   ImageProcessingPipeline pipeline{2};
-
   for (int i = 1; i <= 10; ++i) {
     pipeline.Submit(TinyImage{i, dist(rng)});
   }
@@ -881,8 +919,16 @@ int main() {
 }
 ```
 
+Our example has grown quite a bit so let's zoom into the changes we've just made. We obviously added a condition variable to our class and we use it all over the place. Let's start by looking at the new `Submit` member function. Here, we receive an rrfef to an image and move it into the queue while keeping the queue locked with the `queue_mutex_`. We then notify the condition variable to wake one of the potentially sleeping threads up. Note that we do this without holding the lock.
+
+We use this `Submit` function from the main function after creating out pipeline. Note how we don't create a queue ahead of time anymore and pass just the number of threads to the pipeline's constructor. Speaking of which, now the constructor creates the specified number of worker threads using `std::jthread`. Each `std::jthread` is given a `std::stop_token` which we can use to signal the thread to stop. This stop token is passed directly to the thread's entry function, which in our case is `ProcessImages`.
+
+The `ProcessImages` function stayed largely the same but did change a bit too. It still has a loop that continuously processes the queue of images. We still swap the local queue with the main queue to avoid holding the main queue's lock for too long and we process the items locally. What changed, though, is that now we use the condition variable to wait for new items to arrive in the queue. This wait will make the thread sleep until either the predicate of `images_` queue not being empty becomes true or the stop token is set. Once the wait is over the `wait` returns the result of the predicate evaluation, i.e., if there is work available and locks the lock. As long as there are images in the queue we want to process them which we do just as we did before. 
+
+Let's stop for a short moment and see what happens if the stop token is set. The `wait` will return `true` if there still images in the queue. Once we process them we will go on another loop iteration and try to wait again. This time though the stop token remains set and the `wait` returns instantly, returning `false` which allows us to break from the loop and finally allow the thread to join.
+
 #### Step 4: Putting it all together into a Generic Thread Pool
-Our `ImageProcessingPipeline` is looking great, but it is heavily coupled to our `TinyImage` type. What if we want to process strings, files, or network requests in the background?
+Our `ImageProcessingPipeline` is looking great, but it is heavily coupled to our `TinyImage` type. What if we want to process strings, files, or network requests in the background instead?
 
 We can make our code completely generic by turning it into a template class! We will rename our class to `ThreadPool<T>`, templating it on the data type `T`. To ensure that our Thread Pool doesn't need to know anything about how the data is processed, we'll pass a [`std::function`](std_function.md) `void(const T&)` to the constructor, which will dictate how to process each item.
 
@@ -903,7 +949,6 @@ Here is what the transition to a generic thread pool looks like:
 #include <thread>
 
 namespace {
-// Using a struct instead of a class to keep the example code short.
 struct TinyImage {
   int id{};
   int size{};
