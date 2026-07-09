@@ -416,6 +416,7 @@ To create a thread in C++ we use a standard class that abstracts away the OS-lev
 Let's look at a simple example to understand better how it works in practice. Here we assume that every image is of `TinyImage` type that has an id and a fake "size" represented by a randomly generated integer. Every `TinyImage` can be processed by a function `ProcessImage()` which here simulates some work by sleeping for a duration proportional to its "size". At the start of our program we immediately push 10 such images into a `std::queue` in the main thread. 
 
 Then we want to process them in a separate thread. To get this up and runnign we need to create a new thread, which we do by creating an object of `std::jthread` type by passing the function this thread will run, in our case `ProcessImages`, along with any arguments this function needs, into its constructor. In this particular example, since we want to modify the queue, we pass a pointer to it.
+
 In its turn, the `ProcessImages` function runs a loop that, as long as the queue is not empty, takes one image at a time from it and processes it by calling `ProcessImage`.
 
 <!-- 
@@ -469,12 +470,56 @@ int main() {
 }
 ```
 
-As we can see from the output, the main thread continues executing in parallel to the images being processed in the background until the queue is empty! When main reaches the end, the `worker` thread needs to be destroyed and, being a `std::jthread`, it will automatically wait for the background work to finish before it can safely join itself. So far so good!
+As we can see from the output, the main thread continues executing in parallel to the images being processed in the background until the queue is empty! When main reaches the end, the `worker` thread needs to be destroyed and, being a `std::jthread`, it will automatically wait for the background work to finish before it can safely join itself and be destroyed. So far so good!
+
+#### Stopping threads cooperatively with `std::stop_token`
+
+Speaking of destroying the `jthread` objects, when a `jthread` is destroyed, it not only joins the thread, but it also first requests the thread to stop. 
+
+We can access this request in the thread function by having it accept a `std::stop_token` as its first argument. This allows the thread to stop what it's doing when the main thread wants it to shut down.
+
+Let's look at a simple example where a background thread runs an infinite loop, but stops cleanly when the main thread requests it:
+
+<!-- 
+`CPP_COPY_SNIPPET` parallelism_stop_token/main.cpp
+`CPP_RUN_CMD` CWD:parallelism_stop_token c++ -std=c++20 main.cpp
+-->
+```cpp
+#include <chrono>
+#include <iostream>
+#include <thread>
+
+namespace {
+void BackgroundWork(std::stop_token stoken) {
+  int count = 0;
+  // Keep running as long as a stop has not been requested
+  while (!stoken.stop_requested()) {
+    std::cout << "Working... " << ++count << "\n";
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+  }
+  std::cout << "Stop requested! Cleaning up and exiting...\n";
+}
+} // namespace
+
+int main() {
+  std::cout << "Starting background thread...\n";
+  std::jthread worker(BackgroundWork);
+
+  std::this_thread::sleep_for(std::chrono::seconds(1));
+  
+  std::cout << "Main thread finished. Destroying worker...\n";
+  // When worker goes out of scope, it automatically calls request_stop() 
+  // on the stop_token, and then joins the thread.
+  return 0;
+}
+```
+
+When the `worker` thread goes out of scope, it automatically calls `request_stop()` on the `stop_token`. This breaks our loop as `stoken.stop_requested()` becomes true. Once the while loop terminates, the `BackgroundWork` function will return and the thread will automatically join.
+
+This is incredibly useful because it gives us a built-in, standard way to cleanly shut down background tasks without needing custom boolean flags or complex logic.
 
 #### Step 2: Adding another thread and a Mutex
-One thread is neat, but we might want multiple threads to share the workload and process the same queue created in the main thread.
-
-However, if multiple threads try to modify the queue simultaneously, we will get a **data race**, which will crash our program (in the best case scenario) or silently corrupt data. These silent issues are **undefined behavior** and are super hard to debug so we need to make sure we avoid them at all costs!
+Now we are ready to talk about what happens if we have multiple threads that try to modify the same data simultaneously. In that case, we will get a so-called **data race**, which can crash our program (in the best case scenario) or silently corrupt data. These silent issues are **undefined behavior** and are super hard to debug so we need to make sure we avoid them at all costs!
 
 By the way, note how we pass a pointer into the `ProcessImages` function. That's because `std::jthread` doesn't support passing arguments by reference! The reason for this is that `jthread` needs to maintain a thread-local copy of any variable we pass into it. It _could_ of course just copy a mutable reference but it would be unsafe to do so as this would potentially silently create a data race, so `jthread` actively decays any reference type to a normal type and so a copy is performed. This way if we want to pass a reference we either need to wrap it in a `std::ref` or just pass a pointer as we did in our example. This way we can still get an unsafe behavior, but we opt-in to it. Now back to how we can deal with the data race scenarios just like ours.
 
@@ -834,7 +879,7 @@ cv.wait(lock, []{ return !data_queue.empty(); });
 
 Here we wait for the queue to not be empty. When a condition variable receives a wake-up call, it locks the lock, checks if the condition provided to it as a lambda (called a predicate) is true and if it *is* true, it keeps the lock locked and continues execution. Otherwise it unlocks the lock and goes back to sleep. 
 
-Ok, these were the basics. Now let's modify our image processing pipeline to use condition variables so that we can submit images to it over time. There is one more piece of a puzzle we must use here to know when to actually stop waiting for new images. For this we will use `std::stop_token` which is built-in to std::jthread. Furthermore, if we are already focusing on C++20, `std::condition_variable_any` seamlessly pairs with `std::stop_token` to easily wake up and terminate all threads when the program ends.
+Ok, these were the basics. Now let's modify our image processing pipeline to use condition variables so that we can submit images to it over time. Remember `std::stop_token` that we discussed earlier? We need to use it here to know when to actually stop waiting for new images. Since we are focusing on C++20, `std::condition_variable_any` seamlessly pairs with `std::stop_token` to automatically wake up and terminate all waiting threads when a stop is requested (e.g. when the pipeline is destroyed).
 
 <!-- 
 `CPP_COPY_SNIPPET` parallelism_jthread_3/main.cpp
@@ -932,9 +977,7 @@ Let's stop for a short moment and see what happens if the stop token is set. The
 #### Step 4: Putting it all together into a Generic Thread Pool
 Our `ImageProcessingPipeline` is looking great, but it is heavily coupled to our `TinyImage` type. What if we want to process strings, files, or network requests in the background instead?
 
-We can make our code completely generic by turning it into a template class! We will rename our class to `ThreadPool<T>`, templating it on the data type `T`. To ensure that our Thread Pool doesn't need to know anything about how the data is processed, we'll pass a [`std::function`](std_function.md) `void(const T&)` to the constructor, which will dictate how to process each item.
-
-Here is what the transition to a generic thread pool looks like:
+We can make our code completely generic by turning it into a template class templating it on the data type `T`, which we specify when we create an instance of our pipeline. This means that our queue is also templated on this type `T` now. Which means that we also need to use this type in the function we use to process our data as we can't assume their type anymore. So we pass a [`std::function`](std_function.md) `void(const T&)` to the constructor of our class and store it in a member variable. This function now dictates how to process each item. Finally, we rename the pipeline to a thread pool and do the same for all internal data, from mentioning images to talking about tasks instead:
 
 <!-- 
 `CPP_COPY_SNIPPET` parallelism_jthread/main.cpp
@@ -964,11 +1007,10 @@ void ProcessImage(const TinyImage& image) {
 template <typename T> 
 class ThreadPool {
 public:
-  explicit ThreadPool(size_t number_of_threads,
-                      std::function<void(const T&)>&& process_task)
+  ThreadPool(size_t number_of_threads,
+             std::function<void(const T&)> process_task)
       : process_task_{std::move(process_task)} {
-    std::cout << "Starting Thread Pool with " << number_of_threads
-              << " background threads...\n";
+    std::cout << "Starting " << number_of_threads << " background threads...\n";
     for (size_t i = 0; i < number_of_threads; ++i) {
       worker_threads_.emplace_back([this](std::stop_token stoken) {
         this->ProcessItems(std::move(stoken));
@@ -979,7 +1021,7 @@ public:
   void Submit(T&& item) {
     {
       std::lock_guard lock{queue_mutex_};
-      queue_.push(std::move(item));
+      tasks_.push(std::move(item));
     }
     cv_.notify_one();
   }
@@ -990,9 +1032,9 @@ private:
       std::queue<T> local_items;
       {
         std::unique_lock lock{queue_mutex_};
-        const bool work_exists = cv_.wait(lock, stoken, [this] { return !queue_.empty(); });
+        const bool work_exists = cv_.wait(lock, stoken, [this] { return !tasks_.empty(); });
         if (!work_exists) { break; }
-        std::swap(local_items, queue_);
+        std::swap(local_items, tasks_);
       }
 
       while(!local_items.empty()) {
@@ -1003,7 +1045,7 @@ private:
     }
   }
 
-  std::queue<T> queue_{};
+  std::queue<T> tasks_{};
   std::mutex queue_mutex_{};
   std::condition_variable_any cv_{};
   std::function<void(const T&)> process_task_{};
@@ -1015,9 +1057,8 @@ int main() {
   std::mt19937 rng{std::random_device{}()};
   std::uniform_int_distribution<int> dist{10, 100};
 
-  ThreadPool<TinyImage> pool{4, ProcessImage};
-
-  for (int i = 1; i <= 15; ++i) {
+  ThreadPool<TinyImage> pool{2, ProcessImage};
+  for (int i = 1; i <= 10; ++i) {
     pool.Submit(TinyImage{i, dist(rng)});
   }
 
@@ -1025,15 +1066,15 @@ int main() {
 }
 ```
 
-<!-- TODO check if this prints gibberish or not -->
+However, the logic stays *exactly* the same! We still create worker threads that process our tasks in a loop using a queue and a condition variable. And this is the simplest possible working thread pool that we implemented from scratch!
 
 ### What if I don't have C++20?
-It's very common to work in a codebase stuck on C++17 (or even C++11). To achieve the exact same generic thread pool behavior without `std::jthread`, `std::stop_token`, and `std::condition_variable_any`, we have to do three manual things ourselves:
-1. Maintain a shared `bool shutting_down_ = false;` flag to signal our intentions.
-2. Manually wake up all threads using `cv_.notify_all()` in the destructor once we set the flag.
-3. Explicitly loop through our vector of `std::thread`s and `.join()` them before they are completely destroyed!
+But we used C++20 here, and the rest of this course using C++17, so for consistency, just in case we are stuck in a codebase that uses C++17 (or even C++11), let's see how we can achieve the exact same generic thread pool behavior without `std::jthread`, `std::stop_token`, and `std::condition_variable_any`. 
 
-Here is how our generic thread pool example would look if rewritten for C++17 standards:
+Let's first focus on the constructor and the member variables:
+1. We change to using `std::condition_variable` and `std::thread`. This requires a different way of creating the worker threads: we now only pass the function that they run and here, because it is a member function, we also give it a pointer to an object to which this function belongs, `this` object in our case. Note how we don't have a stop token anymore and have to maintain our own custom shared variable, say, `shutting_down_` that serves the same purpose. 
+2. The fact that we don't have a stop token anymore and that we use `std::condition_variable` has an influence on how we wait for the condition variable to be notified. So let's focus on that too. The `ProcessItems` function doesn't get the stop token anymore and so we change the `wait` call predicate to include our `shutting_down_` variable and change the check for leftover work after the wait is over.
+3. Finally, we now need an explicit destructor that sets the `shutting_down_` flag and manually wakes up all threads using `cv_.notify_all()` to unblock their `wait` calls and then explicitly loop through our vector of `std::thread`s and joins them before they are finally destroyed.
 
 <!-- 
 `CPP_COPY_SNIPPET` parallelism_threadpool_17/main.cpp
@@ -1050,7 +1091,6 @@ Here is how our generic thread pool example would look if rewritten for C++17 st
 #include <thread>
 
 namespace {
-// Using a struct instead of a class to keep the example code short.
 struct TinyImage {
   int id{};
   int size{};
@@ -1061,13 +1101,13 @@ void ProcessImage(const TinyImage& image) {
   std::this_thread::sleep_for(std::chrono::milliseconds(image.size));
 }
 
-template <typename T> class ThreadPool {
+template <typename T> 
+class ThreadPool {
  public:
-  explicit ThreadPool(size_t number_of_threads,
-                      std::function<void(const T&)> process_task)
+  ThreadPool(size_t number_of_threads,
+             std::function<void(const T&)> process_task)
       : process_task_{std::move(process_task)} {
-    std::cout << "Starting Thread Pool (C++17) with " << number_of_threads
-              << " background threads...\n";
+    std::cout << "Starting " << number_of_threads << " background threads...\n";
     for (size_t i = 0; i < number_of_threads; ++i) {
       worker_threads_.emplace_back(&ThreadPool::ProcessItems, this);
     }
@@ -1079,14 +1119,13 @@ template <typename T> class ThreadPool {
       shutting_down_ = true;
     }
     cv_.notify_all();
-
     for (auto &t : worker_threads_) { if (t.joinable()) { t.join(); } }
   }
 
-  void Submit(T item) {
+  void Submit(T&& item) {
     {
       std::lock_guard lock{queue_mutex_};
-      queue_.push(std::move(item));
+      tasks_.push(std::move(item));
     }
     cv_.notify_one();
   }
@@ -1097,9 +1136,9 @@ template <typename T> class ThreadPool {
       std::queue<T> local_items;
       {
         std::unique_lock lock{queue_mutex_};
-        cv_.wait(lock, [this] { return !queue_.empty() || shutting_down_; });
-        if (shutting_down_ && queue_.empty()) { break; }
-        std::swap(local_items, queue_);
+        cv_.wait(lock, [this] { return !tasks_.empty() || shutting_down_; });
+        if (shutting_down_ && tasks_.empty()) { break; }
+        std::swap(local_items, tasks_);
       }
 
       while(!local_items.empty()) {
@@ -1110,7 +1149,7 @@ template <typename T> class ThreadPool {
     }
   }
 
-  std::queue<T> queue_{};
+  std::queue<T> tasks_{};
   std::mutex queue_mutex_{};
   std::condition_variable cv_{};
   std::function<void(const T&)> process_task_{};
@@ -1123,9 +1162,8 @@ int main() {
   std::mt19937 rng{std::random_device{}()};
   std::uniform_int_distribution<int> dist{10, 100};
 
-  ThreadPool<TinyImage> pool{4, ProcessImage};
-
-  for (int i = 1; i <= 15; ++i) {
+  ThreadPool<TinyImage> pool{2, ProcessImage};
+  for (int i = 1; i <= 10; ++i) {
     pool.Submit(TinyImage{i, dist(rng)});
   }
 
@@ -1133,12 +1171,12 @@ int main() {
 }
 ```
 
-It's not too much more code but if we can use `std::jthread` we definitely should as it avoid quite some boilerplate code and potential bugs. We can avoid huge classes of concurrency errors related to abandoned threads crashing our application on exit.
+So you see, there are not that many changes, but if we have the luxury of being able to use C++20s `std::jthread` we definitely should as it avoid quite some boilerplate code and potential bugs. 
 
 ## Summary
 And with this, I believe that this is everything one needs to know to understand the basics of multithreading in C++! At least these examples are a simplified version of what I've seen in many production codebases. Have I missed some pattern that you've seen?
 
-Anyway, as a short summary, I hope I could convince you that writing parallel code in C++ is not all that complex. Here are some takeaways:
+Anyway, as a short summary, I hope I could convince you that writing parallel code in C++ is not all that complex. Here are the key takeaways again:
 
 - When faced with large tasks that have to run in the background, `std::async` seems to be the right tool.
 - When needing to parallelize many small-ish operations over a large corpus of data, available ahead of time, the parallel algorithms should do the trick. Or the oneTBB library if more control is needed.

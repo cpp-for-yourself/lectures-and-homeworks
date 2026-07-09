@@ -1,12 +1,13 @@
 /// <reference types="vite/client" />
 import { createRef } from '@motion-canvas/core/lib/utils';
-import { makeScene2D, Code, LezerHighlighter, lines, Camera, Rect, Node } from '@motion-canvas/2d';
+import { makeScene2D, Code, LezerHighlighter, lines, Camera, Rect, Node, Txt } from '@motion-canvas/2d';
 import { all, waitFor } from '@motion-canvas/core/lib/flow';
 import { DEFAULT } from '@motion-canvas/core/lib/signals';
 
 import { parser as parser_cpp } from '@lezer/cpp';
 
 import blockingCode from '@lectures/parallelism.md?snippet=parallelism_blocking/main.cpp';
+import stopTokenCode from '@lectures/parallelism.md?snippet=parallelism_stop_token/main.cpp';
 import asyncCode from '@lectures/parallelism.md?snippet=parallelism_async/main.cpp';
 import algorithmsSequentialCode from '@lectures/parallelism.md?snippet=parallelism_algorithms/main_sequential.cpp';
 import algorithmsParallelCode from '@lectures/parallelism.md?snippet=parallelism_algorithms/main_parallel.cpp';
@@ -28,21 +29,39 @@ const CppHighlighter = new LezerHighlighter(parser_cpp, MyStyle);
 export default makeScene2D(function* (view) {
     const codeContainerRef = createRef<Node>();
     const codeRef = createRef<Code>();
+    var cppVersionTxt = createRef<Txt>();
 
-    const popup1Rect = createRef<Rect>();
-    const popup1Camera = createRef<Camera>();
-    const outline1 = createRef<Rect>();
+    const popups = [
+        { stroke: '#FF6B6B', y: -250 },
+        { stroke: '#4DABF7', y: 250 },
+        { stroke: '#3eec9dff', y: 250 },
+        { stroke: '#a356c1ff', y: 250 },
+    ].map(p => ({
+        ...p,
+        popupRect: createRef<Rect>(),
+        popupCamera: createRef<Camera>(),
+        outline: createRef<Rect>(),
+    }));
 
-    const popup2Rect = createRef<Rect>();
-    const popup2Camera = createRef<Camera>();
-    const outline2 = createRef<Rect>();
-
-    const popup3Rect = createRef<Rect>();
-    const popup3Camera = createRef<Camera>();
-    const outline3 = createRef<Rect>();
+    const [
+        { popupRect: popup1Rect, popupCamera: popup1Camera, outline: outline1 },
+        { popupRect: popup2Rect, popupCamera: popup2Camera, outline: outline2 },
+        { popupRect: popup3Rect, popupCamera: popup3Camera, outline: outline3 },
+        { popupRect: popup4Rect, popupCamera: popup4Camera, outline: outline4 }
+    ] = popups;
 
     yield view.add(
         <Node ref={codeContainerRef}>
+            <Txt
+                ref={cppVersionTxt}
+                fontSize={95}
+                fontFamily={'Fira Mono'}
+                fontWeight={500}
+                text=""
+                fill={'white'}
+                x={720}
+                y={25}
+            />
             <Code
                 ref={codeRef}
                 fontSize={14.5}
@@ -57,86 +76,36 @@ export default makeScene2D(function* (view) {
     );
     yield view.add(
         <>
-            <Rect
-                ref={outline1}
-                stroke={'#FF6B6B'}
-                lineWidth={3}
-                radius={4}
-                opacity={0}
-            />
-            <Rect
-                ref={popup1Rect}
-                clip={true}
-                width={1000}
-                height={480}
-                x={200}
-                y={-250}
-                fill={'#1E1E1E'}
-                stroke={'#FF6B6B'}
-                lineWidth={4}
-                radius={8}
-                opacity={0}
-                scale={0.8}
-            >
-                <Camera
-                    ref={popup1Camera}
-                    scene={codeContainerRef()}
-                />
-            </Rect>
-
-            <Rect
-                ref={outline2}
-                stroke={'#4DABF7'}
-                lineWidth={3}
-                radius={4}
-                opacity={0}
-            />
-            <Rect
-                ref={popup2Rect}
-                clip={true}
-                width={1000}
-                height={480}
-                x={200}
-                y={250}
-                fill={'#1E1E1E'}
-                stroke={'#4DABF7'}
-                lineWidth={4}
-                radius={8}
-                opacity={0}
-                scale={0.8}
-            >
-                <Camera
-                    ref={popup2Camera}
-                    scene={codeContainerRef()}
-                />
-            </Rect>
-
-            <Rect
-                ref={outline3}
-                stroke={'#3eec9dff'}
-                lineWidth={3}
-                radius={4}
-                opacity={0}
-            />
-            <Rect
-                ref={popup3Rect}
-                clip={true}
-                width={1000}
-                height={480}
-                x={200}
-                y={250}
-                fill={'#1E1E1E'}
-                stroke={'#3eec9dff'}
-                lineWidth={4}
-                radius={8}
-                opacity={0}
-                scale={0.8}
-            >
-                <Camera
-                    ref={popup3Camera}
-                    scene={codeContainerRef()}
-                />
-            </Rect>
+            {popups.map(p => (
+                <>
+                    <Rect
+                        ref={p.outline}
+                        stroke={p.stroke}
+                        lineWidth={3}
+                        radius={4}
+                        opacity={0}
+                    />
+                    <Rect
+                        ref={p.popupRect}
+                        clip={true}
+                        width={1000}
+                        height={480}
+                        x={200}
+                        y={p.y}
+                        fill={'#1E1E1E'}
+                        stroke={p.stroke}
+                        lineWidth={4}
+                        radius={8}
+                        opacity={0}
+                        scale={0.8}
+                    >
+                        <Camera
+                            ref={p.popupCamera}
+                            scene={codeContainerRef()}
+                        />
+                    </Rect>
+                </>
+            ))}
         </>
     );
     const duration = 1.0;
@@ -293,6 +262,7 @@ export default makeScene2D(function* (view) {
         codeRef().code(jthread1Code, duration),
         codeRef().fontSize(14, duration),
         centerOn(codeRef(), DEFAULT, duration, 15),
+        cppVersionTxt().text("C++20", duration),
     );
     yield* waitFor(duration);
 
@@ -336,6 +306,20 @@ export default makeScene2D(function* (view) {
     yield* waitFor(duration);
 
     // #### Step 2: Adding another thread and a Mutex
+    yield* all(
+        codeRef().code(stopTokenCode, 0),
+        centerOn(codeRef(), DEFAULT, 0, 25),
+        cppVersionTxt().text("C++20", 0),
+        cppVersionTxt().y(400, 0),
+    );
+    yield* waitFor(duration);
+
+    // #### Step 2: Adding another thread and a Mutex
+    yield* all(
+        codeRef().code(jthread1Code, 0),
+        centerOn(codeRef(), DEFAULT, 0, 15),
+    );
+    yield* waitFor(duration);
     yield* all(
         codeRef().code(jthread2Code, duration),
         centerOn(codeRef(), DEFAULT, duration, 15),
@@ -468,12 +452,158 @@ export default makeScene2D(function* (view) {
     yield* waitFor(duration);
 
     yield* all(
-        centerOn(codeRef(), lines(39, 58), duration, 30),
+        centerOn(codeRef(), lines(39, 58), duration, 27),
     );
     yield* waitFor(duration);
 
     yield* all(
         centerOn(codeRef(), DEFAULT, duration, 10),
+    );
+    yield* waitFor(duration);
+
+
+    const thread_pool_with_images_name = `#include <chrono>
+#include <condition_variable>
+#include <functional>
+#include <iostream>
+#include <mutex>
+#include <queue>
+#include <random>
+#include <thread>
+
+namespace {
+struct TinyImage {
+  int id{};
+  int size{};
+};
+
+void ProcessImage(const TinyImage& image) {
+  // Simulate some work. Its duration depends on the image's size.
+  std::this_thread::sleep_for(std::chrono::milliseconds(image.size));
+}
+
+template <typename T> 
+class ImageProcessingPipeline {
+public:
+  ImageProcessingPipeline(size_t number_of_threads,
+                          std::function<void(const T&)> process_image)
+      : process_image_{std::move(process_image)} {
+    std::cout << "Starting " << number_of_threads << " background threads...\\n";
+    for (size_t i = 0; i < number_of_threads; ++i) {
+      worker_threads_.emplace_back([this](std::stop_token stoken) {
+        this->ProcessImages(std::move(stoken));
+      });
+    }
+  }
+
+  void Submit(T&& img) {
+    {
+      std::lock_guard lock{queue_mutex_};
+      images_.push(std::move(img));
+    }
+    cv_.notify_one();
+  }
+
+private:
+  void ProcessImages(std::stop_token stoken) {
+    while (true) {
+      std::queue<T> local_images;
+      {
+        std::unique_lock lock{queue_mutex_};
+        const bool work_exists = cv_.wait(lock, stoken, [this] { return !images_.empty(); });
+        if (!work_exists) { break; }
+        std::swap(local_images, images_);
+      }
+
+      while(!local_images.empty()) {
+        const auto image = std::move(local_images.front());
+        local_images.pop();
+        process_image_(image);
+      }
+    }
+  }
+
+  std::queue<T> images_{};
+  std::mutex queue_mutex_{};
+  std::condition_variable_any cv_{};
+  std::function<void(const T&)> process_image_{};
+  std::vector<std::jthread> worker_threads_{};
+};
+} // namespace
+
+int main() {
+  std::mt19937 rng{std::random_device{}()};
+  std::uniform_int_distribution<int> dist{10, 100};
+
+  ImageProcessingPipeline<TinyImage> pipeline{2, ProcessImage};
+  for (int i = 1; i <= 10; ++i) {
+    pipeline.Submit(TinyImage{i, dist(rng)});
+  }
+
+  return 0;
+}`
+    yield* all(
+        codeRef().code(thread_pool_with_images_name, duration),
+    );
+    yield* waitFor(duration);
+
+    const template_box = getFutureCodeBBox(codeRef(), lines(20, 21), () => {
+        codeRef().code(thread_pool_with_images_name);
+        codeRef().fontSize(10);
+    });
+    const template_box_constructor = getFutureCodeBBox(codeRef(), lines(23, 25), () => {
+        codeRef().code(thread_pool_with_images_name);
+        codeRef().fontSize(10);
+    });
+    const template_box_main = getFutureCodeBBox(codeRef(), lines(72, 73), () => {
+        codeRef().code(thread_pool_with_images_name);
+        codeRef().fontSize(10);
+    });
+    const template_box_queue = getFutureCodeBBox(codeRef(), lines(60, 61), () => {
+        codeRef().code(thread_pool_with_images_name);
+        codeRef().fontSize(10);
+    });
+    const template_box_queue_more = getFutureCodeBBox(codeRef(), lines(60, 64), () => {
+        codeRef().code(thread_pool_with_images_name);
+        codeRef().fontSize(10);
+    });
+    const use_std_func = getFutureCodeBBox(codeRef(), lines(56, 56), () => {
+        codeRef().code(thread_pool_with_images_name);
+        codeRef().fontSize(10);
+    });
+
+
+    yield* all(
+        zoomInOn(popup1Rect(), popup1Camera(), outline1(), template_box, duration, { zoom: 3, position: 'top-right', screenPaddingX: 100 }),
+    );
+    yield* waitFor(duration);
+
+    yield* all(
+        zoomInOn(popup2Rect(), popup2Camera(), outline2(), template_box_main, duration, { zoom: 3, position: 'bottom-right', screenPaddingX: 100, screenPaddingY: 100 }),
+        cppVersionTxt().y(popup2Rect().y() + popup2Rect().height() / 2 + 80, duration),
+    );
+    yield* waitFor(duration);
+
+    yield* all(
+        zoomInOn(popup3Rect(), popup3Camera(), outline3(), template_box_queue, duration, { zoom: 3, position: 'bottom-right', screenPaddingX: 100, screenPaddingY: 220 }),
+        cppVersionTxt().y(popup3Rect().y() - popup3Rect().height() / 2 - 60, duration),
+    );
+    yield* waitFor(duration);
+
+    yield* all(
+        zoomInOn(popup1Rect(), popup1Camera(), outline1(), template_box_constructor, duration, { zoom: 3, position: 'top-right', screenPaddingX: 100 }),
+    );
+    yield* waitFor(duration);
+
+    yield* all(
+        zoomInOn(popup3Rect(), popup3Camera(), outline3(), template_box_queue_more, duration, { zoom: 3, position: 'bottom-right', screenPaddingX: 100, screenPaddingY: 220 }),
+        cppVersionTxt().y(popup3Rect().y() - popup3Rect().height() / 2 - 180, duration),
+    );
+    yield* waitFor(duration);
+
+    yield* all(
+        zoomInOn(popup4Rect(), popup4Camera(), outline4(), use_std_func, duration, { zoom: 3, position: 'bottom-right', screenPaddingX: 100, screenPaddingY: 440 }),
+        cppVersionTxt().y(popup4Rect().y() - popup4Rect().height() / 2 - 60, duration),
     );
     yield* waitFor(duration);
 
@@ -483,52 +613,93 @@ export default makeScene2D(function* (view) {
     );
     yield* waitFor(duration);
 
-    // Highlight 1 (template, ThreadPool)
     yield* all(
-        centerOn(codeRef(), lines(21, 22), duration, 30),
+        zoomOut(popup1Rect(), outline1(), duration),
+        zoomOut(popup2Rect(), outline2(), duration),
+        zoomOut(popup3Rect(), outline3(), duration),
+        zoomOut(popup4Rect(), outline4(), duration),
+        cppVersionTxt().y(400, duration),
     );
     yield* waitFor(duration);
 
-    // Highlight 2 (std::function)
+    const before_constructor = getFutureCodeBBox(codeRef(), lines(23, 32), () => {
+        codeRef().code(jthreadCode);
+        codeRef().fontSize(10);
+    });
+    const after_constructor = getFutureCodeBBox(codeRef(), lines(23, 30), () => {
+        codeRef().code(threadpool17Code);
+        codeRef().fontSize(9);
+    });
+    const before_members = getFutureCodeBBox(codeRef(), lines(61, 65), () => {
+        codeRef().code(jthreadCode);
+        codeRef().fontSize(10);
+    });
+    const after_members = getFutureCodeBBox(codeRef(), lines(68, 73), () => {
+        codeRef().code(threadpool17Code);
+        codeRef().fontSize(9);
+    });
+    const before_process_items = getFutureCodeBBox(codeRef(), lines(43, 59), () => {
+        codeRef().code(jthreadCode);
+        codeRef().fontSize(10);
+    });
+    const after_process_items = getFutureCodeBBox(codeRef(), lines(50, 66), () => {
+        codeRef().code(threadpool17Code);
+        codeRef().fontSize(9);
+    });
+
     yield* all(
-        centerOn(codeRef(), [lines(24, 26), lines(66, 66)], duration, 30),
+        cppVersionTxt().y(400, 0),
+        cppVersionTxt().text("C++20", duration)
     );
     yield* waitFor(duration);
 
-    // Highlight 3 (pool usage)
     yield* all(
-        centerOn(codeRef(), lines(75, 75), duration, 30),
+        zoomInOn(popup1Rect(), popup1Camera(), outline1(), before_constructor, duration, { zoom: 3, position: 'top-right', screenPaddingX: 100 }),
+    );
+    yield* all(
+        zoomInOn(popup2Rect(), popup2Camera(), outline2(), before_members, duration, { zoom: 3, position: 'bottom-right', screenPaddingX: 100 }),
+        cppVersionTxt().y(popup2Rect().y() - 310, duration),
     );
     yield* waitFor(duration);
 
     // #### What if I don't have C++20?
     yield* all(
         codeRef().code(threadpool17Code, duration),
-        centerOn(codeRef(), DEFAULT, duration, 15),
+        centerOn(codeRef(), DEFAULT, duration, 9),
+        zoomInOn(popup1Rect(), popup1Camera(), outline1(), after_constructor, duration, { zoom: 3.3, position: 'top-right', screenPaddingX: 100 }),
+        zoomInOn(popup2Rect(), popup2Camera(), outline2(), after_members, duration, { zoom: 3.3, position: 'bottom-right', screenPaddingX: 100 }),
+        cppVersionTxt().text("C++17", duration / 5),
+        cppVersionTxt().y(popup2Rect().y() - 300, duration),
+    );
+    yield* waitFor(duration);
+
+    yield* all(
+        codeRef().code(jthreadCode, duration),
+        centerOn(codeRef(), DEFAULT, duration, 10),
+        zoomOut(popup1Rect(), outline1(), duration),
+        zoomOut(popup2Rect(), outline2(), duration),
+        zoomInOn(popup3Rect(), popup3Camera(), outline3(), before_process_items, duration, { zoom: 2.6, position: 'top-right', screenPaddingX: 100 }),
+        cppVersionTxt().text("C++20", duration / 5),
+        cppVersionTxt().y(popup3Rect().y(), duration),
+    );
+    yield* waitFor(duration);
+
+    yield* all(
+        codeRef().code(threadpool17Code, duration),
+        centerOn(codeRef(), DEFAULT, duration, 9),
+        zoomInOn(popup3Rect(), popup3Camera(), outline3(), after_process_items, duration, { zoom: 3, position: 'top-right', screenPaddingX: 100 }),
+        cppVersionTxt().text("C++17", duration / 5),
+        cppVersionTxt().y(popup3Rect().y() + 400, duration),
     );
     yield* waitFor(duration);
 
     // Highlight 1 (shutting_down flag)
     yield* all(
-        centerOn(codeRef(), lines(75, 75), duration, 30),
+        zoomOut(popup3Rect(), outline3(), duration),
+        cppVersionTxt().y(370, duration),
     );
-    yield* waitFor(duration);
-
-    // Highlight 2 (notify_all)
     yield* all(
-        centerOn(codeRef(), lines(38, 38), duration, 30),
-    );
-    yield* waitFor(duration);
-
-    // Highlight 3 (join)
-    yield* all(
-        centerOn(codeRef(), lines(40, 40), duration, 30),
-    );
-    yield* waitFor(duration);
-
-    // Final clean up
-    yield* all(
-        centerOn(codeRef(), DEFAULT, duration, 15),
+        centerOn(codeRef(), lines(32, 39), duration, 30),
     );
     yield* waitFor(duration);
 
