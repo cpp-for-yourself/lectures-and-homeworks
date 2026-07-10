@@ -5,15 +5,21 @@ Parallelism: Threads, Async, and Mutexes
 </p>
 
 - [Parallelism: Threads, Async, and Mutexes](#parallelism-threads-async-and-mutexes)
+- [Disclaimer](#disclaimer)
 - [What is parallelism anyway?](#what-is-parallelism-anyway)
-  - [No parallelism is often fastest](#no-parallelism-is-often-fastest)
+  - [No parallelism is always safer and often faster](#no-parallelism-is-always-safer-and-often-faster)
   - [High-level Task-Based Parallelism](#high-level-task-based-parallelism)
+  - [Execution Strategies (`std::launch`)](#execution-strategies-stdlaunch)
   - [Parallel Algorithms](#parallel-algorithms)
-  - [Worker Threads and Thread Pools](#worker-threads-and-thread-pools)
-- [Under the Hood: Data Races, Mutexes, and Condition Variables](#under-the-hood-data-races-mutexes-and-condition-variables)
-  - [Data Races](#data-races)
-  - [Mutexes and Locks](#mutexes-and-locks)
-  - [Condition Variables](#condition-variables)
+  - [Execution Policies (`std::execution`)](#execution-policies-stdexecution)
+  - [Raw TBB Parallelism](#raw-tbb-parallelism)
+  - [Worker threads and thread pools](#worker-threads-and-thread-pools)
+    - [Step 1: How to create a thread](#step-1-how-to-create-a-thread)
+    - [Stopping threads cooperatively with `std::stop_token`](#stopping-threads-cooperatively-with-stdstop_token)
+    - [Step 2: Adding another thread and a Mutex](#step-2-adding-another-thread-and-a-mutex)
+    - [Step 3: Sleeping with Condition Variables](#step-3-sleeping-with-condition-variables)
+    - [Step 4: Putting it all together into a Generic Thread Pool](#step-4-putting-it-all-together-into-a-generic-thread-pool)
+  - [What if I don't have C++20?](#what-if-i-dont-have-c20)
   - [Deadlocks](#deadlocks)
 - [Summary](#summary)
 
@@ -1173,15 +1179,96 @@ int main() {
 
 So you see, there are not that many changes, but if we have the luxury of being able to use C++20s `std::jthread` we definitely should as it avoid quite some boilerplate code and potential bugs. 
 
+### Deadlocks
+Before we wrap up, there is one more major pitfall we must mention when working with multiple threads and mutexes: **deadlocks**. 
+
+A deadlock is a kind of counterpart of data race. When we fix a data race we might end up with a deadlock instead. A deadlock occurs when two or more threads are stuck waiting for each other to release a lock, resulting in all of them waiting forever. For example, imagine Thread A locks Mutex 1 and then tries to lock Mutex 2. Meanwhile, Thread B locks Mutex 2 and tries to lock Mutex 1. Neither thread can proceed because the other is holding the mutex it needs. 
+
+<!-- 
+`CPP_COPY_SNIPPET` parallelism_deadlock/main.cpp
+-->
+```cpp
+#include <chrono>
+#include <iostream>
+#include <mutex>
+#include <thread>
+
+namespace {
+// Global variables for simplicity of an example. Don't do it in real code.
+std::mutex mutex1;
+std::mutex mutex2;
+
+void ThreadA() {
+  std::lock_guard lock1{mutex1};
+  std::this_thread::sleep_for(std::chrono::milliseconds(10)); // Give B time to lock mutex2
+  std::lock_guard lock2{mutex2};
+  std::cout << "Thread A got both locks!\n";
+}
+
+void ThreadB() {
+  std::lock_guard lock2{mutex2};
+  std::this_thread::sleep_for(std::chrono::milliseconds(10)); // Give A time to lock mutex1
+  std::lock_guard lock1{mutex1};
+  std::cout << "Thread B got both locks!\n";
+}
+} // namespace
+
+int main() {
+  std::jthread a{ThreadA};
+  std::jthread b{ThreadB};
+  // This will hang forever!
+  return 0;
+}
+```
+
+To avoid deadlocks, a common rule of thumb is to always acquire multiple locks in the exact same order across all threads. Alternatively, from C++17 onwards, we can use `std::scoped_lock` which safely locks multiple mutexes at once without the risk of a deadlock using a deadlock-avoidance algorithm under the hood:
+
+<!-- 
+`CPP_COPY_SNIPPET` parallelism_deadlock_fixed/main.cpp
+`CPP_RUN_CMD` CWD:parallelism_deadlock_fixed c++ -std=c++20 main.cpp
+-->
+```cpp
+#include <chrono>
+#include <iostream>
+#include <mutex>
+#include <thread>
+
+namespace {
+// Global variables for simplicity of an example. Don't do it in real code.
+std::mutex mutex1;
+std::mutex mutex2;
+
+void ThreadA() {
+  std::scoped_lock lock{mutex1, mutex2};
+  std::this_thread::sleep_for(std::chrono::milliseconds(10));
+  std::cout << "Thread A got both locks!\n";
+}
+
+void ThreadB() {
+  std::scoped_lock lock{mutex2, mutex1}; // Order doesn't matter for scoped_lock!
+  std::this_thread::sleep_for(std::chrono::milliseconds(10));
+  std::cout << "Thread B got both locks!\n";
+}
+} // namespace
+
+int main() {
+  std::jthread a{ThreadA};
+  std::jthread b{ThreadB};
+  return 0;
+}
+```
+
 ## Summary
-And with this, I believe that this is everything one needs to know to understand the basics of multithreading in C++! At least these examples are a simplified version of what I've seen in many production codebases. Have I missed some pattern that you've seen?
+And with this, I believe we covered everything one needs to know to understand the basics of multithreading in C++! At least these examples are a simplified version of what I've seen in many production codebases over the last 15 or so years. Have I missed some pattern that you've seen?
 
 Anyway, as a short summary, I hope I could convince you that writing parallel code in C++ is not all that complex. Here are the key takeaways again:
 
 - When faced with large tasks that have to run in the background, `std::async` seems to be the right tool.
 - When needing to parallelize many small-ish operations over a large corpus of data, available ahead of time, the parallel algorithms should do the trick. Or the oneTBB library if more control is needed.
 - Finally, when more flexibility is needed and when the data is loaded dynamically, a thread pool is something that people typically reach for.
-- And don't forget to protect any shared mutable state with a mutex! Well, technically, there is the whole so-called "lock free" programming paradigm that avoids mutexes, but it is its own completely different can of worms which we won't talk about in this course.
+- And don't forget to protect any shared mutable state with a mutex! And while at it avoid deadlocks by always acquiring multiple locks in the same order or by using `std::scoped_lock`. 
+
+Well, technically, there is the whole so-called "lock free" programming paradigm that avoids mutexes, but it is its own completely different can of worms which we won't talk about in this course.
 
 And remember, as the very first thing, try to avoid parallel code altogether. In 90% of the cases, a sequential implementation is fast enough and avoids all the pitfalls of parallel programming!
 

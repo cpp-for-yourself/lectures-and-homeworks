@@ -19,6 +19,8 @@ import jthread2ClassSwapCode from '@lectures/parallelism.md?snippet=parallelism_
 import jthread3Code from '@lectures/parallelism.md?snippet=parallelism_jthread_3/main.cpp';
 import jthreadCode from '@lectures/parallelism.md?snippet=parallelism_jthread/main.cpp';
 import threadpool17Code from '@lectures/parallelism.md?snippet=parallelism_threadpool_17/main.cpp';
+import deadlockCode from '@lectures/parallelism.md?snippet=parallelism_deadlock/main.cpp';
+import deadlockFixedCode from '@lectures/parallelism.md?snippet=parallelism_deadlock_fixed/main.cpp';
 
 import { MyStyle } from '../../styles';
 import { centerOn, zoomInOn, zoomOut, getCodeBBox, getFutureCodeBBox } from '../../utils';
@@ -703,4 +705,18 @@ int main() {
     );
     yield* waitFor(duration);
 
+    // #### Deadlocks
+    yield* all(
+        codeRef().code(deadlockCode, 0),
+        centerOn(codeRef(), DEFAULT, 0, 25),
+        cppVersionTxt().text("", 0),
+    );
+    yield* waitFor(duration);
+
+    // #### Deadlocks Fixed
+    yield* all(
+        codeRef().code(deadlockFixedCode, duration),
+        centerOn(codeRef(), DEFAULT, duration, 25),
+    );
+    yield* waitFor(duration);
 });
