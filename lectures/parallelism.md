@@ -1,4 +1,4 @@
-Parallelism: Threads, Async, and Mutexes
+Parallelism in modern C++
 --
 <p align="center">
   <img src="images/parallelism.gif" alt="Parallelism" align="right" width=50% style="margin: 0.5rem">
@@ -23,21 +23,23 @@ Parallelism: Threads, Async, and Mutexes
   - [Deadlocks](#deadlocks)
 - [Summary](#summary)
 
-Parallel programming is the secret sauce that makes modern software feel fluid, allowing a web browser to handle 500 tabs of "research" without breaking a sweat, a bitcoin miner to utilize all CPU cores in the background, and a smartphone to show that cat video while we are "busy" doing important work. 
+Parallel programming is the secret sauce that makes modern software feel fluid, allowing a web browser to handle 500 tabs of "research" without breaking a sweat, a bitcoin miner to utilize all CPU cores in the background, and a smartphone to show that cute animals video all while we are "busy" doing important work. 
 
 But it’s also one of the easiest ways to make our program crash in untraceable ways that only happen every other Tuesday when the moon is full. This is such a common scenario that there is even a saying: "Parallel programming is the art of doing two things at once and failing at both in ways that are impossible to debug."
 
-But jokes aside, I'd like to talk about how we can use C++ to harness the power of our multi-core CPU to keep our programs fast and responsive, while avoiding the pitfalls that lead to non-deterministic crashes.
+But jokes aside, I'd like to talk about how we can use C++ to harness the power of our multi-core CPU to keep our programs fast and responsive, while avoiding the typical pitfalls that lead to non-deterministic crashes.
 
 <!-- Intro -->
 
 ## Disclaimer
-Ok, this is one of those topics where I absolutely must start with a disclaimer. No matter what I do there will be someone on the Internet to tell me I'm wrong. So here is the disclaimer: All of the things we talk about today come purely from what worked for me over the years. I do not claim that these ways are absolutely the best or the only ones out there and there definitely will remain dark corners that you folks will need to explore on your own. But I do hope that, despite this disclaimer, this video will turn out to be a decent overview of the topic.
+Ok, before we start I have to do something. This is one of those topics where I absolutely must start with a disclaimer. No matter what I do, there will be someone on the internet to tell me I'm doing it completely wrong... and the worst thing is, they might be right! 
 
-Oh, also, we are not going to dive into the guts of how parallelism works in C++ or on our systems! It's a huge topic on its own and I am myself not comfortable with it enough to teach it without feeling like a fraud. So we'll just focus on the high-level usage of parallelism in C++ here.
+So here is the disclaimer: Everything we talk about today comes purely from what worked for me over the years. I do not claim that these ways are absolutely the best or the only ones out there and there definitely will remain dark corners that you folks will need to explore on your own. But I do hope that, despite this disclaimer, this video will turn out to be a decent overview of the topic.
+
+Oh, yeah, and if you're one of those who really likes [coroutines](https://en.cppreference.com/cpp/language/coroutines), I hate to dissapoint, but I had to cut the number of topics somewhere. This video is long enough as it is!
 
 ## What is parallelism anyway?
-But let's start by talking about what parallelism is. In a nutshell, **parallelism** is simply the ability to perform multiple computations or tasks at the same time. Instead of executing instructions one after another sequentially, a parallel program divides the work so that multiple operations can happen simultaneously, often speeding up execution significantly.
+With the disclaimer out of the way, let's start by talking about what parallelism is. In a nutshell, **parallelism** is simply the ability to perform multiple computations or tasks at the same time. Instead of executing instructions one after another sequentially, a parallel program divides the work so that multiple operations can happen simultaneously.
 
 Largely speaking, there are two main ways to achieve this at the software level: **multi-processing** and **multi-threading**. 
 
@@ -47,17 +49,20 @@ In **multi-processing**, we spawn multiple processes to run at the same time. Be
 
 In **multi-threading**, however, the execution happens on multiple **threads** *inside* a single process. Every process starts with a single main thread, but it can ask the OS to spawn additional threads which allows us to perform multiple tasks at once. The crucial difference here is that **all threads within a single process share the exact same memory space.** Just as the threads can be created, every thread needs to be either *joined* with the spawning thread or *detached* from it at the end of its lifetime within our program. More on that towards the end of this video.
 
-In this lecture, we will exclusively focus on **multi-threading**, which is probably the most common form of true parallelism in C++. Since threads can read and write to the exact same variables on the heap without restrictions, they can efficiently work together. This can be fantastic for performance... and absolutely terrifying for stability! If we don't carefully manage how they access those shared data, they will overwrite each other's work and crash our program. But before we look into how things can go wrong under the hood, let's look into the easiest ways to do things right!
+In this lecture, we will exclusively focus on **multi-threading**, which is probably the most common form of true parallelism in C++. Since threads can read and write to the exact same variables on the heap without restrictions, they can efficiently work together. This can be fantastic for performance... and absolutely terrifying for stability! If we don't carefully manage how they access those shared data, they will overwrite each other's work and crash our program. But before we look into how things can go wrong, let's look into the easiest ways to do things right!
 
 ### No parallelism is always safer and often faster
+
+<!-- Meme suggestion: "Roll Safe" (guy tapping his head) meme: "You can't have thread synchronization issues if you only have one thread." (https://knowyourmeme.com/memes/roll-safe) -->
+
 The safest way to do parallelism is to **not** do it at all. What I mean here is that many tasks that people *think* will run faster in parallel actually run slower. This is due to the overhead of creating and managing threads, as well as the overhead of synchronizing access to shared resources. In many cases, it is better to use a single-threaded approach to solve the problem. Every situation is different, but it is always worth considering whether parallelism is actually necessary. And always measure the performance of both approaches before making a decision.
 
 ### High-level Task-Based Parallelism
-But there *are* cases when we *need* to employ parallelism. One example of such a case is common in many GUI frameworks, where there is a main thread that handles the UI, and background threads that handle heavy tasks, because nobody likes a frozen application, which happens if the UI thread does too much work.
+But of course there *are* cases when we *need* to employ parallelism. One example of such a case is common in many GUI frameworks, where there is a main thread that handles the UI, and background threads that handle heavy tasks, because nobody likes a frozen application, which happens if the UI thread does too much work.
 
-If we have such a heavy task to run, we can use [`std::async`](https://en.cppreference.com/w/cpp/thread/async.html). This function takes a callable (like a [lambda](lambdas.md)) and a [launch policy](https://en.cppreference.com/w/cpp/thread/launch.html), and runs this callable asynchronously, potentially on a background thread. It returns a `std::future`, which is basically a promise like "I don't have the result now, but I will in the *future*." This future object handles getting us the result with a `.get()` call as well as what happens if the underlying code fails or when the result is not ready yet.
+If we have a heavy task to run, we can use [`std::async`](https://en.cppreference.com/w/cpp/thread/async.html) to run it in the background, leaving the main thread free to keep the UI flowing. The `std::async` is a function that takes a callable (like a [lambda](lambdas.md)) and a [launch policy](https://en.cppreference.com/w/cpp/thread/launch.html). It runs this callable asynchronously, potentially on a background thread. It returns a `std::future`, which is basically a promise like "I don't have the result now, but I will in the *future*." This future object handles getting us the result with a `.get()` call. If an [exception](error_handling.md#exceptions) was thrown in the background thread then it will be rethrown when we call `.get()`.
 
-For the sake of example, let's say our application, given a path to a massive image (we'll fake it here), needs to load it from disk (we'll simulate this by sleeping for 5 seconds). Let's first see what happens if we just load the image on the main thread:
+For the sake of example, let's say our application, given a path to a massive image (which we'll fake here), needs to load it from disk (which we'll simulate by sleeping for 5 seconds). Let's first see what happens if we just load the image on the main thread:
 
 <!--
 `CPP_SETUP_START`
@@ -97,6 +102,8 @@ int main() {
 ```
 
 When we run this, the application just prints "Loading massive image..." and then hangs for 5 full seconds with no signs of life. The main thread is completely blocked. There is no way for us to draw any kind of progress spinner or update any other UI element while the image is loading. To the user, the application looks frozen — and, well, that's because it *is* frozen.
+
+<!-- Meme suggestion: "They're the same picture" (Pam from The Office) comparing "App that looks frozen" and "App that actually is frozen" (https://knowyourmeme.com/memes/theyre-the-same-picture). Or the "Wait, it's frozen? Always has been" astronaut meme (https://knowyourmeme.com/memes/wait-its-all-ohio-always-has-been). -->
 
 Let's fix this! Let's use `std::async` just like I described a minute ago to kick off the heavy `LoadMassiveImage` function on a background thread, freeing the main thread to update the UI. While we're at it, let's encapsulate our spinner logic into a reusable `Spinner` class that iterates through an array of progress spinner characters when we call `Spin()` and cleans them up on destruction. Which allows us to use it in the main thread by calling its `Spin()` function in a while loop:
 
@@ -173,22 +180,22 @@ int main() {
 But let's focus closely on what we do here in the `main` function:
 1. We kick off the heavy `LoadMassiveImage` function in a background thread using `std::async` with the `std::launch::async` policy, which returns a `std::future` that holds a promise of the result.
 2. We create a `Spinner` in the main thread. We call `spinner.Spin()` in a loop to animate the spinner while the `std::future` is waiting for the result using the `.wait_for` function. This function checks if the result is ready, and if not, it waits for a specified amount of time before returning, here for `kSpinInterval` microseconds. If the result is ready, it returns immediately, otherwise it returns `std::future_status::timeout`. By the end of this scope, the snipper gets destroyed, printing the success message.
-3. Finally, we call `.get()` on the future to wait for and retrieve the final `Image` data once the future is ready. This function blocks the main thread if the result is not ready yet but in our case we know it's there already. Note that here we don't handle the case if the `LoadMassiveImage` function throws an exception. In this case `std::future` will rethrow the exception when we call `.get()` on it. So in a production code we should wrap this call in a `try-catch` block.
+3. Finally, we call `.get()` on the future to wait for and retrieve the final `Image` data once the future is ready. This function blocks the main thread if the result is not ready yet but in our case we know it's there already. Note that here we don't handle the case if the `LoadMassiveImage` function throws an exception. In this case `std::future` will rethrow the exception when we call `.get()` on it.
 
 ### Execution Strategies (`std::launch`)
 Notice that we passed `std::launch::async` as the first argument to `std::async`. This is the **launch policy**, which tells the C++ runtime exactly how it should execute our task. This parameter is the cause of one of the most common beginner pitfalls and is not very intuitive. Let's dive a bit deeper into the options we have:
 
-* `std::launch::async`: Forces the task to be executed on a separate, dedicated background thread immediately. We used this in our example because we want the image to load in the background *while* our main thread is busy drawing and updating the loading spinner UI.
+* `std::launch::async`: Forces the task to be executed on a separate, dedicated background thread immediately. We used this in our example because we want the image to load in the background *while* our main thread is busy drawing and updating the loading spinner UI. I'd say this is the most commonly used launch policy in practice.
 * `std::launch::deferred`: The task is **deferred**. This is also knows as "lazy evaluation". It does not execute immediately, and it doesn't even spawn a new thread. Instead, it waits until we actually call `.get()` or `.wait()` on the future, and then executes synchronously on the *same* thread that requested the result. This is useful when we want to define a task upfront but leave the details of if, when, and on which thread it will be executed to a later point in time. In some cases, depending on circumstances, we might even never need that result. However, I rarely see this being used in practice, at least in my field of robotics. <!-- If you have a good use-case for this - please tell me what it is in the comments! -->
-* `std::launch::async | std::launch::deferred` -  the default case. If we don't specify a policy, the C++ runtime decides! It might run it on a new thread, or it might defer it, depending on system resources. What actually happens is implementation-defined so it is hard to rely on. So we usually specify `std::launch::async` explicitly when we need a strict guarantee that background work is happening immediately (like keeping our UI responsive). Honestly, it is a bit unfortunate that this is the default behavior, I'd rather have no default at all to avoid confusion! 
-<!-- If anyone knows why this default was chosen historically, please also comment below! -->
+* `std::launch::async | std::launch::deferred` -  the *default* launch policy. So if we don't specify a policy, this is the one we get! This policy might run our task on a new thread, or it might defer it, depending on system resources. What actually happens is implementation-defined so it is hard to rely on. So we usually specify `std::launch::async` explicitly when we need a strict guarantee that background work is happening immediately (like keeping our UI responsive). Honestly, it is a bit confusing that this is the default behavior, I'd rather have no default at all to be honest! 
+<!-- But maybe I don't know enough about the background of this decision. If anyone knows why this default was chosen historically, please also comment below! -->
 
 ### Parallel Algorithms
 But what if we don't want to do *just one* heavy task in the background, but rather perform an operation (usually a much smaller one) on lots of elements simultaneously? 
 
 Since C++17, many algorithms in the `<algorithm>` and `<numeric>` headers accept an [**execution policy**](https://en.cppreference.com/w/cpp/algorithm/execution_policy_tag_t.html) from the `<execution>` header. By passing a policy like `std::execution::par`, we tell the compiler "Hey, feel free to run this across all available CPU cores."
 
-Imagine we want to apply a simple filter, e.g. color inversion, to every pixel of that "massive image" we've just loaded. To make it a complete example, we'll add some details to our `Image` struct from before, but we'll still keep it extremely simple. 
+Imagine we want to apply a simple filter, e.g., color inversion, to every pixel of that "massive image" we've just loaded. To make it a complete example, we'll add some details to our `Image` struct from before, but we'll still keep it extremely simple. 
 
 Our image now holds a vector of pixels, with each pixel holding an RGB value. A function for inverting the color of a pixel only needs that pixel as an input and so is completely independent of other pixels. Tasks like these are called [embarrassingly parallel](https://en.wikipedia.org/wiki/Embarrassingly_parallel), which means we don't have to worry about any data collisions during parallel execution. More on that a bit later.
 
@@ -324,10 +331,11 @@ Now let's talk about that `std::execution::par` parameter. Similar to launch pol
 * `std::execution::seq`: Executes sequentially on the current thread. This is the same as not passing a policy at all. Useful for debugging, testing, or if the data size is too small to benefit from parallelism overhead.
 * `std::execution::par`: Executes in parallel on multiple threads. The runtime breaks the container (like our `std::vector`) into chunks based on how many CPU cores we have. This is the most common way to parallelize an algorithm. Note that is is _our job_ to ensure that such parallel execution is safe. Again, more on that later.
 * `std::execution::unseq` (C++20): Executes on a single thread, but allows the CPU to use SIMD (Single Instruction, Multiple Data) vector instructions to process multiple elements at the exact same time. This is also known as vectorization.
-* `std::execution::par_unseq`: Allows both multi-threading (`par`) AND vectorization (`unseq`). Going deep into vectorization is beyond the scope of this course but I still want to add a warning here that while this option might seem like it should be fastest in most cases its performance highly depends on the hardware as well as the problem we are trying to solve. Measure when in doubt! Oh, and it is much easier to shoot one's leg off with this policy when it comes to data races which we'll discuss in a couple of minutes.
+* `std::execution::par_unseq`: Allows both multi-threading (`par`) AND vectorization (`unseq`). Going deep into vectorization is beyond the scope of this course but I still want to add a warning here that while this option might seem like it should be fastest in most cases its performance highly depends on the hardware as well as the problem we are trying to solve. Measure when in doubt! Oh, and it is much easier to shoot one's leg off with this policy when it comes to data races. Again, more on data races in a couple of minutes.
 
 > [!NOTE]
-> Speaking of warnings... Please note that if you're on macOS, using any parallel `std::execution` policy is more complex as Apple Clang [lacks full built-in support for standard parallel algorithms](https://en.cppreference.com/w/cpp/compiler_support/17#C.2B.2B17_library_features). Therefore, the primary target for compiling our examples using standard libraries in all of the examples here is typically Linux (e.g., using GCC). If you'd like to run them on MacOS, you'll need to install gcc or clang with tbb support. For example, you can install gcc with `brew install gcc` and then use the installed specific version of `g++` (e.g. `g++-15`) to compile (and link) the code like so:
+> Speaking of warnings... Please note that if you're on macOS, using any parallel `std::execution` policy is more complex as Apple Clang [lacks full built-in support for standard parallel algorithms](https://en.cppreference.com/w/cpp/compiler_support/17#C.2B.2B17_library_features).
+> <!-- Meme suggestion: Squidward looking out the window at Spongebob and Patrick having fun (https://knowyourmeme.com/memes/squidward-looking-out-the-window), where Squidward is macOS and the others are Linux/Windows using standard parallel algorithms. --> Therefore, the primary target for compiling our examples using standard libraries in all of the examples here is typically Linux (e.g., using GCC). If you'd like to run them on MacOS, you'll need to install gcc or clang with tbb support. For example, you can install gcc with `brew install gcc` and then use the installed specific version of `g++` (e.g. `g++-15`) to compile (and link) the code like so:
 > ```bash
 > g++-15 -std=c++17 -O3 -I/opt/homebrew/include -L/opt/homebrew/lib main_parallel.cpp -ltbb -o parallel
 > ```
@@ -417,9 +425,9 @@ To understand how it all works, we need to dive into these three things:
 #### Step 1: How to create a thread
 As we mentioned at the start of this lecture, every thread needs to be created (by forking off the spawning thread) and, when our work with it is done, it needs to be either joined back into the spawning thread or detached. Today, we won't talk about detatched threads (because we should almost never use them) and assume that every thread we create needs to be joined. This model is called [Fork–join model](https://en.wikipedia.org/wiki/Fork%E2%80%93join_model) and was first formulated, to the best of my knowledge, by Melvin E. Conway in 1963.
 
-To create a thread in C++ we use a standard class that abstracts away the OS-level thread from us. From C++11 and until C++20 we use the `std::thread` class for that but in more modern C++ (C++20 onwards), we can use the `std::jthread` class instead. Essentially, both serve the same purpose but the `std::jthread` automatically joins the thread when it goes out of scope, which prevents a number of potential programming errors and makes it much safer to use.
+To create a thread in C++ we use a standard class that abstracts away the OS-level thread from us. From C++11 and until C++20 we use the `std::thread` class for that but in C++20 and onwards we can use the `std::jthread` class instead. Essentially, both serve the same purpose but the `std::jthread` automatically joins the thread when it goes out of scope and has a bunch of other quality of life improvements which prevent a number of potential programming errors and makes it much safer to use.
 
-Let's look at a simple example to understand better how it works in practice. Here we assume that every image is of `TinyImage` type that has an id and a fake "size" represented by a randomly generated integer. Every `TinyImage` can be processed by a function `ProcessImage()` which here simulates some work by sleeping for a duration proportional to its "size". At the start of our program we immediately push 10 such images into a `std::queue` in the main thread. 
+Let's look at a simple example to understand better how all of this works in practice. Here we assume that every image is of `TinyImage` type that has an id and a fake "size" represented by a randomly generated integer. Every `TinyImage` can be processed by a function `ProcessImage()` which here simulates some work by sleeping for a duration proportional to its "size". At the start of our program we immediately push 10 such images into a `std::queue` in the main thread. 
 
 Then we want to process them in a separate thread. To get this up and runnign we need to create a new thread, which we do by creating an object of `std::jthread` type by passing the function this thread will run, in our case `ProcessImages`, along with any arguments this function needs, into its constructor. In this particular example, since we want to modify the queue, we pass a pointer to it.
 
@@ -525,13 +533,16 @@ When the `worker` thread goes out of scope, it automatically calls `request_stop
 This is incredibly useful because it gives us a built-in, standard way to cleanly shut down background tasks without needing custom boolean flags or complex logic.
 
 #### Step 2: Adding another thread and a Mutex
+
+<!-- Meme suggestion: Two Spidermans pointing at each other (https://knowyourmeme.com/memes/spider-man-pointing-at-spider-man), labeled "Thread A" and "Thread B", both trying to modify the same vector at the exact same time. -->
+
 Now we are ready to talk about what happens if we have multiple threads that try to modify the same data simultaneously. In that case, we will get a so-called **data race**, which can crash our program (in the best case scenario) or silently corrupt data. These silent issues are **undefined behavior** and are super hard to debug so we need to make sure we avoid them at all costs!
 
 By the way, note how we pass a pointer into the `ProcessImages` function. That's because `std::jthread` doesn't support passing arguments by reference! The reason for this is that `jthread` needs to maintain a thread-local copy of any variable we pass into it. It _could_ of course just copy a mutable reference but it would be unsafe to do so as this would potentially silently create a data race, so `jthread` actively decays any reference type to a normal type and so a copy is performed. This way if we want to pass a reference we either need to wrap it in a `std::ref` or just pass a pointer as we did in our example. This way we can still get an unsafe behavior, but we opt-in to it. Now back to how we can deal with the data race scenarios just like ours.
 
 To protect us from data races like this, we can use arguably the most common tool for dealing with such scenarios: a `std::mutex` object from the `<mutex>` header.
 
-The word `mutex` itself comes from **mut**ual **ex**clusion. And indeed, when a thread locks the mutex, it takes exclusive ownership of the resource that the mutex protects. Any other thread trying to access that same resource must wait its turn, trying to lock the mutex that's already locked will block the thread until the mutex is unlocked.
+The word `mutex` itself comes from **mut**ual **ex**clusion. And indeed, when a thread locks the mutex, it takes exclusive ownership of the resource that the mutex protects. Any other thread trying to access that same resource must wait its turn, trying to lock the mutex that's already locked from another thread will block the thread that tries to lock it until the mutex other thread releases its lock.
 
 Typically, we don't lock and unlock mutexes by ourselves but use RAII principle in the form of `std::lock_guard` that locks a given mutex at creation and automatically unlocks it when the lock guard object goes out of scope and dies. This ensures that the mutex is always unlocked if it has been locked, even if an [exception](error_handling.md#exceptions) is thrown and the end of the function is never reached.
 
@@ -682,7 +693,7 @@ int main() {
 
 Let's unpack what's happening here. We create the queue of images in the main thread as before. However, this time we also create a `std::mutex` to protect access to this queue. Then, instead of creating a single background `std::jthread`, we create two, passing the same queue and mutex to both.
 
-The `ProcessImages` function also changed and now also takes a pointer to a mutex. This mutex protects access to the queue. Instead of processing the image under the mutex, we move each image into a local variable. Only this copy is protected by the mutex, minimizing the time we hold the lock. Once we have a local copy of an image it can be processed safely without locking the queue.
+The `ProcessImages` function also changed and now also takes a pointer to a mutex. This mutex protects access to the queue. Instead of processing the image under the mutex, we move each image into a local variable. Only this copy operation is protected by the mutex, minimizing the time we hold the lock. Once we have a local copy of an image it can be processed safely without locking the queue.
 
 This works as intended, but passing the queue and the mutex as pointers is a bit ugly from my perspective and I would wrap it into a class, for example, `ImageProcessingPipeline`. 
 
@@ -836,11 +847,11 @@ int main() {
 ```
 
 #### Step 3: Sleeping with Condition Variables
-One might argue (and be right) that it is strange to pass a pre-filled queue to the constructor of our `ImageProcessingPipeline`. In a real application, we would likely want to start our pipeline with an empty queue, keep the threads alive, and add images to the queue as they arrive over time.
+Because for now we, arguably for not good reason, pass a pre-filled queue to the constructor of our `ImageProcessingPipeline`, all of the images get "assigned" to the first thread. This is not what we want! But the idea of swapping the whole queue is a valid one, it just shines when the data is coming in over time. In a real application, we would likely want to start our pipeline with an empty queue, keep the threads alive, and add images to the queue as they arrive over time.
 
-However, if our threads simply constantly check `if (images_.empty())` in a `while (true)` loop, this is called **spinning** the threads. This can keep the CPU at 100% while doing absolutely nothing useful! Also, how would we know when to stop them?
+However, if our threads simply constantly check `if (images_.empty())` in a `while (true)` loop, which is called **spinning** the threads, then can keep the CPU at 100% while doing absolutely nothing useful! Also, how would we know when to stop them?
 
-Instead, we want the threads to go to **sleep** and only wake up when new work arrives. We can do this with a `std::condition_variable`. Conditional variables might seem a bit confusing at first, but in a nutshell here is how to work with one. We'll look at a toy example before we use this pattern for our image pipeline. 
+Instead, we want the threads to go to **sleep** and only wake up when new work arrives. We can do this with a `std::condition_variable`. Conditional variables might seem a bit confusing at first, but in a nutshell here is how to work with one. We'll look at a toy example before we use this pattern for our image pipeline to make sure we're all on the same page. 
 
 There are three main puzzle pieces to using conditional variables. First, we need some data to protect, for example some `data_queue`. Then we need a **mutex** that protects these data. Finally, we need a **condition variable** itself.
 
@@ -966,6 +977,7 @@ int main() {
   ImageProcessingPipeline pipeline{2};
   for (int i = 1; i <= 10; ++i) {
     pipeline.Submit(TinyImage{i, dist(rng)});
+    std::this_thread::sleep_for(std::chrono::milliseconds(20));
   }
 
   return 0;
@@ -974,11 +986,46 @@ int main() {
 
 Our example has grown quite a bit so let's zoom into the changes we've just made. We obviously added a condition variable to our class and we use it all over the place. Let's start by looking at the new `Submit` member function. Here, we receive an rrfef to an image and move it into the queue while keeping the queue locked with the `queue_mutex_`. We then notify the condition variable to wake one of the potentially sleeping threads up. Note that we do this without holding the lock.
 
-We use this `Submit` function from the main function after creating out pipeline. Note how we don't create a queue ahead of time anymore and pass just the number of threads to the pipeline's constructor. Speaking of which, now the constructor creates the specified number of worker threads using `std::jthread`. Each `std::jthread` is given a `std::stop_token` which we can use to signal the thread to stop. This stop token is passed directly to the thread's entry function, which in our case is `ProcessImages`.
+We use this `Submit` function from the main function after creating our pipeline. Note how we don't create a queue ahead of time anymore and pass just the number of threads to the pipeline's constructor. Speaking of which, now the constructor of our image pipeline creates the specified number of worker threads using `std::jthread`. Each `std::jthread` is given a `std::stop_token` which we can use to signal the thread to stop. This stop token is passed directly to the thread's entry function, which in our case is `ProcessImages`.
 
-The `ProcessImages` function stayed largely the same but did change a bit too. It still has a loop that continuously processes the queue of images. We still swap the local queue with the main queue to avoid holding the main queue's lock for too long and we process the items locally. What changed, though, is that now we use the condition variable to wait for new items to arrive in the queue. This wait will make the thread sleep until either the predicate of `images_` queue not being empty becomes true or the stop token is set. Once the wait is over the `wait` returns the result of the predicate evaluation, i.e., if there is work available and locks the lock. As long as there are images in the queue we want to process them which we do just as we did before. 
+The `ProcessImages` function stayed largely the same but did change a bit too. It still has a loop that continuously processes the queue of images. We still swap the local queue with the main queue to avoid holding the main queue's lock for too long and we process the items locally. What changed, though, is that now we use the condition variable to wait for new items to arrive in the queue. This wait will make the thread sleep until either the predicate of `images_` queue not being empty becomes true or the stop token is set. Once the wait is over the `wait` returns the result of the predicate evaluation, i.e., if there is work available and locks the lock. As long as there are images in the queue we want to process them which we do just as we did before.
 
 Let's stop for a short moment and see what happens if the stop token is set. The `wait` will return `true` if there still images in the queue. Once we process them we will go on another loop iteration and try to wait again. This time though the stop token remains set and the `wait` returns instantly, returning `false` which allows us to break from the loop and finally allow the thread to join.
+
+Once we run the code we get the expected output of threads taking turns processing our data.
+
+```
+Starting 2 background threads...
+Thread 0x16de93000 processing task 1!
+Thread 0x16de07000 processing task 2!
+Thread 0x16de93000 processing task 3!
+Thread 0x16de07000 processing task 6!
+Thread 0x16de93000 processing task 4!
+Thread 0x16de93000 processing task 5!
+Thread 0x16de07000 processing task 7!
+Thread 0x16de07000 processing task 8!
+Thread 0x16de93000 processing task 10!
+Thread 0x16de07000 processing task 9!
+```
+
+Actually, speaking of output from our code, I have a small quiz for you. If we run this code enough times, it might happen that the output gets scrambled once in a while. Take a look at this output for example:
+
+```
+Starting 2 background threads...
+Thread 0x16b2ff000 processing task 1!
+Thread 0x16b273000 processing task 2!
+Thread 0x16b2ff000 processing task 3!
+Thread 0x16b273000 processing task 4!
+Thread Thread 0x16b273000 processing task 0x16b2ff000 processing task 56!
+!
+Thread 0x16b273000 processing task 8!
+Thread 0x16b2ff000 processing task 7!
+Thread 0x16b273000 processing task 9!
+Thread 0x16b273000 processing task 10!
+```
+
+Why does this output get scrambled? You should know everything that you need to give an answer by now! 
+<!-- Answers in the comments below this video please! Not only this helps the algorithm to show my video to more people but it also makes sure you actually understood what we were talking about! And if you need to stare at the code a bit more, the link to the full code is as always in the description, right under that "subscribe" button! -->
 
 #### Step 4: Putting it all together into a Generic Thread Pool
 Our `ImageProcessingPipeline` is looking great, but it is heavily coupled to our `TinyImage` type. What if we want to process strings, files, or network requests in the background instead?
@@ -1046,6 +1093,7 @@ private:
       while(!local_items.empty()) {
         const auto item = std::move(local_items.front());
         local_items.pop();
+        std::cout << "Thread " << std::this_thread::get_id() << " processing task " << item.id << "!\n";
         process_task_(item);
       }
     }
@@ -1066,16 +1114,19 @@ int main() {
   ThreadPool<TinyImage> pool{2, ProcessImage};
   for (int i = 1; i <= 10; ++i) {
     pool.Submit(TinyImage{i, dist(rng)});
+    std::this_thread::sleep_for(std::chrono::milliseconds(20));
   }
 
   return 0;
 }
 ```
 
-However, the logic stays *exactly* the same! We still create worker threads that process our tasks in a loop using a queue and a condition variable. And this is the simplest possible working thread pool that we implemented from scratch!
+However, the *logic* stays *exactly* the same! We still create worker threads that process our tasks in a loop using a queue and a condition variable. And this is the simplest possible working thread pool that we implemented from scratch!
+
+<!-- Is this a butterfly meme -->
 
 ### What if I don't have C++20?
-But we used C++20 here, and the rest of this course using C++17, so for consistency, just in case we are stuck in a codebase that uses C++17 (or even C++11), let's see how we can achieve the exact same generic thread pool behavior without `std::jthread`, `std::stop_token`, and `std::condition_variable_any`. 
+But we used C++20 here, and the rest of this course was using C++17, so for consistency, just in case we are stuck in a codebase that uses C++17 (or even C++11), let's see how we can achieve the exact same generic thread pool behavior without `std::jthread`, `std::stop_token`, and `std::condition_variable_any`. 
 
 Let's first focus on the constructor and the member variables:
 1. We change to using `std::condition_variable` and `std::thread`. This requires a different way of creating the worker threads: we now only pass the function that they run and here, because it is a member function, we also give it a pointer to an object to which this function belongs, `this` object in our case. Note how we don't have a stop token anymore and have to maintain our own custom shared variable, say, `shutting_down_` that serves the same purpose. 
@@ -1150,6 +1201,7 @@ class ThreadPool {
       while(!local_items.empty()) {
         const auto item = std::move(local_items.front());
         local_items.pop();
+        std::cout << "Thread " << std::this_thread::get_id() << " processing task " << item.id << "!\n";
         process_task_(item);
       }
     }
@@ -1171,6 +1223,7 @@ int main() {
   ThreadPool<TinyImage> pool{2, ProcessImage};
   for (int i = 1; i <= 10; ++i) {
     pool.Submit(TinyImage{i, dist(rng)});
+    std::this_thread::sleep_for(std::chrono::milliseconds(20));
   }
 
   return 0;
@@ -1184,8 +1237,11 @@ Before we wrap up, there is one more major pitfall we must mention when working 
 
 A deadlock is a kind of counterpart of data race. When we fix a data race we might end up with a deadlock instead. A deadlock occurs when two or more threads are stuck waiting for each other to release a lock, resulting in all of them waiting forever. For example, imagine Thread A locks Mutex 1 and then tries to lock Mutex 2. Meanwhile, Thread B locks Mutex 2 and tries to lock Mutex 1. Neither thread can proceed because the other is holding the mutex it needs. 
 
+<!-- Meme suggestion: Two polite guys at a door saying "After you", "No, after you" continuously until they turn into skeletons (like the "Skeleton Waiting" meme: https://knowyourmeme.com/memes/skeleton-waiting). -->
+
 <!-- 
 `CPP_COPY_SNIPPET` parallelism_deadlock/main.cpp
+`CPP_RUN_CMD` CWD:parallelism_deadlock c++ -std=c++20 main.cpp
 -->
 ```cpp
 #include <chrono>
@@ -1259,7 +1315,7 @@ int main() {
 ```
 
 ## Summary
-And with this, I believe we covered everything one needs to know to understand the basics of multithreading in C++! At least these examples are a simplified version of what I've seen in many production codebases over the last 15 or so years. Have I missed some pattern that you've seen?
+And with this, I believe we covered everything one needs to know to understand the basics of multithreading in C++! At least these examples are simplified versions of what I've seen in many production codebases over the last 15 or so years. Have I missed some pattern that you've seen?
 
 Anyway, as a short summary, I hope I could convince you that writing parallel code in C++ is not all that complex. Here are the key takeaways again:
 
@@ -1268,7 +1324,7 @@ Anyway, as a short summary, I hope I could convince you that writing parallel co
 - Finally, when more flexibility is needed and when the data is loaded dynamically, a thread pool is something that people typically reach for.
 - And don't forget to protect any shared mutable state with a mutex! And while at it avoid deadlocks by always acquiring multiple locks in the same order or by using `std::scoped_lock`. 
 
-Well, technically, there is the whole so-called "lock free" programming paradigm that avoids mutexes, but it is its own completely different can of worms which we won't talk about in this course.
+Well, technically, there is also the whole so-called "lock free" programming paradigm that avoids mutexes, but it is its own completely different can of worms which we won't talk about in this course.
 
 And remember, as the very first thing, try to avoid parallel code altogether. In 90% of the cases, a sequential implementation is fast enough and avoids all the pitfalls of parallel programming!
 
