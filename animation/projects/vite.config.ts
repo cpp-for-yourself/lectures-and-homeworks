@@ -14,6 +14,7 @@ export default defineConfig({
   plugins: [
     motionCanvas({
       project: [
+        './src/parallelism/project.ts',
         './src/dummy/project.ts',
         './src/std_function/project.ts',
       ]

@@ -804,6 +804,33 @@ Headers with classes
 ----------------------------------------------------------
 </details>
 
+<details>
+<summary>Parallelism in modern C++</summary>
+
+----------------------------------------------------------
+
+- [Parallelism: Threads, Async, and Mutexes](lectures/parallelism.md#parallelism-threads-async-and-mutexes)
+- [Disclaimer](lectures/parallelism.md#disclaimer)
+- [What is parallelism anyway?](lectures/parallelism.md#what-is-parallelism-anyway)
+  - [No parallelism is always safer and often faster](lectures/parallelism.md#no-parallelism-is-always-safer-and-often-faster)
+  - [High-level Task-Based Parallelism](lectures/parallelism.md#high-level-task-based-parallelism)
+  - [Execution Strategies (`std::launch`)](lectures/parallelism.md#execution-strategies-stdlaunch)
+  - [Parallel Algorithms](lectures/parallelism.md#parallel-algorithms)
+  - [Execution Policies (`std::execution`)](lectures/parallelism.md#execution-policies-stdexecution)
+  - [Raw TBB Parallelism](lectures/parallelism.md#raw-tbb-parallelism)
+  - [Worker threads and thread pools](lectures/parallelism.md#worker-threads-and-thread-pools)
+    - [Step 1: How to create a thread](lectures/parallelism.md#step-1-how-to-create-a-thread)
+    - [Stopping threads cooperatively with `std::stop_token`](lectures/parallelism.md#stopping-threads-cooperatively-with-stdstop_token)
+    - [Step 2: Adding another thread and a Mutex](lectures/parallelism.md#step-2-adding-another-thread-and-a-mutex)
+    - [Step 3: Sleeping with Condition Variables](lectures/parallelism.md#step-3-sleeping-with-condition-variables)
+    - [Step 4: Putting it all together into a Generic Thread Pool](lectures/parallelism.md#step-4-putting-it-all-together-into-a-generic-thread-pool)
+  - [What if I don't have C++20?](lectures/parallelism.md#what-if-i-dont-have-c20)
+  - [Deadlocks](lectures/parallelism.md#deadlocks)
+- [Summary](lectures/parallelism.md#summary)
+
+----------------------------------------------------------
+</details>
+
 ## PS
 
 ### Most of the code snippets are validated automatically
