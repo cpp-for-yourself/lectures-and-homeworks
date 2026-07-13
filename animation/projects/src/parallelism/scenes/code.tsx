@@ -520,6 +520,7 @@ private:
       while(!local_images.empty()) {
         const auto image = std::move(local_images.front());
         local_images.pop();
+        std::cout << "Thread " << std::this_thread::get_id() << " processing image " << image.id << "!\\n";
         process_image_(image);
       }
     }
@@ -540,6 +541,7 @@ int main() {
   ImageProcessingPipeline<TinyImage> pipeline{2, ProcessImage};
   for (int i = 1; i <= 10; ++i) {
     pipeline.Submit(TinyImage{i, dist(rng)});
+    std::this_thread::sleep_for(std::chrono::milliseconds(20));
   }
 
   return 0;
@@ -557,19 +559,19 @@ int main() {
         codeRef().code(thread_pool_with_images_name);
         codeRef().fontSize(10);
     });
-    const template_box_main = getFutureCodeBBox(codeRef(), lines(72, 73), () => {
+    const template_box_main = getFutureCodeBBox(codeRef(), lines(73, 74), () => {
         codeRef().code(thread_pool_with_images_name);
         codeRef().fontSize(10);
     });
-    const template_box_queue = getFutureCodeBBox(codeRef(), lines(60, 61), () => {
+    const template_box_queue = getFutureCodeBBox(codeRef(), lines(61, 62), () => {
         codeRef().code(thread_pool_with_images_name);
         codeRef().fontSize(10);
     });
-    const template_box_queue_more = getFutureCodeBBox(codeRef(), lines(60, 64), () => {
+    const template_box_queue_more = getFutureCodeBBox(codeRef(), lines(61, 66), () => {
         codeRef().code(thread_pool_with_images_name);
         codeRef().fontSize(10);
     });
-    const use_std_func = getFutureCodeBBox(codeRef(), lines(56, 56), () => {
+    const use_std_func = getFutureCodeBBox(codeRef(), lines(57, 57), () => {
         codeRef().code(thread_pool_with_images_name);
         codeRef().fontSize(10);
     });
@@ -599,13 +601,13 @@ int main() {
 
     yield* all(
         zoomInOn(popup3Rect(), popup3Camera(), outline3(), template_box_queue_more, duration, { zoom: 3, position: 'bottom-right', screenPaddingX: 100, screenPaddingY: 220 }),
-        cppVersionTxt().y(popup3Rect().y() - popup3Rect().height() / 2 - 180, duration),
+        cppVersionTxt().y(popup3Rect().y() - popup3Rect().height() / 2 - 200, duration),
     );
     yield* waitFor(duration);
 
     yield* all(
-        zoomInOn(popup4Rect(), popup4Camera(), outline4(), use_std_func, duration, { zoom: 3, position: 'bottom-right', screenPaddingX: 100, screenPaddingY: 440 }),
-        cppVersionTxt().y(popup4Rect().y() - popup4Rect().height() / 2 - 60, duration),
+        zoomInOn(popup4Rect(), popup4Camera(), outline4(), use_std_func, duration, { zoom: 3, position: 'bottom-right', screenPaddingX: 100, screenPaddingY: 470 }),
+        cppVersionTxt().y(popup4Rect().y() - popup4Rect().height() / 2 - 80, duration),
     );
     yield* waitFor(duration);
 
