@@ -25,13 +25,13 @@ log.setLevel(logging.INFO)
 
 # See a playground here: https://regex101.com/r/Tfwjsq/1
 REGEX_TEMPLATE = r"""
-(?:\s*<!--
-(:?\s*`CPP_SETUP_START`\n(?P<setup>[\s\S]*?)\s*`CPP_SETUP_END`\s*)*\s*
-(?P<skip>`CPP_SKIP_SNIPPET`)*\s*
-(?:`CPP_COPY_SNIPPET`\s*(?P<copy>.*$))*\s*
-(?:`CPP_RUN_CMD`\s*(?:CWD:(?P<cwd>[\w/]+))*\s*(?P<cmd>.*$))*\s*
--->\s*)*
-[> ]*```(?P<language>\w+)
+(?:\s*[> ]*<!--
+(:?\s*[> ]*`CPP_SETUP_START`\n(?P<setup>[\s\S]*?)\s*[> ]*`CPP_SETUP_END`\s*)*\s*
+(?P<skip>[> ]*`CPP_SKIP_SNIPPET`)*\s*
+(?:[> ]*`CPP_COPY_SNIPPET`\s*(?P<copy>.*$))*\s*
+(?:[> ]*`CPP_RUN_CMD`\s*(?:CWD:(?P<cwd>[\w/]+))*\s*(?P<cmd>.*$))*\s*
+[> ]*-->\s*)*
+(?P<quote>[> ]*)```(?P<language>\w+)
 (?P<code>[\s\S]*?)\n[> ]*```\s*
 """
 
@@ -163,6 +163,18 @@ def compile_all_snippets(regex_pattern: str, file: Path):
           break
       return line_count
 
+    def clean_quoted_code(code, quote):
+        if not code or not quote or ">" not in quote:
+            return code
+        if quote.endswith(" "):
+            regex = "^" + re.escape(quote[:-1]) + r" ?"
+        else:
+            regex = "^" + re.escape(quote)
+        lines = []
+        for line in code.split('\n'):
+            lines.append(re.sub(regex, "", line))
+        return '\n'.join(lines)
+
     error_count = 0
     temp_folder = Path(tempfile.gettempdir())
     file_text = file.read_text()
@@ -171,9 +183,10 @@ def compile_all_snippets(regex_pattern: str, file: Path):
         span_start_line = get_start_line_of_span(file_text, span)
         code_start_line = span_start_line + get_code_start_line(file_text, span)
         found_group_dict = match.groupdict()
+        quote = found_group_dict.get("quote", "")
         skip = found_group_dict["skip"]
-        setup = found_group_dict["setup"]
-        code = found_group_dict["code"]
+        setup = clean_quoted_code(found_group_dict["setup"], quote)
+        code = clean_quoted_code(found_group_dict["code"], quote)
         copy_destination = found_group_dict["copy"]
         cmd = found_group_dict["cmd"]
         cwd = found_group_dict["cwd"]
