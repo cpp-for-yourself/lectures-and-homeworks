@@ -811,8 +811,8 @@ If you **do** find an error in some of those, please open an issue in this repo!
 
 <a href="https://www.star-history.com/?repos=cpp-for-yourself%2Flectures-and-homeworks&type=date&legend=top-left">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=cpp-for-yourself/lectures-and-homeworks&type=date&theme=dark&legend=top-left" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=cpp-for-yourself/lectures-and-homeworks&type=date&legend=top-left" />
-   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=cpp-for-yourself/lectures-and-homeworks&type=date&legend=top-left" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=cpp-for-yourself/lectures-and-homeworks&type=date&theme=dark&legend=top-left&sealed_token=pID3ZZ0tcwW3jiAG03efVpVWBXoacdO2hNN1LK-kWSw2U0VMPlbjsFdgMcMjCDMGnXRolQ9KGcEiz7i7K8zju60oAyxT1fFKFRmYYB7K_4nxvWcnORhyHRqAYj2g45xoWRLzUjqbTScyPw3GqvVF3P7h8a31H9slBhYtXx-kqSMvuwYc8dUi-ApvPWgZ" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=cpp-for-yourself/lectures-and-homeworks&type=date&legend=top-left&sealed_token=pID3ZZ0tcwW3jiAG03efVpVWBXoacdO2hNN1LK-kWSw2U0VMPlbjsFdgMcMjCDMGnXRolQ9KGcEiz7i7K8zju60oAyxT1fFKFRmYYB7K_4nxvWcnORhyHRqAYj2g45xoWRLzUjqbTScyPw3GqvVF3P7h8a31H9slBhYtXx-kqSMvuwYc8dUi-ApvPWgZ" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=cpp-for-yourself/lectures-and-homeworks&type=date&legend=top-left&sealed_token=pID3ZZ0tcwW3jiAG03efVpVWBXoacdO2hNN1LK-kWSw2U0VMPlbjsFdgMcMjCDMGnXRolQ9KGcEiz7i7K8zju60oAyxT1fFKFRmYYB7K_4nxvWcnORhyHRqAYj2g45xoWRLzUjqbTScyPw3GqvVF3P7h8a31H9slBhYtXx-kqSMvuwYc8dUi-ApvPWgZ" />
  </picture>
 </a>
