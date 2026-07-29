@@ -15,8 +15,8 @@ import tbbCode from '@lectures/parallelism.md?snippet=parallelism_algorithms/mai
 import jthread1Code from '@lectures/parallelism.md?snippet=parallelism_jthread_1/main.cpp';
 import jthread2Code from '@lectures/parallelism.md?snippet=parallelism_jthread_2/main.cpp';
 import jthread2ClassCode from '@lectures/parallelism.md?snippet=parallelism_jthread_2_class/main.cpp';
-import jthread2ClassSwapCode from '@lectures/parallelism.md?snippet=parallelism_jthread_2_class_swap/main.cpp';
 import jthread3Code from '@lectures/parallelism.md?snippet=parallelism_jthread_3/main.cpp';
+import jthread3SwapCode from '@lectures/parallelism.md?snippet=parallelism_jthread_3_swap/main.cpp';
 import jthreadCode from '@lectures/parallelism.md?snippet=parallelism_jthread/main.cpp';
 import threadpool17Code from '@lectures/parallelism.md?snippet=parallelism_threadpool_17/main.cpp';
 import deadlockCode from '@lectures/parallelism.md?snippet=parallelism_deadlock/main.cpp';
@@ -265,6 +265,7 @@ export default makeScene2D(function* (view) {
         codeRef().fontSize(14, duration),
         centerOn(codeRef(), DEFAULT, duration, 15),
         cppVersionTxt().text("C++20", duration),
+        cppVersionTxt().y(400, 0),
     );
     yield* waitFor(duration);
 
@@ -403,25 +404,6 @@ export default makeScene2D(function* (view) {
     );
     yield* waitFor(duration);
 
-    // #### Step 2: Class swap approach
-    yield* all(
-        codeRef().code(jthread2ClassSwapCode, duration),
-        centerOn(codeRef(), lines(29, 46), duration, 25),
-    );
-    yield* waitFor(duration);
-
-    // Highlight 1 (the swap part)
-    yield* all(
-        centerOn(codeRef(), lines(31, 36), duration, 30),
-    );
-    yield* waitFor(duration);
-
-    // Highlight 2 (processing local queue)
-    yield* all(
-        centerOn(codeRef(), lines(38, 44), duration, 30),
-    );
-    yield* waitFor(duration);
-
     yield* all(
         centerOn(codeRef(), DEFAULT, duration, 10),
     );
@@ -434,26 +416,33 @@ export default makeScene2D(function* (view) {
     yield* waitFor(duration);
 
     yield* all(
-        centerOn(codeRef(), lines(62, 62), duration, 30),
+        centerOn(codeRef(), lines(21, 29), duration, 30),
     );
     yield* waitFor(duration);
 
     yield* all(
-        centerOn(codeRef(), lines(30, 36), duration, 30),
+        centerOn(codeRef(), lines(67, 72), duration, 30),
     );
     yield* waitFor(duration);
 
     yield* all(
-        centerOn(codeRef(), lines(70, 74), duration, 30),
+        centerOn(codeRef(), lines(30, 36), duration, 27),
     );
     yield* waitFor(duration);
 
     yield* all(
-        centerOn(codeRef(), lines(21, 28), duration, 30),
+        centerOn(codeRef(), [lines(30, 36), lines(59, 59)], duration, 25),
     );
     yield* waitFor(duration);
 
     yield* all(
+        centerOn(codeRef(), lines(39, 55), duration, 27),
+    );
+    yield* waitFor(duration);
+
+    // #### Step 3: Swapping the Queue Optimization
+    yield* all(
+        codeRef().code(jthread3SwapCode, duration),
         centerOn(codeRef(), lines(39, 58), duration, 27),
     );
     yield* waitFor(duration);
@@ -462,7 +451,6 @@ export default makeScene2D(function* (view) {
         centerOn(codeRef(), DEFAULT, duration, 10),
     );
     yield* waitFor(duration);
-
 
     const thread_pool_with_images_name = `#include <chrono>
 #include <condition_variable>
@@ -634,11 +622,11 @@ int main() {
         codeRef().code(threadpool17Code);
         codeRef().fontSize(9);
     });
-    const before_members = getFutureCodeBBox(codeRef(), lines(61, 65), () => {
+    const before_members = getFutureCodeBBox(codeRef(), lines(61, 66), () => {
         codeRef().code(jthreadCode);
         codeRef().fontSize(10);
     });
-    const after_members = getFutureCodeBBox(codeRef(), lines(68, 73), () => {
+    const after_members = getFutureCodeBBox(codeRef(), lines(68, 74), () => {
         codeRef().code(threadpool17Code);
         codeRef().fontSize(9);
     });
@@ -691,7 +679,7 @@ int main() {
     yield* all(
         codeRef().code(threadpool17Code, duration),
         centerOn(codeRef(), DEFAULT, duration, 9),
-        zoomInOn(popup3Rect(), popup3Camera(), outline3(), after_process_items, duration, { zoom: 3, position: 'top-right', screenPaddingX: 100 }),
+        zoomInOn(popup3Rect(), popup3Camera(), outline3(), after_process_items, duration, { zoom: 2.9, position: 'top-right', screenPaddingX: 100 }),
         cppVersionTxt().text("C++17", duration / 5),
         cppVersionTxt().y(popup3Rect().y() + 400, duration),
     );

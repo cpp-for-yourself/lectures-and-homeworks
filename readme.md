@@ -806,8 +806,9 @@ Headers with classes
 <summary>Parallelism in modern C++</summary>
 
 ----------------------------------------------------------
+[![Video thumbnail](https://img.youtube.com/vi/blah/maxresdefault.jpg)](https://youtu.be/blah)
 
-- [Parallelism: Threads, Async, and Mutexes](lectures/parallelism.md#parallelism-threads-async-and-mutexes)
+- [Parallelism in modern C++](lectures/parallelism.md#parallelism-in-modern-c)
 - [Disclaimer](lectures/parallelism.md#disclaimer)
 - [What is parallelism anyway?](lectures/parallelism.md#what-is-parallelism-anyway)
   - [No parallelism is always safer and often faster](lectures/parallelism.md#no-parallelism-is-always-safer-and-often-faster)
@@ -821,6 +822,7 @@ Headers with classes
     - [Stopping threads cooperatively with `std::stop_token`](lectures/parallelism.md#stopping-threads-cooperatively-with-stdstop_token)
     - [Step 2: Adding another thread and a Mutex](lectures/parallelism.md#step-2-adding-another-thread-and-a-mutex)
     - [Step 3: Sleeping with Condition Variables](lectures/parallelism.md#step-3-sleeping-with-condition-variables)
+      - [Optimizing by Swapping the Queue](lectures/parallelism.md#optimizing-by-swapping-the-queue)
     - [Step 4: Putting it all together into a Generic Thread Pool](lectures/parallelism.md#step-4-putting-it-all-together-into-a-generic-thread-pool)
   - [What if I don't have C++20?](lectures/parallelism.md#what-if-i-dont-have-c20)
   - [Deadlocks](lectures/parallelism.md#deadlocks)
