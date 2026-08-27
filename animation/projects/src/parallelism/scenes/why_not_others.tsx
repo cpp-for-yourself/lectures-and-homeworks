@@ -71,7 +71,7 @@ export default makeScene2D(function* (view) {
                             justifyContent={'center'}
                             clip={true}
                         >
-                            <Txt ref={taskText} text="Invert" fill="#1E1E1E" fontFamily={"Fira Mono"} fontSize={24} fontWeight={600} opacity={0} />
+                            <Txt ref={taskText} text="Task" fill="#1E1E1E" fontFamily={"Fira Mono"} fontSize={24} fontWeight={600} opacity={0} />
                         </Rect>
                     </Rect>
                 </Node>
@@ -90,7 +90,7 @@ export default makeScene2D(function* (view) {
         timelineContainer().opacity(1, duration),
         incomingImage().y(-150, duration),
         incomingImage().scale(0.8, duration),
-        titleText().text("std::async execution timeline", duration) // Animate writing the text
+        titleText().text("Task execution timeline", duration) // Animate writing the text
     );
     yield* waitFor(0.5);
 

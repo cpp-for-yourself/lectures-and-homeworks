@@ -573,9 +573,9 @@ std::mutex m;
 ```cpp
 // Assuming there is a std::mutex object m
 {
-m.lock();
-// Critical section, mutex is locked here.
-m.unlock();
+  m.lock();
+  // Critical section, mutex is locked here.
+  m.unlock();
 }
 ```
 
@@ -598,8 +598,8 @@ std::mutex m;
 ```cpp
 // Assuming there is a std::mutex object m.
 {
-    std::lock_guard<std::mutex> lock{m};
-    // Critical section, mutex is locked here.
+  std::lock_guard<std::mutex> lock{m};
+  // Critical section, mutex is locked here.
 }  // Mutex is automatically unlocked here.
 ```
 
@@ -620,9 +620,9 @@ std::mutex m;
 ```cpp
 // Assuming there is a std::mutex object m.
 {
-    // Type is deducted using CTAD.
-    std::lock_guard lock{m};
-    // Critical section, mutex is locked here.
+  // Type is deducted using CTAD.
+  std::lock_guard lock{m};
+  // Critical section, mutex is locked here.
 }  // Mutex is automatically unlocked here.
 ```
 
