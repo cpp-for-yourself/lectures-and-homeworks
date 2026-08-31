@@ -2,7 +2,7 @@ Parallelism in modern C++
 --
 
 <p align="center">
-  <a href="https://youtu.be/blah"><img src="https://img.youtube.com/vi/blah/maxresdefault.jpg" alt="Video" align="right" width=50%></a>
+  <a href="https://youtu.be/-VWCEklRP6I"><img src="https://img.youtube.com/vi/-VWCEklRP6I/maxresdefault.jpg" alt="Video" align="right" width=50%></a>
 </p>
 
 - [Parallelism in modern C++](#parallelism-in-modern-c)
@@ -783,7 +783,7 @@ There are three main puzzle pieces to using conditional variables. First, we nee
 
 Now the interplay between these is as follows. A single condition variable is shared among multiple threads. There are threads that want to work with the underlying data but can only do so under a certain condition. So they wait for the condition variable to be notified that this condition is now satisfied.
 
-When another thread makes a change to the data that makes the condition true, we call `cv.notify_once()` or `cv.notify_all()` depending on circumstances to notify one or all instances of our condition variable that the condition has been now met.
+When another thread makes a change to the data that makes the condition true, we call `cv.notify_one()` or `cv.notify_all()` depending on circumstances to notify one or all instances of our condition variable that the condition has been now met.
 
 Once the condition variables in those threads receive a notification we sent out the threads wake up and continue their work.
 

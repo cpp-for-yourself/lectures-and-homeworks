@@ -806,7 +806,7 @@ Headers with classes
 <summary>Parallelism in modern C++</summary>
 
 ----------------------------------------------------------
-[![Video thumbnail](https://img.youtube.com/vi/blah/maxresdefault.jpg)](https://youtu.be/blah)
+[![Video thumbnail](https://img.youtube.com/vi/-VWCEklRP6I/maxresdefault.jpg)](https://youtu.be/-VWCEklRP6I)
 
 - [Parallelism in modern C++](lectures/parallelism.md#parallelism-in-modern-c)
 - [Disclaimer](lectures/parallelism.md#disclaimer)
