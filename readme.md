@@ -41,12 +41,18 @@ Enjoy! 😎
 <table>
   <tr>
     <td width="50%" valign="top">
+      <p align="center">
+        <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
+      </p>
       <a href="https://youtu.be/3HpcY9N0F7I">
         <img src="https://img.youtube.com/vi/3HpcY9N0F7I/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
       <b>Hello World program in C++</b>
     </td>
     <td width="50%" valign="top">
+      <p align="center">
+        <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
+      </p>
       <a href="https://youtu.be/t2h1geGSww4">
         <img src="https://img.youtube.com/vi/t2h1geGSww4/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
@@ -66,25 +72,22 @@ Enjoy! 😎
   </tr>
   <tr>
     <td width="50%" valign="top">
-      <table width="100%">
-        <tr>
-          <th align="center">🛠️ Project</th>
-        </tr>
-        <tr>
-          <td>
-            <details>
-              <summary><b>Hello world program</b></summary>
-              <p><a href="homeworks/homework_1/homework.md">Homework script</a></p>
-              <ul>
-                <li>Write a simple program that prints <code>Hello World!</code></li>
-                <li>Learn to compile and run simple programs</li>
-              </ul>
-            </details>
-          </td>
-        </tr>
-      </table>
+      <p align="center">
+        <img src="https://img.shields.io/badge/🛠️-PROJECT-orange?style=for-the-badge" alt="Project">
+      </p>
+      <details>
+        <summary><b><code>Project</code>: hello world program</b></summary>
+        <p><a href="homeworks/homework_1/homework.md">Homework script</a></p>
+        <ul>
+          <li>Write a simple program that prints <code>Hello World!</code></li>
+          <li>Learn to compile and run simple programs</li>
+        </ul>
+      </details>
     </td>
     <td width="50%" valign="top">
+      <p align="center">
+        <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
+      </p>
       <a href="https://youtu.be/0z0gvv_Tb_U">
         <img src="https://img.youtube.com/vi/0z0gvv_Tb_U/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
@@ -102,6 +105,9 @@ Enjoy! 😎
   </tr>
   <tr>
     <td width="50%" valign="top">
+      <p align="center">
+        <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
+      </p>
       <a href="https://youtu.be/cP2IDg4_BRk">
         <img src="https://img.youtube.com/vi/cP2IDg4_BRk/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
@@ -115,6 +121,9 @@ Enjoy! 😎
       </details>
     </td>
     <td width="50%" valign="top">
+      <p align="center">
+        <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
+      </p>
       <a href="https://youtu.be/hy3eOpZmxbY">
         <img src="https://img.youtube.com/vi/hy3eOpZmxbY/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
@@ -129,6 +138,9 @@ Enjoy! 😎
   </tr>
   <tr>
     <td width="50%" valign="top">
+      <p align="center">
+        <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
+      </p>
       <a href="https://youtu.be/dwkSVkGsvFk">
         <img src="https://img.youtube.com/vi/dwkSVkGsvFk/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
@@ -145,6 +157,9 @@ Enjoy! 😎
       </details>
     </td>
     <td width="50%" valign="top">
+      <p align="center">
+        <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
+      </p>
       <a href="https://youtu.be/TCu76SYmVCg">
         <img src="https://img.youtube.com/vi/TCu76SYmVCg/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
@@ -160,29 +175,26 @@ Enjoy! 😎
   </tr>
   <tr>
     <td width="50%" valign="top">
-      <table width="100%">
-        <tr>
-          <th align="center">🛠️ Project</th>
-        </tr>
-        <tr>
-          <td>
-            <a href="https://youtu.be/GCh8VDZRV4k">
-              <img src="https://img.youtube.com/vi/GCh8VDZRV4k/maxresdefault.jpg" alt="Video thumbnail" width="100%">
-            </a>
-            <details>
-              <summary><b>Fortune teller program</b></summary>
-              <p><a href="homeworks/homework_2/homework.md">Homework script</a></p>
-              <ul>
-                <li>Write a program that tells your C++ fortune</li>
-                <li>It reads and writes data from and to terminal</li>
-                <li>Stores and accesses these data in containers</li>
-              </ul>
-            </details>
-          </td>
-        </tr>
-      </table>
+      <p align="center">
+        <img src="https://img.shields.io/badge/🛠️-PROJECT-orange?style=for-the-badge" alt="Project">
+      </p>
+      <a href="https://youtu.be/GCh8VDZRV4k">
+        <img src="https://img.youtube.com/vi/GCh8VDZRV4k/maxresdefault.jpg" alt="Video thumbnail" width="100%">
+      </a>
+      <details>
+        <summary><b><code>Project</code>: fortune teller program</b></summary>
+        <p><a href="homeworks/homework_2/homework.md">Homework script</a></p>
+        <ul>
+          <li>Write a program that tells your C++ fortune</li>
+          <li>It reads and writes data from and to terminal</li>
+          <li>Stores and accesses these data in containers</li>
+        </ul>
+      </details>
     </td>
     <td width="50%" valign="top">
+      <p align="center">
+        <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
+      </p>
       <a href="https://youtu.be/jzgTxosgGIA">
         <img src="https://img.youtube.com/vi/jzgTxosgGIA/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
@@ -198,6 +210,9 @@ Enjoy! 😎
   </tr>
   <tr>
     <td width="50%" valign="top">
+      <p align="center">
+        <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
+      </p>
       <a href="https://youtu.be/IUoqMTGGo6k">
         <img src="https://img.youtube.com/vi/IUoqMTGGo6k/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
@@ -212,31 +227,28 @@ Enjoy! 😎
       </details>
     </td>
     <td width="50%" valign="top">
-      <table width="100%">
-        <tr>
-          <th align="center">🛠️ Project</th>
-        </tr>
-        <tr>
-          <td>
-            <a href="https://youtu.be/TYs_xwihCNc">
-              <img src="https://img.youtube.com/vi/TYs_xwihCNc/maxresdefault.jpg" alt="Video thumbnail" width="100%">
-            </a>
-            <details>
-              <summary><b>The guessing game</b></summary>
-              <p><a href="homeworks/homework_3/homework.md">Homework script</a></p>
-              <ul>
-                <li>A program that generates a number</li>
-                <li>The user guesses this number</li>
-                <li>The program tells the user if they are above or below with their guess (or if they've won)</li>
-              </ul>
-            </details>
-          </td>
-        </tr>
-      </table>
+      <p align="center">
+        <img src="https://img.shields.io/badge/🛠️-PROJECT-orange?style=for-the-badge" alt="Project">
+      </p>
+      <a href="https://youtu.be/TYs_xwihCNc">
+        <img src="https://img.youtube.com/vi/TYs_xwihCNc/maxresdefault.jpg" alt="Video thumbnail" width="100%">
+      </a>
+      <details>
+        <summary><b><code>Project</code>: the guessing game</b></summary>
+        <p><a href="homeworks/homework_3/homework.md">Homework script</a></p>
+        <ul>
+          <li>A program that generates a number</li>
+          <li>The user guesses this number</li>
+          <li>The program tells the user if they are above or below with their guess (or if they've won)</li>
+        </ul>
+      </details>
     </td>
   </tr>
   <tr>
     <td width="50%" valign="top">
+      <p align="center">
+        <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
+      </p>
       <a href="https://youtu.be/NTlcDv7W2-c">
         <img src="https://img.youtube.com/vi/NTlcDv7W2-c/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
@@ -255,6 +267,9 @@ Enjoy! 😎
       </details>
     </td>
     <td width="50%" valign="top">
+      <p align="center">
+        <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
+      </p>
       <a href="https://youtu.be/RaSw0g2aPig">
         <img src="https://img.youtube.com/vi/RaSw0g2aPig/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
@@ -273,6 +288,9 @@ Enjoy! 😎
   </tr>
   <tr>
     <td width="50%" valign="top">
+      <p align="center">
+        <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
+      </p>
       <a href="https://youtu.be/4kZyQ-TwH00">
         <img src="https://img.youtube.com/vi/4kZyQ-TwH00/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
@@ -287,6 +305,9 @@ Enjoy! 😎
       </details>
     </td>
     <td width="50%" valign="top">
+      <p align="center">
+        <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
+      </p>
       <a href="https://youtu.be/Lxo8ftglwXE">
         <img src="https://img.youtube.com/vi/Lxo8ftglwXE/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
@@ -310,6 +331,9 @@ Enjoy! 😎
   </tr>
   <tr>
     <td width="50%" valign="top">
+      <p align="center">
+        <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
+      </p>
       <a href="https://youtu.be/kbk4DphsYPU">
         <img src="https://img.youtube.com/vi/kbk4DphsYPU/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
@@ -324,6 +348,9 @@ Enjoy! 😎
       </details>
     </td>
     <td width="50%" valign="top">
+      <p align="center">
+        <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
+      </p>
       <a href="https://youtu.be/UH6F6ypdYbw">
         <img src="https://img.youtube.com/vi/UH6F6ypdYbw/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
@@ -341,6 +368,9 @@ Enjoy! 😎
   </tr>
   <tr>
     <td width="50%" valign="top">
+      <p align="center">
+        <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
+      </p>
       <a href="https://youtu.be/pxJoVRfpRPE">
         <img src="https://img.youtube.com/vi/pxJoVRfpRPE/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
@@ -356,6 +386,9 @@ Enjoy! 😎
       </details>
     </td>
     <td width="50%" valign="top">
+      <p align="center">
+        <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
+      </p>
       <a href="https://youtu.be/OMx3cZj_hoo">
         <img src="https://img.youtube.com/vi/OMx3cZj_hoo/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
@@ -397,35 +430,32 @@ Enjoy! 😎
   </tr>
   <tr>
     <td width="50%" valign="top">
-      <table width="100%">
-        <tr>
-          <th align="center">🛠️ Project</th>
-        </tr>
-        <tr>
-          <td>
-            <a href="https://youtu.be/f0x2qcFgu5o">
-              <img src="https://img.youtube.com/vi/f0x2qcFgu5o/maxresdefault.jpg" alt="Video thumbnail" width="100%">
-            </a>
-            <details>
-              <summary><b>String processing library</b></summary>
-              <p><a href="homeworks/homework_4/homework.md">Homework script</a></p>
-              <ul>
-                <li>You will write library that allows to split and trim strings</li>
-                <li>You will learn how to:
-                  <ul>
-                    <li>Write a CMake project from scratch</li>
-                    <li>Write your own libraries</li>
-                    <li>Test them with googletest</li>
-                    <li>Link them to binaries</li>
-                  </ul>
-                </li>
-              </ul>
-            </details>
-          </td>
-        </tr>
-      </table>
+      <p align="center">
+        <img src="https://img.shields.io/badge/🛠️-PROJECT-orange?style=for-the-badge" alt="Project">
+      </p>
+      <a href="https://youtu.be/f0x2qcFgu5o">
+        <img src="https://img.youtube.com/vi/f0x2qcFgu5o/maxresdefault.jpg" alt="Video thumbnail" width="100%">
+      </a>
+      <details>
+        <summary><b><code>Project</code>: string processing library</b></summary>
+        <p><a href="homeworks/homework_4/homework.md">Homework script</a></p>
+        <ul>
+          <li>You will write library that allows to split and trim strings</li>
+          <li>You will learn how to:
+            <ul>
+              <li>Write a CMake project from scratch</li>
+              <li>Write your own libraries</li>
+              <li>Test them with googletest</li>
+              <li>Link them to binaries</li>
+            </ul>
+          </li>
+        </ul>
+      </details>
     </td>
     <td width="50%" valign="top">
+      <p align="center">
+        <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
+      </p>
       <a href="https://youtu.be/IijP--Xf5kQ">
         <img src="https://img.youtube.com/vi/IijP--Xf5kQ/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
@@ -442,6 +472,9 @@ Enjoy! 😎
   </tr>
   <tr>
     <td width="50%" valign="top">
+      <p align="center">
+        <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
+      </p>
       <a href="https://youtu.be/pptRG345jnU">
         <img src="https://img.youtube.com/vi/pptRG345jnU/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
@@ -461,6 +494,9 @@ Enjoy! 😎
       </details>
     </td>
     <td width="50%" valign="top">
+      <p align="center">
+        <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
+      </p>
       <a href="https://youtu.be/TFoav6vhgdg">
         <img src="https://img.youtube.com/vi/TFoav6vhgdg/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
@@ -477,6 +513,9 @@ Enjoy! 😎
   </tr>
   <tr>
     <td width="50%" valign="top">
+      <p align="center">
+        <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
+      </p>
       <a href="https://youtu.be/kqQ90R0_GFI">
         <img src="https://img.youtube.com/vi/kqQ90R0_GFI/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
@@ -491,6 +530,9 @@ Enjoy! 😎
       </details>
     </td>
     <td width="50%" valign="top">
+      <p align="center">
+        <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
+      </p>
       <a href="https://youtu.be/una89pkP9ms">
         <img src="https://img.youtube.com/vi/una89pkP9ms/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
@@ -515,6 +557,9 @@ Enjoy! 😎
   </tr>
   <tr>
     <td width="50%" valign="top">
+      <p align="center">
+        <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
+      </p>
       <a href="https://youtu.be/9MB1nHDIM64">
         <img src="https://img.youtube.com/vi/9MB1nHDIM64/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
@@ -529,6 +574,9 @@ Enjoy! 😎
       </details>
     </td>
     <td width="50%" valign="top">
+      <p align="center">
+        <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
+      </p>
       <a href="https://youtu.be/WsBdxq319OY">
         <img src="https://img.youtube.com/vi/WsBdxq319OY/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
@@ -544,41 +592,38 @@ Enjoy! 😎
   </tr>
   <tr>
     <td width="50%" valign="top">
-      <table width="100%">
-        <tr>
-          <th align="center">🛠️ Project</th>
-        </tr>
-        <tr>
-          <td>
-            <a href="https://youtu.be/Cj3x51iJdvM">
-              <img src="https://img.youtube.com/vi/Cj3x51iJdvM/maxresdefault.jpg" alt="Video thumbnail" width="100%">
-            </a>
-            <details>
-              <summary><b>Pixelate images in terminal</b></summary>
-              <p><a href="homeworks/homework_5/homework.md">Homework script</a></p>
-              <ul>
-                <li>You will write a library that allows to pixelate an image</li>
-                <li>You will learn how to:
-                  <ul>
-                    <li>Work with classes</li>
-                    <li>Use external libraries
-                      <ul>
-                        <li>Read images from disk using <code>stb_image.h</code></li>
-                        <li>Draw stuff in the terminal using <code>FTXUI</code> library</li>
-                      </ul>
-                    </li>
-                    <li>Manage memory allocated elsewhere correctly</li>
-                    <li>Writing multiple libraries and binaries and linking them together</li>
-                    <li>Manage a larger CMake project</li>
-                  </ul>
-                </li>
-              </ul>
-            </details>
-          </td>
-        </tr>
-      </table>
+      <p align="center">
+        <img src="https://img.shields.io/badge/🛠️-PROJECT-orange?style=for-the-badge" alt="Project">
+      </p>
+      <a href="https://youtu.be/Cj3x51iJdvM">
+        <img src="https://img.youtube.com/vi/Cj3x51iJdvM/maxresdefault.jpg" alt="Video thumbnail" width="100%">
+      </a>
+      <details>
+        <summary><b><code>Project</code>: pixelate images in terminal</b></summary>
+        <p><a href="homeworks/homework_5/homework.md">Homework script</a></p>
+        <ul>
+          <li>You will write a library that allows to pixelate an image</li>
+          <li>You will learn how to:
+            <ul>
+              <li>Work with classes</li>
+              <li>Use external libraries
+                <ul>
+                  <li>Read images from disk using <code>stb_image.h</code></li>
+                  <li>Draw stuff in the terminal using <code>FTXUI</code> library</li>
+                </ul>
+              </li>
+              <li>Manage memory allocated elsewhere correctly</li>
+              <li>Writing multiple libraries and binaries and linking them together</li>
+              <li>Manage a larger CMake project</li>
+            </ul>
+          </li>
+        </ul>
+      </details>
     </td>
     <td width="50%" valign="top">
+      <p align="center">
+        <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
+      </p>
       <a href="https://youtu.be/7cpPQunjv4s">
         <img src="https://img.youtube.com/vi/7cpPQunjv4s/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
@@ -596,6 +641,9 @@ Enjoy! 😎
   </tr>
   <tr>
     <td width="50%" valign="top">
+      <p align="center">
+        <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
+      </p>
       <a href="https://youtu.be/ggNCjDPShrA">
         <img src="https://img.youtube.com/vi/ggNCjDPShrA/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
@@ -610,6 +658,9 @@ Enjoy! 😎
       </details>
     </td>
     <td width="50%" valign="top">
+      <p align="center">
+        <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
+      </p>
       <a href="https://youtu.be/1Mrt1NM3KnI">
         <img src="https://img.youtube.com/vi/1Mrt1NM3KnI/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
@@ -630,6 +681,9 @@ Enjoy! 😎
   </tr>
   <tr>
     <td width="50%" valign="top">
+      <p align="center">
+        <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
+      </p>
       <a href="https://youtu.be/NKvEbPVllRE">
         <img src="https://img.youtube.com/vi/NKvEbPVllRE/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
@@ -645,6 +699,9 @@ Enjoy! 😎
       </details>
     </td>
     <td width="50%" valign="top">
+      <p align="center">
+        <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
+      </p>
       <a href="https://youtu.be/BZ626ZWPspc">
         <img src="https://img.youtube.com/vi/BZ626ZWPspc/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
@@ -664,6 +721,9 @@ Enjoy! 😎
   </tr>
   <tr>
     <td width="50%" valign="top">
+      <p align="center">
+        <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
+      </p>
       <a href="https://youtu.be/IQ62tA51Vag">
         <img src="https://img.youtube.com/vi/IQ62tA51Vag/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
@@ -706,6 +766,9 @@ Enjoy! 😎
       </details>
     </td>
     <td width="50%" valign="top">
+      <p align="center">
+        <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
+      </p>
       <a href="https://youtu.be/RW9KnqszYj4">
         <img src="https://img.youtube.com/vi/RW9KnqszYj4/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
@@ -739,6 +802,9 @@ Enjoy! 😎
   </tr>
   <tr>
     <td width="50%" valign="top">
+      <p align="center">
+        <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
+      </p>
       <a href="https://youtu.be/vjsr18XXMMQ">
         <img src="https://img.youtube.com/vi/vjsr18XXMMQ/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
@@ -758,6 +824,9 @@ Enjoy! 😎
       </details>
     </td>
     <td width="50%" valign="top">
+      <p align="center">
+        <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
+      </p>
       <a href="https://youtu.be/oUALDqvCbWs">
         <img src="https://img.youtube.com/vi/oUALDqvCbWs/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
@@ -800,6 +869,9 @@ Enjoy! 😎
   </tr>
   <tr>
     <td width="50%" valign="top">
+      <p align="center">
+        <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
+      </p>
       <a href="https://youtu.be/eHcdTytDZrI">
         <img src="https://img.youtube.com/vi/eHcdTytDZrI/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
@@ -854,6 +926,9 @@ Enjoy! 😎
       </details>
     </td>
     <td width="50%" valign="top">
+      <p align="center">
+        <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
+      </p>
       <a href="https://youtu.be/l0BgadhkUL8">
         <img src="https://img.youtube.com/vi/l0BgadhkUL8/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
@@ -876,6 +951,9 @@ Enjoy! 😎
   </tr>
   <tr>
     <td width="50%" valign="top">
+      <p align="center">
+        <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
+      </p>
       <a href="https://youtu.be/6DqX8OJKM1g">
         <img src="https://img.youtube.com/vi/6DqX8OJKM1g/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
@@ -941,6 +1019,9 @@ Enjoy! 😎
       </details>
     </td>
     <td width="50%" valign="top">
+      <p align="center">
+        <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
+      </p>
       <a href="https://youtu.be/mNeu4S0x3gA">
         <img src="https://img.youtube.com/vi/mNeu4S0x3gA/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
@@ -969,6 +1050,9 @@ Enjoy! 😎
   </tr>
   <tr>
     <td width="50%" valign="top">
+      <p align="center">
+        <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
+      </p>
       <a href="https://youtu.be/_qteFBrAKSM">
         <img src="https://img.youtube.com/vi/_qteFBrAKSM/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
@@ -986,6 +1070,9 @@ Enjoy! 😎
       </details>
     </td>
     <td width="50%" valign="top">
+      <p align="center">
+        <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
+      </p>
       <a href="https://youtu.be/-VWCEklRP6I">
         <img src="https://img.youtube.com/vi/-VWCEklRP6I/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
