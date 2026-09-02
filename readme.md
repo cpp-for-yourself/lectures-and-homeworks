@@ -44,17 +44,19 @@ Enjoy! 😎
       <a href="https://youtu.be/3HpcY9N0F7I">
         <img src="https://img.youtube.com/vi/3HpcY9N0F7I/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
-      <p>
-        <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture" align="right">
-        <b>Hello World program in C++</b>
-      </p>
+      <br>
+      <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
+      <br>
+      <b>Hello World program in C++</b>
     </td>
     <td width="50%" valign="top">
       <a href="https://youtu.be/t2h1geGSww4">
         <img src="https://img.youtube.com/vi/t2h1geGSww4/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
+      <br>
+      <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
       <details>
-        <summary><img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture" align="right"><b>Hello world program dissection</b></summary>
+        <summary><b>Hello world program dissection</b></summary>
         <p><a href="lectures/hello_world_dissection.md">Lecture script</a></p>
         <ul>
           <li>First keywords</li>
@@ -69,8 +71,13 @@ Enjoy! 😎
   </tr>
   <tr>
     <td width="50%" valign="top">
+      <a href="homeworks/homework_1/homework.md">
+        <img src="https://placehold.co/1280x720?text=No+video" alt="No video" width="100%">
+      </a>
+      <br>
+      <img src="https://img.shields.io/badge/🛠️-PROJECT-orange?style=for-the-badge" alt="Project">
       <details>
-        <summary><img src="https://img.shields.io/badge/🛠️-PROJECT-orange?style=for-the-badge" alt="Project" align="right"><b><code>Project</code>: hello world program</b></summary>
+        <summary><b><code>Project</code>: hello world program</b></summary>
         <p><a href="homeworks/homework_1/homework.md">Homework script</a></p>
         <ul>
           <li>Write a simple program that prints <code>Hello World!</code></li>
@@ -82,8 +89,10 @@ Enjoy! 😎
       <a href="https://youtu.be/0z0gvv_Tb_U">
         <img src="https://img.youtube.com/vi/0z0gvv_Tb_U/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
+      <br>
+      <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
       <details>
-        <summary><img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture" align="right"><b>Variables of fundamental types</b></summary>
+        <summary><b>Variables of fundamental types</b></summary>
         <p><a href="lectures/cpp_basic_types_and_variables.md">Lecture script</a></p>
         <ul>
           <li>How to create variables of fundamental types</li>
@@ -99,8 +108,10 @@ Enjoy! 😎
       <a href="https://youtu.be/cP2IDg4_BRk">
         <img src="https://img.youtube.com/vi/cP2IDg4_BRk/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
+      <br>
+      <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
       <details>
-        <summary><img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture" align="right"><b>Namespaces for variables</b></summary>
+        <summary><b>Namespaces for variables</b></summary>
         <p><a href="lectures/namespaces_using.md">Lecture script</a></p>
         <ul>
           <li>Namespaces with variables</li>
@@ -112,8 +123,10 @@ Enjoy! 😎
       <a href="https://youtu.be/hy3eOpZmxbY">
         <img src="https://img.youtube.com/vi/hy3eOpZmxbY/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
+      <br>
+      <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
       <details>
-        <summary><img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture" align="right"><b>Input/output streams</b></summary>
+        <summary><b>Input/output streams</b></summary>
         <p><a href="lectures/more_useful_types.md">Lecture script</a></p>
         <ul>
           <li><code>std::cout</code>, <code>std::cerr</code>, <code>std::cin</code></li>
@@ -126,8 +139,10 @@ Enjoy! 😎
       <a href="https://youtu.be/dwkSVkGsvFk">
         <img src="https://img.youtube.com/vi/dwkSVkGsvFk/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
+      <br>
+      <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
       <details>
-        <summary><img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture" align="right"><b>Sequence and utility containers</b></summary>
+        <summary><b>Sequence and utility containers</b></summary>
         <p><a href="lectures/more_useful_types.md">Lecture script</a></p>
         <ul>
           <li>Sequence containers: <code>std::array</code>, <code>std::vector</code>, their usage and some caveats</li>
@@ -142,8 +157,10 @@ Enjoy! 😎
       <a href="https://youtu.be/TCu76SYmVCg">
         <img src="https://img.youtube.com/vi/TCu76SYmVCg/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
+      <br>
+      <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
       <details>
-        <summary><img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture" align="right"><b>Associative containers</b></summary>
+        <summary><b>Associative containers</b></summary>
         <p><a href="lectures/associative_containers.md">Lecture script</a></p>
         <ul>
           <li><code>std::map</code> and <code>std::unordered_map</code></li>
@@ -157,8 +174,10 @@ Enjoy! 😎
       <a href="https://youtu.be/GCh8VDZRV4k">
         <img src="https://img.youtube.com/vi/GCh8VDZRV4k/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
+      <br>
+      <img src="https://img.shields.io/badge/🛠️-PROJECT-orange?style=for-the-badge" alt="Project">
       <details>
-        <summary><img src="https://img.shields.io/badge/🛠️-PROJECT-orange?style=for-the-badge" alt="Project" align="right"><b><code>Project</code>: fortune teller program</b></summary>
+        <summary><b><code>Project</code>: fortune teller program</b></summary>
         <p><a href="homeworks/homework_2/homework.md">Homework script</a></p>
         <ul>
           <li>Write a program that tells your C++ fortune</li>
@@ -171,8 +190,10 @@ Enjoy! 😎
       <a href="https://youtu.be/jzgTxosgGIA">
         <img src="https://img.youtube.com/vi/jzgTxosgGIA/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
+      <br>
+      <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
       <details>
-        <summary><img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture" align="right"><b>Control structures</b></summary>
+        <summary><b>Control structures</b></summary>
         <p><a href="lectures/control_structures.md">Lecture script</a></p>
         <ul>
           <li><code>if</code>, <code>switch</code> and ternary operator</li>
@@ -186,8 +207,10 @@ Enjoy! 😎
       <a href="https://youtu.be/IUoqMTGGo6k">
         <img src="https://img.youtube.com/vi/IUoqMTGGo6k/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
+      <br>
+      <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
       <details>
-        <summary><img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture" align="right"><b>Random number generation</b></summary>
+        <summary><b>Random number generation</b></summary>
         <p><a href="lectures/random_numbers.md">Lecture script</a></p>
         <ul>
           <li>What are random numbers</li>
@@ -200,8 +223,10 @@ Enjoy! 😎
       <a href="https://youtu.be/TYs_xwihCNc">
         <img src="https://img.youtube.com/vi/TYs_xwihCNc/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
+      <br>
+      <img src="https://img.shields.io/badge/🛠️-PROJECT-orange?style=for-the-badge" alt="Project">
       <details>
-        <summary><img src="https://img.shields.io/badge/🛠️-PROJECT-orange?style=for-the-badge" alt="Project" align="right"><b><code>Project</code>: the guessing game</b></summary>
+        <summary><b><code>Project</code>: the guessing game</b></summary>
         <p><a href="homeworks/homework_3/homework.md">Homework script</a></p>
         <ul>
           <li>A program that generates a number</li>
@@ -216,8 +241,10 @@ Enjoy! 😎
       <a href="https://youtu.be/NTlcDv7W2-c">
         <img src="https://img.youtube.com/vi/NTlcDv7W2-c/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
+      <br>
+      <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
       <details>
-        <summary><img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture" align="right"><b>Compilation flags and debugging</b></summary>
+        <summary><b>Compilation flags and debugging</b></summary>
         <p><a href="lectures/compilation_debugging.md">Lecture script</a></p>
         <ul>
           <li>Useful compilation flags</li>
@@ -234,8 +261,10 @@ Enjoy! 😎
       <a href="https://youtu.be/RaSw0g2aPig">
         <img src="https://img.youtube.com/vi/RaSw0g2aPig/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
+      <br>
+      <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
       <details>
-        <summary><img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture" align="right"><b>Functions</b></summary>
+        <summary><b>Functions</b></summary>
         <p><a href="lectures/functions.md">Lecture script</a></p>
         <ul>
           <li>What is a function</li>
@@ -252,8 +281,10 @@ Enjoy! 😎
       <a href="https://youtu.be/4kZyQ-TwH00">
         <img src="https://img.youtube.com/vi/4kZyQ-TwH00/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
+      <br>
+      <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
       <details>
-        <summary><img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture" align="right"><b>Enumerations</b></summary>
+        <summary><b>Enumerations</b></summary>
         <p><a href="lectures/enums.md">Lecture script</a></p>
         <ul>
           <li>What are <code>enums</code></li>
@@ -266,8 +297,10 @@ Enjoy! 😎
       <a href="https://youtu.be/Lxo8ftglwXE">
         <img src="https://img.youtube.com/vi/Lxo8ftglwXE/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
+      <br>
+      <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
       <details>
-        <summary><img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture" align="right"><b>Libraries and header files</b></summary>
+        <summary><b>Libraries and header files</b></summary>
         <p><a href="lectures/headers_and_libraries.md">Lecture script</a></p>
         <ul>
           <li>Different types of libraries
@@ -289,8 +322,10 @@ Enjoy! 😎
       <a href="https://youtu.be/kbk4DphsYPU">
         <img src="https://img.youtube.com/vi/kbk4DphsYPU/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
+      <br>
+      <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
       <details>
-        <summary><img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture" align="right"><b>Build systems introduction</b></summary>
+        <summary><b>Build systems introduction</b></summary>
         <p><a href="lectures/build_systems.md">Lecture script</a></p>
         <ul>
           <li>Intro to build systems</li>
@@ -303,8 +338,10 @@ Enjoy! 😎
       <a href="https://youtu.be/UH6F6ypdYbw">
         <img src="https://img.youtube.com/vi/UH6F6ypdYbw/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
+      <br>
+      <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
       <details>
-        <summary><img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture" align="right"><b>CMake introduction</b></summary>
+        <summary><b>CMake introduction</b></summary>
         <p><a href="lectures/cmake.md">Lecture script</a></p>
         <ul>
           <li>Build process with CMake</li>
@@ -320,8 +357,10 @@ Enjoy! 😎
       <a href="https://youtu.be/pxJoVRfpRPE">
         <img src="https://img.youtube.com/vi/pxJoVRfpRPE/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
+      <br>
+      <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
       <details>
-        <summary><img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture" align="right"><b>Using GoogleTest framework for testing code</b></summary>
+        <summary><b>Using GoogleTest framework for testing code</b></summary>
         <p><a href="lectures/googletest.md">Lecture script</a></p>
         <ul>
           <li>Explain what testing is for</li>
@@ -335,8 +374,10 @@ Enjoy! 😎
       <a href="https://youtu.be/OMx3cZj_hoo">
         <img src="https://img.youtube.com/vi/OMx3cZj_hoo/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
+      <br>
+      <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
       <details>
-        <summary><img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture" align="right"><b>Installing projects and using <code>find_project</code> with CMake</b></summary>
+        <summary><b>Installing projects and using <code>find_project</code> with CMake</b></summary>
         <ul>
           <li><a href="lectures/cmake_install.md#disclaimer">Disclaimer</a></li>
           <li><a href="lectures/cmake_install.md#what-does-find_package-do">What does <code>find_package</code> do?</a>
@@ -376,8 +417,10 @@ Enjoy! 😎
       <a href="https://youtu.be/f0x2qcFgu5o">
         <img src="https://img.youtube.com/vi/f0x2qcFgu5o/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
+      <br>
+      <img src="https://img.shields.io/badge/🛠️-PROJECT-orange?style=for-the-badge" alt="Project">
       <details>
-        <summary><img src="https://img.shields.io/badge/🛠️-PROJECT-orange?style=for-the-badge" alt="Project" align="right"><b><code>Project</code>: string processing library</b></summary>
+        <summary><b><code>Project</code>: string processing library</b></summary>
         <p><a href="homeworks/homework_4/homework.md">Homework script</a></p>
         <ul>
           <li>You will write library that allows to split and trim strings</li>
@@ -396,8 +439,10 @@ Enjoy! 😎
       <a href="https://youtu.be/IijP--Xf5kQ">
         <img src="https://img.youtube.com/vi/IijP--Xf5kQ/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
+      <br>
+      <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
       <details>
-        <summary><img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture" align="right"><b>Simple custom types with classes and structs</b></summary>
+        <summary><b>Simple custom types with classes and structs</b></summary>
         <p><a href="lectures/classes_intro.md">Lecture script</a></p>
         <ul>
           <li>Explain why the classes are needed</li>
@@ -412,8 +457,10 @@ Enjoy! 😎
       <a href="https://youtu.be/pptRG345jnU">
         <img src="https://img.youtube.com/vi/pptRG345jnU/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
+      <br>
+      <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
       <details>
-        <summary><img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture" align="right"><b>Raw pointers</b></summary>
+        <summary><b>Raw pointers</b></summary>
         <p><a href="lectures/raw_pointers.md">Lecture script</a></p>
         <ul>
           <li>The pointer type</li>
@@ -431,8 +478,10 @@ Enjoy! 😎
       <a href="https://youtu.be/TFoav6vhgdg">
         <img src="https://img.youtube.com/vi/TFoav6vhgdg/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
+      <br>
+      <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
       <details>
-        <summary><img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture" align="right"><b>Object lifecycle</b></summary>
+        <summary><b>Object lifecycle</b></summary>
         <p><a href="lectures/object_lifecycle.md">Lecture script</a></p>
         <ul>
           <li>Creating a new object</li>
@@ -447,8 +496,10 @@ Enjoy! 😎
       <a href="https://youtu.be/kqQ90R0_GFI">
         <img src="https://img.youtube.com/vi/kqQ90R0_GFI/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
+      <br>
+      <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
       <details>
-        <summary><img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture" align="right"><b>Move semantics</b></summary>
+        <summary><b>Move semantics</b></summary>
         <p><a href="lectures/move_semantics.md">Lecture script</a></p>
         <ul>
           <li>Why we care about move semantics</li>
@@ -461,8 +512,10 @@ Enjoy! 😎
       <a href="https://youtu.be/una89pkP9ms">
         <img src="https://img.youtube.com/vi/una89pkP9ms/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
+      <br>
+      <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
       <details>
-        <summary><img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture" align="right"><b>Constructors, operators, destructor - rule of all or nothing</b></summary>
+        <summary><b>Constructors, operators, destructor - rule of all or nothing</b></summary>
         <p><a href="lectures/all_or_nothing.md">Lecture script</a></p>
         <ul>
           <li>“Good style” as our guide</li>
@@ -485,8 +538,10 @@ Enjoy! 😎
       <a href="https://youtu.be/9MB1nHDIM64">
         <img src="https://img.youtube.com/vi/9MB1nHDIM64/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
+      <br>
+      <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
       <details>
-        <summary><img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture" align="right"><b>Headers with classes</b></summary>
+        <summary><b>Headers with classes</b></summary>
         <p><a href="lectures/headers_with_classes.md">Lecture script</a></p>
         <ul>
           <li>What stays the same</li>
@@ -499,8 +554,10 @@ Enjoy! 😎
       <a href="https://youtu.be/WsBdxq319OY">
         <img src="https://img.youtube.com/vi/WsBdxq319OY/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
+      <br>
+      <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
       <details>
-        <summary><img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture" align="right"><b>Const correctness</b></summary>
+        <summary><b>Const correctness</b></summary>
         <p><a href="lectures/const_correctness.md">Lecture script</a></p>
         <ul>
           <li>What is const correctness</li>
@@ -514,8 +571,10 @@ Enjoy! 😎
       <a href="https://youtu.be/Cj3x51iJdvM">
         <img src="https://img.youtube.com/vi/Cj3x51iJdvM/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
+      <br>
+      <img src="https://img.shields.io/badge/🛠️-PROJECT-orange?style=for-the-badge" alt="Project">
       <details>
-        <summary><img src="https://img.shields.io/badge/🛠️-PROJECT-orange?style=for-the-badge" alt="Project" align="right"><b><code>Project</code>: pixelate images in terminal</b></summary>
+        <summary><b><code>Project</code>: pixelate images in terminal</b></summary>
         <p><a href="homeworks/homework_5/homework.md">Homework script</a></p>
         <ul>
           <li>You will write a library that allows to pixelate an image</li>
@@ -540,8 +599,10 @@ Enjoy! 😎
       <a href="https://youtu.be/7cpPQunjv4s">
         <img src="https://img.youtube.com/vi/7cpPQunjv4s/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
+      <br>
+      <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
       <details>
-        <summary><img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture" align="right"><b>Keyword <code>static</code> <b>outside</b> of classes</b></summary>
+        <summary><b>Keyword <code>static</code> <b>outside</b> of classes</b></summary>
         <p><a href="lectures/static_outside_classes.md">Lecture script</a></p>
         <ul>
           <li>Why we should not use <code>static</code> outside of classes</li>
@@ -557,8 +618,10 @@ Enjoy! 😎
       <a href="https://youtu.be/ggNCjDPShrA">
         <img src="https://img.youtube.com/vi/ggNCjDPShrA/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
+      <br>
+      <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
       <details>
-        <summary><img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture" align="right"><b>Keyword <code>static</code> <b>inside</b> classes</b></summary>
+        <summary><b>Keyword <code>static</code> <b>inside</b> classes</b></summary>
         <p><a href="lectures/static_in_classes.md">Lecture script</a></p>
         <ul>
           <li>Using <code>static</code> class methods</li>
@@ -571,8 +634,10 @@ Enjoy! 😎
       <a href="https://youtu.be/1Mrt1NM3KnI">
         <img src="https://img.youtube.com/vi/1Mrt1NM3KnI/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
+      <br>
+      <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
       <details>
-        <summary><img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture" align="right"><b>Templates: <b>why</b> would we want to use them?</b></summary>
+        <summary><b>Templates: <b>why</b> would we want to use them?</b></summary>
         <p><a href="lectures/templates_why.md">Lecture script</a></p>
         <ul>
           <li>Templates provide abstraction and separation of concerns</li>
@@ -591,8 +656,10 @@ Enjoy! 😎
       <a href="https://youtu.be/NKvEbPVllRE">
         <img src="https://img.youtube.com/vi/NKvEbPVllRE/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
+      <br>
+      <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
       <details>
-        <summary><img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture" align="right"><b>Templates: <b>what</b> do they do under the hood?</b></summary>
+        <summary><b>Templates: <b>what</b> do they do under the hood?</b></summary>
         <p><a href="lectures/templates_what.md">Lecture script</a></p>
         <ul>
           <li>Compilation process recap</li>
@@ -606,8 +673,10 @@ Enjoy! 😎
       <a href="https://youtu.be/BZ626ZWPspc">
         <img src="https://img.youtube.com/vi/BZ626ZWPspc/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
+      <br>
+      <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
       <details>
-        <summary><img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture" align="right"><b>How to write function templates</b></summary>
+        <summary><b>How to write function templates</b></summary>
         <p><a href="lectures/templates_how_functions.md">Lecture script</a></p>
         <ul>
           <li>The basics of writing a function template</li>
@@ -625,8 +694,10 @@ Enjoy! 😎
       <a href="https://youtu.be/IQ62tA51Vag">
         <img src="https://img.youtube.com/vi/IQ62tA51Vag/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
+      <br>
+      <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
       <details>
-        <summary><img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture" align="right"><b>How to write class templates</b></summary>
+        <summary><b>How to write class templates</b></summary>
         <ul>
           <li><a href="lectures/templates_how_classes.md#how-to-use-templates-with-classes-in-c">How to use templates with classes in C++</a></li>
           <li><a href="lectures/templates_how_classes.md#class-method-templates">Class method templates</a>
@@ -667,8 +738,10 @@ Enjoy! 😎
       <a href="https://youtu.be/RW9KnqszYj4">
         <img src="https://img.youtube.com/vi/RW9KnqszYj4/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
+      <br>
+      <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
       <details>
-        <summary><img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture" align="right"><b>Forwarding references</b></summary>
+        <summary><b>Forwarding references</b></summary>
         <ul>
           <li><a href="lectures/forwarding_references.md#the-forwarding-reference">The forwarding reference</a></li>
           <li><a href="lectures/forwarding_references.md#why-use-forwarding-references">Why use forwarding references</a>
@@ -700,8 +773,10 @@ Enjoy! 😎
       <a href="https://youtu.be/vjsr18XXMMQ">
         <img src="https://img.youtube.com/vi/vjsr18XXMMQ/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
+      <br>
+      <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
       <details>
-        <summary><img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture" align="right"><b>Header and source files for templated code</b></summary>
+        <summary><b>Header and source files for templated code</b></summary>
         <ul>
           <li><a href="lectures/templates_and_headers.md#why-linker-fails">Why linker fails</a>
             <ul>
@@ -719,8 +794,10 @@ Enjoy! 😎
       <a href="https://youtu.be/oUALDqvCbWs">
         <img src="https://img.youtube.com/vi/oUALDqvCbWs/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
+      <br>
+      <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
       <details>
-        <summary><img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture" align="right"><b>Almost everything about inheritance</b></summary>
+        <summary><b>Almost everything about inheritance</b></summary>
         <ul>
           <li><a href="lectures/inheritance.md#inheritance-enables-dependency-inversion">Inheritance enables dependency inversion</a></li>
           <li><a href="lectures/inheritance.md#the-idea-behind-dependency-inversion">The idea behind dependency inversion</a></li>
@@ -761,8 +838,10 @@ Enjoy! 😎
       <a href="https://youtu.be/eHcdTytDZrI">
         <img src="https://img.youtube.com/vi/eHcdTytDZrI/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
+      <br>
+      <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
       <details>
-        <summary><img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture" align="right"><b>Memory management and smart pointers</b></summary>
+        <summary><b>Memory management and smart pointers</b></summary>
         <ul>
           <li><a href="lectures/memory_and_smart_pointers.md#memory-management-and-smart-pointers">Memory management and smart pointers</a></li>
           <li><a href="lectures/memory_and_smart_pointers.md#memory-management-in-c">Memory management in C++</a>
@@ -815,8 +894,10 @@ Enjoy! 😎
       <a href="https://youtu.be/l0BgadhkUL8">
         <img src="https://img.youtube.com/vi/l0BgadhkUL8/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
+      <br>
+      <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
       <details>
-        <summary><img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture" align="right"><b>Lambdas in modern C++</b></summary>
+        <summary><b>Lambdas in modern C++</b></summary>
         <ul>
           <li><a href="lectures/lambdas.md#lambdas">Lambdas</a></li>
           <li><a href="lectures/lambdas.md#overview">Overview</a></li>
@@ -837,8 +918,10 @@ Enjoy! 😎
       <a href="https://youtu.be/6DqX8OJKM1g">
         <img src="https://img.youtube.com/vi/6DqX8OJKM1g/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
+      <br>
+      <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
       <details>
-        <summary><img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture" align="right"><b>Error handling in C++</b></summary>
+        <summary><b>Error handling in C++</b></summary>
         <ul>
           <li><a href="#disclaimer">Disclaimer</a></li>
           <li><a href="lectures/error_handling.md#what-do-we-mean-by-error">What Do We Mean by “Error”?</a></li>
@@ -902,8 +985,10 @@ Enjoy! 😎
       <a href="https://youtu.be/mNeu4S0x3gA">
         <img src="https://img.youtube.com/vi/mNeu4S0x3gA/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
+      <br>
+      <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
       <details>
-        <summary><img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture" align="right"><b>Dynamic polymorphism with <code>std::variant</code></b></summary>
+        <summary><b>Dynamic polymorphism with <code>std::variant</code></b></summary>
         <ul>
           <li><a href="lectures/variant.md#stdvariant-in-modern-c"><code>std::variant</code> in Modern C++</a></li>
           <li><a href="lectures/variant.md#templates-and-concepts-allow-static-polymorphism">Templates (and concepts) allow static polymorphism</a></li>
@@ -930,8 +1015,10 @@ Enjoy! 😎
       <a href="https://youtu.be/_qteFBrAKSM">
         <img src="https://img.youtube.com/vi/_qteFBrAKSM/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
+      <br>
+      <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
       <details>
-        <summary><img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture" align="right"><b>Storing callables with <code>std::function</code></b></summary>
+        <summary><b>Storing callables with <code>std::function</code></b></summary>
         <ul>
           <li><a href="lectures/std_function.md#stdfunction"><code>std::function</code></a></li>
           <li><a href="lectures/std_function.md#overview">Overview</a></li>
@@ -947,8 +1034,10 @@ Enjoy! 😎
       <a href="https://youtu.be/-VWCEklRP6I">
         <img src="https://img.youtube.com/vi/-VWCEklRP6I/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
+      <br>
+      <img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture">
       <details>
-        <summary><img src="https://img.shields.io/badge/📕-LECTURE-blue?style=for-the-badge" alt="Lecture" align="right"><b>Parallelism in modern C++</b></summary>
+        <summary><b>Parallelism in modern C++</b></summary>
         <ul>
           <li><a href="lectures/parallelism.md#parallelism-in-modern-c">Parallelism in modern C++</a></li>
           <li><a href="lectures/parallelism.md#disclaimer">Disclaimer</a></li>
