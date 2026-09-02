@@ -66,14 +66,23 @@ Enjoy! 😎
   </tr>
   <tr>
     <td width="50%" valign="top">
-      <details>
-        <summary><b><code>Project</code>: hello world program</b></summary>
-        <p><a href="homeworks/homework_1/homework.md">Homework script</a></p>
-        <ul>
-          <li>Write a simple program that prints <code>Hello World!</code></li>
-          <li>Learn to compile and run simple programs</li>
-        </ul>
-      </details>
+      <table width="100%">
+        <tr>
+          <th align="center">🛠️ Project</th>
+        </tr>
+        <tr>
+          <td>
+            <details>
+              <summary><b>Hello world program</b></summary>
+              <p><a href="homeworks/homework_1/homework.md">Homework script</a></p>
+              <ul>
+                <li>Write a simple program that prints <code>Hello World!</code></li>
+                <li>Learn to compile and run simple programs</li>
+              </ul>
+            </details>
+          </td>
+        </tr>
+      </table>
     </td>
     <td width="50%" valign="top">
       <a href="https://youtu.be/0z0gvv_Tb_U">
@@ -151,15 +160,27 @@ Enjoy! 😎
   </tr>
   <tr>
     <td width="50%" valign="top">
-      <details>
-        <summary><b><code>Project</code>: fortune teller program</b></summary>
-        <p><a href="homeworks/homework_2/homework.md">Homework script</a></p>
-        <ul>
-          <li>Write a program that tells your C++ fortune</li>
-          <li>It reads and writes data from and to terminal</li>
-          <li>Stores and accesses these data in containers</li>
-        </ul>
-      </details>
+      <table width="100%">
+        <tr>
+          <th align="center">🛠️ Project</th>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://youtu.be/GCh8VDZRV4k">
+              <img src="https://img.youtube.com/vi/GCh8VDZRV4k/maxresdefault.jpg" alt="Video thumbnail" width="100%">
+            </a>
+            <details>
+              <summary><b>Fortune teller program</b></summary>
+              <p><a href="homeworks/homework_2/homework.md">Homework script</a></p>
+              <ul>
+                <li>Write a program that tells your C++ fortune</li>
+                <li>It reads and writes data from and to terminal</li>
+                <li>Stores and accesses these data in containers</li>
+              </ul>
+            </details>
+          </td>
+        </tr>
+      </table>
     </td>
     <td width="50%" valign="top">
       <a href="https://youtu.be/jzgTxosgGIA">
@@ -191,18 +212,27 @@ Enjoy! 😎
       </details>
     </td>
     <td width="50%" valign="top">
-      <a href="https://youtu.be/TYs_xwihCNc">
-        <img src="https://img.youtube.com/vi/TYs_xwihCNc/maxresdefault.jpg" alt="Video thumbnail" width="100%">
-      </a>
-      <details>
-        <summary><b><code>Project</code>: the guessing game</b></summary>
-        <p><a href="homeworks/homework_3/homework.md">Homework script</a></p>
-        <ul>
-          <li>A program that generates a number</li>
-          <li>The user guesses this number</li>
-          <li>The program tells the user if they are above or below with their guess (or if they've won)</li>
-        </ul>
-      </details>
+      <table width="100%">
+        <tr>
+          <th align="center">🛠️ Project</th>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://youtu.be/TYs_xwihCNc">
+              <img src="https://img.youtube.com/vi/TYs_xwihCNc/maxresdefault.jpg" alt="Video thumbnail" width="100%">
+            </a>
+            <details>
+              <summary><b>The guessing game</b></summary>
+              <p><a href="homeworks/homework_3/homework.md">Homework script</a></p>
+              <ul>
+                <li>A program that generates a number</li>
+                <li>The user guesses this number</li>
+                <li>The program tells the user if they are above or below with their guess (or if they've won)</li>
+              </ul>
+            </details>
+          </td>
+        </tr>
+      </table>
     </td>
   </tr>
   <tr>
@@ -367,24 +397,33 @@ Enjoy! 😎
   </tr>
   <tr>
     <td width="50%" valign="top">
-      <a href="https://youtu.be/f0x2qcFgu5o">
-        <img src="https://img.youtube.com/vi/f0x2qcFgu5o/maxresdefault.jpg" alt="Video thumbnail" width="100%">
-      </a>
-      <details>
-        <summary><b><code>Project</code>: string processing library</b></summary>
-        <p><a href="homeworks/homework_4/homework.md">Homework script</a></p>
-        <ul>
-          <li>You will write library that allows to split and trim strings</li>
-          <li>You will learn how to:
-            <ul>
-              <li>Write a CMake project from scratch</li>
-              <li>Write your own libraries</li>
-              <li>Test them with googletest</li>
-              <li>Link them to binaries</li>
-            </ul>
-          </li>
-        </ul>
-      </details>
+      <table width="100%">
+        <tr>
+          <th align="center">🛠️ Project</th>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://youtu.be/f0x2qcFgu5o">
+              <img src="https://img.youtube.com/vi/f0x2qcFgu5o/maxresdefault.jpg" alt="Video thumbnail" width="100%">
+            </a>
+            <details>
+              <summary><b>String processing library</b></summary>
+              <p><a href="homeworks/homework_4/homework.md">Homework script</a></p>
+              <ul>
+                <li>You will write library that allows to split and trim strings</li>
+                <li>You will learn how to:
+                  <ul>
+                    <li>Write a CMake project from scratch</li>
+                    <li>Write your own libraries</li>
+                    <li>Test them with googletest</li>
+                    <li>Link them to binaries</li>
+                  </ul>
+                </li>
+              </ul>
+            </details>
+          </td>
+        </tr>
+      </table>
     </td>
     <td width="50%" valign="top">
       <a href="https://youtu.be/IijP--Xf5kQ">
@@ -505,30 +544,39 @@ Enjoy! 😎
   </tr>
   <tr>
     <td width="50%" valign="top">
-      <a href="https://youtu.be/Cj3x51iJdvM">
-        <img src="https://img.youtube.com/vi/Cj3x51iJdvM/maxresdefault.jpg" alt="Video thumbnail" width="100%">
-      </a>
-      <details>
-        <summary><b><code>Project</code>: pixelate images in terminal</b></summary>
-        <p><a href="homeworks/homework_5/homework.md">Homework script</a></p>
-        <ul>
-          <li>You will write a library that allows to pixelate an image</li>
-          <li>You will learn how to:
-            <ul>
-              <li>Work with classes</li>
-              <li>Use external libraries
-                <ul>
-                  <li>Read images from disk using <code>stb_image.h</code></li>
-                  <li>Draw stuff in the terminal using <code>FTXUI</code> library</li>
-                </ul>
-              </li>
-              <li>Manage memory allocated elsewhere correctly</li>
-              <li>Writing multiple libraries and binaries and linking them together</li>
-              <li>Manage a larger CMake project</li>
-            </ul>
-          </li>
-        </ul>
-      </details>
+      <table width="100%">
+        <tr>
+          <th align="center">🛠️ Project</th>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://youtu.be/Cj3x51iJdvM">
+              <img src="https://img.youtube.com/vi/Cj3x51iJdvM/maxresdefault.jpg" alt="Video thumbnail" width="100%">
+            </a>
+            <details>
+              <summary><b>Pixelate images in terminal</b></summary>
+              <p><a href="homeworks/homework_5/homework.md">Homework script</a></p>
+              <ul>
+                <li>You will write a library that allows to pixelate an image</li>
+                <li>You will learn how to:
+                  <ul>
+                    <li>Work with classes</li>
+                    <li>Use external libraries
+                      <ul>
+                        <li>Read images from disk using <code>stb_image.h</code></li>
+                        <li>Draw stuff in the terminal using <code>FTXUI</code> library</li>
+                      </ul>
+                    </li>
+                    <li>Manage memory allocated elsewhere correctly</li>
+                    <li>Writing multiple libraries and binaries and linking them together</li>
+                    <li>Manage a larger CMake project</li>
+                  </ul>
+                </li>
+              </ul>
+            </details>
+          </td>
+        </tr>
+      </table>
     </td>
     <td width="50%" valign="top">
       <a href="https://youtu.be/7cpPQunjv4s">
