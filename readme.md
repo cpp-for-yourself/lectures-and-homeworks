@@ -44,9 +44,7 @@ Enjoy! 😎
       <a href="https://youtu.be/3HpcY9N0F7I">
         <img src="https://img.youtube.com/vi/3HpcY9N0F7I/maxresdefault.jpg" alt="Video thumbnail" width="100%">
       </a>
-      <details>
-        <summary><b>Hello World program in C++</b></summary>
-      </details>
+      <b>Hello World program in C++</b>
     </td>
     <td width="50%" valign="top">
       <a href="https://youtu.be/t2h1geGSww4">
