@@ -1,0 +1,3 @@
+add_executable(simulate_game simulate_game.cpp)
+target_link_libraries(simulate_game PRIVATE game)
+target_compile_features(simulate_game PRIVATE cxx_std_17)

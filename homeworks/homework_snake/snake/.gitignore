@@ -1,0 +1,4 @@
+build/
+/snake.sublime-workspace
+.cache/
+.DS_Store
