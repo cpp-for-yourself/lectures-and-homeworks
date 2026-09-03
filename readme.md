@@ -72,7 +72,7 @@ Enjoy! 😎
   <tr>
     <td width="50%" valign="top">
       <a href="homeworks/homework_1/homework.md">
-        <img src="https://placehold.co/1280x720?text=No+video" alt="No video" width="100%">
+        <img src="https://placehold.co/1280x720?text=Hello+world+project" alt="No video" width="100%">
       </a>
       <br>
       <img src="https://img.shields.io/badge/🛠️-PROJECT-orange?style=for-the-badge" alt="Project">
