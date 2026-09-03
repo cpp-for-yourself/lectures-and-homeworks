@@ -10,6 +10,8 @@
 #include <sys/termios.h>
 #include <unistd.h>
 
+#include <algorithm>
+#include <csignal>
 #include <cstdint>
 #include <iostream>
 #include <limits>
@@ -46,19 +48,31 @@ struct TerminalIo {
   constexpr static inline int kArrowRight = kArrowDown + 1;
   constexpr static inline int kArrowLeft = kArrowRight + 1;
 
+  static inline termios& SavedTermios() {
+    static termios old_tio{};
+    return old_tio;
+  }
+
+  static inline void Restore() {
+    resetcolor();
+    tcsetattr(STDIN_FILENO, TCSANOW, &SavedTermios());
+    clearscreen();
+    movecursor(1, 1);
+    show_cursor(true);
+  }
+
   TerminalIo() : size_{GetTerminalSize()} {
+    tcgetattr(STDIN_FILENO, &SavedTermios());
+    std::signal(SIGINT, [](int) {
+      Restore();
+      _exit(0);
+    });
     set_raw_mode(true);
     show_cursor(false);
     clearscreen();
   }
 
-  ~TerminalIo() {
-    resetcolor();
-    set_raw_mode(false);
-    clearscreen();
-    movecursor(0, 0);
-    show_cursor(true);
-  }
+  ~TerminalIo() { Restore(); }
 
   void DrawText(std::int32_t row,
                 std::int32_t col,
@@ -122,16 +136,18 @@ struct TerminalIo {
   }
 
   static inline void show_cursor(bool flag) {
-    std::cerr << (flag ? "\033[?25h" : "\033[?25l");
+    std::cerr << (flag ? "\033[?25h" : "\033[?25l") << std::flush;
   }
 
   static inline void movecursor(std::int32_t row, std::int32_t col) {
-    std::cerr << fmt::format("{}[{};{}H", kEscape, row, col);
+    std::cerr << fmt::format(
+                     "{}[{};{}H", kEscape, std::max(1, row), std::max(1, col))
+              << std::flush;
   }
 
-  static inline void resetcolor() { std::cerr << "\033[0m"; }
+  static inline void resetcolor() { std::cerr << "\033[0m" << std::flush; }
 
-  static inline void clearscreen() { std::cerr << "\033[2J"; }
+  static inline void clearscreen() { std::cerr << "\033[2J" << std::flush; }
 
   int characters_in_buffer_{};
   Size size_{};

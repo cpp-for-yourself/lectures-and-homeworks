@@ -15,7 +15,7 @@ TEST(World, Init) {
 
 // TODO(student): Write unit tests for:
 // - Setting and querying cell types via SetCell and cell()
-// - Bounds checking with std::optional (verifying out-of-bounds returns std::nullopt)
-// - CreateBoxWorld (verifying outer boundary cells are kWall and interior are kEmpty)
+// - Bounds checking with std::optional (out-of-bounds returns std::nullopt)
+// - CreateBoxWorld (outer boundary cells are kWall and interior are kEmpty)
 
 }  // namespace snake::game

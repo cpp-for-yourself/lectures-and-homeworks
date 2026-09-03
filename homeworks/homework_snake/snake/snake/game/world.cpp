@@ -11,7 +11,8 @@ World::World(std::int32_t rows, std::int32_t cols) noexcept
 
 std::optional<World::CellType> World::cell(
     const core::Vector2i&) const noexcept {
-  // TODO(student): Check bounds [0, rows) and [0, cols), return std::nullopt if outside
+  // TODO(student): Check bounds [0, rows) and [0, cols),
+  // Return std::nullopt if outside
   return {};
 }
 

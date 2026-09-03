@@ -56,7 +56,8 @@ class Matrix {
  private:
   [[nodiscard]] inline std::int32_t index(std::int32_t,
                                           std::int32_t) const noexcept {
-    // TODO(student): Flatten 2D coordinate into 1D array index (row * cols_ + col)
+    // TODO(student): Flatten 2D coordinate into 1D array index
+    // Hint: use row-major notation: (row * number_of_columns + col)
     return 0;
   }
 

@@ -16,8 +16,8 @@ TEST(Snake, Init) {
 }
 
 // TODO(student): Write unit tests for:
-// - Heading bitwise operator& (verifying opposite directions yield 0)
-// - Changing heading via Turn() (verifying 180-degree reversals are ignored)
+// - Heading bitwise operator& (opposite directions yield 0)
+// - Changing heading via Turn() (180-degree reversals are ignored)
 // - Advancing in each direction
-// - Eating fruit and the growth invariant (verifying length only grows on Advance())
-// - Self-collision detection (verifying Advance() returns false when snake hits itself)
+// - Eating fruit and the growth (length only grows on Advance())
+// - Self-collision detection (Advance() returns false when snake hits itself)
