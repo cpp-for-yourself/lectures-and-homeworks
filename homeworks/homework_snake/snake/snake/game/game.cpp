@@ -6,13 +6,6 @@
 
 namespace snake::game {
 
-namespace {
-
-constexpr auto kMinimalLoopLength = std::chrono::milliseconds{50};
-constexpr auto kLoopLengthDecrement = std::chrono::milliseconds{2};
-
-}  // namespace
-
 Game::Game(World&& world, Snake&& snake)
     : world_{std::move(world)}, snake_{std::move(snake)} {}
 
@@ -24,9 +17,8 @@ void Game::Start(const std::chrono::milliseconds& initial_cycle_period) {
 
 void Game::End() noexcept { is_running_ = false; }
 
-void Game::OnSnakeControlEvent(Heading heading) noexcept {
-  const std::lock_guard<std::mutex> lock{data_mutex_};
-  snake_.Turn(heading);
+void Game::OnSnakeControlEvent(Heading) noexcept {
+  // TODO(student): Thread-safe turn of the snake
 }
 
 void Game::GameLoop(const std::chrono::milliseconds& initial_cycle_period) {
@@ -52,30 +44,16 @@ void Game::GameLoop(const std::chrono::milliseconds& initial_cycle_period) {
 }
 
 std::optional<std::chrono::milliseconds> Game::NextCycle(
-    const std::chrono::milliseconds& cycle_period) {
-  // TODO(student): Lock the mutex to protect snake_ and world_
-  const std::lock_guard<std::mutex> lock{data_mutex_};
-
-  // 1. Advance the snake; if failed (e.g. hit itself), game over
-  if (!snake_.Advance()) { return {}; }
-
-  // 2. Check collision with world
-  const auto snake_head_position = snake_.head_position();
-  const auto cell = world_.cell(snake_head_position);
-  if (!cell.has_value() || (cell.value() == World::CellType::kWall)) {
-    return {};
-  }
-
-  // 3. Check collision with fruit
-  if (cell.value() == World::CellType::kFruit) {
-    snake_.EatFruit();
-    world_.SetCell(snake_head_position, World::CellType::kEmpty);
-    GenerateFruit();
-    // Speed up cycle
-    return std::max(kMinimalLoopLength, cycle_period - kLoopLengthDecrement);
-  }
-
-  return cycle_period;
+    const std::chrono::milliseconds&) {
+  // TODO(student):
+  // 1. Lock the mutex to protect snake_ and world_
+  // 2. Advance the snake; return std::nullopt if self-collision occurs
+  // 3. Check world collision at snake head; return std::nullopt if wall/out of
+  // bounds
+  // 4. Check fruit collision; eat fruit, clear world cell, generate new fruit,
+  // speed up loop
+  // 5. Return new cycle duration
+  return {};
 }
 
 void Game::GenerateFruit() noexcept {

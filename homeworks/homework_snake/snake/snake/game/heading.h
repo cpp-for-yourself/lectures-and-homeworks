@@ -22,11 +22,10 @@ enum class Heading {
 };
 
 /// @brief Overloaded operator& to check for opposite directions.
-[[nodiscard]] inline std::underlying_type_t<Heading> operator&(Heading a,
-                                                               Heading b) {
+[[nodiscard]] inline std::underlying_type_t<Heading> operator&(Heading,
+                                                               Heading) {
   // TODO(student): Combine underlying values with bitwise &
-  using UnderlyingType = std::underlying_type_t<Heading>;
-  return static_cast<UnderlyingType>(a) & static_cast<UnderlyingType>(b);
+  return 0;
 }
 
 }  // namespace snake::game

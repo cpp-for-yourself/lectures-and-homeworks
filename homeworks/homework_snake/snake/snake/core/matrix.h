@@ -22,7 +22,7 @@ class Matrix {
     data_.resize(rows * cols);
   }
 
-  // TODO(student): Implement checked access with at(row, col)
+  // Checked access with at(row, col)
   [[nodiscard]] inline T& at(std::int32_t row, std::int32_t col) {
     return data_.at(index(row, col));
   }
@@ -30,7 +30,7 @@ class Matrix {
     return data_.at(index(row, col));
   }
 
-  // TODO(student): Implement fast unchecked access with operator()
+  // Fast unchecked access with operator()
   [[nodiscard]] inline T& operator()(std::int32_t row,
                                      std::int32_t col) noexcept {
     return data_[index(row, col)];
@@ -54,10 +54,10 @@ class Matrix {
   [[nodiscard]] inline auto cend() const { return data_.cend(); }
 
  private:
-  [[nodiscard]] inline std::int32_t index(std::int32_t row,
-                                          std::int32_t col) const noexcept {
-    // Flatten 2D coordinate into 1D array index
-    return row * cols_ + col;
+  [[nodiscard]] inline std::int32_t index(std::int32_t,
+                                          std::int32_t) const noexcept {
+    // TODO(student): Flatten 2D coordinate into 1D array index (row * cols_ + col)
+    return 0;
   }
 
   std::int32_t rows_{};

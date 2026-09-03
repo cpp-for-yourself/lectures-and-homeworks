@@ -24,7 +24,7 @@ The game is split into three main modules:
 First, we need solid mathematical and grid foundations.
 You will implement a generic 2D vector template class, `Vector2D`, which provides `FromXY()` and `FromRowCol()` factory methods. Why both? Because in graphics and terminal programming, the horizontal coordinate is $X$ but the vertical row is $Y$. Trust me, keeping this clear from day one will save you hours of head-scratching!
 
-You will also implement a generic `Matrix` class that represents a 2D grid stored in a flat `std::vector`. If this sounds familiar, that's because you already saw this 1D indexing technique when we worked with images in the Pixelator project.
+You will also work with a generic `Matrix` class that represents a 2D grid stored in a flat `std::vector`, where you'll implement the row-major 1D indexing formula. If this sounds familiar, that's because you already saw this technique when we worked with images in the Pixelator project.
 
 ### 2. The Game Entities (`game`)
 Next, we bring the game world to life.
@@ -50,7 +50,7 @@ So, I have completely pre-built the `ui` module for you! It contains `TerminalIo
 
 <!-- Talking head -->
 To tackle this project without getting overwhelmed, follow the milestones in the homework guide:
-1. **Milestone 1**: Build your `Vector2D`, `Matrix`, and `Heading`.
+1. **Milestone 1**: Build your `Vector2D`, `Matrix` indexing, and `Heading`.
 2. **Milestone 2**: Implement `World` and `Snake`.
 3. **Milestone 3**: Implement the `Game` engine loop, collisions, and thread synchronization.
 4. **Milestone 4**: Wire the callbacks in `main.cpp`, run the binary, and play your game!
@@ -58,7 +58,7 @@ To tackle this project without getting overwhelmed, follow the milestones in the
 Notice that in the starter skeleton, I only give you very minimal smoke tests. Writing your own thorough unit tests for each class is a core part of this exercise! Think about edge cases—what happens when the snake turns 180 degrees? What happens when a coordinate is out of bounds? Test it all!
 
 <!-- Screen record: Show tests passing and game launching -->
-When you submit your homework, our automated checker will run your tests, and then inject our own rigorous validation tests to check all the requirements.
+When you submit your homework, our automated checker will run your tests, and then inject our own rigorous validation tests across four stages to check each component independently.
 
 <!-- Talking head -->
 Now, a very important word on your mindset for this project.

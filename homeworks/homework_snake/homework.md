@@ -195,12 +195,11 @@ Represents a generic 2D dense grid `Matrix<T>` backed internally by a flat, cont
    - Must provide `rows()` and `cols()` accessors.
    - Constructor `Matrix(rows, cols, init_val)` must initialize a continuous internal vector of size `rows * cols` with the provided initial value.
    - Must provide `data()` accessor returning a reference to the underlying `std::vector<T>`.
-2. **Element Access:**
-   - Provide fast unchecked element access via `operator()(row, col)` (both `const` and non-`const`).
-   - Provide checked element access via `at(row, col)` (both `const` and non-`const`). Accessing indices out of the underlying vector bounds must throw `std::out_of_range`.
-   - The 2D-to-1D mapping formula must follow row-major order: `index = row * cols + col`.
+2. **2D-to-1D Indexing (`index(row, col)`):**
+   - The element access operators `operator()` and checked access `at()` are already provided and delegate to an internal helper `index(row, col)`.
+   - You need to implement `index(row, col)` to map 2D coordinates to a 1D continuous array index following row-major order: `index = row * cols + col`.
 3. **Iterators:**
-   - Implement `begin()`, `end()`, `cbegin()`, and `cend()` forwarding to the underlying vector so that `Matrix<T>` works with range-based `for` loops.
+   - Iterators (`begin()`, `end()`, `cbegin()`, `cend()`) forward to the underlying vector so that `Matrix<T>` works with range-based `for` loops.
 
 ---
 
@@ -335,7 +334,7 @@ In `snake/main.cpp`, you will instantiate your components and wire them together
 
 Follow this incremental roadmap to build the project without getting overwhelmed:
 
-- [ ] **Milestone 1 (Core Math):** Implement `Vector2D` and `Matrix`. Write unit tests in `vector_2d_test.cpp` and `matrix_test.cpp` verifying constructors, coordinate mapping, operators, and bounds checking.
+- [ ] **Milestone 1 (Core Math):** Implement `Vector2D` and `Matrix::index()`. Write unit tests in `vector_2d_test.cpp` and `matrix_test.cpp` verifying constructors, coordinate mapping, operators, and bounds checking.
 - [ ] **Milestone 2 (Game Rules):** Implement `Heading`, `World`, and `Snake`. Write unit tests verifying wall generation, 180-degree turn rejection, movement, fruit growth, and self-collision.
 - [ ] **Milestone 3 (Game Engine & Concurrency):** Implement `Game` with `std::thread`, `std::mutex`, and `NextCycle()`. Write unit tests verifying that callbacks fire, walls end the game, eating fruit increments the score, and multithreading causes no data races.
 - [ ] **Milestone 4 (Integration & Play!):** Connect everything in `main.cpp`, build the executable, run `./build/snake/main`, and enjoy playing the game you built from scratch!
@@ -347,7 +346,7 @@ Follow this incremental roadmap to build the project without getting overwhelmed
 When you submit your homework, the automated homework checker bot will run the following pipeline:
 1. **Configure & Build:** Your project is configured with strict compiler flags (`-Wall -Wextra -Wpedantic`) and built.
 2. **Student Tests:** All unit tests defined in your project are executed via `ctest`.
-3. **Injected Validation Tests:** Hidden validation tests designed to check edge cases (direction reversal rejection, multi-fruit growth, boundary checks with `std::optional`, thread synchronization) are injected into your build and run.
+3. **Injected Validation Tests:** Hidden validation tests are injected in four distinct stages (`core`, `world`, `snake`, and `game`) to verify edge cases and requirements for each component independently.
 4. **Headless Simulation:** The bot executes `./build/examples/simulate_game` to confirm end-to-end simulation correctness in a non-interactive environment.
 
 ---

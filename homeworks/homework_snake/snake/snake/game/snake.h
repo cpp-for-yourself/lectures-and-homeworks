@@ -2,31 +2,33 @@
 #define SNAKE_GAME_SNAKE_H_
 
 #include <absl/container/flat_hash_set.h>
-#include <game/heading.h>
 
-#include <cstdint>
+#include <cstddef>
 #include <deque>
-#include <tuple>
+#include <utility>
 
 #include "core/vector_2d.h"
+#include "game/heading.h"
 
 namespace snake::game {
 
 ///
-/// @brief      The snake class.
-///
-/// @details    - Snake has a heading (direction of movement).
-///             - Snake body is a sequence of cells (std::deque).
-///             - When moving, head advances by 1 cell; tail pops unless growing.
-///             - When fruit is eaten, expected_length increases.
+/// @brief      This class encapsulates the snake.
 ///
 class Snake {
-  using CellHashSet =
-      absl::flat_hash_set<std::tuple<std::int32_t, std::int32_t>>;
-
  public:
-  explicit Snake(core::Vector2i start_coordinate,
-                 Heading heading,
+  using CellHash = absl::Hash<std::pair<std::int32_t, std::int32_t>>;
+  using CellHashSet =
+      absl::flat_hash_set<std::pair<std::int32_t, std::int32_t>, CellHash>;
+
+  ///
+  /// @brief      Construct a snake given its starting position and heading.
+  ///
+  /// @param[in]  start_coordinate  The starting coordinate of the snake.
+  /// @param[in]  heading           The starting heading of the snake.
+  /// @param[in]  expected_length   The initial expected length (default 1).
+  ///
+  explicit Snake(const core::Vector2i& start_coordinate, Heading heading,
                  std::size_t expected_length = 1UL) noexcept
       : heading_{heading}, expected_length_{expected_length} {
     [[maybe_unused]] auto res = AddNewCoordinateToBody(start_coordinate);
@@ -49,7 +51,8 @@ class Snake {
     return head();
   }
   [[nodiscard]] inline const core::Vector2i& head() const noexcept {
-    return body_.front();
+    static const core::Vector2i empty{};
+    return body_.empty() ? empty : body_.front();
   }
   [[nodiscard]] inline const std::deque<core::Vector2i>& body() const noexcept {
     return body_;
@@ -59,8 +62,8 @@ class Snake {
   [[nodiscard]] bool Contains(const core::Vector2i& cell) const noexcept;
 
  private:
-  [[nodiscard]] inline core::Vector2i& head_reference() noexcept {
-    return body_.front();
+  [[nodiscard]] const core::Vector2i& tail() const noexcept {
+    return body_.back();
   }
 
   [[nodiscard]] bool AddNewCoordinateToBody(
