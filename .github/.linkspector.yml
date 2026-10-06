@@ -1,0 +1,17 @@
+dirs:
+  - .
+excludedDirs:
+  - workflows
+  - animation
+  - scripts
+aliveStatusCodes:
+  - 200
+  - 206
+  - 403
+ignorePatterns:
+  - pattern: "^https://bazel.build"
+  - pattern: "^https://makefiletutorial.com"
+modifiedFilesOnly: true
+replacementPatterns:
+  - pattern: "<a href=\"https://youtu.be/blah\"></a>"
+    replacement: "[blah](https://blah.blah)"
